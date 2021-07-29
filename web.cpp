@@ -336,7 +336,6 @@ void handleSaveWifi()
    if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
    }else{
-    // json.printTo(configFile);
      serializeJson(doc, configFile);
    }
   serverWeb.send(200, "text/html", "Save config OK ! <br><form method='GET' action='reboot'><input type='submit' name='reboot' value='Reboot'></form>");
@@ -373,7 +372,6 @@ void handleSaveEther()
    if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
    }else{
-    // json.printTo(configFile);
      serializeJson(doc, configFile);
    }
   serverWeb.send(200, "text/html", "Save config OK ! <br><form method='GET' action='reboot'><input type='submit' name='reboot' value='Reboot'></form>");

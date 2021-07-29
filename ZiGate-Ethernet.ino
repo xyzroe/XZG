@@ -282,10 +282,9 @@ void setup(void)
   
   if (!ConfigSettings.dhcp)
   {
-   // ETH.config(parse_ip_address(ConfigSettings.ipAddress),parse_ip_address(ConfigSettings.ipGW),parse_ip_address(ConfigSettings.ipMask),parse_ip_address(ConfigSettings.ipGW),parse_ip_address(ConfigSettings.ipGW));
     ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW),parse_ip_address(ConfigSettings.ipMask));
   }
-  //Serial.println("after 2 sprintf");
+
   //Config PiZiGate
   pinMode(RESET_ZIGATE, OUTPUT);
   pinMode(FLASH_ZIGATE, OUTPUT);
@@ -328,31 +327,17 @@ void loop(void)
   uint8_t serial_buf[BUFFER_SIZE];
 
   webServerHandleClient();
-  
-    /*if (modeWiFi=="STA")
-    {
-      if(WiFi.status() != WL_CONNECTED) {
-        // we've lost the connection, so we need to reconnect
-        if(client) {
-          client.stop();
-        }
-        setupSTAWifi();
-      }
-   } */
-    
-    // Check if a client has connected
-    if (!client) {
-      // eat any bytes in the swSer buffer as there is nothing to see them
-      while(Serial2.available()) {
-        Serial2.read();
-      }
-        
-      client = server.available();
-      /*if(!client) {      
-        return;
-      }*/
-  
+   
+  // Check if a client has connected
+  if (!client) {
+    // eat any bytes in the swSer buffer as there is nothing to see them
+    while(Serial2.available()) {
+      Serial2.read();
     }
+      
+    client = server.available();
+
+  }
   #define min(a,b) ((a)<(b)?(a):(b))
     char output_sprintf[2];
     if(client.connected()) 
@@ -388,7 +373,7 @@ void loop(void)
             logPush(output_sprintf[1]);
           }
           logPush('\n');
-          //Serial.write(net_buf, bytes_read);
+      
         }
         Serial2.flush();
       }
