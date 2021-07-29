@@ -1,5 +1,7 @@
 # ZiGate-Ethernet
- Ethernet platform for PiZiGate
+ Ethernet platform for PiZiGate.
+ 
+ ![ZiGate-Ethernet](https://.jpg)
  
 # Firmware
 The platform use an ESP32 (16MB flash) with LAN8720 driver for ethernet
