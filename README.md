@@ -16,3 +16,13 @@ This program use following libraries :
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
 
 Please be sure libraries are installed before compile
+
+# Screenshots
+## Status
+![status](https://github.com/fairecasoimeme/ZiGate-Ethernet/blob/master/screenshots/status.jpg)
+## WiFi
+![wifi](https://github.com/fairecasoimeme/ZiGate-Ethernet/blob/master/screenshots/wifi.jpg)
+## Ethernet
+![Ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet/blob/master/screenshots/ethernet.JPG)
+## Console
+![console](https://github.com/fairecasoimeme/ZiGate-Ethernet/blob/master/screenshots/console.jpg)
