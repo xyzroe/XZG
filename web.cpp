@@ -3,7 +3,7 @@
 #include "WiFi.h"
 #include <WebServer.h>
 #include "FS.h"
-#include "SPIFFS.h"
+#include "LITTLEFS.h"
 #include "web.h"
 #include "config.h"
 #include "log.h"
@@ -172,15 +172,17 @@ const char HTTP_ROOT[] PROGMEM =
 
 void initWebServer()
 {
-  serverWeb.serveStatic("/web/js/jquery-min.js", SPIFFS, "/web/js/jquery-min.js");
-  serverWeb.serveStatic("/web/js/functions.js", SPIFFS, "/web/js/functions.js");
-  serverWeb.serveStatic("/web/js/bootstrap.min.js", SPIFFS, "/web/js/bootstrap.min.js");
-  serverWeb.serveStatic("/web/js/bootstrap.min.js.map", SPIFFS, "/web/js/bootstrap.min.js.map");
-  serverWeb.serveStatic("/web/css/bootstrap.min.css", SPIFFS, "/web/css/bootstrap.min.css");
-  serverWeb.serveStatic("/web/css/style.css", SPIFFS, "/web/css/style.css");
-  serverWeb.serveStatic("/web/img/logo.png", SPIFFS, "/web/img/logo.png");
-  serverWeb.serveStatic("/web/img/wait.gif", SPIFFS, "/web/img/wait.gif");
-  serverWeb.serveStatic("/web/img/", SPIFFS, "/web/img/");
+  serverWeb.serveStatic("/web/js/jquery-min.js", LITTLEFS, "/web/js/jquery-min.js");
+  serverWeb.serveStatic("/web/js/functions.js", LITTLEFS, "/web/js/functions.js");
+  serverWeb.serveStatic("/web/js/bootstrap.min.js", LITTLEFS, "/web/js/bootstrap.min.js");
+  serverWeb.serveStatic("/web/js/bootstrap.min.js.map", LITTLEFS, "/web/js/bootstrap.min.js.map");
+  serverWeb.serveStatic("/web/css/bootstrap.min.css", LITTLEFS, "/web/css/bootstrap.min.css");
+  serverWeb.serveStatic("/web/css/style.css", LITTLEFS, "/web/css/style.css");
+  serverWeb.serveStatic("/web/img/logo.png", LITTLEFS, "/web/img/logo.png");
+  serverWeb.serveStatic("/web/img/wait.gif", LITTLEFS, "/web/img/wait.gif");
+  serverWeb.serveStatic("/web/img/nok.png", LITTLEFS, "/web/img/nok.png");
+  serverWeb.serveStatic("/web/img/ok.png", LITTLEFS, "/web/img/ok.png");
+  serverWeb.serveStatic("/web/img/", LITTLEFS, "/web/img/");
   serverWeb.on("/", handleRoot);
   serverWeb.on("/wifi", handleWifi);
   serverWeb.on("/ethernet", handleEther);
@@ -325,14 +327,14 @@ void handleSaveWifi()
     String ipGW = serverWeb.arg("ipGW");
     String tcpListenPort = serverWeb.arg("tcpListenPort");
 
-    const char * path = "/config.json";
+    const char * path = "/config/config.json";
 
    StringConfig = "{\"enableWiFi\":"+enableWiFi+",\"ssid\":\""+ssid+"\",\"pass\":\""+pass+"\",\"ip\":\""+ipAddress+"\",\"mask\":\""+ipMask+"\",\"gw\":\""+ipGW+"\",\"tcpListenPort\":\""+tcpListenPort+"\"}";    
    StaticJsonDocument<512> jsonBuffer;
    DynamicJsonDocument doc(1024);
    deserializeJson(doc, StringConfig);
    
-   File configFile = SPIFFS.open(path, FILE_WRITE);
+   File configFile = LITTLEFS.open(path, FILE_WRITE);
    if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
    }else{
@@ -359,7 +361,7 @@ void handleSaveEther()
     String ipMask = serverWeb.arg("ipMask");
     String ipGW = serverWeb.arg("ipGW");
 
-    const char * path = "/configEther.json";
+    const char * path = "/config/configEther.json";
 
     
    StringConfig = "{\"dhcp\":"+dhcp+",\"ip\":\""+ipAddress+"\",\"mask\":\""+ipMask+"\",\"gw\":\""+ipGW+"\"}";    
@@ -368,7 +370,7 @@ void handleSaveEther()
    DynamicJsonDocument doc(1024);
    deserializeJson(doc, StringConfig);
    
-   File configFile = SPIFFS.open(path, FILE_WRITE);
+   File configFile = LITTLEFS.open(path, FILE_WRITE);
    if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
    }else{
@@ -464,7 +466,7 @@ void handleFSbrowser()
    result +=F("<ul class='nav navbar-nav'>");
         
     String str = "";
-    File dir = SPIFFS.open("/config/");
+    File dir = LITTLEFS.open("/config/");
     while (dir.openNextFile()) {
       String tmp =  dir.name();
         tmp = tmp.substring(8);    
@@ -500,7 +502,7 @@ void handleReadfile()
 {
   String result;
   String filename = "/config/"+serverWeb.arg(0);
-  File file = SPIFFS.open(filename, "r");
+  File file = LITTLEFS.open(filename, "r");
  
   if (!file) {
     return;

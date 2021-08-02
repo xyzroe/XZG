@@ -7,7 +7,7 @@
 #include <WebServer.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
-#include "SPIFFS.h"
+#include "LITTLEFS.h"
 #include "config.h"
 #include "web.h"
 #include "log.h"
@@ -34,6 +34,9 @@
 
 // Pin# of the I²C IO signal for the Ethernet PHY
 #define ETH_MDIO_PIN    18
+
+#define FORMAT_LITTLEFS_IF_FAILED true
+
 
 // application config
 unsigned long timeLog;
@@ -123,9 +126,9 @@ IPAddress parse_ip_address(const char *str) {
 }
 
 bool loadConfigWifi() {
-  const char * path = "/config.json";
+  const char * path = "/config/config.json";
   
-  File configFile = SPIFFS.open(path, FILE_READ);
+  File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
     return false;
@@ -148,9 +151,9 @@ bool loadConfigWifi() {
 }
 
 bool loadConfigEther() {
-  const char * path = "/configEther.json";
+  const char * path = "/config/configEther.json";
   
-  File configFile = SPIFFS.open(path, FILE_READ);
+  File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile) {
     DEBUG_PRINTLN(F("failed open"));
     return false;
@@ -247,17 +250,17 @@ void setup(void)
   ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
   
   
-  if (!SPIFFS.begin()) {
-    DEBUG_PRINTLN(F("Erreur SPIFFS"));
+  if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2",10)) {
+    Serial.println("Erreur LITTLEFS");
     return;
   }
 
-  DEBUG_PRINTLN(F("SPIFFS OK"));
+  DEBUG_PRINTLN(F("LITTLEFS OK"));
   if ((!loadConfigWifi()) || (!loadConfigEther())) {
-      DEBUG_PRINTLN(F("Erreur Loadconfig SPIFFS"));   
+      DEBUG_PRINTLN(F("Erreur Loadconfig LITTLEFS"));   
   } else {
     configOK=true;
-    DEBUG_PRINTLN(F("Conf ok SPIFFS"));
+    DEBUG_PRINTLN(F("Conf ok LITTLEFS"));
   }
 
   if (ConfigSettings.enableWiFi)
