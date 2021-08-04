@@ -3,6 +3,8 @@ void webServerHandleClient();
 void handleRoot();
 void handleWifi();
 void handleEther();
+void handleSerial();
+void handleSaveSerial();
 void handleNotFound();
 void handleSaveWifi();
 void handleSaveEther();

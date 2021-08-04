@@ -44,7 +44,8 @@ const char HTTP_HEADER[] PROGMEM =
     "</li>"
     "<li class='nav-item dropdown'>"
       "<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Config</a>"
-      "<div class='dropdown-menu' aria-labelledby='navbarDropdown'>"         
+      "<div class='dropdown-menu' aria-labelledby='navbarDropdown'>"   
+          "<a class='dropdown-item' href='/serial'>Serial</a>"      
           "<a class='dropdown-item' href='/ethernet'>Ethernet</a>"
           "<a class='dropdown-item' href='/wifi'>WiFi</a>"
       "</div>"
@@ -92,6 +93,27 @@ const char HTTP_WIFI[] PROGMEM =
    "Server Port : <br>{{port}}<br><br>"
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
   "</form>";
+
+const char HTTP_SERIAL[] PROGMEM = 
+ "<h1>Config Serial</h1>"
+  "<div class='row justify-content-md-center' >"
+    "<div class='col-sm-6'><form method='POST' action='saveSerial'>"
+    
+   "<div class='form-group'>"
+    "<label for='baud'>Speed</label>"
+  "<select class='form-control' id='baud' name='baud'>"
+    "<option value='9600' {{selected9600}}>9600 bauds</option>"
+    "<option value='19200' {{selected19200}}>19200 bauds</option>"
+    "<option value='38400' {{selected38400}}>38400 bauds</option>"
+    "<option value='115200' {{selected115200}}>115200 bauds</option>"
+  "</select>"
+  "</div>"
+   "<br><br>"
+  "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
+  "</form>";
+
+
+
 
 const char HTTP_ETHERNET[] PROGMEM = 
  "<h1>Config Ethernet</h1>"
@@ -186,6 +208,8 @@ void initWebServer()
   serverWeb.on("/", handleRoot);
   serverWeb.on("/wifi", handleWifi);
   serverWeb.on("/ethernet", handleEther);
+  serverWeb.on("/serial", handleSerial);
+  serverWeb.on("/saveSerial", HTTP_POST, handleSaveSerial);
   serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
   serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
   serverWeb.on("/tools", handleTools);
@@ -244,6 +268,29 @@ void handleWifi() {
 
 
   serverWeb.send(200,"text/html", result);
+  
+}
+
+void handleSerial() {
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result += FPSTR(HTTP_SERIAL);
+  result += F("</html>");
+  if (ConfigSettings.serialSpeed == 9600)
+  {
+     result.replace("{{selected9600}}","Selected");
+  }else if (ConfigSettings.serialSpeed == 19200){
+     result.replace("{{selected19200}}","Selected");
+  }else if (ConfigSettings.serialSpeed == 38400){
+     result.replace("{{selected38400}}","Selected");
+  }else if (ConfigSettings.serialSpeed == 115200){
+     result.replace("{{selected115200}}","Selected");
+  }else{
+     result.replace("{{selected115200}}","Selected");
+  }
+  
+ serverWeb.send(200,"text/html", result);
   
 }
 
@@ -343,6 +390,27 @@ void handleSaveWifi()
   serverWeb.send(200, "text/html", "Save config OK ! <br><form method='GET' action='reboot'><input type='submit' name='reboot' value='Reboot'></form>");
   
  
+}
+
+void handleSaveSerial()
+{
+  String StringConfig;
+  String serialSpeed = serverWeb.arg("baud");
+  const char * path="/config/configSerial.json";
+
+  StringConfig = "{\"baud\":"+serialSpeed+"}";
+  DEBUG_PRINTLN(StringConfig);
+  StaticJsonDocument<512> jsonBuffer;
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, StringConfig);
+  
+  File configFile = LITTLEFS.open(path, FILE_WRITE);
+  if (!configFile) {
+  DEBUG_PRINTLN(F("failed open"));
+  }else{
+   serializeJson(doc, configFile);
+  }
+  serverWeb.send(200, "text/html", "Save config OK ! <br><form method='GET' action='reboot'><input type='submit' name='reboot' value='Reboot'></form>");
 }
 
 void handleSaveEther()

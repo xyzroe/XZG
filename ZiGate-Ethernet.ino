@@ -45,7 +45,7 @@ ZiGateInfosStruct ZiGateInfos;
 bool configOK=false;
 String modeWiFi="STA";
 
-#define BAUD_RATE 115200
+#define BAUD_RATE 38400
 #define TCP_LISTEN_PORT 9999
 
 // if the bonjour support is turned on, then use the following as the name
@@ -53,10 +53,6 @@ String modeWiFi="STA";
 
 // serial end ethernet buffer size
 #define BUFFER_SIZE 128
-
-
-
-#define VERSION 1.0
 
 #define WL_MAC_ADDR_LENGTH 6
 
@@ -171,6 +167,22 @@ bool loadConfigEther() {
   return true;
 }
 
+bool loadConfigSerial() {
+  const char * path = "/config/configSerial.json";
+  
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  if (!configFile) {
+    DEBUG_PRINTLN(F("failed open"));
+    return false;
+  }
+
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc,configFile);
+
+  ConfigSettings.serialSpeed = (int)doc["baud"];
+  return true;
+}
+
 
 void setupWifiAP()
 {
@@ -238,15 +250,8 @@ void setup(void)
  
   Serial.begin(115200);
   DEBUG_PRINTLN(F("Start"));
-  if (digitalRead(FLASH_ZIGATE)!=0)
-  {
-    Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
-    DEBUG_PRINTLN(F("Mode Prod"));
-  }else{
-     DEBUG_PRINTLN(F("Mode Flash"));
-  }
+  
   WiFi.onEvent(WiFiEvent);
- 
   ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
   
   
@@ -256,13 +261,25 @@ void setup(void)
   }
 
   DEBUG_PRINTLN(F("LITTLEFS OK"));
-  if ((!loadConfigWifi()) || (!loadConfigEther())) {
+  if ((!loadConfigWifi()) || (!loadConfigEther())|| (!loadConfigSerial())) {
       DEBUG_PRINTLN(F("Erreur Loadconfig LITTLEFS"));   
   } else {
     configOK=true;
     DEBUG_PRINTLN(F("Conf ok LITTLEFS"));
   }
 
+  if (digitalRead(FLASH_ZIGATE)!=0)
+  {
+    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+    if (configOK)
+    {
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, RXD2, TXD2);
+      DEBUG_PRINTLN(F("Mode Prod"));
+    }
+  }else{
+     DEBUG_PRINTLN(F("Mode Flash"));
+  }
+  
   if (ConfigSettings.enableWiFi)
   {
     if (configOK)
@@ -396,7 +413,7 @@ void loop(void)
       }
       if (buffOK)
       {
-        uint8_t tmp[128];
+       // uint8_t tmp[128];
         for (int i=0;i<bytes_read;i++)
         {
           sprintf(output_sprintf,"%02x",serial_buf[i]);

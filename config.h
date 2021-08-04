@@ -27,6 +27,7 @@ struct ConfigSettingsStruct {
   char ipAddress[18];
   char ipMask[16];
   char ipGW[18];
+  int serialSpeed;
   int  tcpListenPort;
 };
 
