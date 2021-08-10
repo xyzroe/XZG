@@ -18,3 +18,4 @@ void handleLogBuffer();
 void handleScanNetwork();
 void handleClearConsole();
 void handleGetVersion();
+void handleHelp();

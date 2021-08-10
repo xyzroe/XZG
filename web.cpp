@@ -55,7 +55,7 @@ const char HTTP_HEADER[] PROGMEM =
       
     "</li>"
     "<li class='nav-item'>"
-      "<a class='nav-link' href='#'>Help</a>"
+      "<a class='nav-link' href='/help'>Help</a>"
     "</li>"
   "</ul></div>"
   "</nav>";
@@ -112,7 +112,18 @@ const char HTTP_SERIAL[] PROGMEM =
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
   "</form>";
 
+const char HTTP_HELP[] PROGMEM = 
+ "<h1>Help !</h1>"
+ 
+    "<h3>Shop & description</h3>"
+    "You can go to this url :</br>"
+    "<a href=\"https://zigate.fr/boutique\" target='_blank'>Shop </a></br>"
+    "<a href=\"https://zigate.fr/documentation/descriptif-de-la-zigate-ethernet/\" target='_blank'>Description</a></br>"
+    "<h3>Firmware Source & Issues</h3>"
+    "Please go here :</br>"
+    "<a href=\"https://github.com/fairecasoimeme/ZiGate-Ethernet\" target='_blank'>Sources</a>";
 
+  
 
 
 const char HTTP_ETHERNET[] PROGMEM = 
@@ -221,6 +232,7 @@ void initWebServer()
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
   serverWeb.on("/cmdGetVersion", handleGetVersion);
+  serverWeb.on("/help", handleHelp);
   serverWeb.onNotFound(handleNotFound);
   serverWeb.begin();
 }
@@ -243,6 +255,18 @@ void handleNotFound() {
   serverWeb.send(404, F("text/plain"), message);
 
 }
+
+void handleHelp() {
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result += FPSTR(HTTP_HELP);
+  result += F("</html>");
+   
+  serverWeb.send(200,"text/html", result);
+  
+}
+
 
 void handleWifi() {
   String result;
