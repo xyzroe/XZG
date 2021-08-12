@@ -186,20 +186,7 @@ const char HTTP_ROOT[] PROGMEM =
         "</div>"
      "</div>"
   "</div>"
- "<div class='row'>"
-      "<div class='col-sm-6'>"
-        "<div class='card'>"
-            "<div class='card-header'>ZiGate</div>"
-            "<div class='card-body'>"
-              "<div id='ZiGateConfig'>"
-                "<strong>Version : </strong>{{ZiGateVersion}}"
-              "</div>"
-            "</div>"
-        "</div>"
-     "</div>"
-  "</div>"
- 
- 
+
  
  ;
 
