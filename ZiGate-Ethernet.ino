@@ -52,7 +52,7 @@ String modeWiFi="STA";
 #define DEVICE_NAME "ser2net"
 
 // serial end ethernet buffer size
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 2048
 
 #define WL_MAC_ADDR_LENGTH 6
 
@@ -207,6 +207,7 @@ void setupWifiAP()
   memset(WIFIPASS,0,WIFIPASSSTR.length()+1);
   for (int i=0; i<WIFIPASSSTR.length(); i++)
     WIFIPASS[i] = WIFIPASSSTR.charAt(i);
+
 
   WiFi.softAP(AP_NameChar,WIFIPASS );
   WiFi.setSleep(false);
