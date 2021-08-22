@@ -105,6 +105,7 @@ const char HTTP_SERIAL[] PROGMEM =
     "<option value='9600' {{selected9600}}>9600 bauds</option>"
     "<option value='19200' {{selected19200}}>19200 bauds</option>"
     "<option value='38400' {{selected38400}}>38400 bauds</option>"
+    "<option value='57600' {{selected57600}}>57600 bauds</option>"
     "<option value='115200' {{selected115200}}>115200 bauds</option>"
   "</select>"
   "</div>"
@@ -295,6 +296,8 @@ void handleSerial() {
      result.replace("{{selected19200}}","Selected");
   }else if (ConfigSettings.serialSpeed == 38400){
      result.replace("{{selected38400}}","Selected");
+  }else if (ConfigSettings.serialSpeed == 57600){
+     result.replace("{{selected57600}}","Selected");
   }else if (ConfigSettings.serialSpeed == 115200){
      result.replace("{{selected115200}}","Selected");
   }else{
