@@ -46,6 +46,7 @@ const char HTTP_HEADER[] PROGMEM =
     "<li class='nav-item dropdown'>"
       "<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Config</a>"
       "<div class='dropdown-menu' aria-labelledby='navbarDropdown'>"   
+          "<a class='dropdown-item' href='/general'>General</a>"
           "<a class='dropdown-item' href='/serial'>Serial</a>"      
           "<a class='dropdown-item' href='/ethernet'>Ethernet</a>"
           "<a class='dropdown-item' href='/wifi'>WiFi</a>"
@@ -153,6 +154,17 @@ const char HTTP_ETHERNET[] PROGMEM =
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
   "</form>";
 
+const char HTTP_GENERAL[] PROGMEM=
+"<h1>General</h1>"
+"<div class='row justify-content-md-center' >"
+    "<div class='col-sm-6'><form method='POST' action='saveGeneral'>"
+    "<div class='form-check'>"
+    "<input class='form-check-input' id='disableWeb' type='checkbox' name='disableWeb' {{disableWeb}}>"
+    "<label class='form-check-label' for='disableWeb'>Disable web server when ZiGate is connected</label>"
+  "</div>"
+  "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
+  "</form></div>"
+"</div>";
 
 const char HTTP_ROOT[] PROGMEM = 
  "<h1>Status</h1>"
@@ -206,9 +218,11 @@ void initWebServer()
   serverWeb.serveStatic("/web/img/ok.png", LITTLEFS, "/web/img/ok.png");
   serverWeb.serveStatic("/web/img/", LITTLEFS, "/web/img/");
   serverWeb.on("/", handleRoot);
+  serverWeb.on("/general", handleGeneral);
   serverWeb.on("/wifi", handleWifi);
   serverWeb.on("/ethernet", handleEther);
   serverWeb.on("/serial", handleSerial);
+  serverWeb.on("/saveGeneral", HTTP_POST, handleSaveGeneral);
   serverWeb.on("/saveSerial", HTTP_POST, handleSaveSerial);
   serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
   serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
@@ -252,6 +266,23 @@ void handleHelp() {
   result += FPSTR(HTTP_HELP);
   result += F("</html>");
    
+  serverWeb.send(200,"text/html", result);
+  
+}
+
+void handleGeneral() {
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result += FPSTR(HTTP_GENERAL);
+  result += F("</html>");
+
+  if (ConfigSettings.disableWeb)
+  {
+    result.replace("{{disableWeb}}","checked");
+  }else{
+    result.replace("{{disableWeb}}","");
+  }
   serverWeb.send(200,"text/html", result);
   
 }
@@ -373,6 +404,36 @@ void handleRoot() {
   serverWeb.send(200,"text/html", result);
   
 }
+
+void handleSaveGeneral()
+{
+  String StringConfig;
+  String disableWeb;
+  if (serverWeb.arg("disableWeb")=="on")
+  {
+    disableWeb="1";
+  }else{
+    disableWeb="0";
+  }
+    
+   const char * path = "/config/configGeneral.json";
+
+   StringConfig = "{\"disableWeb\":"+disableWeb+"}";    
+   StaticJsonDocument<512> jsonBuffer;
+   DynamicJsonDocument doc(1024);
+   deserializeJson(doc, StringConfig);
+   
+   File configFile = LITTLEFS.open(path, FILE_WRITE);
+   if (!configFile) {
+    DEBUG_PRINTLN(F("failed open"));
+   }else{
+     serializeJson(doc, configFile);
+   }
+  serverWeb.send(200, "text/html", "Save config OK ! <br><form method='GET' action='reboot'><input type='submit' name='reboot' value='Reboot'></form>");
+  
+ 
+}
+
 
 void handleSaveWifi()
 {

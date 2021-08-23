@@ -29,6 +29,7 @@ struct ConfigSettingsStruct {
   char ipGW[18];
   int serialSpeed;
   int  tcpListenPort;
+  bool disableWeb;
 };
 
 struct ZiGateInfosStruct {

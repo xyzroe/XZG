@@ -141,6 +141,7 @@ bool loadConfigWifi() {
   strlcpy(ConfigSettings.ipMaskWiFi, doc["mask"] | "", sizeof(ConfigSettings.ipMaskWiFi));
   strlcpy(ConfigSettings.ipGWWiFi, doc["gw"] | "", sizeof(ConfigSettings.ipGWWiFi));
   ConfigSettings.tcpListenPort = TCP_LISTEN_PORT;
+  ConfigSettings.disableWeb = (int)doc["enableWiFi"];
 
   configFile.close();
   return true;
@@ -167,6 +168,23 @@ bool loadConfigEther() {
   return true;
 }
 
+bool loadConfigGeneral() {
+  const char * path = "/config/configGeneral.json";
+  
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  if (!configFile) {
+    DEBUG_PRINTLN(F("failed open"));
+    return false;
+  }
+
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc,configFile);
+
+  ConfigSettings.disableWeb = (int)doc["disableWeb"];
+  configFile.close();
+  return true;
+}
+
 bool loadConfigSerial() {
   const char * path = "/config/configSerial.json";
   
@@ -180,6 +198,7 @@ bool loadConfigSerial() {
   deserializeJson(doc,configFile);
 
   ConfigSettings.serialSpeed = (int)doc["baud"];
+  configFile.close();
   return true;
 }
 
@@ -262,7 +281,7 @@ void setup(void)
   }
 
   DEBUG_PRINTLN(F("LITTLEFS OK"));
-  if ((!loadConfigWifi()) || (!loadConfigEther())|| (!loadConfigSerial())) {
+  if ((!loadConfigWifi()) || (!loadConfigEther())|| (!loadConfigSerial()) || (!loadConfigGeneral())) {
       DEBUG_PRINTLN(F("Erreur Loadconfig LITTLEFS"));   
   } else {
     configOK=true;
@@ -347,7 +366,15 @@ void loop(void)
   uint8_t net_buf[BUFFER_SIZE];
   uint8_t serial_buf[BUFFER_SIZE];
 
-  webServerHandleClient();
+  if (!ConfigSettings.disableWeb)
+  {
+    webServerHandleClient();
+  }else{
+     if(!client.connected())
+     {
+        webServerHandleClient();
+     }
+  }
    
   // Check if a client has connected
   if (!client) {
