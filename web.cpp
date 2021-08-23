@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include <ETH.h>
 #include "WiFi.h"
 #include <WebServer.h>
 #include "FS.h"
@@ -352,8 +353,14 @@ void handleRoot() {
   if (ConfigSettings.dhcp)
   {
      result.replace("{{modeEther}}","DHCP");
+     result.replace("{{ipEther}}",ETH.localIP().toString());
+     result.replace("{{maskEther}}",ETH.subnetMask().toString());
+     result.replace("{{GWEther}}",ETH.gatewayIP().toString());
   }else{
      result.replace("{{modeEther}}","STATIC");
+     result.replace("{{ipEther}}",ConfigSettings.ipAddress);
+     result.replace("{{maskEther}}",ConfigSettings.ipMask);
+     result.replace("{{GWEther}}",ConfigSettings.ipGW);
   }
   if (ConfigSettings.connectedEther)
   {
@@ -361,9 +368,7 @@ void handleRoot() {
   }else{
     result.replace("{{connectedEther}}","<img src='/web/img/nok.png'>");
   }
-  result.replace("{{ipEther}}",ConfigSettings.ipAddress);
-  result.replace("{{maskEther}}",ConfigSettings.ipMask);
-  result.replace("{{GWEther}}",ConfigSettings.ipGW);
+ 
 
   serverWeb.send(200,"text/html", result);
   

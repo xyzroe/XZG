@@ -52,7 +52,7 @@ String modeWiFi="STA";
 #define DEVICE_NAME "ser2net"
 
 // serial end ethernet buffer size
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 256
 
 #define WL_MAC_ADDR_LENGTH 6
 
@@ -368,6 +368,8 @@ void loop(void)
   
       if(count > 0) 
       {      
+        //DEBUG_PRINT("Buff count : ");
+        //DEBUG_PRINTLN(count);
         bytes_read = client.read(net_buf, min(count, BUFFER_SIZE));
         Serial2.write(net_buf, bytes_read);         
         
@@ -412,6 +414,7 @@ void loop(void)
         bytes_read++;
         
       }
+
       if (buffOK)
       {
        // uint8_t tmp[128];
@@ -448,9 +451,10 @@ void loop(void)
       }
       
       if(bytes_read > 0) {  
+        //DEBUG_PRINT("bytes_read : ");
+        //DEBUG_PRINTLN(bytes_read);
         client.write((const uint8_t*)serial_buf, bytes_read);
         client.flush();
       }
-  
-  
+
 }
