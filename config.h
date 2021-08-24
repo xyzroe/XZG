@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <CircularBuffer.h>
 
-#define VERSION "v1.5a"
+#define VERSION "v1.5b"
 // hardware config
 #define RESET_ZIGATE 13
 #define FLASH_ZIGATE 14
