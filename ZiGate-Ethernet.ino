@@ -141,7 +141,7 @@ bool loadConfigWifi() {
   strlcpy(ConfigSettings.ipMaskWiFi, doc["mask"] | "", sizeof(ConfigSettings.ipMaskWiFi));
   strlcpy(ConfigSettings.ipGWWiFi, doc["gw"] | "", sizeof(ConfigSettings.ipGWWiFi));
   ConfigSettings.tcpListenPort = TCP_LISTEN_PORT;
-  ConfigSettings.disableWeb = (int)doc["enableWiFi"];
+  ConfigSettings.enableWiFi = (int)doc["enableWiFi"];
 
   configFile.close();
   return true;
@@ -181,6 +181,13 @@ bool loadConfigGeneral() {
   deserializeJson(doc,configFile);
 
   ConfigSettings.disableWeb = (int)doc["disableWeb"];
+  ConfigSettings.enableHeartBeat = (int)doc["enableHeartBeat"];
+  if ((double)doc["refreshLogs"]<1000)
+  {
+    ConfigSettings.refreshLogs = 1000;
+  }else{
+    ConfigSettings.refreshLogs = (double)doc["refreshLogs"];
+  }
   configFile.close();
   return true;
 }
@@ -359,6 +366,7 @@ String hexToDec(String hexString) {
 }
 
 WiFiClient client;
+double loopCount;
 
 void loop(void)
 {
@@ -375,12 +383,38 @@ void loop(void)
         webServerHandleClient();
      }
   }
-   
+
+
+  if (loopCount > 2000000)
+  {
+    if (ConfigSettings.enableHeartBeat)
+    {
+      Serial.println("loop");
+      //\01\02\10\10\02\10\02\10\10\03
+      char output_sprintf[2];
+      uint8_t cmd[10];
+      cmd[0]=0x01;
+      cmd[1]=0x02;
+      cmd[2]=0x10;
+      cmd[3]=0x10;
+      cmd[4]=0x02;
+      cmd[5]=0x10;
+      cmd[6]=0x02;
+      cmd[7]=0x10;
+      cmd[8]=0x10;
+      cmd[9]=0x03;
+    
+      Serial2.write(cmd,10);
+      Serial2.flush();     
+    }
+    loopCount=0; 
+  }
   // Check if a client has connected
   if (!client) {
     // eat any bytes in the swSer buffer as there is nothing to see them
     while(Serial2.available()) {
       Serial2.read();
+      
     }
       
     client = server.available();
@@ -444,6 +478,7 @@ void loop(void)
 
       if (buffOK)
       {
+        
        // uint8_t tmp[128];
         for (int i=0;i<bytes_read;i++)
         {
@@ -473,7 +508,7 @@ void loop(void)
             logPush('\n');
           }
         }
-        
+        loopCount=0;
         buffOK=false;
       }
       
@@ -483,5 +518,5 @@ void loop(void)
         client.write((const uint8_t*)serial_buf, bytes_read);
         client.flush();
       }
-
+      loopCount++;
 }

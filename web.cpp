@@ -161,6 +161,13 @@ const char HTTP_GENERAL[] PROGMEM=
     "<div class='form-check'>"
     "<input class='form-check-input' id='disableWeb' type='checkbox' name='disableWeb' {{disableWeb}}>"
     "<label class='form-check-label' for='disableWeb'>Disable web server when ZiGate is connected</label>"
+    "<br>"  
+    "<input class='form-check-input' id='enableHeartBeat' type='checkbox' name='enableHeartBeat' {{enableHeartBeat}}>"
+    "<label class='form-check-label' for='enableHeartBeat'>Enable HeartBeat (send ping to TCP when no trafic)</label>"
+    "<br>"  
+    "<label for='refreshLogs'>Refresh console log</label>"
+    "<input class='form-control' id='refreshLogs' type='text' name='refreshLogs' value='{{refreshLogs}}'>"
+    "<br>"
   "</div>"
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
   "</form></div>"
@@ -227,6 +234,7 @@ void initWebServer()
   serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
   serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
   serverWeb.on("/tools", handleTools);
+  serverWeb.on("/fsbrowser", handleFSbrowser);
   serverWeb.on("/logs", handleLogs);
   serverWeb.on("/reboot", handleReboot);
   serverWeb.on("/update", handleUpdate);
@@ -283,6 +291,16 @@ void handleGeneral() {
   }else{
     result.replace("{{disableWeb}}","");
   }
+  if (ConfigSettings.enableHeartBeat)
+  {
+    result.replace("{{enableHeartBeat}}","checked");
+  }else{
+    result.replace("{{enableHeartBeat}}","");
+  }
+
+  result.replace("{{refreshLogs}}",(String)ConfigSettings.refreshLogs);
+
+  
   serverWeb.send(200,"text/html", result);
   
 }
@@ -295,7 +313,6 @@ void handleWifi() {
   result += FPSTR(HTTP_WIFI);
   result += F("</html>");
    
-  result.replace("{{version}}","1.4");
   DEBUG_PRINTLN(ConfigSettings.enableWiFi);
   if (ConfigSettings.enableWiFi)
   {
@@ -409,16 +426,33 @@ void handleSaveGeneral()
 {
   String StringConfig;
   String disableWeb;
+  String enableHeartBeat;
+  String refreshLogs;
+  
   if (serverWeb.arg("disableWeb")=="on")
   {
     disableWeb="1";
   }else{
     disableWeb="0";
   }
+
+  if (serverWeb.arg("enableHeartBeat")=="on")
+  {
+    enableHeartBeat="1";
+  }else{
+    enableHeartBeat="0";
+  }
+
+  if (serverWeb.arg("refreshLogs").toDouble()<1000)
+  {
+    refreshLogs="1000";
+  }else{
+    refreshLogs=serverWeb.arg("refreshLogs");
+  }
     
    const char * path = "/config/configGeneral.json";
 
-   StringConfig = "{\"disableWeb\":"+disableWeb+"}";    
+   StringConfig = "{\"disableWeb\":"+disableWeb+",\"enableHeartBeat\":"+enableHeartBeat+",\"refreshLogs\":"+refreshLogs+"}";    
    StaticJsonDocument<512> jsonBuffer;
    DynamicJsonDocument doc(1024);
    deserializeJson(doc, StringConfig);
@@ -550,9 +584,11 @@ void handleLogs() {
   //result += F("</div>");
   result += F("</body>");
   result +=F("<script language='javascript'>");
-  result +=F("logRefresh(1000);");
+  result +=F("logRefresh({{refreshLogs}});");
   result +=F("</script>");
   result +=F("</html>");
+
+  result.replace("{{refreshLogs}}",(String)ConfigSettings.refreshLogs);
 
   serverWeb.send(200, F("text/html"), result);
 }
@@ -565,7 +601,7 @@ void handleTools() {
    result +=F("<h1>Tools</h1>");
    result += F("<div class='btn-group-vertical'>");
    result += F("<a href='/logs' class='btn btn-primary mb-2'>Console</button>");
-  // result += F("<a href='/fsbrowser' class='btn btn-primary mb-2'>FSbrowser</button>");
+   result += F("<a href='/fsbrowser' class='btn btn-primary mb-2'>FSbrowser</button>");
    //result += F("<a href='/update' class='btn btn-primary mb-2'>Update</button>");
    result += F("<a href='/reboot' class='btn btn-primary mb-2'>Reboot</button>");
   result += F("</div></body></html>");
@@ -614,17 +650,20 @@ void handleFSbrowser()
    result +=F("<ul class='nav navbar-nav'>");
         
     String str = "";
-    File dir = LITTLEFS.open("/config/");
-    while (dir.openNextFile()) {
-      String tmp =  dir.name();
+    File root = LITTLEFS.open("/config");
+    File file = root.openNextFile();
+    while (file) 
+    {
+      String tmp =  file.name();
         tmp = tmp.substring(8);    
         result += F("<li><a href='#' onClick=\"readfile('");
         result +=tmp;
         result+=F("');\">");
         result +=  tmp;
         result +=F(  " ( ");
-        result +=  dir.size();
+        result +=  file.size();
         result +=  F(" o)</a></li>");
+        file = root.openNextFile();
         
     }
     result += F("</ul></nav>");
