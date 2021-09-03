@@ -239,6 +239,7 @@ void initWebServer()
   serverWeb.on("/reboot", handleReboot);
   serverWeb.on("/update", handleUpdate);
   serverWeb.on("/readFile", handleReadfile);
+  serverWeb.on("/saveFile", handleSavefile);
   serverWeb.on("/getLogBuffer", handleLogBuffer);
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
@@ -700,6 +701,39 @@ void handleReadfile()
   }
   file.close();
   serverWeb.send(200, F("text/html"), result);
+}
+
+void handleSavefile()
+{
+  if (serverWeb.method() != HTTP_POST) {
+    serverWeb.send(405, F("text/plain"), F("Method Not Allowed"));
+    
+  } else 
+  {
+      String filename = "/config/"+serverWeb.arg(0);
+      String content = serverWeb.arg(1);
+      File file = LITTLEFS.open(filename, "w");
+      if (!file) 
+      {
+        DEBUG_PRINT(F("Failed to open file for reading\r\n"));
+        return;
+      }
+      
+      int bytesWritten = file.print(content);
+ 
+      if (bytesWritten > 0) 
+      {
+        DEBUG_PRINTLN(F("File was written"));
+        DEBUG_PRINTLN(bytesWritten);
+     
+      } else {
+        DEBUG_PRINTLN(F("File write failed"));
+      }
+     
+      file.close();
+      serverWeb.sendHeader(F("Location"),F("/fsbrowser"));
+      serverWeb.send(303); 
+    }
 }
 
 void handleLogBuffer()

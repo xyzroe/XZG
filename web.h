@@ -15,6 +15,7 @@ void handleReboot();
 void handleUpdate();
 void handleFSbrowser();
 void handleReadfile();
+void handleSavefile();
 void handleLogBuffer();
 void handleScanNetwork();
 void handleClearConsole();
