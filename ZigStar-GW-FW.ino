@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#define BONJOUR_SUPPORT
 #ifdef BONJOUR_SUPPORT
 #include <ESPmDNS.h>
 #endif
@@ -340,6 +341,15 @@ void setup(void)
   digitalWrite(FLASH_ZIGBEE, 1);
 
   initWebServer();
+
+  if (!MDNS.begin(DEVICE_NAME)) {
+    DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
+    while (1) {
+      delay(1000);
+    }
+  }
+  DEBUG_PRINTLN(F("mDNS responder started"));
+
   if (ConfigSettings.serialSpeed)
   {
     server.begin(ConfigSettings.socketPort);
