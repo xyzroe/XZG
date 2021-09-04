@@ -295,17 +295,17 @@ void setup(void)
     DEBUG_PRINTLN(F("Conf ok LITTLEFS"));
   }
 
-  if (digitalRead(FLASH_ZIGATE)!=0)
+  //if (digitalRead(FLASH_ZIGATE)!=0)
+  //{
+  DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+  if (configOK)
   {
-    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-    if (configOK)
-    {
-      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, RXD2, TXD2);
-      DEBUG_PRINTLN(F("Mode Prod"));
-    }
-  }else{
-     DEBUG_PRINTLN(F("Mode Flash"));
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, RXD2, TXD2);
+    DEBUG_PRINTLN(F("Mode Prod"));
   }
+  //}else{
+  //   DEBUG_PRINTLN(F("Mode Flash"));
+  //}
   
   if (ConfigSettings.enableWiFi)
   {

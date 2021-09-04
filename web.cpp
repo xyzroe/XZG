@@ -175,7 +175,7 @@ const char HTTP_GENERAL[] PROGMEM=
 
 const char HTTP_ROOT[] PROGMEM = 
  "<h1>Status</h1>"
-  "<div class='row'>"
+  "<div class='row justify-content-md-center'>"
       "<div class='col-sm-6'>"
         "<div class='card'>"
           "<div class='card-header'>Ethernet</div>"
@@ -191,7 +191,7 @@ const char HTTP_ROOT[] PROGMEM =
         "</div>"
       "</div>"
   "</div>"
- "<div class='row'>"
+ "<div class='row justify-content-md-center'>"
       "<div class='col-sm-6'>"
         "<div class='card'>"
             "<div class='card-header'>Wifi</div>"
@@ -600,12 +600,13 @@ void handleTools() {
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
    result +=F("<h1>Tools</h1>");
+   result += F("<div class='row justify-content-md-center'>");
    result += F("<div class='btn-group-vertical'>");
    result += F("<a href='/logs' class='btn btn-primary mb-2'>Console</button>");
    result += F("<a href='/fsbrowser' class='btn btn-primary mb-2'>FSbrowser</button>");
-   //result += F("<a href='/update' class='btn btn-primary mb-2'>Update</button>");
+   result += F("<a href='/update' class='btn btn-primary mb-2'>Update</button>");
    result += F("<a href='/reboot' class='btn btn-primary mb-2'>Reboot</button>");
-  result += F("</div></body></html>");
+  result += F("</div></div></body></html>");
 
   serverWeb.send(200, F("text/html"), result);
 }
