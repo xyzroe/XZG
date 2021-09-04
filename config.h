@@ -4,15 +4,15 @@
 #include <Arduino.h>
 #include <CircularBuffer.h>
 
-#define VERSION "v1.5c"
+#define VERSION "v0.1"
 // hardware config
-#define RESET_ZIGATE 13
-#define FLASH_ZIGATE 14
+#define RESET_ZIGATE 33//13
+#define FLASH_ZIGATE 32//14
 #define PRODUCTION 1
 #define FLASH 0
 
-#define RXD2 2 //16
-#define TXD2 4 //17
+#define RXD2 5//2 //16
+#define TXD2 17//4 //17
 
 // ma structure config
 struct ConfigSettingsStruct {

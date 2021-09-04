@@ -20,8 +20,8 @@
 #ifdef ETH_CLK_MODE
 #undef ETH_CLK_MODE
 #endif
-#define ETH_CLK_MODE    ETH_CLOCK_GPIO17_OUT
-#define ETH_POWER_PIN   -1
+#define ETH_CLK_MODE    ETH_CLOCK_GPIO0_IN//ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN   16//-1
 
 // Type of the Ethernet PHY (LAN8720 or TLK110)
 #define ETH_TYPE        ETH_PHY_LAN8720
