@@ -28,6 +28,7 @@ struct ConfigSettingsStruct {
   char ipMask[16];
   char ipGW[18];
   int serialSpeed;
+  int socketPort;
   int  tcpListenPort;
   bool disableWeb;
   bool enableHeartBeat;

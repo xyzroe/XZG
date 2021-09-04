@@ -205,6 +205,7 @@ bool loadConfigSerial() {
   deserializeJson(doc, configFile);
 
   ConfigSettings.serialSpeed = (int)doc["baud"];
+  ConfigSettings.socketPort = (int)doc["port"];
   configFile.close();
   return true;
 }
@@ -339,7 +340,14 @@ void setup(void)
   digitalWrite(FLASH_ZIGBEE, 1);
 
   initWebServer();
-  server.begin();
+  if (ConfigSettings.serialSpeed)
+  {
+    server.begin(ConfigSettings.socketPort);
+  }
+  else
+  {
+    server.begin();
+  }
 
   //GetVersion
   uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};

@@ -19,7 +19,7 @@ String style =
   "#file-input{padding:0;border:1px solid #ddd;line-height:44px;text-align:left;display:block;cursor:pointer}"
   "#bar,#prgbar{background-color:#f1f1f1;border-radius:10px}#bar{background-color:#3498db;width:0%;height:10px}"
   "form{background:#fff;max-width:408px;margin:75px auto;padding:30px;border-radius:5px;text-align:center}"
-  ".btn{background:#3498db;color:#fff;cursor:pointer}</style>";
+  "</style>";
 
 /* Server Index Page */
 String serverIndex =
@@ -27,7 +27,7 @@ String serverIndex =
   "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
   "<input type='file' name='update' id='file' onchange='sub(this)' style=display:none>"
   "<label id='file-input' for='file'>   Choose file...</label>"
-  "<input type='submit' class=btn value='Update'>"
+  "<input type='submit' class='btn btn-primary mb-2' value='Update'>"
   "<br><br>"
   "<div id='prg'></div>"
   "<br><div id='prgbar'><div id='bar'></div></div><br></form>"
@@ -151,7 +151,7 @@ const char HTTP_WIFI[] PROGMEM =
   "<input type='text' class='form-control' id='gateway' name='ipGW' value='{{gw}}'>"
   "</div>"
   "Server Port : <br>{{port}}<br><br>"
-  "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
+  "<button type='submit' class='btn btn-primary mb-2' name='save'>Save</button>"
   "</form>";
 
 const char HTTP_SERIAL[] PROGMEM =
@@ -160,7 +160,7 @@ const char HTTP_SERIAL[] PROGMEM =
   "<div class='col-sm-6'><form method='POST' action='saveSerial'>"
 
   "<div class='form-group'>"
-  "<label for='baud'>Speed</label>"
+  "<label for='baud'>Serial Speed</label>"
   "<select class='form-control' id='baud' name='baud'>"
   "<option value='9600' {{selected9600}}>9600 bauds</option>"
   "<option value='19200' {{selected19200}}>19200 bauds</option>"
@@ -168,6 +168,8 @@ const char HTTP_SERIAL[] PROGMEM =
   "<option value='57600' {{selected57600}}>57600 bauds</option>"
   "<option value='115200' {{selected115200}}>115200 bauds</option>"
   "</select>"
+  "<label for='port'>Socket Port</label>"
+  "<input class='form-control' id='port' type='number' name='port' min='100' max='65000' value='{{socketPort}}'>"
   "</div>"
   "<br><br>"
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
@@ -175,15 +177,15 @@ const char HTTP_SERIAL[] PROGMEM =
 
 const char HTTP_HELP[] PROGMEM =
   "<h1>Help !</h1>"
-
+  "<div class='row justify-content-md-center' >"
   "<h3>Shop & description</h3>"
   "You can go to this url :</br>"
   "<a href=\"https://zigate.fr/boutique\" target='_blank'>Shop </a></br>"
   "<a href=\"https://zigate.fr/documentation/descriptif-de-la-zigate-ethernet/\" target='_blank'>Description</a></br>"
   "<h3>Firmware Source & Issues</h3>"
   "Please go here :</br>"
-  "<a href=\"https://github.com/fairecasoimeme/ZiGate-Ethernet\" target='_blank'>Sources</a>";
-
+  "<a href=\"https://github.com/fairecasoimeme/ZiGate-Ethernet\" target='_blank'>Sources</a>"
+  "/<div>";
 
 
 
@@ -304,6 +306,7 @@ void initWebServer()
   serverWeb.on("/cmdGetVersion", handleGetVersion);
   serverWeb.on("/cmdZigRST", handleZigbeeReset);
   serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
+  serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility
   serverWeb.on("/help", handleHelp);
   serverWeb.on("/esp_update", handleESPUpdate);
   serverWeb.onNotFound(handleNotFound);
@@ -439,7 +442,8 @@ void handleSerial() {
   } else {
     result.replace("{{selected115200}}", "Selected");
   }
-
+  result.replace("{{socketPort}}", String(ConfigSettings.socketPort));
+  
   serverWeb.send(200, "text/html", result);
 
 }
@@ -600,9 +604,10 @@ void handleSaveSerial()
 {
   String StringConfig;
   String serialSpeed = serverWeb.arg("baud");
+  String socketPort = serverWeb.arg("port");
   const char * path = "/config/configSerial.json";
 
-  StringConfig = "{\"baud\":" + serialSpeed + "}";
+  StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
   DEBUG_PRINTLN(StringConfig);
   StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
