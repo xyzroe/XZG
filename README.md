@@ -1,4 +1,4 @@
-# ZiGate-Ethernet
+# ZigStar LAN Gateway - Web Interface
  Ethernet platform for ZigStar LAN Gateway.
  Forked from [Zigate](https://zigate.fr/documentation/descriptif-de-la-zigate-ethernet/)
 
