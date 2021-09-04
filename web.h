@@ -22,3 +22,4 @@ void handleClearConsole();
 void handleGetVersion();
 void handleSaveGeneral();
 void handleHelp();
+void handleESPUpdate();
