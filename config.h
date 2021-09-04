@@ -6,8 +6,8 @@
 
 #define VERSION "v0.2"
 // hardware config
-#define RESET_ZIGATE 33//13
-#define FLASH_ZIGATE 32//14
+#define RESET_ZIGBEE 33//13
+#define FLASH_ZIGBEE 32//14
 #define PRODUCTION 1
 #define FLASH 0
 
@@ -34,10 +34,10 @@ struct ConfigSettingsStruct {
   double refreshLogs;
 };
 
-struct ZiGateInfosStruct {
+struct InfosStruct {
   char device[8];
   char mac[8];
-  char flash[8];  
+  char flash[8];
 };
 
 typedef CircularBuffer<char, 1024> LogConsoleType;
@@ -46,10 +46,10 @@ typedef CircularBuffer<char, 1024> LogConsoleType;
 #define DEBUG_ON
 
 #ifdef DEBUG_ON
- #define DEBUG_PRINT(x)  Serial.print(x) 
- #define DEBUG_PRINTLN(x)  Serial.println(x)
+#define DEBUG_PRINT(x)  Serial.print(x)
+#define DEBUG_PRINTLN(x)  Serial.println(x)
 #else
- #define DEBUG_PRINT(x)
- #define DEBUG_PRINTLN(x)
+#define DEBUG_PRINT(x)
+#define DEBUG_PRINTLN(x)
 #endif
 #endif

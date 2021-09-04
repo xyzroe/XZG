@@ -11,14 +11,14 @@ void logPush(char c)
 
 String logPrint()
 {
-  
-  String buff="";
+
+  String buff = "";
 
   if (logConsole.isEmpty()) {
     return "";
   } else {
     for (decltype(logConsole)::index_t i = 0; i < logConsole.size() - 1; i++) {
-      buff+=logConsole[i];
+      buff += logConsole[i];
     }
     return buff;
   }

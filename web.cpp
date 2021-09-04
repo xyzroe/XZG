@@ -104,9 +104,15 @@ const char HTTP_HEADER[] PROGMEM =
   "<a class='dropdown-item' href='/wifi'>WiFi</a>"
   "</div>"
   "</li>"
-  "<li class='nav-item'>"
-  "<a class='nav-link' href='/tools'>Tools</a>"
-
+  "<li class='nav-item dropdown'>"
+  "<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Tools</a>"
+  "<div class='dropdown-menu' aria-labelledby='navbarDropdown'>"
+  "<a class='dropdown-item' href='/logs'>Console</a>"
+  "<a class='dropdown-item' href='/fsbrowser'>FSbrowser</a>"
+  "<a class='dropdown-item' href='/esp_update'>Update ESP32</a>"
+  "<a class='dropdown-item' href='/updates'>Update Zigbee</a>"
+  "<a class='dropdown-item' href='/reboot'>Reboot</a>"
+  "</div>"
   "</li>"
   "<li class='nav-item'>"
   "<a class='nav-link' href='/help'>Help</a>"
@@ -296,6 +302,8 @@ void initWebServer()
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
   serverWeb.on("/cmdGetVersion", handleGetVersion);
+  serverWeb.on("/cmdZigRST", handleZigbeeReset);
+  serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
   serverWeb.on("/help", handleHelp);
   serverWeb.on("/esp_update", handleESPUpdate);
   serverWeb.onNotFound(handleNotFound);
@@ -658,7 +666,9 @@ void handleLogs() {
   result += F("<div class='col-sm-6'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-primary'>Clear Console</button> ");
   result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-primary'>Get Version</button> ");
-  result += F("<button type='button' onclick='cmd(\"ErasePDM\");' class='btn btn-primary'>Erase PDM</button> ");
+  //result += F("<button type='button' onclick='cmd(\"ErasePDM\");' class='btn btn-primary'>Erase PDM</button> ");
+  result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Reset</button> ");
+  result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-primary'>Zigbee BSL</button> ");
   result += F("</div></div>");
   result += F("<div class='row justify-content-md-center' >");
   result += F("<div class='col-sm-6'>");
@@ -889,16 +899,10 @@ void handleGetVersion()
   Serial2.write(cmd, 10);
   Serial2.flush();
 
-  String tmpTime;
   String buff = "";
-  timeLog = millis();
-  tmpTime = String(timeLog, DEC);
-  logPush('[');
-  for (int j = 0; j < tmpTime.length(); j++)
-  {
-    logPush(tmpTime[j]);
-  }
-  logPush(']');
+
+  printLogTime();
+
   logPush('-');
   logPush('>');
 
@@ -911,4 +915,60 @@ void handleGetVersion()
   }
   logPush('\n');
   serverWeb.send(200, F("text/html"), "");
+}
+
+void handleZigbeeReset()
+{
+  serverWeb.send(200, F("text/html"), "");
+  printLogMsg("Zigbee RST pin ON");
+  digitalWrite(RESET_ZIGBEE, 0);
+  delay(100);
+  printLogMsg("Zigbee RST pin OFF");
+  digitalWrite(RESET_ZIGBEE, 1);
+}
+
+
+void handleZigbeeBSL()
+{
+  serverWeb.send(200, F("text/html"), "");
+  printLogMsg("Zigbee BSL pin ON");
+  digitalWrite(FLASH_ZIGBEE, 0);
+  delay(100);
+  printLogMsg("Zigbee RST pin ON");
+  digitalWrite(RESET_ZIGBEE, 0);
+  delay(100);
+  printLogMsg("Zigbee RST pin OFF");
+  digitalWrite(RESET_ZIGBEE, 1);
+  delay(2000);
+  printLogMsg("Zigbee BSL pin OFF");
+  digitalWrite(FLASH_ZIGBEE, 1);
+  printLogMsg("Update with cc2538-bsl tool now!");
+}
+
+void printLogTime()
+{
+  String tmpTime;
+  timeLog = millis();
+  tmpTime = String(timeLog, DEC);
+  logPush('[');
+  for (int j = 0; j < tmpTime.length(); j++)
+  {
+    logPush(tmpTime[j]);
+  }
+  logPush(']');
+}
+
+void printLogMsg(String msg)
+{
+  printLogTime();
+  logPush(' ');
+  logPush('D');
+  logPush('E');
+  logPush('V');
+  logPush(' ');
+  for (int j = 0; j < msg.length(); j++)
+  {
+    logPush(msg[j]);
+  }
+  logPush('\n');
 }
