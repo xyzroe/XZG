@@ -11,7 +11,7 @@
 #include "config.h"
 #include "web.h"
 #include "log.h"
-
+#include <Update.h>
 
 #include <driver/uart.h>
 #include <lwip/ip_addr.h>
