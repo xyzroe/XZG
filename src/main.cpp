@@ -123,7 +123,7 @@ IPAddress parse_ip_address(const char *str) {
 }
 
 bool loadConfigWifi() {
-  const char * path = "/config/config.json";
+  const char * path = "/config/configWifi.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile) {
@@ -134,14 +134,11 @@ bool loadConfigWifi() {
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
-  // affectation des valeurs , si existe pas on place une valeur par defaut
-  ConfigSettings.enableWiFi = (int)doc["enableWiFi"];
   strlcpy(ConfigSettings.ssid, doc["ssid"] | "", sizeof(ConfigSettings.ssid));
   strlcpy(ConfigSettings.password, doc["pass"] | "", sizeof(ConfigSettings.password));
   strlcpy(ConfigSettings.ipAddressWiFi, doc["ip"] | "", sizeof(ConfigSettings.ipAddressWiFi));
   strlcpy(ConfigSettings.ipMaskWiFi, doc["mask"] | "", sizeof(ConfigSettings.ipMaskWiFi));
   strlcpy(ConfigSettings.ipGWWiFi, doc["gw"] | "", sizeof(ConfigSettings.ipGWWiFi));
-  ConfigSettings.tcpListenPort = TCP_LISTEN_PORT;
   ConfigSettings.enableWiFi = (int)doc["enableWiFi"];
 
   configFile.close();
@@ -207,6 +204,10 @@ bool loadConfigSerial() {
 
   ConfigSettings.serialSpeed = (int)doc["baud"];
   ConfigSettings.socketPort = (int)doc["port"];
+  if (ConfigSettings.socketPort == 0)
+  {
+    ConfigSettings.socketPort = TCP_LISTEN_PORT;
+  }
   configFile.close();
   return true;
 }
@@ -350,18 +351,12 @@ void setup(void)
   }
   DEBUG_PRINTLN(F("mDNS responder started"));
 
-  if (ConfigSettings.serialSpeed)
-  {
-    server.begin(ConfigSettings.socketPort);
-  }
-  else
-  {
-    server.begin();
-  }
+  server.begin(ConfigSettings.socketPort);
+  
 
   //GetVersion
-  uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};
-  Serial2.write(cmdVersion, 10);
+  //uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};
+  //Serial2.write(cmdVersion, 10);
 }
 
 String hexToDec(String hexString) {

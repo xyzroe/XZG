@@ -150,7 +150,7 @@ const char HTTP_WIFI[] PROGMEM =
   "<label for='gateway'>Gateway</label>"
   "<input type='text' class='form-control' id='gateway' name='ipGW' value='{{gw}}'>"
   "</div>"
-  "Server Port : <br>{{port}}<br><br>"
+  //"Server Port : <br>{{port}}<br><br>"
   "<button type='submit' class='btn btn-primary mb-2' name='save'>Save</button>"
   "</form>";
 
@@ -210,7 +210,7 @@ const char HTTP_ETHERNET[] PROGMEM =
   "<label for='gateway'>Gateway</label>"
   "<input type='text' class='form-control' id='gateway' name='ipGW' value='{{GWEther}}'>"
   "</div>"
-  "Server Port : <br>{{port}}<br><br>"
+  //"Server Port : <br>{{port}}<br><br>"
   "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
   "</form>";
 
@@ -415,7 +415,6 @@ void handleWifi() {
   result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
   result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
   result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
-  result.replace("{{port}}", String(ConfigSettings.tcpListenPort));
 
 
   serverWeb.send(200, "text/html", result);
@@ -464,7 +463,6 @@ void handleEther() {
   result.replace("{{ipEther}}", ConfigSettings.ipAddress);
   result.replace("{{maskEther}}", ConfigSettings.ipMask);
   result.replace("{{GWEther}}", ConfigSettings.ipGW);
-  result.replace("{{port}}", String(ConfigSettings.tcpListenPort));
 
   serverWeb.send(200, "text/html", result);
 
@@ -580,11 +578,10 @@ void handleSaveWifi()
   String ipAddress = serverWeb.arg("ipAddress");
   String ipMask = serverWeb.arg("ipMask");
   String ipGW = serverWeb.arg("ipGW");
-  String tcpListenPort = serverWeb.arg("tcpListenPort");
 
-  const char * path = "/config/config.json";
+  const char * path = "/config/configWifi.json";
 
-  StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"tcpListenPort\":\"" + tcpListenPort + "\"}";
+  StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
   StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
