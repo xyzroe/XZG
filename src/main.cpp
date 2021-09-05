@@ -12,6 +12,7 @@
 #include "config.h"
 #include "web.h"
 #include "log.h"
+#include "etc.h"
 #include <Update.h>
 #include "Version.h"
 

@@ -1,0 +1,1 @@
+void getReadableTime(String &readableTime);

@@ -8,6 +8,7 @@
 #include "web.h"
 #include "config.h"
 #include "log.h"
+#include "etc.h"
 #include <Update.h>
 
 extern struct ConfigSettingsStruct ConfigSettings;
@@ -83,7 +84,7 @@ const char HTTP_HEADER[] PROGMEM =
     "<link href='web/css/style.css' rel='stylesheet' type='text/css' />"
     " </head>"
     "<body>"
-    "<nav class='navbar navbar-expand-lg navbar-light bg-info rounded'><a class='navbar-brand' href='/'><img src='web/img/logo.png'/> <strong>Config </strong>" VERSION
+    "<nav class='navbar navbar-expand-lg navbar-light bg-info rounded'><a class='navbar-brand' href='/'><img src='web/img/logo.png'/> <strong>ZigStar GW</strong>"
     "</a>"
     "<button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarNavDropdown' aria-controls='navbarNavDropdown' aria-expanded='false' aria-label='Toggle navigation'>"
     "<span class='navbar-toggler-icon'></span>"
@@ -119,7 +120,7 @@ const char HTTP_HEADER[] PROGMEM =
     "</nav>";
 
 const char HTTP_WIFI[] PROGMEM =
-    "<h1>Config WiFi</h1>"
+    "<h2>Config WiFi</h2>"
     "<div class='row justify-content-md-center' >"
     "<div class='col-sm-6'><form method='POST' action='saveWifi'>"
     "<div class='form-check'>"
@@ -155,7 +156,7 @@ const char HTTP_WIFI[] PROGMEM =
     "</form>";
 
 const char HTTP_SERIAL[] PROGMEM =
-    "<h1>Config Serial</h1>"
+    "<h2>Config Serial</h2>"
     "<div class='row justify-content-md-center' >"
     "<div class='col-sm-6'><form method='POST' action='saveSerial'>"
 
@@ -176,7 +177,7 @@ const char HTTP_SERIAL[] PROGMEM =
     "</form>";
 
 const char HTTP_HELP[] PROGMEM =
-    "<h1>Help !</h1>"
+    "<h2>Help</h2>"
     "<div class='row justify-content-md-center' >"
     "<h3>Shop & description</h3>"
     "You can go to this url :</br>"
@@ -188,7 +189,7 @@ const char HTTP_HELP[] PROGMEM =
     "/<div>";
 
 const char HTTP_ETHERNET[] PROGMEM =
-    "<h1>Config Ethernet</h1>"
+    "<h2>Config Ethernet</h2>"
     "<div class='row justify-content-md-center' >"
     "<div class='col-sm-6'><form method='POST' action='saveEther'>"
     "<div class='form-check'>"
@@ -212,7 +213,7 @@ const char HTTP_ETHERNET[] PROGMEM =
     "</form>";
 
 const char HTTP_GENERAL[] PROGMEM =
-    "<h1>General</h1>"
+    "<h2>General</h2>"
     "<div class='row justify-content-md-center' >"
     "<div class='col-sm-6'><form method='POST' action='saveGeneral'>"
     "<div class='form-group'>"
@@ -235,7 +236,7 @@ const char HTTP_GENERAL[] PROGMEM =
     "</div>";
 
 const char HTTP_ROOT[] PROGMEM =
-    "<h1>Status</h1>"
+    "<h2>Status</h2>"
     "<div class='row justify-content-md-center'>"
     "<div class='col-sm-6'>"
     "<div class='card'>"
@@ -433,7 +434,7 @@ void handleSaveSucces(String msg)
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>Saved</h1>");
+  result += F("<h2>Saved</h2>");
   result += F("<div class='row justify-content-md-center'>");
   result += F("<div class='col-sm-6'>");
   result += F("<div class='form-group'><label>Save ");
@@ -603,6 +604,9 @@ void handleRoot()
   {
     result.replace("{{connectedSocket}}", "<img src='/web/img/nok.png'>");
   }
+  String readableTime;
+  getReadableTime(readableTime);
+  result.replace("{{uptime}}", readableTime);
 
   serverWeb.send(200, "text/html", result);
 }
@@ -791,7 +795,7 @@ void handleLogs()
 
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>Console</h1>");
+  result += F("<h2>Console</h2>");
   result += F("<div class='row justify-content-md-center'>");
   result += F("<div class='col-sm-6'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-primary'>Clear Console</button> ");
@@ -824,8 +828,10 @@ void handleReboot()
 
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>Reboot ...</h1>");
+  result += F("<h2>Reboot ...</h2>");
   result = result + F("</body></html>");
+
+  serverWeb.send(200, F("text/html"), result);
   serverWeb.sendHeader(F("Location"), F("/"));
   serverWeb.send(303);
 
@@ -837,7 +843,7 @@ void handleUpdate()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>Update Zigbee</h1>");
+  result += F("<h2>Update Zigbee</h2>");
   result += F("<div class='btn-group-vertical'>");
   result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
   result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
@@ -853,7 +859,7 @@ void handleESPUpdate()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>Update ESP32</h1>");
+  result += F("<h2>Update ESP32</h2>");
   result += serverIndex;
   result = result + F("</body></html>");
   serverWeb.sendHeader("Connection", "close");
@@ -865,7 +871,7 @@ void handleFSbrowser()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h1>FSBrowser</h1>");
+  result += F("<h2>FSBrowser</h2>");
   result += F("<nav id='navbar-custom' class='navbar navbar-default navbar-fixed-left'>");
   result += F("      <div class='navbar-header'>");
   result += F("        <!--<a class='navbar-brand' href='#'>Brand</a>-->");
