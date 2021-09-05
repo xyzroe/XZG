@@ -13,6 +13,7 @@
 #include "web.h"
 #include "log.h"
 #include <Update.h>
+#include "Version.h"
 
 #include <driver/uart.h>
 #include <lwip/ip_addr.h>
