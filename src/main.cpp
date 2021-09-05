@@ -21,23 +21,22 @@
 #ifdef ETH_CLK_MODE
 #undef ETH_CLK_MODE
 #endif
-#define ETH_CLK_MODE    ETH_CLOCK_GPIO0_IN//ETH_CLOCK_GPIO17_OUT
-#define ETH_POWER_PIN   16//-1
+#define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN //ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN 16                //-1
 
 // Type of the Ethernet PHY (LAN8720 or TLK110)
-#define ETH_TYPE        ETH_PHY_LAN8720
+#define ETH_TYPE ETH_PHY_LAN8720
 
 // I²C-address of Ethernet PHY (0 or 1 for LAN8720, 31 for TLK110)
-#define ETH_ADDR       1
+#define ETH_ADDR 1
 
 // Pin# of the I²C clock signal for the Ethernet PHY
-#define ETH_MDC_PIN     23
+#define ETH_MDC_PIN 23
 
 // Pin# of the I²C IO signal for the Ethernet PHY
-#define ETH_MDIO_PIN    18
+#define ETH_MDIO_PIN 18
 
 #define FORMAT_LITTLEFS_IF_FAILED true
-
 
 // application config
 unsigned long timeLog;
@@ -62,57 +61,66 @@ String modeWiFi = "STA";
 MDNSResponder mdns;
 #endif
 
-void WiFiEvent(WiFiEvent_t event) {
-  switch (event) {
-    case SYSTEM_EVENT_ETH_START:
-      DEBUG_PRINTLN(F("ETH Started"));
-      //set eth hostname here
-      ETH.setHostname("esp32-ethernet");
-      break;
-    case SYSTEM_EVENT_ETH_CONNECTED:
-      DEBUG_PRINTLN(F("ETH Connected"));
-      ConfigSettings.connectedEther = true;
-      break;
-    case SYSTEM_EVENT_ETH_GOT_IP:
-      DEBUG_PRINTLN(F("ETH MAC: "));
-      DEBUG_PRINT(ETH.macAddress());
-      DEBUG_PRINT(F(", IPv4: "));
-      DEBUG_PRINT(ETH.localIP());
-      if (ETH.fullDuplex()) {
-        DEBUG_PRINT(F(", FULL_DUPLEX"));
-      }
-      DEBUG_PRINT(F(", "));
-      DEBUG_PRINT(ETH.linkSpeed());
-      DEBUG_PRINTLN(F("Mbps"));
-      ConfigSettings.connectedEther = true;
-      break;
-    case SYSTEM_EVENT_ETH_DISCONNECTED:
-      DEBUG_PRINTLN(F("ETH Disconnected"));
-      ConfigSettings.connectedEther = false;
-      break;
-    case SYSTEM_EVENT_ETH_STOP:
-      DEBUG_PRINTLN(F("ETH Stopped"));
-      ConfigSettings.connectedEther = false;
-      break;
-    default:
-      break;
+void WiFiEvent(WiFiEvent_t event)
+{
+  switch (event)
+  {
+  case SYSTEM_EVENT_ETH_START:
+    DEBUG_PRINTLN(F("ETH Started"));
+    //set eth hostname here
+    ETH.setHostname("esp32-ethernet");
+    break;
+  case SYSTEM_EVENT_ETH_CONNECTED:
+    DEBUG_PRINTLN(F("ETH Connected"));
+    ConfigSettings.connectedEther = true;
+    break;
+  case SYSTEM_EVENT_ETH_GOT_IP:
+    DEBUG_PRINTLN(F("ETH MAC: "));
+    DEBUG_PRINT(ETH.macAddress());
+    DEBUG_PRINT(F(", IPv4: "));
+    DEBUG_PRINT(ETH.localIP());
+    if (ETH.fullDuplex())
+    {
+      DEBUG_PRINT(F(", FULL_DUPLEX"));
+    }
+    DEBUG_PRINT(F(", "));
+    DEBUG_PRINT(ETH.linkSpeed());
+    DEBUG_PRINTLN(F("Mbps"));
+    ConfigSettings.connectedEther = true;
+    break;
+  case SYSTEM_EVENT_ETH_DISCONNECTED:
+    DEBUG_PRINTLN(F("ETH Disconnected"));
+    ConfigSettings.connectedEther = false;
+    break;
+  case SYSTEM_EVENT_ETH_STOP:
+    DEBUG_PRINTLN(F("ETH Stopped"));
+    ConfigSettings.connectedEther = false;
+    break;
+  default:
+    break;
   }
 }
 
 WiFiServer server(TCP_LISTEN_PORT);
 
-IPAddress parse_ip_address(const char *str) {
+IPAddress parse_ip_address(const char *str)
+{
   IPAddress result;
   int index = 0;
 
   result[0] = 0;
-  while (*str) {
-    if (isdigit((unsigned char)*str)) {
+  while (*str)
+  {
+    if (isdigit((unsigned char)*str))
+    {
       result[index] *= 10;
       result[index] += *str - '0';
-    } else {
+    }
+    else
+    {
       index++;
-      if (index < 4) {
+      if (index < 4)
+      {
         result[index] = 0;
       }
     }
@@ -122,11 +130,13 @@ IPAddress parse_ip_address(const char *str) {
   return result;
 }
 
-bool loadConfigWifi() {
-  const char * path = "/config/configWifi.json";
+bool loadConfigWifi()
+{
+  const char *path = "/config/configWifi.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
-  if (!configFile) {
+  if (!configFile)
+  {
     DEBUG_PRINTLN(F("failed open"));
     return false;
   }
@@ -145,11 +155,13 @@ bool loadConfigWifi() {
   return true;
 }
 
-bool loadConfigEther() {
-  const char * path = "/config/configEther.json";
+bool loadConfigEther()
+{
+  const char *path = "/config/configEther.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
-  if (!configFile) {
+  if (!configFile)
+  {
     DEBUG_PRINTLN(F("failed open"));
     return false;
   }
@@ -166,11 +178,13 @@ bool loadConfigEther() {
   return true;
 }
 
-bool loadConfigGeneral() {
-  const char * path = "/config/configGeneral.json";
+bool loadConfigGeneral()
+{
+  const char *path = "/config/configGeneral.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
-  if (!configFile) {
+  if (!configFile)
+  {
     DEBUG_PRINTLN(F("failed open"));
     return false;
   }
@@ -183,18 +197,23 @@ bool loadConfigGeneral() {
   if ((double)doc["refreshLogs"] < 1000)
   {
     ConfigSettings.refreshLogs = 1000;
-  } else {
+  }
+  else
+  {
     ConfigSettings.refreshLogs = (double)doc["refreshLogs"];
   }
+  strlcpy(ConfigSettings.hostname, doc["hostname"] | "", sizeof(ConfigSettings.hostname));
   configFile.close();
   return true;
 }
 
-bool loadConfigSerial() {
-  const char * path = "/config/configSerial.json";
+bool loadConfigSerial()
+{
+  const char *path = "/config/configSerial.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
-  if (!configFile) {
+  if (!configFile)
+  {
     DEBUG_PRINTLN(F("failed open"));
     return false;
   }
@@ -211,7 +230,6 @@ bool loadConfigSerial() {
   configFile.close();
   return true;
 }
-
 
 void setupWifiAP()
 {
@@ -237,12 +255,12 @@ void setupWifiAP()
   for (int i = 0; i < WIFIPASSSTR.length(); i++)
     WIFIPASS[i] = WIFIPASSSTR.charAt(i);
 
-
-  WiFi.softAP(AP_NameChar, WIFIPASS );
+  WiFi.softAP(AP_NameChar, WIFIPASS);
   WiFi.setSleep(false);
 }
 
-bool setupSTAWifi() {
+bool setupSTAWifi()
+{
 
   WiFi.mode(WIFI_STA);
   DEBUG_PRINTLN(F("WiFi.mode(WIFI_STA)"));
@@ -262,7 +280,8 @@ bool setupSTAWifi() {
   DEBUG_PRINTLN(F("WiFi.config"));
 
   int countDelay = 10;
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     DEBUG_PRINT(F("."));
     countDelay--;
     if (countDelay == 0)
@@ -274,7 +293,6 @@ bool setupSTAWifi() {
   return true;
 }
 
-
 void setup(void)
 {
 
@@ -284,16 +302,19 @@ void setup(void)
   WiFi.onEvent(WiFiEvent);
   ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
 
-
-  if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)) {
+  if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
+  {
     Serial.println("Erreur LITTLEFS");
     return;
   }
 
   DEBUG_PRINTLN(F("LITTLEFS OK"));
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral())) {
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
+  {
     DEBUG_PRINTLN(F("Erreur Loadconfig LITTLEFS"));
-  } else {
+  }
+  else
+  {
     configOK = true;
     DEBUG_PRINTLN(F("Conf ok LITTLEFS"));
   }
@@ -310,6 +331,9 @@ void setup(void)
   //   DEBUG_PRINTLN(F("Mode Flash"));
   //}
 
+  ETH.setHostname(ConfigSettings.hostname);
+  WiFi.setHostname(ConfigSettings.hostname);
+
   if (ConfigSettings.enableWiFi)
   {
     if (configOK)
@@ -322,7 +346,9 @@ void setup(void)
         modeWiFi = "AP";
       }
       DEBUG_PRINTLN(F("setupSTAWifi"));
-    } else {
+    }
+    else
+    {
 
       setupWifiAP();
       modeWiFi = "AP";
@@ -343,33 +369,42 @@ void setup(void)
 
   initWebServer();
 
-  if (!MDNS.begin(DEVICE_NAME)) {
+#ifdef BONJOUR_SUPPORT
+  if (!MDNS.begin(ConfigSettings.hostname))
+  {
     DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
-    while (1) {
+    while (1)
+    {
       delay(1000);
     }
   }
   DEBUG_PRINTLN(F("mDNS responder started"));
+  MDNS.addService("http", "tcp", 80);
+#endif
 
   server.begin(ConfigSettings.socketPort);
-  
 
   //GetVersion
   //uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};
   //Serial2.write(cmdVersion, 10);
 }
 
-String hexToDec(String hexString) {
+String hexToDec(String hexString)
+{
 
   unsigned int decValue = 0;
   int nextInt;
 
-  for (int i = 0; i < hexString.length(); i++) {
+  for (int i = 0; i < hexString.length(); i++)
+  {
 
     nextInt = int(hexString.charAt(i));
-    if (nextInt >= 48 && nextInt <= 57) nextInt = map(nextInt, 48, 57, 0, 9);
-    if (nextInt >= 65 && nextInt <= 70) nextInt = map(nextInt, 65, 70, 10, 15);
-    if (nextInt >= 97 && nextInt <= 102) nextInt = map(nextInt, 97, 102, 10, 15);
+    if (nextInt >= 48 && nextInt <= 57)
+      nextInt = map(nextInt, 48, 57, 0, 9);
+    if (nextInt >= 65 && nextInt <= 70)
+      nextInt = map(nextInt, 65, 70, 10, 15);
+    if (nextInt >= 97 && nextInt <= 102)
+      nextInt = map(nextInt, 97, 102, 10, 15);
     nextInt = constrain(nextInt, 0, 15);
 
     decValue = (decValue * 16) + nextInt;
@@ -390,13 +425,14 @@ void loop(void)
   if (!ConfigSettings.disableWeb)
   {
     webServerHandleClient();
-  } else {
+  }
+  else
+  {
     if (!client.connected())
     {
       webServerHandleClient();
     }
   }
-
 
   if (loopCount > 2000000)
   {
@@ -423,17 +459,17 @@ void loop(void)
     loopCount = 0;
   }
   // Check if a client has connected
-  if (!client) {
+  if (!client)
+  {
     // eat any bytes in the swSer buffer as there is nothing to see them
-    while (Serial2.available()) {
+    while (Serial2.available())
+    {
       Serial2.read();
-
     }
 
     client = server.available();
-
   }
-#define min(a,b) ((a)<(b)?(a):(b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
   char output_sprintf[2];
   if (client.connected())
   {
@@ -470,23 +506,23 @@ void loop(void)
           logPush(output_sprintf[1]);
         }
         logPush('\n');
-
       }
       Serial2.flush();
     }
-
-  } else {
+  }
+  else
+  {
     client.stop();
   }
   // now check the swSer for any bytes to send to the network
   bytes_read = 0;
   bool buffOK = false;
 
-  while (Serial2.available() && bytes_read < BUFFER_SIZE) {
+  while (Serial2.available() && bytes_read < BUFFER_SIZE)
+  {
     buffOK = true;
     serial_buf[bytes_read] = Serial2.read();
     bytes_read++;
-
   }
 
   if (buffOK)
@@ -525,10 +561,11 @@ void loop(void)
     buffOK = false;
   }
 
-  if (bytes_read > 0) {
+  if (bytes_read > 0)
+  {
     //DEBUG_PRINT("bytes_read : ");
     //DEBUG_PRINTLN(bytes_read);
-    client.write((const uint8_t*)serial_buf, bytes_read);
+    client.write((const uint8_t *)serial_buf, bytes_read);
     client.flush();
   }
   loopCount++;
