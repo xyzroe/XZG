@@ -56,8 +56,8 @@ if not os.path.exists(".version_no_increment"):
 
     if os.environ.get('PLATFORMIO_INCLUDE_DIR') is not None:
         VERSION_HEADER = os.environ.get('PLATFORMIO_INCLUDE_DIR') + os.sep + VERSION_HEADER
-    elif os.path.exists("include"):
-        VERSION_HEADER = "include" + os.sep + VERSION_HEADER
+    elif os.path.exists("src"):
+        VERSION_HEADER = "src" + os.sep + VERSION_HEADER
     else:
         PROJECT_DIR = env.subst("$PROJECT_DIR")
         os.mkdir(PROJECT_DIR + os.sep + "include")
