@@ -145,6 +145,7 @@ bool loadConfigWifi()
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
+  ConfigSettings.dhcpWiFi = (int)doc["dhcpWiFi"];
   strlcpy(ConfigSettings.ssid, doc["ssid"] | "", sizeof(ConfigSettings.ssid));
   strlcpy(ConfigSettings.password, doc["pass"] | "", sizeof(ConfigSettings.password));
   strlcpy(ConfigSettings.ipAddressWiFi, doc["ip"] | "", sizeof(ConfigSettings.ipAddressWiFi));
@@ -277,13 +278,21 @@ bool setupSTAWifi()
   IPAddress gateway_address = parse_ip_address(ConfigSettings.ipGWWiFi);
   IPAddress netmask = parse_ip_address(ConfigSettings.ipMaskWiFi);
 
-  WiFi.config(ip_address, gateway_address, netmask);
-  DEBUG_PRINTLN(F("WiFi.config"));
+  if (!ConfigSettings.dhcpWiFi)
+  {
+     WiFi.config(ip_address, gateway_address, netmask);
+     DEBUG_PRINTLN(F("WiFi.config"));
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("Try DHCP"));
+  }
 
-  int countDelay = 10;
+  int countDelay = 50;
   while (WiFi.status() != WL_CONNECTED)
   {
-    DEBUG_PRINT(F("."));
+    //DEBUG_PRINT(F("."));
+    DEBUG_PRINT(WiFi.status());
     countDelay--;
     if (countDelay == 0)
     {
@@ -291,6 +300,10 @@ bool setupSTAWifi()
     }
     delay(250);
   }
+  DEBUG_PRINTLN(F(" "));
+  DEBUG_PRINTLN(WiFi.localIP());
+  DEBUG_PRINTLN(WiFi.subnetMask());
+  DEBUG_PRINTLN(WiFi.gatewayIP());
   return true;
 }
 

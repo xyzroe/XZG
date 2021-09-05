@@ -135,6 +135,10 @@ const char HTTP_WIFI[] PROGMEM =
     "<label for='pass'>Password</label>"
     "<input class='form-control' id='pass' type='password' name='WIFIpassword' value=''>"
     "</div>"
+    "<div class='form-check'>"
+    "<input class='form-check-input' id='dhcpWiFi' type='checkbox' name='dhcpWiFi' {{modeWiFi}}>"
+    "<label class='form-check-label' for='dhcpWiFi'>DHCP</label>"
+    "</div>"
     "<div class='form-group'>"
     "<label for='ip'>IP</label>"
     "<input class='form-control' id='ip' type='text' name='ipAddress' value='{{ip}}'>"
@@ -270,6 +274,7 @@ const char HTTP_ROOT[] PROGMEM =
     "<div id='wifiConfig'>"
     "<strong>Enable : </strong>{{enableWifi}}"
     "<br><strong>SSID : </strong>{{ssidWifi}}"
+    "<br><strong>Mode : </strong>{{modeWiFi}}"
     "<br><strong>IP : </strong>{{ipWifi}}"
     "<br><strong>Mask : </strong>{{maskWifi}}"
     "<br><strong>GW : </strong>{{GWWifi}}"
@@ -460,6 +465,14 @@ void handleWifi()
     result.replace("{{checkedWiFi}}", "");
   }
   result.replace("{{ssid}}", String(ConfigSettings.ssid));
+  if (ConfigSettings.dhcpWiFi)
+  {
+    result.replace("{{modeWiFi}}", "Checked");
+  }
+  else
+  {
+    result.replace("{{modeWiFi}}", "");
+  }
   result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
   result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
   result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
@@ -543,9 +556,22 @@ void handleRoot()
     result.replace("{{enableWifi}}", "<img src='/web/img/nok.png'>");
   }
   result.replace("{{ssidWifi}}", String(ConfigSettings.ssid));
-  result.replace("{{ipWifi}}", ConfigSettings.ipAddressWiFi);
-  result.replace("{{maskWifi}}", ConfigSettings.ipMaskWiFi);
-  result.replace("{{GWWifi}}", ConfigSettings.ipGWWiFi);
+
+  if (ConfigSettings.dhcpWiFi)
+  {
+    result.replace("{{modeWiFi}}", "DHCP");
+    result.replace("{{ipWifi}}", WiFi.localIP().toString());
+    result.replace("{{maskWifi}}", WiFi.subnetMask().toString());
+    result.replace("{{GWWifi}}", WiFi.gatewayIP().toString());
+  }
+  else
+  {
+    result.replace("{{modeWiFi}}", "STATIC");
+    result.replace("{{ipWifi}}", ConfigSettings.ipAddressWiFi);
+    result.replace("{{maskWifi}}", ConfigSettings.ipMaskWiFi);
+    result.replace("{{GWWifi}}", ConfigSettings.ipGWWiFi);
+  }
+
 
   if (ConfigSettings.dhcp)
   {
@@ -657,13 +683,24 @@ void handleSaveWifi()
   }
   String ssid = serverWeb.arg("WIFISSID");
   String pass = serverWeb.arg("WIFIpassword");
+
+  String dhcpWiFi;
+  if (serverWeb.arg("dhcpWiFi") == "on")
+  {
+    dhcpWiFi = "1";
+  }
+  else
+  {
+    dhcpWiFi = "0";
+  }
+
   String ipAddress = serverWeb.arg("ipAddress");
   String ipMask = serverWeb.arg("ipMask");
   String ipGW = serverWeb.arg("ipGW");
 
   const char *path = "/config/configWifi.json";
 
-  StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+  StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
   DEBUG_PRINTLN(StringConfig);
   StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);

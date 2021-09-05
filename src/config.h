@@ -24,6 +24,7 @@ struct ConfigSettingsStruct
   char ipAddressWiFi[18];
   char ipMaskWiFi[16];
   char ipGWWiFi[18];
+  bool dhcpWiFi;
   bool dhcp;
   bool connectedEther;
   char ipAddress[18];
