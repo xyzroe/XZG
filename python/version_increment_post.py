@@ -22,8 +22,9 @@ import os
 #  You should have received a copy of the MIT License along with this program.
 #  If not, see <https://opensource.org/licenses/MIT/>.
 #
-if os.path.exists(".version_no_increment"):
-    os.remove(".version_no_increment")
+if os.path.exists("../../.version_no_increment"):
+    os.remove("../../.version_no_increment")
+
 #def remove_guard_file(source, target, env):
 #    """ Remove version increment guard file if present """
 #    if os.path.exists(".version_no_increment"):
