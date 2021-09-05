@@ -235,6 +235,20 @@ const char HTTP_ROOT[] PROGMEM =
     "<div class='row justify-content-md-center'>"
     "<div class='col-sm-6'>"
     "<div class='card'>"
+    "<div class='card-header'>General</div>"
+    "<div class='card-body'>"
+    "<div id='genConfig'>"
+    "<strong>Socket connected : </strong>{{connectedSocket}}"
+    "<br><strong>Uptime : </strong>{{uptime}}"
+    "<br><strong>Version : </strong>" VERSION
+    "</div>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<div class='row justify-content-md-center'>"
+    "<div class='col-sm-6'>"
+    "<div class='card'>"
     "<div class='card-header'>Ethernet</div>"
     "<div class='card-body'>"
     "<div id='ethConfig'>"
@@ -554,6 +568,14 @@ void handleRoot()
   else
   {
     result.replace("{{connectedEther}}", "<img src='/web/img/nok.png'>");
+  }
+  if (ConfigSettings.connectedSocket)
+  {
+    result.replace("{{connectedSocket}}", "<img src='/web/img/ok.png'>");
+  }
+  else
+  {
+    result.replace("{{connectedSocket}}", "<img src='/web/img/nok.png'>");
   }
 
   serverWeb.send(200, "text/html", result);

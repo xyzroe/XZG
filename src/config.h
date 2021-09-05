@@ -5,7 +5,7 @@
 #include <CircularBuffer.h>
 
 #include "Version.h"
-//#define VERSION "v0.3.1"
+
 // hardware config
 #define RESET_ZIGBEE 33 //13
 #define FLASH_ZIGBEE 32 //14
@@ -35,6 +35,7 @@ struct ConfigSettingsStruct
   bool enableHeartBeat;
   double refreshLogs;
   char hostname[50];
+  bool connectedSocket;
 };
 
 struct InfosStruct

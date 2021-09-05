@@ -474,7 +474,7 @@ void loop(void)
   char output_sprintf[2];
   if (client.connected())
   {
-
+    ConfigSettings.connectedSocket = true;
     int count = client.available();
 
     if (count > 0)
@@ -514,6 +514,7 @@ void loop(void)
   else
   {
     client.stop();
+    ConfigSettings.connectedSocket = false;
   }
   // now check the swSer for any bytes to send to the network
   bytes_read = 0;
