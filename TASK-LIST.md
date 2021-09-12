@@ -1,8 +1,9 @@
 Next improvements of existing config are required:
 
-- [ ] jquery.min.js to FS
-- [ ] MQTT integration for buttons ? 
-
+- [ ] jquery.min.js to FS or AsyncElegantOTA ?
+- [ ] MQTT integration for buttons, uptime, version
+- [ ] HTML to files (not FS, imbedded)
+- [ ] Change Bootstrap to https://github.com/johno/furtive
 - [ ] Time synchronization with NTP server
 - [ ] OTA for LITTLEFS
 
