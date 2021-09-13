@@ -139,7 +139,24 @@ bool loadConfigWifi()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open"));
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
+    DEBUG_PRINTLN(StringConfig);
+    StaticJsonDocument<512> jsonBuffer;
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
     return false;
   }
 
@@ -165,7 +182,24 @@ bool loadConfigEther()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open"));
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
+    DEBUG_PRINTLN(StringConfig);
+    StaticJsonDocument<512> jsonBuffer;
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
     return false;
   }
 
@@ -188,7 +222,24 @@ bool loadConfigGeneral()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open"));
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"enableHeartBeat\":0,\"refreshLogs\":1000}";
+    DEBUG_PRINTLN(StringConfig);
+    StaticJsonDocument<512> jsonBuffer;
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
     return false;
   }
 
@@ -217,7 +268,24 @@ bool loadConfigSerial()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open"));
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"baud\":115200,\"port\":4444}";
+    DEBUG_PRINTLN(StringConfig);
+    StaticJsonDocument<512> jsonBuffer;
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
     return false;
   }
 
@@ -319,19 +387,30 @@ void setup(void)
 
   if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
-    Serial.println("Erreur LITTLEFS");
+    Serial.println("Error with LITTLEFS");
     return;
   }
 
   DEBUG_PRINTLN(F("LITTLEFS OK"));
   if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
   {
-    DEBUG_PRINTLN(F("Erreur Loadconfig LITTLEFS"));
+    DEBUG_PRINTLN(F("Error load config from LITTLEFS"));
+    const char *path = "/config";
+
+    if (LITTLEFS.mkdir(path))
+    {
+      Serial.println("Config dir created");
+    }
+    else
+    {
+      Serial.println("mkdir failed");
+    }
+    ESP.restart();
   }
   else
   {
     configOK = true;
-    DEBUG_PRINTLN(F("Conf ok LITTLEFS"));
+    DEBUG_PRINTLN(F("Config load ok LITTLEFS"));
   }
 
   //if (digitalRead(FLASH_ZIGBEE)!=0)
