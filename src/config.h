@@ -37,6 +37,7 @@ struct ConfigSettingsStruct
   double refreshLogs;
   char hostname[50];
   bool connectedSocket;
+  bool radioModeWiFi;
 };
 
 struct InfosStruct

@@ -1,16 +1,18 @@
 Next improvements of existing config are required:
 
-- [ ] jquery.min.js to FS or AsyncElegantOTA ?
-- [ ] MQTT integration for buttons, uptime, version
-- [ ] HTML to files (not FS, imbedded)
-- [ ] Change Bootstrap to https://github.com/johno/furtive
-- [ ] Time synchronization with NTP server
-- [ ] OTA for LITTLEFS
+- gzip and put to programm memory all files
+- fix temperature sensor while wifi off
+- socket connection time
+- MQTT integration for buttons, uptime, version
+- MQTT stats
+- help and update pages from github
+- Time synchronization with NTP server
 
-+ [+] Uptime sensor
-+ [+] mDNS ( hostname ) change option and availability by hostname.local
-+ [+] Add Serial port change option
-+ [+] Buttons in Web: <br>
++ HTML to files (not FS, imbedded)
++ Uptime sensor
++ mDNS ( hostname ) change option and availability by hostname.local
++ Add Serial port change option
++ Buttons in Web: <br>
 	  + Restart ESP<br>
 	  + Restart Zigbee<br>
 	  + Enable BSL and POST request for BSL

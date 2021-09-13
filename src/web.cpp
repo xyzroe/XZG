@@ -284,6 +284,8 @@ void handleRoot()
   result += FPSTR(HTTP_ROOT);
   result += F("</html>");
 
+  result.replace("{{deviceTemp}}", String((temprature_sens_read() - 32) / 1.8));
+
   if (ConfigSettings.enableWiFi)
   {
     result.replace("{{enableWifi}}", "<img src='/web/img/ok.png'>");
@@ -309,6 +311,23 @@ void handleRoot()
     result.replace("{{GWWifi}}", ConfigSettings.ipGWWiFi);
   }
 
+  result.replace("{{MACWifi}}", WiFi.softAPmacAddress());
+  int rssi = WiFi.RSSI();
+  String rssiWifi = String(rssi) + String(" dBm");
+  result.replace("{{RSSIWifi}}", rssiWifi);
+  result.replace("{{MACEther}}", ETH.macAddress());
+  int speed = ETH.linkSpeed();
+  String SpeedEth = String(speed) + String(" Mbps");
+  if (ETH.fullDuplex())
+  {
+    SpeedEth = SpeedEth + String(", FULL DUPLEX");
+  }
+  else
+  {
+    SpeedEth = SpeedEth + String(", HALF DUPLEX");
+  }
+  result.replace("{{SpeedEther}}", SpeedEth);
+
   if (ConfigSettings.dhcp)
   {
     result.replace("{{modeEther}}", "DHCP");
@@ -331,6 +350,16 @@ void handleRoot()
   {
     result.replace("{{connectedEther}}", "<img src='/web/img/nok.png'>");
   }
+
+  if (ConfigSettings.radioModeWiFi)
+  {
+    result.replace("{{radioMode}}", "<img src='/web/img/ok.png'>");
+  }
+  else
+  {
+    result.replace("{{radioMode}}", "<img src='/web/img/nok.png'>");
+  }
+
   if (ConfigSettings.connectedSocket)
   {
     result.replace("{{connectedSocket}}", "<img src='/web/img/ok.png'>");
@@ -339,6 +368,7 @@ void handleRoot()
   {
     result.replace("{{connectedSocket}}", "<img src='/web/img/nok.png'>");
   }
+
   String readableTime;
   getReadableTime(readableTime);
   result.replace("{{uptime}}", readableTime);

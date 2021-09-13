@@ -281,8 +281,8 @@ bool setupSTAWifi()
 
   if (!ConfigSettings.dhcpWiFi)
   {
-     WiFi.config(ip_address, gateway_address, netmask);
-     DEBUG_PRINTLN(F("WiFi.config"));
+    WiFi.config(ip_address, gateway_address, netmask);
+    DEBUG_PRINTLN(F("WiFi.config"));
   }
   else
   {
@@ -349,28 +349,6 @@ void setup(void)
   ETH.setHostname(ConfigSettings.hostname);
   WiFi.setHostname(ConfigSettings.hostname);
 
-  if (ConfigSettings.enableWiFi)
-  {
-    if (configOK)
-    {
-      DEBUG_PRINTLN(F("configOK"));
-      if (!setupSTAWifi())
-      {
-        DEBUG_PRINTLN(F("AP"));
-        setupWifiAP();
-        modeWiFi = "AP";
-      }
-      DEBUG_PRINTLN(F("setupSTAWifi"));
-    }
-    else
-    {
-
-      setupWifiAP();
-      modeWiFi = "AP";
-      DEBUG_PRINTLN(F("AP"));
-    }
-  }
-
   if (!ConfigSettings.dhcp)
   {
     ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
@@ -397,6 +375,32 @@ void setup(void)
   MDNS.addService("http", "tcp", 80);
 #endif
 
+  if (ConfigSettings.enableWiFi)
+  {
+    if (configOK)
+    {
+      DEBUG_PRINTLN(F("configOK"));
+      if (!setupSTAWifi())
+      {
+        setupWifiAP();
+        modeWiFi = "AP";
+        ConfigSettings.radioModeWiFi = true;
+        DEBUG_PRINTLN(F("AP"));
+      }
+      else
+      {
+        DEBUG_PRINTLN(F("setupSTAWifi"));
+        ConfigSettings.radioModeWiFi = false;
+      }
+    }
+    else
+    {
+      setupWifiAP();
+      modeWiFi = "AP";
+      DEBUG_PRINTLN(F("AP"));
+      ConfigSettings.radioModeWiFi = true;
+    }
+  }
   server.begin(ConfigSettings.socketPort);
 
   //GetVersion
@@ -455,7 +459,7 @@ void loop(void)
     {
       Serial.println("loop");
       //\01\02\10\10\02\10\02\10\10\03
-      char output_sprintf[2];
+      //char output_sprintf[2];
       uint8_t cmd[10];
       cmd[0] = 0x01;
       cmd[1] = 0x02;
