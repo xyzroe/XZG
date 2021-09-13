@@ -1,7 +1,3 @@
-- gzip and put to programm memory all web files
-- bin files moving script
-- git action to increase version
-
 - socket connection time
 - hide not used stats on main page
 - MQTT integration for buttons, uptime, version
@@ -9,6 +5,9 @@
 
 - Time synchronization with NTP server
 
++ gzip and put to programm memory all web files
++ bin files moving script
++ git action to increase version
 + help and update pages from github
 + fix temperature sensor while wifi off
 + HTML to files (not FS, imbedded)

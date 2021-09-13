@@ -12,6 +12,16 @@
 #include <Update.h>
 #include "html.h"
 
+#include "webh/glyphicons.woff.gz.h"
+#include "webh/required.css.gz.h"
+#include "webh/bootstrap.min.js.gz.h"
+#include "webh/functions.js.gz.h"
+#include "webh/jquery-min.js.gz.h"
+#include "webh/logo.png.gz.h"
+#include "webh/nok.png.gz.h"
+#include "webh/ok.png.gz.h"
+#include "webh/wait.gif.gz.h"
+
 extern struct ConfigSettingsStruct ConfigSettings;
 extern unsigned long timeLog;
 
@@ -24,17 +34,15 @@ void webServerHandleClient()
 
 void initWebServer()
 {
-  serverWeb.serveStatic("/web/js/jquery-min.js", LITTLEFS, "/web/js/jquery-min.js");
-  serverWeb.serveStatic("/web/js/functions.js", LITTLEFS, "/web/js/functions.js");
-  serverWeb.serveStatic("/web/js/bootstrap.min.js", LITTLEFS, "/web/js/bootstrap.min.js");
-  serverWeb.serveStatic("/web/css/bootstrap.min.css", LITTLEFS, "/web/css/bootstrap.min.css");
-  serverWeb.serveStatic("/web/css/glyphicons.css", LITTLEFS, "/web/css/glyphicons.css");
-  serverWeb.serveStatic("/web/fonts/glyphicons.woff", LITTLEFS, "/web/fonts/glyphicons.woff");
-  serverWeb.serveStatic("/web/css/style.css", LITTLEFS, "/web/css/style.css");
-  serverWeb.serveStatic("/web/img/logo.png", LITTLEFS, "/web/img/logo.png");
-  serverWeb.serveStatic("/web/img/wait.gif", LITTLEFS, "/web/img/wait.gif");
-  serverWeb.serveStatic("/web/img/nok.png", LITTLEFS, "/web/img/nok.png");
-  serverWeb.serveStatic("/web/img/ok.png", LITTLEFS, "/web/img/ok.png");
+  serverWeb.on("/js/bootstrap.min.js", handle_bootstrap_js);
+  serverWeb.on("/js/functions.js", handle_functions_js);
+  serverWeb.on("/js/jquery-min.js", handle_jquery_js);
+  serverWeb.on("/css/required.css", handle_required_css);
+  serverWeb.on("/fonts/glyphicons.woff", handle_glyphicons_woff);
+  serverWeb.on("/img/logo.png", handle_logo_png);
+  serverWeb.on("/img/wait.gif", handle_wait_gif);
+  serverWeb.on("/img/nok.png", handle_nok_png);
+  serverWeb.on("/img/ok.png", handle_ok_png);
   serverWeb.on("/", handleRoot);
   serverWeb.on("/general", handleGeneral);
   serverWeb.on("/wifi", handleWifi);
@@ -60,6 +68,7 @@ void initWebServer()
   serverWeb.on("/help", handleHelp);
   serverWeb.on("/esp_update", handleESPUpdate);
   serverWeb.onNotFound(handleNotFound);
+
   /*handling uploading firmware file */
   serverWeb.on(
       "/update", HTTP_POST, []()
@@ -100,6 +109,69 @@ void initWebServer()
         }
       });
   serverWeb.begin();
+}
+
+void handle_functions_js()
+{
+  const char *dataType = "text/javascript";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)functions_js_gz, functions_js_gz_len);
+}
+
+void handle_bootstrap_js()
+{
+  const char *dataType = "text/javascript";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)bootstrap_min_js_gz, bootstrap_min_js_gz_len);
+}
+
+void handle_jquery_js()
+{
+  const char *dataType = "text/javascript";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)jquery_min_js_gz, jquery_min_js_gz_len);
+}
+
+void handle_required_css()
+{
+  const char *dataType = "text/css";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)required_css_gz, required_css_gz_len);
+}
+
+void handle_glyphicons_woff()
+{
+  const char *dataType = "font/woff";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)glyphicons_woff_gz, glyphicons_woff_gz_len);
+}
+
+void handle_logo_png()
+{
+  const char *dataType = "img/png";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)logo_png_gz, logo_png_gz_len);
+}
+
+void handle_wait_gif()
+{
+  const char *dataType = "img/gif";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)wait_gif_gz, wait_gif_gz_len);
+}
+
+void handle_nok_png()
+{
+  const char *dataType = "img/png";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)nok_png_gz, nok_png_gz_len);
+}
+
+void handle_ok_png()
+{
+  const char *dataType = "img/png";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)ok_png_gz, ok_png_gz_len);
 }
 
 void handleNotFound()
@@ -289,11 +361,11 @@ void handleRoot()
 
   if (ConfigSettings.enableWiFi)
   {
-    result.replace("{{enableWifi}}", "<img src='/web/img/ok.png'>");
+    result.replace("{{enableWifi}}", "<img src='/img/ok.png'>");
   }
   else
   {
-    result.replace("{{enableWifi}}", "<img src='/web/img/nok.png'>");
+    result.replace("{{enableWifi}}", "<img src='/img/nok.png'>");
   }
   result.replace("{{ssidWifi}}", String(ConfigSettings.ssid));
 
@@ -345,29 +417,29 @@ void handleRoot()
   }
   if (ConfigSettings.connectedEther)
   {
-    result.replace("{{connectedEther}}", "<img src='/web/img/ok.png'>");
+    result.replace("{{connectedEther}}", "<img src='/img/ok.png'>");
   }
   else
   {
-    result.replace("{{connectedEther}}", "<img src='/web/img/nok.png'>");
+    result.replace("{{connectedEther}}", "<img src='/img/nok.png'>");
   }
 
   if (ConfigSettings.radioModeWiFi)
   {
-    result.replace("{{radioMode}}", "<img src='/web/img/ok.png'>");
+    result.replace("{{radioMode}}", "<img src='/img/ok.png'>");
   }
   else
   {
-    result.replace("{{radioMode}}", "<img src='/web/img/nok.png'>");
+    result.replace("{{radioMode}}", "<img src='/img/nok.png'>");
   }
 
   if (ConfigSettings.connectedSocket)
   {
-    result.replace("{{connectedSocket}}", "<img src='/web/img/ok.png'>");
+    result.replace("{{connectedSocket}}", "<img src='/img/ok.png'>");
   }
   else
   {
-    result.replace("{{connectedSocket}}", "<img src='/web/img/nok.png'>");
+    result.replace("{{connectedSocket}}", "<img src='/img/nok.png'>");
   }
 
   String readableTime;
