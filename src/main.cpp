@@ -347,7 +347,6 @@ void setup(void)
   //}
 
   ETH.setHostname(ConfigSettings.hostname);
-  WiFi.setHostname(ConfigSettings.hostname);
 
   if (!ConfigSettings.dhcp)
   {
@@ -377,6 +376,7 @@ void setup(void)
 
   if (ConfigSettings.enableWiFi)
   {
+    WiFi.setHostname(ConfigSettings.hostname);
     if (configOK)
     {
       DEBUG_PRINTLN(F("configOK"));

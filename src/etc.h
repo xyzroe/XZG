@@ -8,3 +8,5 @@ uint8_t temprature_sens_read();
 }
 #endif
 uint8_t temprature_sens_read();
+
+void getCPUtemp(String &CPUtemp);

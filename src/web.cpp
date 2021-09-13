@@ -27,7 +27,6 @@ void initWebServer()
   serverWeb.serveStatic("/web/js/jquery-min.js", LITTLEFS, "/web/js/jquery-min.js");
   serverWeb.serveStatic("/web/js/functions.js", LITTLEFS, "/web/js/functions.js");
   serverWeb.serveStatic("/web/js/bootstrap.min.js", LITTLEFS, "/web/js/bootstrap.min.js");
-  serverWeb.serveStatic("/web/js/bootstrap.min.js.map", LITTLEFS, "/web/js/bootstrap.min.js.map");
   serverWeb.serveStatic("/web/css/bootstrap.min.css", LITTLEFS, "/web/css/bootstrap.min.css");
   serverWeb.serveStatic("/web/css/glyphicons.css", LITTLEFS, "/web/css/glyphicons.css");
   serverWeb.serveStatic("/web/fonts/glyphicons.woff", LITTLEFS, "/web/fonts/glyphicons.woff");
@@ -173,12 +172,12 @@ void handleSaveSucces(String msg)
   result += F("<h2>Saved</h2>");
   result += F("<div class='row justify-content-md-center'>");
   result += F("<div class='col-sm-6'>");
-  result += F("<div class='form-group'><label>Save ");
+  result += F("<form method='GET' action='reboot' id='upload_form'>");
+  result += F("<label>Save ");
   result += msg;
-  result += F(" OK !</label></div>");
-  result += F("<br><form method='GET' action='reboot'>");
-  result += F("<input type='submit' class='btn btn-warning mb-2' name='reboot' value='Reboot'></form>");
-  result += F("</div></div>");
+  result += F(" OK !</label><br><br><br>");
+  result += F("<button type='submit' class='btn btn-warning mb-2'>Reboot</button>");
+  result += F("</form></div></div>");
   result += F("</html>");
   serverWeb.send(200, "text/html", result);
 }
@@ -284,7 +283,9 @@ void handleRoot()
   result += FPSTR(HTTP_ROOT);
   result += F("</html>");
 
-  result.replace("{{deviceTemp}}", String((temprature_sens_read() - 32) / 1.8));
+  String CPUtemp;
+  getCPUtemp(CPUtemp);
+  result.replace("{{deviceTemp}}", CPUtemp);
 
   if (ConfigSettings.enableWiFi)
   {
@@ -592,13 +593,12 @@ void handleReboot()
   String result;
 
   result += F("<html>");
+  result += F("<meta http-equiv='refresh' content='1; URL=/'>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Reboot ...</h2>");
+  result += F("<h2>Rebooted</h2>");
   result = result + F("</body></html>");
 
   serverWeb.send(200, F("text/html"), result);
-  serverWeb.sendHeader(F("Location"), F("/"));
-  serverWeb.send(303);
 
   ESP.restart();
 }
