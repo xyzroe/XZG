@@ -1,18 +1,18 @@
 function getXhr(){
-	var xhr = null; 
+	var xhr = null;
 	if(window.XMLHttpRequest) // Firefox et autres
-	   xhr = new XMLHttpRequest(); 
-	else if(window.ActiveXObject){ // Internet Explorer 
+	   xhr = new XMLHttpRequest();
+	else if(window.ActiveXObject){ // Internet Explorer
 	   try {
 				xhr = new ActiveXObject("Msxml2.XMLHTTP");
 			} catch (e) {
 				xhr = new ActiveXObject("Microsoft.XMLHTTP");
 			}
 	}
-	else { // XMLHttpRequest non supporté par le navigateur 
-	   alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest..."); 
-	   xhr = false; 
-	} 
+	else { // XMLHttpRequest non supporté par le navigateur
+	   alert("Votre navigateur ne supporte pas les objets XMLHTTPRequest...");
+	   xhr = false;
+	}
 	return xhr;
 }
 
@@ -28,7 +28,7 @@ function power(mac,cmd)
 	xhr.open("GET","SetPower?mac="+escape(mac)+"&cmd="+escape(cmd),true);
 	xhr.setRequestHeader('Content-Type','application/html');
 	xhr.send();
-	
+
 }
 function GetGSMStatus()
 {
@@ -42,7 +42,7 @@ function GetGSMStatus()
 	xhr.open("GET","GetGSMStatus",true);
 	xhr.setRequestHeader('Content-Type','application/html');
 	xhr.send();
-	
+
 }
 function GetThermostatStatus()
 {
@@ -133,3 +133,28 @@ function cmd(val)
 	xhr.send();
 }
 
+
+function getLatestReleaseInfo() {
+	$.getJSON("https://api.github.com/repos/xyzroe/ZigStar-GW-FW/releases/latest").done(function(release) {
+	  var asset = release.assets[0];
+	  var downloadCount = 0;
+	  for (var i = 0; i < release.assets.length; i++) {
+		downloadCount += release.assets[i].download_count;
+	  }
+	  var oneHour = 60 * 60 * 1000;
+	  var oneDay = 24 * oneHour;
+	  var dateDiff = new Date() - new Date(release.published_at);
+	  var timeAgo;
+	  if (dateDiff < oneDay) {
+		timeAgo = (dateDiff / oneHour).toFixed(1) + " hours ago";
+	  } else {
+		timeAgo = (dateDiff / oneDay).toFixed(1) + " days ago";
+	  }
+
+	  var releaseInfo = release.name + " was updated " + timeAgo + " and downloaded " + downloadCount.toLocaleString() + " times.";
+	  $("#downloadupdate").attr("href", asset.browser_download_url);
+	  $("#releasehead").text(releaseInfo);
+	  $("#releasebody").text(release.body);
+	  $("#releaseinfo").fadeIn("slow");
+	});
+  }

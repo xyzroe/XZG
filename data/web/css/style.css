@@ -176,3 +176,17 @@ img#photo {
     margin-left: auto;
     margin-right: auto
 }
+
+div#update_info {
+  max-width: 55%;
+  margin: auto;
+  margin-bottom: 25px;
+}
+
+div#help_btns {
+  max-width: 90%;
+  margin: 25px auto;
+  text-align: center;    
+  display: flex;
+  justify-content: space-between;
+}
