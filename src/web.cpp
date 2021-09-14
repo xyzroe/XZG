@@ -244,8 +244,8 @@ void handleSaveSucces(String msg)
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
   result += F("<h2>Saved</h2>");
-  result += F("<div class='row justify-content-md-center'>");
-  result += F("<div class='col-sm-6'>");
+  result += F("<div id='main' class='col-sm-12'>");
+  result += F("<div id='main' class='col-sm-6'>");
   result += F("<form method='GET' action='reboot' id='upload_form'>");
   result += F("<label>Save ");
   result += msg;
@@ -647,7 +647,7 @@ void handleLogs()
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
   result += F("<h2>Console</h2>");
-  result += F("<div class='row justify-content-md-center'>");
+  result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-sm-8'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
   result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
@@ -655,9 +655,9 @@ void handleLogs()
   result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Reset</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
   result += F("</div></div>");
-  result += F("<div class='row justify-content-md-center' >");
-  result += F("<div class='col-md-7'>Raw datas :</div>");
-  result += F("<textarea class='col-md-7' id='console' rows='16' ></textarea>");
+  result += F("<div id='main' class='col-sm-8'>");
+  result += F("<div class='col-md-12'>Raw data :</div>");
+  result += F("<textarea class='col-md-12' id='console' rows='16' ></textarea>");
   result += F("</div>");
   result += F("</body>");
   result += F("<script language='javascript'>");
@@ -719,7 +719,7 @@ void handleFSbrowser()
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
   result += F("<h2>FSBrowser</h2>");
-  result += F("<div class='row justify-content-md-center'>");
+  result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-md-11'>");
 
   String str = "";
@@ -739,7 +739,7 @@ void handleFSbrowser()
     file = root.openNextFile();
   }
   result += F("</div>");
-  result += F("<div class='justify-content-md-center col-md-9'>");
+  result += F("<div id='main' class='col-md-9'>");
   result += F("<div class='app-main-content'>");
   result += F("<form method='POST' action='saveFile'>");
   result += F("<div class='form-group'>");

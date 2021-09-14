@@ -49,8 +49,8 @@ const char HTTP_HEADER[] PROGMEM =
 const char HTTP_WIFI[] PROGMEM =
 
     "<h2>Config WiFi</h2>"
-    "<div class='row justify-content-md-center' >"
-    "<div class='col-sm-6'><form method='POST' action='saveWifi'>"
+    "<div id='main' class='col-sm-12'>"
+    "<div id='main' class='col-sm-6'><form method='POST' action='saveWifi'>"
     "<div class='form-check'>"
 
     "<input class='form-check-input' id='wifiEnable' type='checkbox' name='wifiEnable' {{checkedWiFi}}>"
@@ -89,8 +89,8 @@ const char HTTP_WIFI[] PROGMEM =
 
 const char HTTP_SERIAL[] PROGMEM =
     "<h2>Config Serial</h2>"
-    "<div class='row justify-content-md-center' >"
-    "<div class='col-sm-6'><form method='POST' action='saveSerial'>"
+    "<div id='main' class='col-sm-12'>"
+    "<div id='main' class='col-sm-6'><form method='POST' action='saveSerial'>"
 
     "<div class='form-group'>"
     "<label for='baud'>Serial Speed</label>"
@@ -110,8 +110,7 @@ const char HTTP_SERIAL[] PROGMEM =
 
 const char HTTP_HELP[] PROGMEM =
     "<h2>Help</h2>"
-    "<div class='row justify-content-md-center'>"
-    "<div class='col-sm-9'>"
+    "<div id='main' class='col-sm-9'>"
     "<div id='help_btns'>"
     "<a href='#' class='btn btn-primary'><i class='glyphicon glyphicon-cog'></i>Primary</a>"
     "<a href='#' class='btn btn-secondary'><i class='glyphicon glyphicon-file'></i>Secondary</a>"
@@ -122,13 +121,12 @@ const char HTTP_HELP[] PROGMEM =
     "<script src='https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js'></script>"
     "<script type='module' src='https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js'></script>"
     "<zero-md src='https://raw.githubusercontent.com/xyzroe/ZigStar-GW-FW/platformio/README.md'></zero-md>"
-    "</div>"
     "</div>";
 
 const char HTTP_ETHERNET[] PROGMEM =
     "<h2>Config Ethernet</h2>"
-    "<div class='row justify-content-md-center' >"
-    "<div class='col-sm-6'><form method='POST' action='saveEther'>"
+    "<div id='main' class='col-sm-12'>"
+    "<div id='main' class='col-sm-6'><form method='POST' action='saveEther'>"
     "<div class='form-check'>"
 
     "<input class='form-check-input' id='dhcp' type='checkbox' name='dhcp' {{modeEther}}>"
@@ -151,8 +149,8 @@ const char HTTP_ETHERNET[] PROGMEM =
 
 const char HTTP_GENERAL[] PROGMEM =
     "<h2>General</h2>"
-    "<div class='row justify-content-md-center' >"
-    "<div class='col-sm-6'><form method='POST' action='saveGeneral'>"
+    "<div id='main' class='col-sm-12'>"
+    "<div id='main' class='col-sm-6'><form method='POST' action='saveGeneral'>"
     "<div class='form-group'>"
     "<label for='hostname'>Hostname</label>"
     "<input class='form-control' id='hostname' type='text' name='hostname' value='{{hostname}}'>"
@@ -174,8 +172,8 @@ const char HTTP_GENERAL[] PROGMEM =
 
 const char HTTP_ROOT[] PROGMEM =
     "<h2>Status</h2>"
-    "<div class='row justify-content-md-center'>"
-    "<div class='col-sm-6'>"
+    "<div id='main' class='col-sm-12'>"
+    "<div id='main' class='col-sm-6'>"
     "<div class='card'>"
     "<div class='card-header'>General</div>"
     "<div class='card-body'>"

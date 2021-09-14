@@ -190,3 +190,8 @@ div#help_btns {
   display: flex;
   justify-content: space-between;
 }
+
+div#main {
+  margin-left: auto;
+  margin-right: auto;
+}

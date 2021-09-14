@@ -1,10 +1,15 @@
-- socket connection time
-- hide not used stats on main page
+- enable wifi if no eth for 30 seconds, in there is no config - AP mode
+
 - MQTT integration for buttons, uptime, version
 - MQTT stats
 
 - Time synchronization with NTP server
 
+- Different board - autp select pins
+
+
++ socket connection time
++ hide not used stats on main page
 + gzip and put to programm memory all web files
 + bin files moving script
 + git action to increase version

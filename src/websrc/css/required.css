@@ -191,6 +191,10 @@ div#help_btns {
   justify-content: space-between;
 }
 
+div#main {
+  margin-left: auto;
+  margin-right: auto;
+}
 /*
   Glyphicons
 */
