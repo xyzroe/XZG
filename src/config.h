@@ -33,7 +33,7 @@ struct ConfigSettingsStruct
   int serialSpeed;
   int socketPort;
   bool disableWeb;
-  bool enableHeartBeat;
+  //bool enableHeartBeat;
   double refreshLogs;
   char hostname[50];
   bool connectedSocket;

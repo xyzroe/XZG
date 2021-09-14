@@ -222,7 +222,7 @@ bool loadConfigGeneral()
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"enableHeartBeat\":0,\"refreshLogs\":1000}";
+    String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"refreshLogs\":1000}";
     DEBUG_PRINTLN(StringConfig);
     StaticJsonDocument<512> jsonBuffer;
     DynamicJsonDocument doc(1024);
@@ -245,7 +245,7 @@ bool loadConfigGeneral()
   deserializeJson(doc, configFile);
 
   ConfigSettings.disableWeb = (int)doc["disableWeb"];
-  ConfigSettings.enableHeartBeat = (int)doc["enableHeartBeat"];
+  //ConfigSettings.enableHeartBeat = (int)doc["enableHeartBeat"];
   if ((double)doc["refreshLogs"] < 1000)
   {
     ConfigSettings.refreshLogs = 1000;
@@ -532,7 +532,7 @@ void loop(void)
 
   if (loopCount > 2000000)
   {
-    if (ConfigSettings.enableHeartBeat)
+    /*if (ConfigSettings.enableHeartBeat)
     {
       Serial.println("loop");
       //\01\02\10\10\02\10\02\10\10\03
@@ -552,6 +552,7 @@ void loop(void)
       Serial2.write(cmd, 10);
       Serial2.flush();
     }
+    */
     loopCount = 0;
   }
   // Check if a client has connected

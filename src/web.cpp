@@ -221,6 +221,7 @@ void handleGeneral()
   {
     result.replace("{{disableWeb}}", "");
   }
+  /*
   if (ConfigSettings.enableHeartBeat)
   {
     result.replace("{{enableHeartBeat}}", "checked");
@@ -229,6 +230,7 @@ void handleGeneral()
   {
     result.replace("{{enableHeartBeat}}", "");
   }
+  */
 
   result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
   result.replace("{{hostname}}", (String)ConfigSettings.hostname);
@@ -366,7 +368,7 @@ void handleRoot()
   }
   String readableTime;
   getReadableTime(readableTime, ConfigSettings.socketTime);
-  socketStatus = socketStatus + " for " + readableTime;
+  socketStatus = socketStatus + " " + readableTime;
   result.replace("{{connectedSocket}}", socketStatus);
 
   getReadableTime(readableTime, 0);
@@ -376,7 +378,6 @@ void handleRoot()
   getCPUtemp(CPUtemp);
   result.replace("{{deviceTemp}}", CPUtemp);
 
-
   String ethState = "<strong>Connected : </strong>";
   if (ConfigSettings.connectedEther)
   {
@@ -384,42 +385,41 @@ void handleRoot()
     String SpeedEth = String(speed) + String(" Mbps");
     if (ETH.fullDuplex())
     {
-      SpeedEth = SpeedEth + String(", FULL DUPLEX");
+      SpeedEth += String(", FULL DUPLEX");
     }
     else
     {
-      SpeedEth = SpeedEth + String(", HALF DUPLEX");
+      SpeedEth += String(", HALF DUPLEX");
     }
-    ethState = ethState + "<img src='/img/ok.png'>";
-    ethState = ethState + "<br><strong>MAC : </strong>" + ETH.macAddress();
-    ethState = ethState + "<br><strong>Speed : </strong> " + SpeedEth;
-    ethState = ethState + "<br><strong>Mode : </strong>";
+    ethState += "<img src='/img/ok.png'>";
+    ethState += "<br><strong>MAC : </strong>" + ETH.macAddress();
+    ethState += "<br><strong>Speed : </strong> " + SpeedEth;
+    ethState += "<br><strong>Mode : </strong>";
     if (ConfigSettings.dhcp)
     {
-      ethState = ethState + "DHCP" + "<br><strong>IP : </strong>" + ETH.localIP().toString();
-      ethState = ethState + "<br><strong>Mask : </strong>" + ETH.subnetMask().toString();
-      ethState = ethState + "<br><strong>GW : </strong>" + ETH.gatewayIP().toString();
+      ethState += "DHCP<br><strong>IP : </strong>" + ETH.localIP().toString();
+      ethState += "<br><strong>Mask : </strong>" + ETH.subnetMask().toString();
+      ethState += "<br><strong>GW : </strong>" + ETH.gatewayIP().toString();
     }
     else
     {
-      ethState = ethState + "STATIC" + "<br><strong>IP : </strong>" + ConfigSettings.ipAddress;
+      ethState = ethState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddress;
       ethState = ethState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMask;
       ethState = ethState + "<br><strong>GW : </strong>" + ConfigSettings.ipGW;
     }
   }
   else
   {
-    ethState = ethState + "<img src='/img/nok.png'>";
+    ethState += "<img src='/img/nok.png'>";
   }
   result.replace("{{stateEther}}", ethState);
-
 
   String wifiState = "<strong>Enable : </strong>";
   if (ConfigSettings.enableWiFi)
   {
-    wifiState = wifiState + "<img src='/img/ok.png'>";
-    wifiState = wifiState + "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
-    wifiState = wifiState + "<br><strong>Mode : </strong> ";
+    wifiState += "<img src='/img/ok.png'>";
+    wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
+    wifiState += "<br><strong>Mode : </strong> ";
     if (ConfigSettings.radioModeWiFi)
     {
       uint8_t mac[WL_MAC_ADDR_LENGTH];
@@ -428,26 +428,26 @@ void handleRoot()
                      String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
       macID.toUpperCase();
       String AP_NameString = "ZigStar-GW-" + macID;
-      wifiState = wifiState + "AP <br><strong>SSID : </strong>" + AP_NameString;
-      wifiState = wifiState + "<br><strong>Password : </strong>" + "ZigStar1";
-      wifiState = wifiState + "<br><strong>IP : </strong>192.168.4.1";
+      wifiState += "AP <br><strong>SSID : </strong>" + AP_NameString;
+      wifiState += "<br><strong>Password : </strong>ZigStar1";
+      wifiState += "<br><strong>IP : </strong>192.168.4.1";
     }
     else
     {
       int rssi = WiFi.RSSI();
       String rssiWifi = String(rssi) + String(" dBm");
       wifiState = wifiState + "STA <br><strong>SSID : </strong>" + ConfigSettings.ssid;
-      wifiState = wifiState + "<br><strong>RSSI : </strong>" + rssiWifi;
-      wifiState = wifiState + "<br><strong>Mode : </strong>";
+      wifiState += "<br><strong>RSSI : </strong>" + rssiWifi;
+      wifiState += "<br><strong>Mode : </strong>";
       if (ConfigSettings.dhcpWiFi)
       {
-        wifiState = wifiState + "DHCP" + "<br><strong>IP : </strong>" + WiFi.localIP().toString();
-        wifiState = wifiState + "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
-        wifiState = wifiState + "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+        wifiState += "DHCP<br><strong>IP : </strong>" + WiFi.localIP().toString();
+        wifiState += "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
+        wifiState += "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
       }
       else
       {
-        wifiState = wifiState + "STATIC" + "<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
+        wifiState = wifiState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
         wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
         wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
       }
@@ -455,10 +455,9 @@ void handleRoot()
   }
   else
   {
-    wifiState = wifiState + "<img src='/img/nok.png'>";
+    wifiState += "<img src='/img/nok.png'>";
   }
   result.replace("{{stateWifi}}", wifiState);
-
 
   serverWeb.send(200, "text/html", result);
 }
@@ -467,7 +466,7 @@ void handleSaveGeneral()
 {
   String StringConfig;
   String disableWeb;
-  String enableHeartBeat;
+  //String enableHeartBeat;
   String refreshLogs;
 
   if (serverWeb.arg("disableWeb") == "on")
@@ -479,14 +478,14 @@ void handleSaveGeneral()
     disableWeb = "0";
   }
 
-  if (serverWeb.arg("enableHeartBeat") == "on")
+  /*if (serverWeb.arg("enableHeartBeat") == "on")
   {
     enableHeartBeat = "1";
   }
   else
   {
     enableHeartBeat = "0";
-  }
+  }*/
 
   if (serverWeb.arg("refreshLogs").toDouble() < 1000)
   {
@@ -501,7 +500,7 @@ void handleSaveGeneral()
   DEBUG_PRINTLN(hostname);
   const char *path = "/config/configGeneral.json";
 
-  StringConfig = "{\"disableWeb\":" + disableWeb + ",\"enableHeartBeat\":" + enableHeartBeat + ",\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\"}";
+  StringConfig = "{\"disableWeb\":" + disableWeb + ",\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\"}";
   DEBUG_PRINTLN(StringConfig);
   StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
@@ -649,20 +648,17 @@ void handleLogs()
   result += FPSTR(HTTP_HEADER);
   result += F("<h2>Console</h2>");
   result += F("<div class='row justify-content-md-center'>");
-  result += F("<div class='col-sm-6'>");
-  result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-primary'>Clear Console</button> ");
-  result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-primary'>Get Version</button> ");
-  //result += F("<button type='button' onclick='cmd(\"ErasePDM\");' class='btn btn-primary'>Erase PDM</button> ");
+  result += F("<div id='help_btns' class='col-sm-8'>");
+  result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
+  result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+  //result += F("<button type='button' onclick='cmd(\"ErasePDM\");' class='btn btn-danger'>Erase PDM</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Reset</button> ");
-  result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-primary'>Zigbee BSL</button> ");
+  result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
   result += F("</div></div>");
   result += F("<div class='row justify-content-md-center' >");
-  result += F("<div class='col-sm-6'>");
-
-  result += F("Raw datas : <textarea id='console' rows='16' cols='100'>");
-
-  result += F("</textarea></div></div>");
-  //result += F("</div>");
+  result += F("<div class='col-md-7'>Raw datas :</div>");
+  result += F("<textarea class='col-md-7' id='console' rows='16' ></textarea>");
+  result += F("</div>");
   result += F("</body>");
   result += F("<script language='javascript'>");
   result += F("logRefresh({{refreshLogs}});");
@@ -723,11 +719,8 @@ void handleFSbrowser()
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
   result += F("<h2>FSBrowser</h2>");
-  result += F("<nav id='navbar-custom' class='navbar navbar-default navbar-fixed-left'>");
-  result += F("      <div class='navbar-header'>");
-  result += F("        <!--<a class='navbar-brand' href='#'>Brand</a>-->");
-  result += F("      </div>");
-  result += F("<ul class='nav navbar-nav'>");
+  result += F("<div class='row justify-content-md-center'>");
+  result += F("<div id='help_btns' class='col-md-11'>");
 
   String str = "";
   File root = LITTLEFS.open("/config");
@@ -736,27 +729,28 @@ void handleFSbrowser()
   {
     String tmp = file.name();
     tmp = tmp.substring(8);
-    result += F("<li><a href='#' onClick=\"readfile('");
+    result += F("<a href='#' onClick=\"readfile('");
     result += tmp;
     result += F("');\">");
     result += tmp;
-    result += F(" ( ");
+    result += F(" (");
     result += file.size();
-    result += F(" o)</a></li>");
+    result += F(" B)</a>");
     file = root.openNextFile();
   }
-  result += F("</ul></nav>");
-  result += F("<div class='container-fluid' >");
-  result += F("  <div class='app-main-content'>");
+  result += F("</div>");
+  result += F("<div class='justify-content-md-center col-md-9'>");
+  result += F("<div class='app-main-content'>");
   result += F("<form method='POST' action='saveFile'>");
   result += F("<div class='form-group'>");
-  result += F(" <label for='file'>File : <span id='title'></span></label>");
-  result += F("<input type='hidden' name='filename' id='filename' value=''>");
-  result += F(" <textarea class='form-control' id='file' name='file' rows='10'>");
+  result += F("<div><label for='file'>File : <span id='title'></span></label>");
+  result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
+  result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
   result += F("</textarea>");
   result += F("</div>");
   result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
-  result += F("</Form>");
+  result += F("</form>");
+  result += F("</div>");
   result += F("</div>");
   result += F("</div>");
   result += F("</body></html>");
