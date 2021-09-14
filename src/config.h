@@ -15,6 +15,15 @@
 #define RXD2 5  //2 //16
 #define TXD2 17 //4 //17
 
+#define BAUD_RATE 38400
+#define TCP_LISTEN_PORT 9999
+
+#define ETH_ERROR_TIME 30
+
+#define BONJOUR_SUPPORT
+
+#define FORMAT_LITTLEFS_IF_FAILED true
+
 // ma structure config
 struct ConfigSettingsStruct
 {
@@ -33,12 +42,12 @@ struct ConfigSettingsStruct
   int serialSpeed;
   int socketPort;
   bool disableWeb;
-  //bool enableHeartBeat;
   double refreshLogs;
   char hostname[50];
   bool connectedSocket;
   bool radioModeWiFi;
   unsigned long socketTime;
+  unsigned long disconnectEthTime;
 };
 
 struct InfosStruct

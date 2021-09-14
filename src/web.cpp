@@ -221,16 +221,6 @@ void handleGeneral()
   {
     result.replace("{{disableWeb}}", "");
   }
-  /*
-  if (ConfigSettings.enableHeartBeat)
-  {
-    result.replace("{{enableHeartBeat}}", "checked");
-  }
-  else
-  {
-    result.replace("{{enableHeartBeat}}", "");
-  }
-  */
 
   result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
   result.replace("{{hostname}}", (String)ConfigSettings.hostname);
@@ -275,6 +265,7 @@ void handleWifi()
     result.replace("{{checkedWiFi}}", "");
   }
   result.replace("{{ssid}}", String(ConfigSettings.ssid));
+  result.replace("{{passWifi}}", String(ConfigSettings.password));
   if (ConfigSettings.dhcpWiFi)
   {
     result.replace("{{modeWiFi}}", "Checked");
@@ -466,7 +457,6 @@ void handleSaveGeneral()
 {
   String StringConfig;
   String disableWeb;
-  //String enableHeartBeat;
   String refreshLogs;
 
   if (serverWeb.arg("disableWeb") == "on")
@@ -477,15 +467,6 @@ void handleSaveGeneral()
   {
     disableWeb = "0";
   }
-
-  /*if (serverWeb.arg("enableHeartBeat") == "on")
-  {
-    enableHeartBeat = "1";
-  }
-  else
-  {
-    enableHeartBeat = "0";
-  }*/
 
   if (serverWeb.arg("refreshLogs").toDouble() < 1000)
   {
@@ -502,7 +483,6 @@ void handleSaveGeneral()
 
   StringConfig = "{\"disableWeb\":" + disableWeb + ",\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\"}";
   DEBUG_PRINTLN(StringConfig);
-  StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
 
@@ -557,7 +537,6 @@ void handleSaveWifi()
 
   StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
   DEBUG_PRINTLN(StringConfig);
-  StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
 
@@ -582,7 +561,6 @@ void handleSaveSerial()
 
   StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
   DEBUG_PRINTLN(StringConfig);
-  StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
 
@@ -624,7 +602,6 @@ void handleSaveEther()
 
   StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
   DEBUG_PRINTLN(StringConfig);
-  StaticJsonDocument<512> jsonBuffer;
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
 

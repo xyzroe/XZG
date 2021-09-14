@@ -1,8 +1,4 @@
 #include <WiFi.h>
-#define BONJOUR_SUPPORT
-#ifdef BONJOUR_SUPPORT
-#include <ESPmDNS.h>
-#endif
 
 #include <WiFiClient.h>
 #include <WebServer.h>
@@ -38,7 +34,9 @@
 // Pin# of the I²C IO signal for the Ethernet PHY
 #define ETH_MDIO_PIN 18
 
-#define FORMAT_LITTLEFS_IF_FAILED true
+#ifdef BONJOUR_SUPPORT
+#include <ESPmDNS.h>
+#endif
 
 // application config
 unsigned long timeLog;
@@ -47,14 +45,8 @@ InfosStruct Infos;
 bool configOK = false;
 String modeWiFi = "STA";
 
-#define BAUD_RATE 38400
-#define TCP_LISTEN_PORT 9999
-
-
 // serial end ethernet buffer size
 #define BUFFER_SIZE 256
-
-
 
 #ifdef BONJOUR_SUPPORT
 // multicast DNS responder
@@ -73,6 +65,7 @@ void WiFiEvent(WiFiEvent_t event)
   case SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
     ConfigSettings.connectedEther = true;
+    ConfigSettings.disconnectEthTime = 0;
     break;
   case SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
@@ -91,10 +84,12 @@ void WiFiEvent(WiFiEvent_t event)
   case SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
     ConfigSettings.connectedEther = false;
+    ConfigSettings.disconnectEthTime = millis();
     break;
   case SYSTEM_EVENT_ETH_STOP:
     DEBUG_PRINTLN(F("ETH Stopped"));
     ConfigSettings.connectedEther = false;
+    ConfigSettings.disconnectEthTime = millis();
     break;
   default:
     break;
@@ -141,8 +136,7 @@ bool loadConfigWifi()
 
     String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
     DEBUG_PRINTLN(StringConfig);
-    StaticJsonDocument<512> jsonBuffer;
-    DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -184,8 +178,7 @@ bool loadConfigEther()
 
     String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
     DEBUG_PRINTLN(StringConfig);
-    StaticJsonDocument<512> jsonBuffer;
-    DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -224,8 +217,7 @@ bool loadConfigGeneral()
 
     String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"refreshLogs\":1000}";
     DEBUG_PRINTLN(StringConfig);
-    StaticJsonDocument<512> jsonBuffer;
-    DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -245,7 +237,6 @@ bool loadConfigGeneral()
   deserializeJson(doc, configFile);
 
   ConfigSettings.disableWeb = (int)doc["disableWeb"];
-  //ConfigSettings.enableHeartBeat = (int)doc["enableHeartBeat"];
   if ((double)doc["refreshLogs"] < 1000)
   {
     ConfigSettings.refreshLogs = 1000;
@@ -270,8 +261,7 @@ bool loadConfigSerial()
 
     String StringConfig = "{\"baud\":115200,\"port\":4444}";
     DEBUG_PRINTLN(StringConfig);
-    StaticJsonDocument<512> jsonBuffer;
-    DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -374,6 +364,49 @@ bool setupSTAWifi()
   return true;
 }
 
+void enableWifi()
+{
+  WiFi.setHostname(ConfigSettings.hostname);
+  if (configOK)
+  {
+    DEBUG_PRINTLN(F("configOK"));
+    if (!setupSTAWifi())
+    {
+      setupWifiAP();
+      modeWiFi = "AP";
+      ConfigSettings.radioModeWiFi = true;
+      DEBUG_PRINTLN(F("AP"));
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("setupSTAWifi"));
+      ConfigSettings.radioModeWiFi = false;
+    }
+  }
+  else
+  {
+    setupWifiAP();
+    modeWiFi = "AP";
+    DEBUG_PRINTLN(F("AP"));
+    ConfigSettings.radioModeWiFi = true;
+  }
+}
+
+void saveWifiEnable(){
+  const char *path = "/config/configWifi.json";
+  DynamicJsonDocument doc(1024);
+
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  deserializeJson(doc, configFile);
+  configFile.close();
+
+  doc["enableWiFi"] = 1;
+
+  configFile = LITTLEFS.open(path, FILE_WRITE);
+  serializeJson(doc, configFile);
+  configFile.close();
+}
+
 void setup(void)
 {
 
@@ -453,30 +486,7 @@ void setup(void)
 
   if (ConfigSettings.enableWiFi)
   {
-    WiFi.setHostname(ConfigSettings.hostname);
-    if (configOK)
-    {
-      DEBUG_PRINTLN(F("configOK"));
-      if (!setupSTAWifi())
-      {
-        setupWifiAP();
-        modeWiFi = "AP";
-        ConfigSettings.radioModeWiFi = true;
-        DEBUG_PRINTLN(F("AP"));
-      }
-      else
-      {
-        DEBUG_PRINTLN(F("setupSTAWifi"));
-        ConfigSettings.radioModeWiFi = false;
-      }
-    }
-    else
-    {
-      setupWifiAP();
-      modeWiFi = "AP";
-      DEBUG_PRINTLN(F("AP"));
-      ConfigSettings.radioModeWiFi = true;
-    }
+    enableWifi();
   }
   server.begin(ConfigSettings.socketPort);
 
@@ -530,30 +540,15 @@ void loop(void)
     }
   }
 
-  if (loopCount > 2000000)
+  if (ConfigSettings.connectedEther == false && ConfigSettings.disconnectEthTime != 0)
   {
-    /*if (ConfigSettings.enableHeartBeat)
+    if ((millis() - ConfigSettings.disconnectEthTime) >= (ETH_ERROR_TIME * 1000))
     {
-      Serial.println("loop");
-      //\01\02\10\10\02\10\02\10\10\03
-      //char output_sprintf[2];
-      uint8_t cmd[10];
-      cmd[0] = 0x01;
-      cmd[1] = 0x02;
-      cmd[2] = 0x10;
-      cmd[3] = 0x10;
-      cmd[4] = 0x02;
-      cmd[5] = 0x10;
-      cmd[6] = 0x02;
-      cmd[7] = 0x10;
-      cmd[8] = 0x10;
-      cmd[9] = 0x03;
-
-      Serial2.write(cmd, 10);
-      Serial2.flush();
+      DEBUG_PRINTLN(F("saveWifiEnable"));
+      saveWifiEnable();
+      DEBUG_PRINTLN(F("ESP.restart"));
+      ESP.restart();
     }
-    */
-    loopCount = 0;
   }
   // Check if a client has connected
   if (!client)

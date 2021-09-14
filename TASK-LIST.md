@@ -1,4 +1,3 @@
-- enable wifi if no eth for 30 seconds, in there is no config - AP mode
 
 - MQTT integration for buttons, uptime, version
 - MQTT stats
@@ -7,7 +6,7 @@
 
 - Different board - autp select pins
 
-
++ enable Wi-Fi if Ethernet is disconnected more than 30 seconds
 + socket connection time
 + hide not used stats on main page
 + gzip and put to programm memory all web files
