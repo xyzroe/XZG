@@ -355,96 +355,110 @@ void handleRoot()
   result += FPSTR(HTTP_ROOT);
   result += F("</html>");
 
+  String socketStatus;
+  if (ConfigSettings.connectedSocket)
+  {
+    socketStatus = "<img src='/img/ok.png'>";
+  }
+  else
+  {
+    socketStatus = "<img src='/img/nok.png'>";
+  }
+  String readableTime;
+  getReadableTime(readableTime, ConfigSettings.socketTime);
+  socketStatus = socketStatus + " for " + readableTime;
+  result.replace("{{connectedSocket}}", socketStatus);
+
+  getReadableTime(readableTime, 0);
+  result.replace("{{uptime}}", readableTime);
+
   String CPUtemp;
   getCPUtemp(CPUtemp);
   result.replace("{{deviceTemp}}", CPUtemp);
 
-  if (ConfigSettings.enableWiFi)
-  {
-    result.replace("{{enableWifi}}", "<img src='/img/ok.png'>");
-  }
-  else
-  {
-    result.replace("{{enableWifi}}", "<img src='/img/nok.png'>");
-  }
-  result.replace("{{ssidWifi}}", String(ConfigSettings.ssid));
 
-  if (ConfigSettings.dhcpWiFi)
-  {
-    result.replace("{{modeWiFi}}", "DHCP");
-    result.replace("{{ipWifi}}", WiFi.localIP().toString());
-    result.replace("{{maskWifi}}", WiFi.subnetMask().toString());
-    result.replace("{{GWWifi}}", WiFi.gatewayIP().toString());
-  }
-  else
-  {
-    result.replace("{{modeWiFi}}", "STATIC");
-    result.replace("{{ipWifi}}", ConfigSettings.ipAddressWiFi);
-    result.replace("{{maskWifi}}", ConfigSettings.ipMaskWiFi);
-    result.replace("{{GWWifi}}", ConfigSettings.ipGWWiFi);
-  }
-
-  result.replace("{{MACWifi}}", WiFi.softAPmacAddress());
-  int rssi = WiFi.RSSI();
-  String rssiWifi = String(rssi) + String(" dBm");
-  result.replace("{{RSSIWifi}}", rssiWifi);
-  result.replace("{{MACEther}}", ETH.macAddress());
-  int speed = ETH.linkSpeed();
-  String SpeedEth = String(speed) + String(" Mbps");
-  if (ETH.fullDuplex())
-  {
-    SpeedEth = SpeedEth + String(", FULL DUPLEX");
-  }
-  else
-  {
-    SpeedEth = SpeedEth + String(", HALF DUPLEX");
-  }
-  result.replace("{{SpeedEther}}", SpeedEth);
-
-  if (ConfigSettings.dhcp)
-  {
-    result.replace("{{modeEther}}", "DHCP");
-    result.replace("{{ipEther}}", ETH.localIP().toString());
-    result.replace("{{maskEther}}", ETH.subnetMask().toString());
-    result.replace("{{GWEther}}", ETH.gatewayIP().toString());
-  }
-  else
-  {
-    result.replace("{{modeEther}}", "STATIC");
-    result.replace("{{ipEther}}", ConfigSettings.ipAddress);
-    result.replace("{{maskEther}}", ConfigSettings.ipMask);
-    result.replace("{{GWEther}}", ConfigSettings.ipGW);
-  }
+  String ethState = "<strong>Connected : </strong>";
   if (ConfigSettings.connectedEther)
   {
-    result.replace("{{connectedEther}}", "<img src='/img/ok.png'>");
+    int speed = ETH.linkSpeed();
+    String SpeedEth = String(speed) + String(" Mbps");
+    if (ETH.fullDuplex())
+    {
+      SpeedEth = SpeedEth + String(", FULL DUPLEX");
+    }
+    else
+    {
+      SpeedEth = SpeedEth + String(", HALF DUPLEX");
+    }
+    ethState = ethState + "<img src='/img/ok.png'>";
+    ethState = ethState + "<br><strong>MAC : </strong>" + ETH.macAddress();
+    ethState = ethState + "<br><strong>Speed : </strong> " + SpeedEth;
+    ethState = ethState + "<br><strong>Mode : </strong>";
+    if (ConfigSettings.dhcp)
+    {
+      ethState = ethState + "DHCP" + "<br><strong>IP : </strong>" + ETH.localIP().toString();
+      ethState = ethState + "<br><strong>Mask : </strong>" + ETH.subnetMask().toString();
+      ethState = ethState + "<br><strong>GW : </strong>" + ETH.gatewayIP().toString();
+    }
+    else
+    {
+      ethState = ethState + "STATIC" + "<br><strong>IP : </strong>" + ConfigSettings.ipAddress;
+      ethState = ethState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMask;
+      ethState = ethState + "<br><strong>GW : </strong>" + ConfigSettings.ipGW;
+    }
   }
   else
   {
-    result.replace("{{connectedEther}}", "<img src='/img/nok.png'>");
+    ethState = ethState + "<img src='/img/nok.png'>";
   }
+  result.replace("{{stateEther}}", ethState);
 
-  if (ConfigSettings.radioModeWiFi)
+
+  String wifiState = "<strong>Enable : </strong>";
+  if (ConfigSettings.enableWiFi)
   {
-    result.replace("{{radioMode}}", "<img src='/img/ok.png'>");
+    wifiState = wifiState + "<img src='/img/ok.png'>";
+    wifiState = wifiState + "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
+    wifiState = wifiState + "<br><strong>Mode : </strong> ";
+    if (ConfigSettings.radioModeWiFi)
+    {
+      uint8_t mac[WL_MAC_ADDR_LENGTH];
+      WiFi.softAPmacAddress(mac);
+      String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
+                     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
+      macID.toUpperCase();
+      String AP_NameString = "ZigStar-GW-" + macID;
+      wifiState = wifiState + "AP <br><strong>SSID : </strong>" + AP_NameString;
+      wifiState = wifiState + "<br><strong>Password : </strong>" + "ZigStar1";
+      wifiState = wifiState + "<br><strong>IP : </strong>192.168.4.1";
+    }
+    else
+    {
+      int rssi = WiFi.RSSI();
+      String rssiWifi = String(rssi) + String(" dBm");
+      wifiState = wifiState + "STA <br><strong>SSID : </strong>" + ConfigSettings.ssid;
+      wifiState = wifiState + "<br><strong>RSSI : </strong>" + rssiWifi;
+      wifiState = wifiState + "<br><strong>Mode : </strong>";
+      if (ConfigSettings.dhcpWiFi)
+      {
+        wifiState = wifiState + "DHCP" + "<br><strong>IP : </strong>" + WiFi.localIP().toString();
+        wifiState = wifiState + "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
+        wifiState = wifiState + "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+      }
+      else
+      {
+        wifiState = wifiState + "STATIC" + "<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
+        wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
+        wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
+      }
+    }
   }
   else
   {
-    result.replace("{{radioMode}}", "<img src='/img/nok.png'>");
+    wifiState = wifiState + "<img src='/img/nok.png'>";
   }
+  result.replace("{{stateWifi}}", wifiState);
 
-  if (ConfigSettings.connectedSocket)
-  {
-    result.replace("{{connectedSocket}}", "<img src='/img/ok.png'>");
-  }
-  else
-  {
-    result.replace("{{connectedSocket}}", "<img src='/img/nok.png'>");
-  }
-
-  String readableTime;
-  getReadableTime(readableTime);
-  result.replace("{{uptime}}", readableTime);
 
   serverWeb.send(200, "text/html", result);
 }

@@ -38,6 +38,7 @@ struct ConfigSettingsStruct
   char hostname[50];
   bool connectedSocket;
   bool radioModeWiFi;
+  unsigned long socketTime;
 };
 
 struct InfosStruct
@@ -48,6 +49,8 @@ struct InfosStruct
 };
 
 typedef CircularBuffer<char, 1024> LogConsoleType;
+
+#define WL_MAC_ADDR_LENGTH 6
 
 #define DEBUG_ON
 

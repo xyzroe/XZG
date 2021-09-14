@@ -5,15 +5,14 @@
 
 extern struct ConfigSettingsStruct ConfigSettings;
 
-void getReadableTime(String &readableTime)
+void getReadableTime(String &readableTime, unsigned long beginTime)
 {
     unsigned long currentMillis;
     unsigned long seconds;
     unsigned long minutes;
     unsigned long hours;
     unsigned long days;
-
-    currentMillis = millis();
+    currentMillis = millis() - beginTime;
     seconds = currentMillis / 1000;
     minutes = seconds / 60;
     hours = minutes / 60;
@@ -52,8 +51,8 @@ void getCPUtemp(String &CPUtemp)
         WiFi.mode(WIFI_STA);
     }
     CPUtemp = (temprature_sens_read() - 32) / 1.8;
-    DEBUG_PRINT(F("CPU temp "));
-    DEBUG_PRINTLN(CPUtemp);
+    //DEBUG_PRINT(F("CPU temp "));
+    //DEBUG_PRINTLN(CPUtemp);
     if (!ConfigSettings.enableWiFi)
     {
         WiFi.disconnect();

@@ -1,4 +1,4 @@
-void getReadableTime(String &readableTime);
+void getReadableTime(String &readableTime, unsigned long beginTime);
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,9 +21,11 @@ def after_build(source, target, env):
         print('No version file found')
         VERSION_NUMBER = '0.0.0'
 
+    NEW_NAME_FULL = 'bin/ZigStarGW_v'+VERSION_NUMBER+'_full.bin'
     NEW_NAME = 'bin/ZigStarGW_v'+VERSION_NUMBER+'.bin'
 
-    shutil.move('bin/ZigStarGW.bin', NEW_NAME)
+    shutil.move('bin/ZigStarGW.bin', NEW_NAME_FULL)
+    shutil.move('bin/firmware.bin', NEW_NAME)
 
 env.AddPostAction("buildprog", after_build)
 

@@ -50,13 +50,11 @@ String modeWiFi = "STA";
 #define BAUD_RATE 38400
 #define TCP_LISTEN_PORT 9999
 
-// if the bonjour support is turned on, then use the following as the name
-#define DEVICE_NAME "ser2net"
 
 // serial end ethernet buffer size
 #define BUFFER_SIZE 256
 
-#define WL_MAC_ADDR_LENGTH 6
+
 
 #ifdef BONJOUR_SUPPORT
 // multicast DNS responder
@@ -70,7 +68,7 @@ void WiFiEvent(WiFiEvent_t event)
   case SYSTEM_EVENT_ETH_START:
     DEBUG_PRINTLN(F("ETH Started"));
     //set eth hostname here
-    ETH.setHostname("esp32-ethernet");
+    //ETH.setHostname("esp32-ethernet");
     break;
   case SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
@@ -571,7 +569,13 @@ void loop(void)
   char output_sprintf[2];
   if (client.connected())
   {
-    ConfigSettings.connectedSocket = true;
+    if (ConfigSettings.connectedSocket != true)
+    {
+      ConfigSettings.connectedSocket = true;
+      ConfigSettings.socketTime = millis();
+      DEBUG_PRINT("true ConfigSettings.socketTime ");
+      DEBUG_PRINTLN(ConfigSettings.socketTime);
+    }
     int count = client.available();
 
     if (count > 0)
@@ -611,7 +615,13 @@ void loop(void)
   else
   {
     client.stop();
-    ConfigSettings.connectedSocket = false;
+    if (ConfigSettings.connectedSocket != false)
+    {
+      ConfigSettings.connectedSocket = false;
+      ConfigSettings.socketTime = millis();
+      DEBUG_PRINT("false ConfigSettings.socketTime ");
+      DEBUG_PRINTLN(ConfigSettings.socketTime);
+    }
   }
   // now check the swSer for any bytes to send to the network
   bytes_read = 0;
