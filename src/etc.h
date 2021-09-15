@@ -10,3 +10,5 @@ uint8_t temprature_sens_read();
 uint8_t temprature_sens_read();
 
 void getCPUtemp(String &CPUtemp);
+
+//void parse_ip_address(IPAddress &ip, const char *str)

@@ -25,7 +25,7 @@ Import("env")
 #
 
 VERSION_FILE = 'tools/version'
-VERSION_HEADER = 'Version.h'
+VERSION_HEADER = 'version.h'
 VERSION_PREFIX = '0.1.'
 VERSION_PATCH_NUMBER = 0
 

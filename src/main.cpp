@@ -10,7 +10,7 @@
 #include "log.h"
 #include "etc.h"
 #include <Update.h>
-#include "Version.h"
+#include "version.h"
 
 #include <driver/uart.h>
 #include <lwip/ip_addr.h>
@@ -23,6 +23,8 @@
 #ifdef BONJOUR_SUPPORT
 #include <ESPmDNS.h>
 #endif
+
+#include "mqtt.h"
 
 // application config
 unsigned long timeLog;
@@ -213,7 +215,6 @@ bool loadConfigWifi()
       serializeJson(doc, configFile);
     }
     configFile.close();
-    //return false;
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
@@ -257,7 +258,6 @@ bool loadConfigEther()
       serializeJson(doc, configFile);
     }
     configFile.close();
-    //return false;
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
@@ -298,7 +298,6 @@ bool loadConfigGeneral()
       serializeJson(doc, configFile);
     }
     configFile.close();
-    //return false;
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
@@ -344,7 +343,6 @@ bool loadConfigSerial()
       serializeJson(doc, configFile);
     }
     configFile.close();
-    //return false;
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
@@ -357,6 +355,52 @@ bool loadConfigSerial()
   {
     ConfigSettings.socketPort = TCP_LISTEN_PORT;
   }
+  configFile.close();
+  return true;
+}
+
+bool loadConfigMqtt()
+{
+  const char *path = "/config/configMqtt.json";
+
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  if (!configFile)
+  {
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"enable\":0,\"server\":\"\",\"port\":1883,\"user\":\"\",\"pass\":\"\",\"topic\":\"ZigStarGW\",\"retain\":0,\"qos\":0,\"discovery\":0}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    configFile.close();
+  }
+
+  configFile = LITTLEFS.open(path, FILE_READ);
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, configFile);
+
+  ConfigSettings.mqttEnable = (int)doc["enable"];
+  strlcpy(ConfigSettings.mqttServer, doc["server"] | "", sizeof(ConfigSettings.mqttServer));
+  ConfigSettings.mqttServerIP = parse_ip_address(ConfigSettings.mqttServer);
+  ConfigSettings.mqttPort = (int)doc["port"];
+  strlcpy(ConfigSettings.mqttUser, doc["user"] | "", sizeof(ConfigSettings.mqttUser));
+  strlcpy(ConfigSettings.mqttPass, doc["pass"] | "", sizeof(ConfigSettings.mqttPass));
+  strlcpy(ConfigSettings.mqttTopic, doc["topic"] | "", sizeof(ConfigSettings.mqttTopic));
+  ConfigSettings.mqttRetain = (int)doc["retain"];
+  ConfigSettings.mqttQOS = (int)doc["qos"];
+  ConfigSettings.mqttDiscovery = (int)doc["discovery"];
+
   configFile.close();
   return true;
 }
@@ -401,6 +445,15 @@ bool setupSTAWifi()
   WiFi.begin(ConfigSettings.ssid, ConfigSettings.password);
   WiFi.setSleep(false);
   DEBUG_PRINTLN(F("WiFi.begin"));
+  /*
+  IPAddress ip;
+  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
+      IPAddress ip_address = ip;
+  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
+      IPAddress gateway_address = ip;
+  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
+      IPAddress netmask = ip;
+      */
 
   IPAddress ip_address = parse_ip_address(ConfigSettings.ipAddressWiFi);
   IPAddress gateway_address = parse_ip_address(ConfigSettings.ipGWWiFi);
@@ -501,7 +554,7 @@ void setup(void)
     DEBUG_PRINTLN(F("System vars load OK"));
   }
 
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()) || (!loadConfigMqtt()))
   {
     DEBUG_PRINTLN(F("Error load config files"));
     ESP.restart();
@@ -613,6 +666,10 @@ void setup(void)
   //GetVersion
   //uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};
   //Serial2.write(cmdVersion, 10);
+  if (ConfigSettings.mqttEnable)
+  {
+    mqttConnectSetup();
+  }
 }
 
 String hexToDec(String hexString)
@@ -794,4 +851,8 @@ void loop(void)
     client.flush();
   }
   loopCount++;
+  if (ConfigSettings.mqttEnable)
+  {
+    mqttLoop();
+  }
 }

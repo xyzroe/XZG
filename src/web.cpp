@@ -48,10 +48,12 @@ void initWebServer()
   serverWeb.on("/wifi", handleWifi);
   serverWeb.on("/ethernet", handleEther);
   serverWeb.on("/serial", handleSerial);
+  serverWeb.on("/mqtt", handleMqtt);
   serverWeb.on("/saveGeneral", HTTP_POST, handleSaveGeneral);
   serverWeb.on("/saveSerial", HTTP_POST, handleSaveSerial);
   serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
   serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
+  serverWeb.on("/saveMqtt", HTTP_POST, handleSaveMqtt);
   serverWeb.on("/fsbrowser", handleFSbrowser);
   serverWeb.on("/logs", handleLogs);
   serverWeb.on("/reboot", handleReboot);
@@ -340,6 +342,48 @@ void handleEther()
   serverWeb.send(200, "text/html", result);
 }
 
+void handleMqtt()
+{
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result += FPSTR(HTTP_MQTT);
+  result += F("</html>");
+
+  if (ConfigSettings.mqttEnable)
+  {
+    result.replace("{{mqttEnable}}", "Checked");
+  }
+  else
+  {
+    result.replace("{{mqttEnable}}", "");
+  }
+  result.replace("{{mqttServer}}", String(ConfigSettings.mqttServer));
+  result.replace("{{mqttPort}}", String(ConfigSettings.mqttPort));
+  result.replace("{{mqttUser}}", String(ConfigSettings.mqttUser));
+  result.replace("{{mqttPass}}", String(ConfigSettings.mqttPass));
+  result.replace("{{mqttTopic}}", String(ConfigSettings.mqttTopic));
+  if (ConfigSettings.mqttRetain)
+  {
+    result.replace("{{mqttRetain}}", "Checked");
+  }
+  else
+  {
+    result.replace("{{mqttRetain}}", "");
+  }
+  result.replace("{{mqttQOS}}", String(ConfigSettings.mqttQOS));
+  if (ConfigSettings.mqttDiscovery)
+  {
+    result.replace("{{mqttDiscovery}}", "Checked");
+  }
+  else
+  {
+    result.replace("{{mqttDiscovery}}", "");
+  }
+
+  serverWeb.send(200, "text/html", result);
+}
+
 void handleRoot()
 {
   String result;
@@ -468,6 +512,27 @@ void handleRoot()
     wifiState += "<img src='/img/nok.png'>";
   }
   result.replace("{{stateWifi}}", wifiState);
+
+  String mqttState = "<strong>Enabled : </strong>";
+  if (ConfigSettings.mqttEnable)
+  {
+    mqttState += "<img src='/img/ok.png'>";
+    mqttState = mqttState + "<br><strong>Server : </strong>" + ConfigSettings.mqttServer;
+    mqttState += "<br><strong>Connected : </strong>";
+    if (ConfigSettings.mqttReconnectTime == 0)
+    {
+      mqttState += "<img src='/img/ok.png'>";
+    }
+    else
+    {
+      mqttState += "<img src='/img/nok.png'>";
+    }
+  }
+  else
+  {
+    mqttState += "<img src='/img/nok.png'>";
+  }
+  result.replace("{{stateMqtt}}", mqttState);
 
   serverWeb.send(200, "text/html", result);
 }
@@ -636,6 +701,63 @@ void handleSaveEther()
   handleSaveSucces("config");
 }
 
+void handleSaveMqtt()
+{
+  String StringConfig;
+  String enable;
+  if (serverWeb.arg("enable") == "on")
+  {
+    enable = "1";
+  }
+  else
+  {
+    enable = "0";
+  }
+
+  String server = serverWeb.arg("server");
+  String port = serverWeb.arg("port");
+  String user = serverWeb.arg("user");
+  String pass = serverWeb.arg("pass");
+  String topic = serverWeb.arg("topic");
+  String retain;
+  if (serverWeb.arg("retain") == "on")
+  {
+    retain = "1";
+  }
+  else
+  {
+    retain = "0";
+  }
+  String qos = serverWeb.arg("qos");
+  String discovery;
+  if (serverWeb.arg("discovery") == "on")
+  {
+    discovery = "1";
+  }
+  else
+  {
+    discovery = "0";
+  }
+  const char *path = "/config/configMqtt.json";
+
+  StringConfig = "{\"enable\":" + enable + ",\"server\":\"" + server + "\",\"port\":" + port + ",\"user\":\"" + user + "\",\"pass\":\"" + pass + "\",\"topic\":\"" + topic + "\",\"retain\":" + retain + ",\"qos\":" + qos + ",\"discovery\":" + discovery + "}";
+
+  DEBUG_PRINTLN(StringConfig);
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, StringConfig);
+
+  File configFile = LITTLEFS.open(path, FILE_WRITE);
+  if (!configFile)
+  {
+    DEBUG_PRINTLN(F("failed open"));
+  }
+  else
+  {
+    serializeJson(doc, configFile);
+  }
+  handleSaveSucces("config");
+}
+
 void handleLogs()
 {
   String result;
@@ -729,7 +851,7 @@ void handleFSbrowser()
     result += tmp;
     result += F("');\">");
     result += tmp;
-    result += F(" (");
+    result += F("<br>(");
     result += file.size();
     result += F(" B)</a>");
     file = root.openNextFile();

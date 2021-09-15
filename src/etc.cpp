@@ -60,3 +60,32 @@ void getCPUtemp(String &CPUtemp)
         //DEBUG_PRINTLN(F("disable wifi"));
     }
 }
+
+/*
+void parse_ip_address(IPAddress &ip, const char *str)
+{
+  IPAddress result;
+  int index = 0;
+
+  result[0] = 0;
+  while (*str)
+  {
+    if (isdigit((unsigned char)*str))
+    {
+      result[index] *= 10;
+      result[index] += *str - '0';
+    }
+    else
+    {
+      index++;
+      if (index < 4)
+      {
+        result[index] = 0;
+      }
+    }
+    str++;
+  }
+
+  ip = result;
+}
+*/

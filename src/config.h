@@ -4,35 +4,35 @@
 #include <Arduino.h>
 #include <CircularBuffer.h>
 
-#include "Version.h"
+#include "version.h"
 
 //---WT32-ETH01---
 //LAN
-#define ETH_CLK_MODE_1  ETH_CLOCK_GPIO0_IN 
+#define ETH_CLK_MODE_1 ETH_CLOCK_GPIO0_IN
 #define ETH_POWER_PIN_1 16
-#define ETH_TYPE_1      ETH_PHY_LAN8720
-#define ETH_ADDR_1      1
-#define ETH_MDC_PIN_1   23
-#define ETH_MDIO_PIN_1  18
+#define ETH_TYPE_1 ETH_PHY_LAN8720
+#define ETH_ADDR_1 1
+#define ETH_MDC_PIN_1 23
+#define ETH_MDIO_PIN_1 18
 //ZIGBEE
-#define RESET_ZIGBEE_1  33 
-#define FLASH_ZIGBEE_1  32 
-#define ZRXD_1          5  
-#define ZTXD_1          17 
+#define RESET_ZIGBEE_1 33
+#define FLASH_ZIGBEE_1 32
+#define ZRXD_1 5
+#define ZTXD_1 17
 
 //---TTGO T-Internet-POE---
 //LAN
-#define ETH_CLK_MODE_2  ETH_CLOCK_GPIO17_OUT
+#define ETH_CLK_MODE_2 ETH_CLOCK_GPIO17_OUT
 #define ETH_POWER_PIN_2 -1
-#define ETH_TYPE_2      ETH_PHY_LAN8720
-#define ETH_ADDR_2      0
-#define ETH_MDC_PIN_2   23
-#define ETH_MDIO_PIN_2  18
+#define ETH_TYPE_2 ETH_PHY_LAN8720
+#define ETH_ADDR_2 0
+#define ETH_MDC_PIN_2 23
+#define ETH_MDIO_PIN_2 18
 //ZIGBEE
-#define RESET_ZIGBEE_2  12 
-#define FLASH_ZIGBEE_2  32 
-#define ZRXD_2          36 
-#define ZTXD_2          4 
+#define RESET_ZIGBEE_2 12
+#define FLASH_ZIGBEE_2 32
+#define ZRXD_2 36
+#define ZTXD_2 4
 
 #define PRODUCTION 1
 #define FLASH 0
@@ -73,6 +73,17 @@ struct ConfigSettingsStruct
   bool emergencyWifi;
   int rstZigbeePin;
   int flashZigbeePin;
+  bool mqttEnable;
+  char mqttServer[50];
+  IPAddress mqttServerIP;
+  int mqttPort;
+  char mqttUser[50];
+  char mqttPass[50];
+  char mqttTopic[50];
+  bool mqttRetain;
+  int mqttQOS;
+  bool mqttDiscovery;
+  unsigned long mqttReconnectTime;
 };
 
 struct InfosStruct
