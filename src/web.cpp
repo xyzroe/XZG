@@ -369,6 +369,21 @@ void handleRoot()
   getCPUtemp(CPUtemp);
   result.replace("{{deviceTemp}}", CPUtemp);
 
+  String boardName;
+  switch (ConfigSettings.board)
+  {
+  case 0:
+    boardName = "Unknown";
+    break;
+  case 1:
+    boardName = "WT32-ETH01";
+    break;
+  case 2:
+    boardName = "TTGO T-Internet-POE";
+    break;
+  }
+  result.replace("{{hwRev}}", boardName);
+
   String ethState = "<strong>Connected : </strong>";
   if (ConfigSettings.connectedEther)
   {
@@ -874,26 +889,26 @@ void handleZigbeeReset()
 {
   serverWeb.send(200, F("text/html"), "");
   printLogMsg("Zigbee RST pin ON");
-  digitalWrite(RESET_ZIGBEE, 0);
+  digitalWrite(ConfigSettings.rstZigbeePin, 0);
   delay(100);
   printLogMsg("Zigbee RST pin OFF");
-  digitalWrite(RESET_ZIGBEE, 1);
+  digitalWrite(ConfigSettings.rstZigbeePin, 1);
 }
 
 void handleZigbeeBSL()
 {
   serverWeb.send(200, F("text/html"), "");
   printLogMsg("Zigbee BSL pin ON");
-  digitalWrite(FLASH_ZIGBEE, 0);
+  digitalWrite(ConfigSettings.flashZigbeePin, 0);
   delay(100);
   printLogMsg("Zigbee RST pin ON");
-  digitalWrite(RESET_ZIGBEE, 0);
+  digitalWrite(ConfigSettings.rstZigbeePin, 0);
   delay(100);
   printLogMsg("Zigbee RST pin OFF");
-  digitalWrite(RESET_ZIGBEE, 1);
+  digitalWrite(ConfigSettings.rstZigbeePin, 1);
   delay(2000);
   printLogMsg("Zigbee BSL pin OFF");
-  digitalWrite(FLASH_ZIGBEE, 1);
+  digitalWrite(ConfigSettings.flashZigbeePin, 1);
   printLogMsg("Update with cc2538-bsl tool now!");
 }
 

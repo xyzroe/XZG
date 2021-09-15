@@ -20,30 +20,6 @@
 #undef ETH_CLK_MODE
 #endif
 
-//WT32-ETH01
-#define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN //ETH_CLOCK_GPIO17_OUT
-#define ETH_POWER_PIN 16                //-1
-
-// Type of the Ethernet PHY (LAN8720 or TLK110)
-#define ETH_TYPE ETH_PHY_LAN8720
-
-// I²C-address of Ethernet PHY (0 or 1 for LAN8720, 31 for TLK110)
-#define ETH_ADDR 1
-
-// Pin# of the I²C clock signal for the Ethernet PHY
-#define ETH_MDC_PIN 23
-
-// Pin# of the I²C IO signal for the Ethernet PHY
-#define ETH_MDIO_PIN 18
-
-//TTGO T-Internet-POE
-#define ETH_CLK_MODE_2 ETH_CLOCK_GPIO17_OUT
-#define ETH_POWER_PIN_2 -1
-#define ETH_TYPE_2 ETH_PHY_LAN8720
-#define ETH_ADDR_2 0
-#define ETH_MDC_PIN_2 23
-#define ETH_MDIO_PIN_2 18
-
 #ifdef BONJOUR_SUPPORT
 #include <ESPmDNS.h>
 #endif
@@ -73,6 +49,22 @@ void saveEmergencyWifi(bool state)
   configFile.close();
 
   doc["emergencyWifi"] = int(state);
+
+  configFile = LITTLEFS.open(path, FILE_WRITE);
+  serializeJson(doc, configFile);
+  configFile.close();
+}
+
+void saveBoard(int rev)
+{
+  const char *path = "/config/system.json";
+  DynamicJsonDocument doc(1024);
+
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  deserializeJson(doc, configFile);
+  configFile.close();
+
+  doc["board"] = int(rev);
 
   configFile = LITTLEFS.open(path, FILE_WRITE);
   serializeJson(doc, configFile);
@@ -168,7 +160,7 @@ bool loadSystemVar()
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String StringConfig = "{\"board\":0,\"emergencyWifi\":0}";
+    String StringConfig = "{\"board\":1,\"emergencyWifi\":0}";
     DEBUG_PRINTLN(StringConfig);
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
@@ -509,29 +501,6 @@ void setup(void)
     DEBUG_PRINTLN(F("System vars load OK"));
   }
 
-  //begin eth after load config.
-  //begin depends on config
-  //if error write to memory another board and restart
-
-  if (ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE))
-  {
-    DEBUG_PRINTLN(F("Board v1 (No POE) WT32-ETH01"));
-  }
-  else
-  {
-    //write to memory another board
-
-    /*if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
-    {
-      DEBUG_PRINTLN(F("Board v2 (with POE) TTGO T-Internet-POE"));
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("ERROR with LAN"));
-      return;
-    }*/
-  }
-
   if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
   {
     DEBUG_PRINTLN(F("Error load config files"));
@@ -543,31 +512,82 @@ void setup(void)
     DEBUG_PRINTLN(F("Config files load OK"));
   }
 
-  ConfigSettings.disconnectEthTime = millis();
-  //if (digitalRead(FLASH_ZIGBEE)!=0)
-  //{
-  DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-  if (configOK)
+  switch (ConfigSettings.board)
   {
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, RXD2, TXD2);
-    DEBUG_PRINTLN(F("Mode Prod"));
-  }
-  //}else{
-  //   DEBUG_PRINTLN(F("Mode Flash"));
-  //}
+  case 0:
+    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    {
+      ConfigSettings.emergencyWifi = 1;
+      DEBUG_PRINTLN(F("Unknown board. Please set type in system.json"));
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("Looks like WT32-ETH01."));
+      DEBUG_PRINTLN(F("Please set type in system.json"));
+    }
+    ConfigSettings.rstZigbeePin = RESET_ZIGBEE_1;
+    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
 
+    DEBUG_PRINT(F("Zigbee serial setup @ "));
+    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    break;
+
+  case 1:
+    if (ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    {
+      DEBUG_PRINTLN(F("Board v1 (No POE) WT32-ETH01"));
+      ConfigSettings.rstZigbeePin = RESET_ZIGBEE_1;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    }
+    else
+    {
+      saveBoard(2);
+      ESP.restart();
+    }
+    break;
+
+  case 2:
+    if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
+    {
+      DEBUG_PRINTLN(F("Board v2 (with POE) TTGO T-Internet-POE"));
+      ConfigSettings.rstZigbeePin = RESET_ZIGBEE_2;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_2;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_2, ZTXD_2);
+    }
+    else
+    {
+      saveBoard(0);
+      ESP.restart();
+    }
+    break;
+  }
+
+  //Config GPIOs
+  pinMode(ConfigSettings.rstZigbeePin, OUTPUT);
+  pinMode(ConfigSettings.flashZigbeePin, OUTPUT);
+  digitalWrite(ConfigSettings.rstZigbeePin, 1);
+  digitalWrite(ConfigSettings.flashZigbeePin, 1);
+
+  ConfigSettings.disconnectEthTime = millis();
   ETH.setHostname(ConfigSettings.hostname);
 
   if (!ConfigSettings.dhcp)
   {
+    DEBUG_PRINTLN(F("ETH STATIC"));
     ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
   }
-
-  //Config GPIOs
-  pinMode(RESET_ZIGBEE, OUTPUT);
-  pinMode(FLASH_ZIGBEE, OUTPUT);
-  digitalWrite(RESET_ZIGBEE, 1);
-  digitalWrite(FLASH_ZIGBEE, 1);
+  else
+  {
+    DEBUG_PRINTLN(F("ETH DHCP"));
+  }
 
   initWebServer();
 

@@ -176,6 +176,7 @@ const char HTTP_ROOT[] PROGMEM =
     "<br><strong>Uptime : </strong>{{uptime}}"
     "<br><strong>Temperature : </strong>{{deviceTemp}} &deg;C"
     "<br><strong>Version : </strong>" VERSION
+    "<br><strong>Hardware : </strong>{{hwRev}}"
     "</div>"
     "</div>"
     "</div><br>"

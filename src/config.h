@@ -6,14 +6,36 @@
 
 #include "Version.h"
 
-// hardware config
-#define RESET_ZIGBEE 33 //13
-#define FLASH_ZIGBEE 32 //14
+//---WT32-ETH01---
+//LAN
+#define ETH_CLK_MODE_1  ETH_CLOCK_GPIO0_IN 
+#define ETH_POWER_PIN_1 16
+#define ETH_TYPE_1      ETH_PHY_LAN8720
+#define ETH_ADDR_1      1
+#define ETH_MDC_PIN_1   23
+#define ETH_MDIO_PIN_1  18
+//ZIGBEE
+#define RESET_ZIGBEE_1  33 
+#define FLASH_ZIGBEE_1  32 
+#define ZRXD_1          5  
+#define ZTXD_1          17 
+
+//---TTGO T-Internet-POE---
+//LAN
+#define ETH_CLK_MODE_2  ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN_2 -1
+#define ETH_TYPE_2      ETH_PHY_LAN8720
+#define ETH_ADDR_2      0
+#define ETH_MDC_PIN_2   23
+#define ETH_MDIO_PIN_2  18
+//ZIGBEE
+#define RESET_ZIGBEE_2  12 
+#define FLASH_ZIGBEE_2  32 
+#define ZRXD_2          36 
+#define ZTXD_2          4 
+
 #define PRODUCTION 1
 #define FLASH 0
-
-#define RXD2 5  //2 //16
-#define TXD2 17 //4 //17
 
 #define BAUD_RATE 38400
 #define TCP_LISTEN_PORT 9999
@@ -24,7 +46,6 @@
 
 #define FORMAT_LITTLEFS_IF_FAILED true
 
-// ma structure config
 struct ConfigSettingsStruct
 {
   bool enableWiFi;
@@ -50,6 +71,8 @@ struct ConfigSettingsStruct
   unsigned long disconnectEthTime;
   int board;
   bool emergencyWifi;
+  int rstZigbeePin;
+  int flashZigbeePin;
 };
 
 struct InfosStruct
