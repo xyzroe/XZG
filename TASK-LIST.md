@@ -4,7 +4,7 @@
 
 - Time synchronization with NTP server
 
-- Different board - autp select pins
+- Different board - auto select pins
 
 + enable Wi-Fi if Ethernet is disconnected more than 30 seconds
 + socket connection time

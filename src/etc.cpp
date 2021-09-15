@@ -45,7 +45,7 @@ void getReadableTime(String &readableTime, unsigned long beginTime)
 
 void getCPUtemp(String &CPUtemp)
 {
-    if (!ConfigSettings.enableWiFi)
+    if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
     {
         //DEBUG_PRINTLN(F("enable wifi to enable temp sensor "));
         WiFi.mode(WIFI_STA);
@@ -53,7 +53,7 @@ void getCPUtemp(String &CPUtemp)
     CPUtemp = (temprature_sens_read() - 32) / 1.8;
     //DEBUG_PRINT(F("CPU temp "));
     //DEBUG_PRINTLN(CPUtemp);
-    if (!ConfigSettings.enableWiFi)
+    if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
     {
         WiFi.disconnect();
         WiFi.mode(WIFI_OFF);

@@ -48,6 +48,8 @@ struct ConfigSettingsStruct
   bool radioModeWiFi;
   unsigned long socketTime;
   unsigned long disconnectEthTime;
+  int board;
+  bool emergencyWifi;
 };
 
 struct InfosStruct

@@ -19,6 +19,8 @@
 #ifdef ETH_CLK_MODE
 #undef ETH_CLK_MODE
 #endif
+
+//WT32-ETH01
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN //ETH_CLOCK_GPIO17_OUT
 #define ETH_POWER_PIN 16                //-1
 
@@ -33,6 +35,14 @@
 
 // Pin# of the I²C IO signal for the Ethernet PHY
 #define ETH_MDIO_PIN 18
+
+//TTGO T-Internet-POE
+#define ETH_CLK_MODE_2 ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN_2 -1
+#define ETH_TYPE_2 ETH_PHY_LAN8720
+#define ETH_ADDR_2 0
+#define ETH_MDC_PIN_2 23
+#define ETH_MDIO_PIN_2 18
 
 #ifdef BONJOUR_SUPPORT
 #include <ESPmDNS.h>
@@ -53,6 +63,22 @@ String modeWiFi = "STA";
 MDNSResponder mdns;
 #endif
 
+void saveEmergencyWifi(bool state)
+{
+  const char *path = "/config/system.json";
+  DynamicJsonDocument doc(1024);
+
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  deserializeJson(doc, configFile);
+  configFile.close();
+
+  doc["emergencyWifi"] = int(state);
+
+  configFile = LITTLEFS.open(path, FILE_WRITE);
+  serializeJson(doc, configFile);
+  configFile.close();
+}
+
 void WiFiEvent(WiFiEvent_t event)
 {
   switch (event)
@@ -66,6 +92,14 @@ void WiFiEvent(WiFiEvent_t event)
     DEBUG_PRINTLN(F("ETH Connected"));
     ConfigSettings.connectedEther = true;
     ConfigSettings.disconnectEthTime = 0;
+    if (ConfigSettings.emergencyWifi && !ConfigSettings.enableWiFi)
+    {
+      saveEmergencyWifi(0);
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      ConfigSettings.emergencyWifi = 0;
+      DEBUG_PRINTLN(F("saveEmergencyWifi 0"));
+    }
     break;
   case SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
@@ -125,18 +159,18 @@ IPAddress parse_ip_address(const char *str)
   return result;
 }
 
-bool loadConfigWifi()
+bool loadSystemVar()
 {
-  const char *path = "/config/configWifi.json";
+  const char *path = "/config/system.json";
 
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
+    String StringConfig = "{\"board\":0,\"emergencyWifi\":0}";
     DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -152,6 +186,45 @@ bool loadConfigWifi()
     return false;
   }
 
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, configFile);
+
+  ConfigSettings.board = (int)doc["board"];
+  ConfigSettings.emergencyWifi = (int)doc["emergencyWifi"];
+
+  configFile.close();
+  return true;
+}
+
+bool loadConfigWifi()
+{
+  const char *path = "/config/configWifi.json";
+
+  File configFile = LITTLEFS.open(path, FILE_READ);
+  if (!configFile)
+  {
+    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+
+    String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed write"));
+      return false;
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    configFile.close();
+    //return false;
+  }
+
+  configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
@@ -178,7 +251,7 @@ bool loadConfigEther()
 
     String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
     DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -191,9 +264,11 @@ bool loadConfigEther()
     {
       serializeJson(doc, configFile);
     }
-    return false;
+    configFile.close();
+    //return false;
   }
 
+  configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
@@ -217,7 +292,7 @@ bool loadConfigGeneral()
 
     String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"refreshLogs\":1000}";
     DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -230,9 +305,11 @@ bool loadConfigGeneral()
     {
       serializeJson(doc, configFile);
     }
-    return false;
+    configFile.close();
+    //return false;
   }
 
+  configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
@@ -261,7 +338,7 @@ bool loadConfigSerial()
 
     String StringConfig = "{\"baud\":115200,\"port\":4444}";
     DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
     File configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -274,9 +351,11 @@ bool loadConfigSerial()
     {
       serializeJson(doc, configFile);
     }
-    return false;
+    configFile.close();
+    //return false;
   }
 
+  configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, configFile);
 
@@ -367,9 +446,9 @@ bool setupSTAWifi()
 void enableWifi()
 {
   WiFi.setHostname(ConfigSettings.hostname);
-  if (configOK)
+  if ((strlen(ConfigSettings.ssid) != 0) && (strlen(ConfigSettings.password) != 0))
   {
-    DEBUG_PRINTLN(F("configOK"));
+    DEBUG_PRINTLN(F("Ok SSID & PASS"));
     if (!setupSTAWifi())
     {
       setupWifiAP();
@@ -385,26 +464,12 @@ void enableWifi()
   }
   else
   {
+    DEBUG_PRINTLN(F("Error SSID & PASS"));
     setupWifiAP();
     modeWiFi = "AP";
     DEBUG_PRINTLN(F("AP"));
     ConfigSettings.radioModeWiFi = true;
   }
-}
-
-void saveWifiEnable(){
-  const char *path = "/config/configWifi.json";
-  DynamicJsonDocument doc(1024);
-
-  File configFile = LITTLEFS.open(path, FILE_READ);
-  deserializeJson(doc, configFile);
-  configFile.close();
-
-  doc["enableWiFi"] = 1;
-
-  configFile = LITTLEFS.open(path, FILE_WRITE);
-  serializeJson(doc, configFile);
-  configFile.close();
 }
 
 void setup(void)
@@ -414,36 +479,71 @@ void setup(void)
   DEBUG_PRINTLN(F("Start"));
 
   WiFi.onEvent(WiFiEvent);
-  ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
 
   if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
-    Serial.println("Error with LITTLEFS");
+    DEBUG_PRINTLN(F("Error with LITTLEFS"));
     return;
   }
 
   DEBUG_PRINTLN(F("LITTLEFS OK"));
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
+  if (!loadSystemVar())
   {
-    DEBUG_PRINTLN(F("Error load config from LITTLEFS"));
+    DEBUG_PRINTLN(F("Error load system vars"));
     const char *path = "/config";
 
     if (LITTLEFS.mkdir(path))
     {
-      Serial.println("Config dir created");
+      DEBUG_PRINTLN(F("Config dir created"));
+      delay(500);
+      ESP.restart();
     }
     else
     {
-      Serial.println("mkdir failed");
+      DEBUG_PRINTLN(F("mkdir failed"));
     }
+  }
+  else
+  {
+    //configOK = true;
+    DEBUG_PRINTLN(F("System vars load OK"));
+  }
+
+  //begin eth after load config.
+  //begin depends on config
+  //if error write to memory another board and restart
+
+  if (ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE))
+  {
+    DEBUG_PRINTLN(F("Board v1 (No POE) WT32-ETH01"));
+  }
+  else
+  {
+    //write to memory another board
+
+    /*if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
+    {
+      DEBUG_PRINTLN(F("Board v2 (with POE) TTGO T-Internet-POE"));
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("ERROR with LAN"));
+      return;
+    }*/
+  }
+
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()))
+  {
+    DEBUG_PRINTLN(F("Error load config files"));
     ESP.restart();
   }
   else
   {
     configOK = true;
-    DEBUG_PRINTLN(F("Config load ok LITTLEFS"));
+    DEBUG_PRINTLN(F("Config files load OK"));
   }
 
+  ConfigSettings.disconnectEthTime = millis();
   //if (digitalRead(FLASH_ZIGBEE)!=0)
   //{
   DEBUG_PRINTLN(ConfigSettings.serialSpeed);
@@ -484,7 +584,7 @@ void setup(void)
   MDNS.addService("http", "tcp", 80);
 #endif
 
-  if (ConfigSettings.enableWiFi)
+  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
   {
     enableWifi();
   }
@@ -540,12 +640,12 @@ void loop(void)
     }
   }
 
-  if (ConfigSettings.connectedEther == false && ConfigSettings.disconnectEthTime != 0)
+  if (ConfigSettings.connectedEther == false && ConfigSettings.disconnectEthTime != 0 && ConfigSettings.enableWiFi != 1 && ConfigSettings.emergencyWifi != 1)
   {
     if ((millis() - ConfigSettings.disconnectEthTime) >= (ETH_ERROR_TIME * 1000))
     {
-      DEBUG_PRINTLN(F("saveWifiEnable"));
-      saveWifiEnable();
+      DEBUG_PRINTLN(F("saveEmergencyWifi(1)"));
+      saveEmergencyWifi(1);
       DEBUG_PRINTLN(F("ESP.restart"));
       ESP.restart();
     }

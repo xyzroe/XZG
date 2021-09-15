@@ -406,9 +406,13 @@ void handleRoot()
   result.replace("{{stateEther}}", ethState);
 
   String wifiState = "<strong>Enable : </strong>";
-  if (ConfigSettings.enableWiFi)
+  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
   {
     wifiState += "<img src='/img/ok.png'>";
+    if (ConfigSettings.emergencyWifi)
+    {
+      wifiState += "<strong> Emergency mode</strong>";
+    }
     wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
     wifiState += "<br><strong>Mode : </strong> ";
     if (ConfigSettings.radioModeWiFi)
