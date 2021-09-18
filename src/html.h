@@ -4,7 +4,8 @@ const char HTTP_HEADER[] PROGMEM =
     "<script type='text/javascript' src='/js/bootstrap.min.js'></script>"
     "<script type='text/javascript' src='/js/functions.js'></script>"
     "<link href='css/required.css' rel='stylesheet' type='text/css' />"
-    "<title>ZigStar GW</title>"
+    "<link rel='icon' href='img/logo.png'>"
+    "<title>{{pageName}} - ZigStar GW</title>"
     " </head>"
     "<body>"
     "<nav class='navbar navbar-expand-lg navbar-light bg-info rounded'><a class='navbar-brand' href='/'><img src='img/logo.png'/> <strong>ZigStar GW</strong>"
@@ -33,7 +34,7 @@ const char HTTP_HEADER[] PROGMEM =
     "<a class='dropdown-item' href='/logs'><i  class='glyphicon glyphicon-transfer'></i>Console</a>"
     "<a class='dropdown-item' href='/fsbrowser'><i class='glyphicon glyphicon-floppy-disk'></i>FSbrowser</a>"
     "<a class='dropdown-item' href='/esp_update'><i class='glyphicon glyphicon-open'></i>Update ESP32</a>"
-    "<a class='dropdown-item' href='/updates'><i class='glyphicon glyphicon-open'></i>Update Zigbee</a>"
+    //"<a class='dropdown-item' href='/updates'><i class='glyphicon glyphicon-open'></i>Update Zigbee</a>"
     "<a class='dropdown-item' href='/reboot'><i class='glyphicon glyphicon-repeat'></i>Reboot</a>"
     "</div>"
     "</li>"
@@ -45,19 +46,22 @@ const char HTTP_HEADER[] PROGMEM =
 
 const char HTTP_WIFI[] PROGMEM =
 
-    "<h2>Config WiFi</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveWifi'>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
-
     "<input class='form-check-input' id='wifiEnable' type='checkbox' name='wifiEnable' {{checkedWiFi}}>"
     "<label class='form-check-label' for='wifiEnable'>Enable</label>"
+    "</div>"
     "</div>"
     "<div class='form-group'>"
     "<label for='ssid'>SSID</label>"
     "<input class='form-control' id='ssid' type='text' name='WIFISSID' value='{{ssid}}'>"
     "</div>"
+    "<div class='form-group'>"
     "<a onclick='scanNetwork();' class='btn btn-warning mb-2'>Scan</a>"
+    "</div>"
     "<div class='form-group'>"
     "<div id='networks'></div>"
     "</div>"
@@ -65,9 +69,11 @@ const char HTTP_WIFI[] PROGMEM =
     "<label for='pass'>Password</label>"
     "<input class='form-control' id='pass' type='password' name='WIFIpassword' value='{{passWifi}}'>"
     "</div>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
     "<input class='form-check-input' id='dhcpWiFi' type='checkbox' name='dhcpWiFi' {{modeWiFi}}>"
     "<label class='form-check-label' for='dhcpWiFi'>DHCP</label>"
+    "</div>"
     "</div>"
     "<div class='form-group'>"
     "<label for='ip'>IP</label>"
@@ -85,7 +91,7 @@ const char HTTP_WIFI[] PROGMEM =
     "</form>";
 
 const char HTTP_SERIAL[] PROGMEM =
-    "<h2>Config Serial</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveSerial'>"
 
@@ -98,6 +104,8 @@ const char HTTP_SERIAL[] PROGMEM =
     "<option value='57600' {{selected57600}}>57600 bauds</option>"
     "<option value='115200' {{selected115200}}>115200 bauds</option>"
     "</select>"
+    "</div>"
+    "<div class='form-group'>"
     "<label for='port'>Socket Port</label>"
     "<input class='form-control' id='port' type='number' name='port' min='100' max='65000' value='{{socketPort}}'>"
     "</div>"
@@ -121,13 +129,14 @@ const char HTTP_HELP[] PROGMEM =
     "</div>";
 
 const char HTTP_ETHERNET[] PROGMEM =
-    "<h2>Config Ethernet</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveEther'>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
-
     "<input class='form-check-input' id='dhcp' type='checkbox' name='dhcp' {{modeEther}}>"
     "<label class='form-check-label' for='dhcp'>DHCP</label>"
+    "</div>"
     "</div>"
     "<div class='form-group'>"
     "<label for='ip'>IP</label>"
@@ -145,17 +154,19 @@ const char HTTP_ETHERNET[] PROGMEM =
     "</form>";
 
 const char HTTP_GENERAL[] PROGMEM =
-    "<h2>General</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveGeneral'>"
     "<div class='form-group'>"
     "<label for='hostname'>Hostname</label>"
     "<input class='form-control' id='hostname' type='text' name='hostname' value='{{hostname}}'>"
     "</div>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
     "<input class='form-check-input' id='disableWeb' type='checkbox' name='disableWeb' {{disableWeb}}>"
     "<label class='form-check-label' for='disableWeb'>Disable web server when socket is connected</label>"
     "<br>"
+    "</div>"
     "</div>"
     "<div class='form-group'>"
     "<label for='refreshLogs'>Refresh console log</label>"
@@ -166,7 +177,7 @@ const char HTTP_GENERAL[] PROGMEM =
     "</div>";
 
 const char HTTP_ROOT[] PROGMEM =
-    "<h2>Status</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'>"
     "<div class='card'>"
@@ -273,12 +284,14 @@ const char HTTP_UPDATE[] PROGMEM =
     "</script>";
 
 const char HTTP_MQTT[] PROGMEM =
-    "<h2>Config MQTT</h2>"
+    "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveMqtt'>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
     "<input class='form-check-input' id='enb' type='checkbox' name='enable' {{mqttEnable}}>"
     "<label class='form-check-label' for='enb'>Enable</label>"
+    "</div>"
     "</div>"
     "<div class='form-group'>"
     "<label for='ip'>Server IP</label>"
@@ -300,17 +313,21 @@ const char HTTP_MQTT[] PROGMEM =
     "<label for='topic'>Topic</label>"
     "<input class='form-control' id='topic' type='text' name='topic' value='{{mqttTopic}}'>"
     "</div>"
+    /*"<div class='form-group'>"
     "<div class='form-check'>"
     "<input class='form-check-input' id='retain' type='checkbox' name='retain' {{mqttRetain}}>"
     "<label class='form-check-label' for='retain'>Retain</label>"
     "</div>"
+    "</div>"*/
     "<div class='form-group'>"
-    "<label for='port'>QOS</label>"
-    "<input class='form-control' id='qos' type='number' name='qos' min='0' max='2' value='{{mqttQOS}}'>"
+    "<label for='port'>Refresh interval</label>"
+    "<input class='form-control' id='interval' type='number' name='interval' min='0' max='3600' value='{{mqttInterval}}'>"
     "</div>"
+    "<div class='form-group'>"
     "<div class='form-check'>"
     "<input class='form-check-input' id='discovery' type='checkbox' name='discovery' {{mqttDiscovery}}>"
     "<label class='form-check-label' for='discovery'>Auto Discovery</label>"
+    "</div>"
     "</div>"
     "<button type='submit' class='btn btn-primary mb-2'name='save'>Save</button>"
     "</form>";

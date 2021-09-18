@@ -368,7 +368,7 @@ bool loadConfigMqtt()
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String StringConfig = "{\"enable\":0,\"server\":\"\",\"port\":1883,\"user\":\"\",\"pass\":\"\",\"topic\":\"ZigStarGW\",\"retain\":0,\"qos\":0,\"discovery\":0}";
+    String StringConfig = "{\"enable\":0,\"server\":\"\",\"port\":1883,\"user\":\"\",\"pass\":\"\",\"topic\":\"ZigStarGW\",\"interval\":60,\"discovery\":0}";
     DEBUG_PRINTLN(StringConfig);
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
@@ -397,8 +397,8 @@ bool loadConfigMqtt()
   strlcpy(ConfigSettings.mqttUser, doc["user"] | "", sizeof(ConfigSettings.mqttUser));
   strlcpy(ConfigSettings.mqttPass, doc["pass"] | "", sizeof(ConfigSettings.mqttPass));
   strlcpy(ConfigSettings.mqttTopic, doc["topic"] | "", sizeof(ConfigSettings.mqttTopic));
-  ConfigSettings.mqttRetain = (int)doc["retain"];
-  ConfigSettings.mqttQOS = (int)doc["qos"];
+  //ConfigSettings.mqttRetain = (int)doc["retain"];
+  ConfigSettings.mqttInterval = (int)doc["interval"];
   ConfigSettings.mqttDiscovery = (int)doc["discovery"];
 
   configFile.close();
@@ -748,6 +748,7 @@ void loop(void)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT("true ConfigSettings.socketTime ");
       DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "ON");
     }
     int count = client.available();
 
@@ -794,6 +795,7 @@ void loop(void)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT("false ConfigSettings.socketTime ");
       DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "OFF");
     }
   }
   // now check the swSer for any bytes to send to the network

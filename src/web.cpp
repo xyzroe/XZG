@@ -64,6 +64,7 @@ void initWebServer()
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
   serverWeb.on("/cmdGetVersion", handleGetVersion);
+  serverWeb.on("/cmdZigReset", handleZigReset);
   serverWeb.on("/cmdZigRST", handleZigbeeReset);
   serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
   serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility
@@ -203,6 +204,7 @@ void handleHelp()
   result += FPSTR(HTTP_HEADER);
   result += FPSTR(HTTP_HELP);
   result += F("</html>");
+  result.replace("{{pageName}}", "Help");
 
   serverWeb.send(200, "text/html", result);
 }
@@ -214,6 +216,8 @@ void handleGeneral()
   result += FPSTR(HTTP_HEADER);
   result += FPSTR(HTTP_GENERAL);
   result += F("</html>");
+
+  result.replace("{{pageName}}", "General");
 
   if (ConfigSettings.disableWeb)
   {
@@ -235,7 +239,7 @@ void handleSaveSucces(String msg)
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Saved</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='main' class='col-sm-6'>");
   result += F("<form method='GET' action='reboot' id='upload_form'>");
@@ -245,6 +249,8 @@ void handleSaveSucces(String msg)
   result += F("<button type='submit' class='btn btn-warning mb-2'>Reboot</button>");
   result += F("</form></div></div>");
   result += F("</html>");
+  result.replace("{{pageName}}", "Saved");
+
   serverWeb.send(200, "text/html", result);
 }
 
@@ -255,6 +261,8 @@ void handleWifi()
   result += FPSTR(HTTP_HEADER);
   result += FPSTR(HTTP_WIFI);
   result += F("</html>");
+
+  result.replace("{{pageName}}", "Config WiFi");
 
   DEBUG_PRINTLN(ConfigSettings.enableWiFi);
   if (ConfigSettings.enableWiFi)
@@ -290,6 +298,9 @@ void handleSerial()
   result += FPSTR(HTTP_HEADER);
   result += FPSTR(HTTP_SERIAL);
   result += F("</html>");
+
+  result.replace("{{pageName}}", "Config Serial");
+
   if (ConfigSettings.serialSpeed == 9600)
   {
     result.replace("{{selected9600}}", "Selected");
@@ -327,6 +338,8 @@ void handleEther()
   result += FPSTR(HTTP_ETHERNET);
   result += F("</html>");
 
+  result.replace("{{pageName}}", "Config Ethernet");
+
   if (ConfigSettings.dhcp)
   {
     result.replace("{{modeEther}}", "Checked");
@@ -350,6 +363,8 @@ void handleMqtt()
   result += FPSTR(HTTP_MQTT);
   result += F("</html>");
 
+  result.replace("{{pageName}}", "Config MQTT");
+
   if (ConfigSettings.mqttEnable)
   {
     result.replace("{{mqttEnable}}", "Checked");
@@ -363,6 +378,7 @@ void handleMqtt()
   result.replace("{{mqttUser}}", String(ConfigSettings.mqttUser));
   result.replace("{{mqttPass}}", String(ConfigSettings.mqttPass));
   result.replace("{{mqttTopic}}", String(ConfigSettings.mqttTopic));
+  /*
   if (ConfigSettings.mqttRetain)
   {
     result.replace("{{mqttRetain}}", "Checked");
@@ -371,7 +387,8 @@ void handleMqtt()
   {
     result.replace("{{mqttRetain}}", "");
   }
-  result.replace("{{mqttQOS}}", String(ConfigSettings.mqttQOS));
+  */
+  result.replace("{{mqttInterval}}", String(ConfigSettings.mqttInterval));
   if (ConfigSettings.mqttDiscovery)
   {
     result.replace("{{mqttDiscovery}}", "Checked");
@@ -391,6 +408,8 @@ void handleRoot()
   result += FPSTR(HTTP_HEADER);
   result += FPSTR(HTTP_ROOT);
   result += F("</html>");
+
+  result.replace("{{pageName}}", "Status");
 
   String socketStatus;
   if (ConfigSettings.connectedSocket)
@@ -464,7 +483,7 @@ void handleRoot()
   }
   result.replace("{{stateEther}}", ethState);
 
-  String wifiState = "<strong>Enable : </strong>";
+  String wifiState = "<strong>Enabled : </strong>";
   if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
   {
     wifiState += "<img src='/img/ok.png'>";
@@ -719,6 +738,7 @@ void handleSaveMqtt()
   String user = serverWeb.arg("user");
   String pass = serverWeb.arg("pass");
   String topic = serverWeb.arg("topic");
+  /*
   String retain;
   if (serverWeb.arg("retain") == "on")
   {
@@ -728,7 +748,8 @@ void handleSaveMqtt()
   {
     retain = "0";
   }
-  String qos = serverWeb.arg("qos");
+  */
+  String interval = serverWeb.arg("interval");
   String discovery;
   if (serverWeb.arg("discovery") == "on")
   {
@@ -740,7 +761,7 @@ void handleSaveMqtt()
   }
   const char *path = "/config/configMqtt.json";
 
-  StringConfig = "{\"enable\":" + enable + ",\"server\":\"" + server + "\",\"port\":" + port + ",\"user\":\"" + user + "\",\"pass\":\"" + pass + "\",\"topic\":\"" + topic + "\",\"retain\":" + retain + ",\"qos\":" + qos + ",\"discovery\":" + discovery + "}";
+  StringConfig = "{\"enable\":" + enable + ",\"server\":\"" + server + "\",\"port\":" + port + ",\"user\":\"" + user + "\",\"pass\":\"" + pass + "\",\"topic\":\"" + topic + "\",\"interval\":" + interval + ",\"discovery\":" + discovery + "}";
 
   DEBUG_PRINTLN(StringConfig);
   DynamicJsonDocument doc(1024);
@@ -764,13 +785,13 @@ void handleLogs()
 
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Console</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-sm-8'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-  result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-  //result += F("<button type='button' onclick='cmd(\"ErasePDM\");' class='btn btn-danger'>Erase PDM</button> ");
-  result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Reset</button> ");
+  //result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+  //result += F("<button type='button' onclick='cmd(\"ZigReset\");' class='btn btn-danger'>Zig Restart</button> ");
+  result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
   result += F("</div></div>");
   result += F("<div id='main' class='col-sm-8'>");
@@ -783,6 +804,7 @@ void handleLogs()
   result += F("</script>");
   result += F("</html>");
 
+  result.replace("{{pageName}}", "Console");
   result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
 
   serverWeb.send(200, F("text/html"), result);
@@ -795,9 +817,9 @@ void handleReboot()
   result += F("<html>");
   result += F("<meta http-equiv='refresh' content='1; URL=/'>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Rebooted</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result = result + F("</body></html>");
-
+  result.replace("{{pageName}}", "Rebooted");
   serverWeb.send(200, F("text/html"), result);
 
   ESP.restart();
@@ -808,14 +830,14 @@ void handleUpdate()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Update Zigbee</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result += F("<div class='btn-group-vertical'>");
   result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
   result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
   result += F("</div>");
 
   result = result + F("</body></html>");
-
+  result.replace("{{pageName}}", "Update Zigbee");
   serverWeb.send(200, F("text/html"), result);
 }
 
@@ -824,9 +846,10 @@ void handleESPUpdate()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>Update ESP32</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result += FPSTR(HTTP_UPDATE);
   result = result + F("</body></html>");
+  result.replace("{{pageName}}", "Update ESP32");
   serverWeb.sendHeader("Connection", "close");
   serverWeb.send(200, "text/html", result);
 }
@@ -836,9 +859,10 @@ void handleFSbrowser()
   String result;
   result += F("<html>");
   result += FPSTR(HTTP_HEADER);
-  result += F("<h2>FSBrowser</h2>");
+  result += F("<h2>{{pageName}}</h2>");
   result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-md-11'>");
+  result.replace("{{pageName}}", "FSBrowser");
 
   String str = "";
   File root = LITTLEFS.open("/config");
@@ -972,22 +996,62 @@ void handleClearConsole()
 
 void handleGetVersion()
 {
-  //\01\02\10\10\02\10\02\10\10\03
-  char output_sprintf[2];
-  uint8_t cmd[10];
-  cmd[0] = 0x01;
-  cmd[1] = 0x02;
-  cmd[2] = 0x10;
-  cmd[3] = 0x10;
-  cmd[4] = 0x02;
-  cmd[5] = 0x10;
-  cmd[6] = 0x02;
-  cmd[7] = 0x10;
-  cmd[8] = 0x10;
-  cmd[9] = 0x03;
+  uint8_t cmd[2];
+  cmd[0] = 0x55;
+  cmd[1] = 0x55;
 
-  Serial2.write(cmd, 10);
   Serial2.flush();
+  for (int i = 0; i < 2; i++)
+  {
+    zigbeeCmdSend(cmd[i]);
+  }
+  delay(50);
+
+  uint8_t cmd2[3];
+  cmd2[0] = 0x03;
+  cmd2[1] = 0x28;
+  cmd2[2] = 0x28;
+
+  //Serial2.flush();
+  for (int i = 0; i < 3; i++)
+  {
+    zigbeeCmdSend(cmd2[i]);
+  }
+}
+
+void handleZigReset()
+{
+  uint8_t cmd[2];
+  cmd[0] = 0x55;
+  cmd[1] = 0x55;
+
+  Serial2.flush();
+  for (int i = 0; i < 2; i++)
+  {
+    zigbeeCmdSend(cmd[i]);
+  }
+  delay(50);
+
+  uint8_t cmd2[3];
+  cmd2[0] = 0x03;
+  cmd2[1] = 0x25;
+  cmd2[2] = 0x25;
+
+  //Serial2.flush();
+  for (int i = 0; i < 3; i++)
+  {
+    zigbeeCmdSend(cmd2[i]);
+  }
+}
+
+void zigbeeCmdSend(uint8_t one_byte)
+{
+  char output_sprintf[2];
+
+  uint8_t cmd[1];
+  cmd[0] = one_byte;
+  DEBUG_PRINTLN(cmd[0]);
+  Serial2.write(cmd, 1);
 
   String buff = "";
 
@@ -996,13 +1060,11 @@ void handleGetVersion()
   logPush('-');
   logPush('>');
 
-  for (int i = 0; i < 10; i++)
-  {
-    sprintf(output_sprintf, "%02x", cmd[i]);
-    logPush(' ');
-    logPush(output_sprintf[0]);
-    logPush(output_sprintf[1]);
-  }
+  sprintf(output_sprintf, "%02x", cmd[0]);
+  logPush(' ');
+  logPush(output_sprintf[0]);
+  logPush(output_sprintf[1]);
+
   logPush('\n');
   serverWeb.send(200, F("text/html"), "");
 }
@@ -1010,28 +1072,13 @@ void handleGetVersion()
 void handleZigbeeReset()
 {
   serverWeb.send(200, F("text/html"), "");
-  printLogMsg("Zigbee RST pin ON");
-  digitalWrite(ConfigSettings.rstZigbeePin, 0);
-  delay(100);
-  printLogMsg("Zigbee RST pin OFF");
-  digitalWrite(ConfigSettings.rstZigbeePin, 1);
+  zigbeeReset();
 }
 
 void handleZigbeeBSL()
 {
   serverWeb.send(200, F("text/html"), "");
-  printLogMsg("Zigbee BSL pin ON");
-  digitalWrite(ConfigSettings.flashZigbeePin, 0);
-  delay(100);
-  printLogMsg("Zigbee RST pin ON");
-  digitalWrite(ConfigSettings.rstZigbeePin, 0);
-  delay(100);
-  printLogMsg("Zigbee RST pin OFF");
-  digitalWrite(ConfigSettings.rstZigbeePin, 1);
-  delay(2000);
-  printLogMsg("Zigbee BSL pin OFF");
-  digitalWrite(ConfigSettings.flashZigbeePin, 1);
-  printLogMsg("Update with cc2538-bsl tool now!");
+  zigbeeEnableBSL();
 }
 
 void printLogTime()
@@ -1051,9 +1098,7 @@ void printLogMsg(String msg)
 {
   printLogTime();
   logPush(' ');
-  logPush('D');
-  logPush('E');
-  logPush('V');
+  logPush('|');
   logPush(' ');
   for (int j = 0; j < msg.length(); j++)
   {

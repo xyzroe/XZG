@@ -27,6 +27,13 @@ def after_build(source, target, env):
     shutil.move('bin/ZigStarGW.bin', NEW_NAME_FULL)
     shutil.move('bin/firmware.bin', NEW_NAME)
 
+    print('')
+    print('--------------------------------------------------------')
+    print('{} created with success !'.format(str(NEW_NAME_FULL)))
+    print('{} created with success !'.format(str(NEW_NAME)))
+    print('--------------------------------------------------------')
+    print('')
+
 env.AddPostAction("buildprog", after_build)
 
 firmware_source = os.path.join(env.subst("$BUILD_DIR"), "firmware.bin")

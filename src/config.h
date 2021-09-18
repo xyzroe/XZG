@@ -80,10 +80,11 @@ struct ConfigSettingsStruct
   char mqttUser[50];
   char mqttPass[50];
   char mqttTopic[50];
-  bool mqttRetain;
-  int mqttQOS;
+  //bool mqttRetain;
+  int mqttInterval;
   bool mqttDiscovery;
   unsigned long mqttReconnectTime;
+  unsigned long mqttHeartbeatTime;
 };
 
 struct InfosStruct

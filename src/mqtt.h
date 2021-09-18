@@ -1,5 +1,12 @@
 
 void mqttConnectSetup();
-void reconnectMqtt();
-void callbackMqtt(char *topic, byte *payload, unsigned int length);
+void mqttReconnect();
+void mqttCallback(char *topic, byte *payload, unsigned int length);
 void mqttLoop();
+void mqttPublishState();
+void mqttOnConnect();
+void mqttPublishAvty();
+void mqttPublishDiscovery();
+void mqttPublishMsg(String topic, String msg);
+void mqttPublishIo(String const &io, String const &state);
+void mqttSubscribe(String topic);

@@ -1,11 +1,9 @@
-
-- MQTT integration for buttons, uptime, version
-- MQTT stats
-
 - Time synchronization with NTP server
 
-- Different board - auto select pins
 
++ MQTT integration for buttons, uptime, version
++ Different board - auto select pins
++ MQTT stats
 + enable Wi-Fi if Ethernet is disconnected more than 30 seconds
 + socket connection time
 + hide not used stats on main page
