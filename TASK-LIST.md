@@ -1,4 +1,4 @@
-- Time synchronization with NTP server
+- Time synchronization with NTP server ?
 
 
 + MQTT integration for buttons, uptime, version
