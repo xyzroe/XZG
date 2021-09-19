@@ -125,7 +125,7 @@ const char HTTP_HELP[] PROGMEM =
     "</div>"
     "<script src='https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js'></script>"
     "<script type='module' src='https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js'></script>"
-    "<zero-md src='https://raw.githubusercontent.com/xyzroe/ZigStar-GW-FW/platformio/README.md'></zero-md>"
+    "<zero-md src='https://raw.githubusercontent.com/xyzroe/ZigStarGW-FW/main/README.md'></zero-md>"
     "</div>";
 
 const char HTTP_ETHERNET[] PROGMEM =
