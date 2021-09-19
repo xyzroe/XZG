@@ -1,6 +1,10 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <etc.h>
 #include <WiFi.h>
+#include <ETH.h>
+#include "LITTLEFS.h"
+
 #include "config.h"
 #include "log.h"
 #include "mqtt.h"
@@ -116,7 +120,7 @@ void zigbeeEnableBSL()
   printLogMsg("Now you can flash CC2652!");
 }
 
-void zigbeeReset()
+void zigbeeRestart()
 {
   printLogMsg("Zigbee RST pin ON");
   digitalWrite(ConfigSettings.rstZigbeePin, 0);
@@ -125,4 +129,80 @@ void zigbeeReset()
   printLogMsg("Zigbee RST pin OFF");
   digitalWrite(ConfigSettings.rstZigbeePin, 1);
   mqttPublishIo("rst_zig", "OFF");
+}
+
+void getDeviceID(String &devID)
+{
+  String mac;
+  mac = ETH.macAddress();
+  if (strcmp(mac.c_str(), "00:00:00:00:00:00") != 0)
+  {
+    DEBUG_PRINTLN(F("Using ETH mac to ID"));
+    DEBUG_PRINTLN(mac);
+  }
+  else
+  {
+    mac = WiFi.softAPmacAddress();
+    if (strcmp(mac.c_str(), "") != 0)
+    {
+      DEBUG_PRINTLN(F("Using WIFI mac to ID"));
+      DEBUG_PRINTLN(mac);
+    }
+    else
+    {
+      mac = "00:00:00:12:34:56";
+      DEBUG_PRINTLN(F("Using zero mac to ID"));
+      DEBUG_PRINTLN(mac);
+    }
+  }
+  mac = mac.substring(9);
+  mac = mac.substring(0, 2) + mac.substring(3, 5);
+  devID = "ZigStarGW-" + String(mac);
+  DEBUG_PRINTLN(devID);
+}
+
+void writeDefultConfig(const char *path, String StringConfig)
+{
+  DEBUG_PRINTLN(path);
+  DEBUG_PRINTLN(F("failed open. try to write defaults"));
+  DEBUG_PRINTLN(StringConfig);
+
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, StringConfig);
+
+  File configFile = LITTLEFS.open(path, FILE_WRITE);
+  if (!configFile)
+  {
+    DEBUG_PRINTLN(F("failed write"));
+    //return false;
+  }
+  else
+  {
+    serializeJson(doc, configFile);
+  }
+  configFile.close();
+}
+
+String hexToDec(String hexString)
+{
+
+  unsigned int decValue = 0;
+  int nextInt;
+
+  for (int i = 0; i < hexString.length(); i++)
+  {
+
+    nextInt = int(hexString.charAt(i));
+    if (nextInt >= 48 && nextInt <= 57)
+      nextInt = map(nextInt, 48, 57, 0, 9);
+    if (nextInt >= 65 && nextInt <= 70)
+      nextInt = map(nextInt, 65, 70, 10, 15);
+    if (nextInt >= 97 && nextInt <= 102)
+      nextInt = map(nextInt, 97, 102, 10, 15);
+    nextInt = constrain(nextInt, 0, 15);
+
+    decValue = (decValue * 16) + nextInt;
+  }
+
+  return String(decValue);
 }

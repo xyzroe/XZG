@@ -15,7 +15,7 @@
 #define ETH_MDC_PIN_1 23
 #define ETH_MDIO_PIN_1 18
 //ZIGBEE
-#define RESET_ZIGBEE_1 33
+#define RESTART_ZIGBEE_1 33
 #define FLASH_ZIGBEE_1 32
 #define ZRXD_1 5
 #define ZTXD_1 17
@@ -29,7 +29,7 @@
 #define ETH_MDC_PIN_2 23
 #define ETH_MDIO_PIN_2 18
 //ZIGBEE
-#define RESET_ZIGBEE_2 12
+#define RESTART_ZIGBEE_2 12
 #define FLASH_ZIGBEE_2 32
 #define ZRXD_2 36
 #define ZTXD_2 4
@@ -70,6 +70,7 @@ struct ConfigSettingsStruct
   unsigned long socketTime;
   unsigned long disconnectEthTime;
   int board;
+  char boardName[50];
   bool emergencyWifi;
   int rstZigbeePin;
   int flashZigbeePin;
@@ -98,9 +99,8 @@ typedef CircularBuffer<char, 1024> LogConsoleType;
 
 #define WL_MAC_ADDR_LENGTH 6
 
-#define DEBUG_ON
 
-#ifdef DEBUG_ON
+#ifdef DEBUG
 #define DEBUG_PRINT(x) Serial.print(x)
 #define DEBUG_PRINTLN(x) Serial.println(x)
 #else

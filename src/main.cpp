@@ -79,8 +79,7 @@ void WiFiEvent(WiFiEvent_t event)
   {
   case SYSTEM_EVENT_ETH_START:
     DEBUG_PRINTLN(F("ETH Started"));
-    //set eth hostname here
-    //ETH.setHostname("esp32-ethernet");
+
     break;
   case SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
@@ -197,29 +196,24 @@ bool loadConfigWifi()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open. try to write defaults"));
-
     String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
-    DEBUG_PRINTLN(StringConfig);
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
-    if (!configFile)
-    {
-      DEBUG_PRINTLN(F("failed write"));
-      return false;
-    }
-    else
-    {
-      serializeJson(doc, configFile);
-    }
-    configFile.close();
+    writeDefultConfig(path, StringConfig);
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, configFile);
+  DeserializationError error = deserializeJson(doc, configFile);
+
+  if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LITTLEFS.remove(path);
+    return false;
+  }
 
   ConfigSettings.dhcpWiFi = (int)doc["dhcpWiFi"];
   strlcpy(ConfigSettings.ssid, doc["ssid"] | "", sizeof(ConfigSettings.ssid));
@@ -240,31 +234,25 @@ bool loadConfigEther()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open. try to write defaults"));
-
     String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
-    DEBUG_PRINTLN(StringConfig);
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
-    if (!configFile)
-    {
-      DEBUG_PRINTLN(F("failed write"));
-      return false;
-    }
-    else
-    {
-      serializeJson(doc, configFile);
-    }
-    configFile.close();
+    writeDefultConfig(path, StringConfig);
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, configFile);
+  DeserializationError error = deserializeJson(doc, configFile);
 
-  // affectation des valeurs , si existe pas on place une valeur par defaut
+  if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LITTLEFS.remove(path);
+    return false;
+  }
+
   ConfigSettings.dhcp = (int)doc["dhcp"];
   strlcpy(ConfigSettings.ipAddress, doc["ip"] | "", sizeof(ConfigSettings.ipAddress));
   strlcpy(ConfigSettings.ipMask, doc["mask"] | "", sizeof(ConfigSettings.ipMask));
@@ -280,29 +268,26 @@ bool loadConfigGeneral()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+    String deviceID = "ZigStarGW";
+    //getDeviceID(deviceID);
+    String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableWeb\":0,\"refreshLogs\":1000}";
 
-    String StringConfig = "{\"hostname\":\"ZigStarGW\",\"disableWeb\":0,\"refreshLogs\":1000}";
-    DEBUG_PRINTLN(StringConfig);
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, StringConfig);
-
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
-    if (!configFile)
-    {
-      DEBUG_PRINTLN(F("failed write"));
-      return false;
-    }
-    else
-    {
-      serializeJson(doc, configFile);
-    }
-    configFile.close();
+    writeDefultConfig(path, StringConfig);
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, configFile);
+  DeserializationError error = deserializeJson(doc, configFile);
+
+  if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LITTLEFS.remove(path);
+    return false;
+  }
 
   ConfigSettings.disableWeb = (int)doc["disableWeb"];
   if ((double)doc["refreshLogs"] < 1000)
@@ -325,29 +310,24 @@ bool loadConfigSerial()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open. try to write defaults"));
-
     String StringConfig = "{\"baud\":115200,\"port\":4444}";
-    DEBUG_PRINTLN(StringConfig);
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
-    if (!configFile)
-    {
-      DEBUG_PRINTLN(F("failed write"));
-      return false;
-    }
-    else
-    {
-      serializeJson(doc, configFile);
-    }
-    configFile.close();
+    writeDefultConfig(path, StringConfig);
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, configFile);
+  DeserializationError error = deserializeJson(doc, configFile);
+
+  if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LITTLEFS.remove(path);
+    return false;
+  }
 
   ConfigSettings.serialSpeed = (int)doc["baud"];
   ConfigSettings.socketPort = (int)doc["port"];
@@ -366,29 +346,26 @@ bool loadConfigMqtt()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("failed open. try to write defaults"));
+    String deviceID;
+    getDeviceID(deviceID);
+    String StringConfig = "{\"enable\":0,\"server\":\"\",\"port\":1883,\"user\":\"mqttuser\",\"pass\":\"\",\"topic\":\"" + deviceID + "\",\"interval\":60,\"discovery\":0}";
 
-    String StringConfig = "{\"enable\":0,\"server\":\"\",\"port\":1883,\"user\":\"\",\"pass\":\"\",\"topic\":\"ZigStarGW\",\"interval\":60,\"discovery\":0}";
-    DEBUG_PRINTLN(StringConfig);
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, StringConfig);
-
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
-    if (!configFile)
-    {
-      DEBUG_PRINTLN(F("failed write"));
-      return false;
-    }
-    else
-    {
-      serializeJson(doc, configFile);
-    }
-    configFile.close();
+    writeDefultConfig(path, StringConfig);
   }
 
   configFile = LITTLEFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
-  deserializeJson(doc, configFile);
+  DeserializationError error = deserializeJson(doc, configFile);
+
+  if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LITTLEFS.remove(path);
+    return false;
+  }
 
   ConfigSettings.mqttEnable = (int)doc["enable"];
   strlcpy(ConfigSettings.mqttServer, doc["server"] | "", sizeof(ConfigSettings.mqttServer));
@@ -397,7 +374,6 @@ bool loadConfigMqtt()
   strlcpy(ConfigSettings.mqttUser, doc["user"] | "", sizeof(ConfigSettings.mqttUser));
   strlcpy(ConfigSettings.mqttPass, doc["pass"] | "", sizeof(ConfigSettings.mqttPass));
   strlcpy(ConfigSettings.mqttTopic, doc["topic"] | "", sizeof(ConfigSettings.mqttTopic));
-  //ConfigSettings.mqttRetain = (int)doc["retain"];
   ConfigSettings.mqttInterval = (int)doc["interval"];
   ConfigSettings.mqttDiscovery = (int)doc["discovery"];
 
@@ -410,12 +386,8 @@ void setupWifiAP()
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
 
-  uint8_t mac[WL_MAC_ADDR_LENGTH];
-  WiFi.softAPmacAddress(mac);
-  String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
-                 String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
-  macID.toUpperCase();
-  String AP_NameString = "ZigStar-GW-" + macID;
+  String AP_NameString;
+  getDeviceID(AP_NameString);
 
   char AP_NameChar[AP_NameString.length() + 1];
   memset(AP_NameChar, 0, AP_NameString.length() + 1);
@@ -445,15 +417,6 @@ bool setupSTAWifi()
   WiFi.begin(ConfigSettings.ssid, ConfigSettings.password);
   WiFi.setSleep(false);
   DEBUG_PRINTLN(F("WiFi.begin"));
-  /*
-  IPAddress ip;
-  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
-      IPAddress ip_address = ip;
-  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
-      IPAddress gateway_address = ip;
-  parse_ip_address(ip, ConfigSettings.ipAddressWiFi)
-      IPAddress netmask = ip;
-      */
 
   IPAddress ip_address = parse_ip_address(ConfigSettings.ipAddressWiFi);
   IPAddress gateway_address = parse_ip_address(ConfigSettings.ipGWWiFi);
@@ -550,47 +513,27 @@ void setup(void)
   }
   else
   {
-    //configOK = true;
     DEBUG_PRINTLN(F("System vars load OK"));
   }
 
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigSerial()) || (!loadConfigGeneral()) || (!loadConfigMqtt()))
+  if (!loadConfigSerial())
   {
-    DEBUG_PRINTLN(F("Error load config files"));
+    DEBUG_PRINTLN(F("Error load config serial"));
     ESP.restart();
   }
   else
   {
-    configOK = true;
-    DEBUG_PRINTLN(F("Config files load OK"));
+    DEBUG_PRINTLN(F("Config serial load OK"));
   }
 
   switch (ConfigSettings.board)
   {
-  case 0:
-    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
-    {
-      ConfigSettings.emergencyWifi = 1;
-      DEBUG_PRINTLN(F("Unknown board. Please set type in system.json"));
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("Looks like WT32-ETH01."));
-      DEBUG_PRINTLN(F("Please set type in system.json"));
-    }
-    ConfigSettings.rstZigbeePin = RESET_ZIGBEE_1;
-    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
-
-    DEBUG_PRINT(F("Zigbee serial setup @ "));
-    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
-    break;
 
   case 1:
     if (ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
     {
       DEBUG_PRINTLN(F("Board v1 (No POE) WT32-ETH01"));
-      ConfigSettings.rstZigbeePin = RESET_ZIGBEE_1;
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
       ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
 
       DEBUG_PRINT(F("Zigbee serial setup @ "));
@@ -608,7 +551,7 @@ void setup(void)
     if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
     {
       DEBUG_PRINTLN(F("Board v2 (with POE) TTGO T-Internet-POE"));
-      ConfigSettings.rstZigbeePin = RESET_ZIGBEE_2;
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_2;
       ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_2;
 
       DEBUG_PRINT(F("Zigbee serial setup @ "));
@@ -621,9 +564,54 @@ void setup(void)
       ESP.restart();
     }
     break;
+
+  default:
+    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    {
+      ConfigSettings.emergencyWifi = 1;
+      DEBUG_PRINTLN(F("Unknown board. Please set type in system.json"));
+      saveBoard(0);
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("Looks like WT32-ETH01."));
+      saveBoard(1);
+    }
+    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
+    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
+
+    DEBUG_PRINT(F("Zigbee serial setup @ "));
+    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    break;
   }
 
-  //Config GPIOs
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigMqtt()))
+  {
+    DEBUG_PRINTLN(F("Error load config files"));
+    ESP.restart();
+  }
+  else
+  {
+    configOK = true;
+    DEBUG_PRINTLN(F("Config files load OK"));
+  }
+
+  String boardName;
+  switch (ConfigSettings.board)
+  {
+  case 0:
+    boardName = "Unknown";
+    break;
+  case 1:
+    boardName = "WT32-ETH01";
+    break;
+  case 2:
+    boardName = "TTGO T-Internet-POE";
+    break;
+  }
+  boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+
   pinMode(ConfigSettings.rstZigbeePin, OUTPUT);
   pinMode(ConfigSettings.flashZigbeePin, OUTPUT);
   digitalWrite(ConfigSettings.rstZigbeePin, 1);
@@ -663,37 +651,10 @@ void setup(void)
   }
   server.begin(ConfigSettings.socketPort);
 
-  //GetVersion
-  //uint8_t cmdVersion[10] = {0x01, 0x02, 0x10, 0x10, 0x02, 0x10, 0x02, 0x10, 0x10, 0x03};
-  //Serial2.write(cmdVersion, 10);
   if (ConfigSettings.mqttEnable)
   {
     mqttConnectSetup();
   }
-}
-
-String hexToDec(String hexString)
-{
-
-  unsigned int decValue = 0;
-  int nextInt;
-
-  for (int i = 0; i < hexString.length(); i++)
-  {
-
-    nextInt = int(hexString.charAt(i));
-    if (nextInt >= 48 && nextInt <= 57)
-      nextInt = map(nextInt, 48, 57, 0, 9);
-    if (nextInt >= 65 && nextInt <= 70)
-      nextInt = map(nextInt, 65, 70, 10, 15);
-    if (nextInt >= 97 && nextInt <= 102)
-      nextInt = map(nextInt, 97, 102, 10, 15);
-    nextInt = constrain(nextInt, 0, 15);
-
-    decValue = (decValue * 16) + nextInt;
-  }
-
-  return String(decValue);
 }
 
 WiFiClient client;

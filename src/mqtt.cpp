@@ -26,7 +26,7 @@ void mqttConnectSetup()
 
 void mqttReconnect()
 {
-    Serial.print("Attempting MQTT connection...");
+    DEBUG_PRINT("Attempting MQTT connection...");
 
     byte willQoS = 0;
     String willTopic = String(ConfigSettings.mqttTopic) + "/avty";
@@ -40,16 +40,16 @@ void mqttReconnect()
     }
     else
     {
-        Serial.print("failed, rc=");
-        Serial.print(clientPubSub.state());
-        Serial.println(" try again in 5 seconds");
+        DEBUG_PRINT("failed, rc=");
+        DEBUG_PRINT(clientPubSub.state());
+        DEBUG_PRINTLN(" try again in 5 seconds");
         ConfigSettings.mqttReconnectTime = millis() + 5000;
     }
 }
 
 void mqttOnConnect()
 {
-    Serial.println("connected");
+    DEBUG_PRINTLN("connected");
     mqttSubscribe("cmd");
     if (ConfigSettings.mqttInterval > 0)
     {
@@ -60,11 +60,11 @@ void mqttOnConnect()
     {
         mqttPublishDiscovery();
     }
-    mqttPublishAvty();
     mqttPublishIo("rst_esp", "OFF");
     mqttPublishIo("rst_zig", "OFF");
     mqttPublishIo("enbl_bsl", "OFF");
     mqttPublishIo("socket", "OFF");
+    mqttPublishAvty();
 }
 
 void mqttPublishMsg(String topic, String msg)
@@ -136,7 +136,7 @@ void mqttPublishState()
     root["hostname"] = ConfigSettings.hostname;
     String mqttBuffer;
     serializeJson(root, mqttBuffer);
-    Serial.println(mqttBuffer);
+    DEBUG_PRINTLN(mqttBuffer);
     clientPubSub.publish(topic.c_str(), mqttBuffer.c_str());
     ConfigSettings.mqttHeartbeatTime = millis() + (ConfigSettings.mqttInterval * 1000);
 }
@@ -173,7 +173,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     if (strcmp(command, "rst_zig") == 0)
     {
         printLogMsg("Zigbee restart MQTT");
-        zigbeeReset();
+        zigbeeRestart();
         return;
     }
 
@@ -224,7 +224,7 @@ void mqttLoop()
 void mqttPublishDiscovery()
 {
     String mtopic(ConfigSettings.mqttTopic);
-    String deviceName = ConfigSettings.hostname;
+    String deviceName = mtopic; //ConfigSettings.hostname;
 
     String topic;
     DynamicJsonDocument buffJson(2048);
@@ -243,6 +243,7 @@ void mqttPublishDiscovery()
             dev["ids"] = ETH.macAddress();
             dev["name"] = ConfigSettings.hostname;
             dev["mf"] = "Zig Star";
+            dev["mdl"] = ConfigSettings.boardName;
             dev["sw"] = VERSION;
 
             topic = "homeassistant/switch/" + deviceName + "/rst_esp/config";
@@ -290,10 +291,8 @@ void mqttPublishDiscovery()
             topic = "homeassistant/binary_sensor/" + deviceName + "/socket/config";
             buffJson["name"] = "Socket";
             buffJson["uniq_id"] = deviceName + "/socket";
-            buffJson["stat_t"] = mtopic + "/io/socket";//"/state";
+            buffJson["stat_t"] = mtopic + "/io/socket";
             buffJson["avty_t"] = mtopic + "/avty";
-            //buffJson["val_tpl"] = "{{ value_json.socket }}";
-            //buffJson["json_attr_t"] = mtopic + "/state";
             buffJson["dev_cla"] = "connectivity";
             buffJson["dev"] = via;
             break;
@@ -366,7 +365,7 @@ void mqttPublishDiscovery()
         }
         }
         serializeJson(buffJson, mqttBuffer);
-        Serial.println(mqttBuffer);
+        DEBUG_PRINTLN(mqttBuffer);
         mqttPublishMsg(topic, mqttBuffer);
         buffJson.clear();
         mqttBuffer = "";

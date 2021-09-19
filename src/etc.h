@@ -13,4 +13,8 @@ void getCPUtemp(String &CPUtemp);
 
 //void parse_ip_address(IPAddress &ip, const char *str)
 void zigbeeEnableBSL();
-void zigbeeReset();
+void zigbeeRestart();
+
+void getDeviceID(String &devID);
+void writeDefultConfig(const char *path, String StringConfig);
+String hexToDec(String hexString);

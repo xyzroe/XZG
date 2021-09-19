@@ -64,8 +64,8 @@ void initWebServer()
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
   serverWeb.on("/cmdGetVersion", handleGetVersion);
-  serverWeb.on("/cmdZigReset", handleZigReset);
-  serverWeb.on("/cmdZigRST", handleZigbeeReset);
+  serverWeb.on("/cmdZigRestart", handleZigRestart);
+  serverWeb.on("/cmdZigRST", handleZigbeeRestart);
   serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
   serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility
   serverWeb.on("/help", handleHelp);
@@ -432,20 +432,7 @@ void handleRoot()
   getCPUtemp(CPUtemp);
   result.replace("{{deviceTemp}}", CPUtemp);
 
-  String boardName;
-  switch (ConfigSettings.board)
-  {
-  case 0:
-    boardName = "Unknown";
-    break;
-  case 1:
-    boardName = "WT32-ETH01";
-    break;
-  case 2:
-    boardName = "TTGO T-Internet-POE";
-    break;
-  }
-  result.replace("{{hwRev}}", boardName);
+  result.replace("{{hwRev}}", ConfigSettings.boardName);
 
   String ethState = "<strong>Connected : </strong>";
   if (ConfigSettings.connectedEther)
@@ -495,12 +482,8 @@ void handleRoot()
     wifiState += "<br><strong>Mode : </strong> ";
     if (ConfigSettings.radioModeWiFi)
     {
-      uint8_t mac[WL_MAC_ADDR_LENGTH];
-      WiFi.softAPmacAddress(mac);
-      String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
-                     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
-      macID.toUpperCase();
-      String AP_NameString = "ZigStar-GW-" + macID;
+      String AP_NameString;
+      getDeviceID(AP_NameString);
       wifiState += "AP <br><strong>SSID : </strong>" + AP_NameString;
       wifiState += "<br><strong>Password : </strong>ZigStar1";
       wifiState += "<br><strong>IP : </strong>192.168.4.1";
@@ -790,7 +773,7 @@ void handleLogs()
   result += F("<div id='help_btns' class='col-sm-8'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
   //result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-  //result += F("<button type='button' onclick='cmd(\"ZigReset\");' class='btn btn-danger'>Zig Restart</button> ");
+  //result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
   result += F("</div></div>");
@@ -1019,7 +1002,7 @@ void handleGetVersion()
   }
 }
 
-void handleZigReset()
+void handleZigRestart()
 {
   uint8_t cmd[2];
   cmd[0] = 0x55;
@@ -1069,10 +1052,10 @@ void zigbeeCmdSend(uint8_t one_byte)
   serverWeb.send(200, F("text/html"), "");
 }
 
-void handleZigbeeReset()
+void handleZigbeeRestart()
 {
   serverWeb.send(200, F("text/html"), "");
-  zigbeeReset();
+  zigbeeRestart();
 }
 
 void handleZigbeeBSL()
