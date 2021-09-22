@@ -1,5 +1,7 @@
 - Time synchronization with NTP server ?
 
+- Erase Zigbee NVRAM using ESP32
+- Flash Zigbee using ESP32
 
 + MQTT integration for buttons, uptime, version
 + Different board - auto select pins
