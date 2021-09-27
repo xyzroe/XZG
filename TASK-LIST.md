@@ -1,7 +1,11 @@
-- Time synchronization with NTP server ?
+- More active socket connections
+- Add configuartions for Ebyte revisions
+- mDNS auto window opener?
 
-- Erase Zigbee NVRAM using ESP32
 - Flash Zigbee using ESP32
+- Erase Zigbee NVRAM using ESP32
+
+- Time synchronization with NTP server ?
 
 + MQTT integration for buttons, uptime, version
 + Different board - auto select pins

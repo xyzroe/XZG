@@ -187,8 +187,12 @@ const char HTTP_ROOT[] PROGMEM =
     "<strong>Socket : </strong>{{connectedSocket}}"
     "<br><strong>Uptime : </strong>{{uptime}}"
     "<br><strong>Temperature : </strong>{{deviceTemp}} &deg;C"
-    "<br><strong>Version : </strong>" VERSION
+    "<br><strong>FW version : </strong>" VERSION
     "<br><strong>Hardware : </strong>{{hwRev}}"
+    "<br><strong>ESP32 model : </strong>{{espModel}}"
+    "<br><strong>CPU : </strong>{{espCores}} cores @ {{espFreq}} MHz"
+    "<br><strong>Flash : </strong>{{espFlashSize}} Mb, {{espFlashType}}"
+    "<br><strong>Free heap : </strong>{{espHeapFree}} / {{espHeapSize}} KiB"
     "</div>"
     "</div>"
     "</div><br>"

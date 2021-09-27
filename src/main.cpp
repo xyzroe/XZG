@@ -123,7 +123,7 @@ void WiFiEvent(WiFiEvent_t event)
   }
 }
 
-WiFiServer server(TCP_LISTEN_PORT);
+WiFiServer server(TCP_LISTEN_PORT, 1);
 
 IPAddress parse_ip_address(const char *str)
 {
@@ -480,6 +480,100 @@ void enableWifi()
   }
 }
 
+void setupEthernetAndZigbeeSerial()
+{
+  switch (ConfigSettings.board)
+  {
+
+  case 1:
+    if (ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    {
+      String boardName = "WT32-ETH01";
+      boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+      DEBUG_PRINT(F("Board - "));
+      DEBUG_PRINTLN(boardName);
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    }
+    else
+    {
+      saveBoard(2);
+      ESP.restart();
+    }
+    break;
+
+  case 2:
+    if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
+    {
+      String boardName = "TTGO T-Internet-POE";
+      boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+      DEBUG_PRINT(F("Board - "));
+      DEBUG_PRINTLN(boardName);
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_2;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_2;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_2, ZTXD_2);
+    }
+    else
+    {
+      saveBoard(3);
+      ESP.restart();
+    }
+    break;
+
+  case 3:
+    if (ETH.begin(ETH_ADDR_3, ETH_POWER_PIN_3, ETH_MDC_PIN_3, ETH_MDIO_PIN_3, ETH_TYPE_3, ETH_CLK_MODE_3))
+    {
+      String boardName = "unofficial China-GW";
+      boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+      DEBUG_PRINT(F("Board - "));
+      DEBUG_PRINTLN(boardName);
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_3;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_3;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_3, ZTXD_3);
+    }
+    else
+    {
+      saveBoard(0);
+      ESP.restart();
+    }
+    break;
+
+  default:
+    String boardName = "Unknown";
+    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    {
+      ConfigSettings.emergencyWifi = 1;
+      DEBUG_PRINTLN(F("Please set board type in system.json"));
+      saveBoard(0);
+    }
+    else
+    {
+      saveBoard(1);
+      boardName = "WT32-ETH01";
+    }
+    boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+    DEBUG_PRINT(F("Board - "));
+    DEBUG_PRINTLN(boardName);
+    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
+    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
+
+    DEBUG_PRINT(F("Zigbee serial setup @ "));
+    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    break;
+  }
+}
+
 void setup(void)
 {
 
@@ -526,65 +620,7 @@ void setup(void)
     DEBUG_PRINTLN(F("Config serial load OK"));
   }
 
-  switch (ConfigSettings.board)
-  {
-
-  case 1:
-    if (ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
-    {
-      DEBUG_PRINTLN(F("Board v1 (No POE) WT32-ETH01"));
-      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
-      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
-
-      DEBUG_PRINT(F("Zigbee serial setup @ "));
-      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
-    }
-    else
-    {
-      saveBoard(2);
-      ESP.restart();
-    }
-    break;
-
-  case 2:
-    if (ETH.begin(ETH_ADDR_2, ETH_POWER_PIN_2, ETH_MDC_PIN_2, ETH_MDIO_PIN_2, ETH_TYPE_2, ETH_CLK_MODE_2))
-    {
-      DEBUG_PRINTLN(F("Board v2 (with POE) TTGO T-Internet-POE"));
-      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_2;
-      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_2;
-
-      DEBUG_PRINT(F("Zigbee serial setup @ "));
-      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_2, ZTXD_2);
-    }
-    else
-    {
-      saveBoard(0);
-      ESP.restart();
-    }
-    break;
-
-  default:
-    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
-    {
-      ConfigSettings.emergencyWifi = 1;
-      DEBUG_PRINTLN(F("Unknown board. Please set type in system.json"));
-      saveBoard(0);
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("Looks like WT32-ETH01."));
-      saveBoard(1);
-    }
-    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
-    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
-
-    DEBUG_PRINT(F("Zigbee serial setup @ "));
-    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
-    break;
-  }
+  setupEthernetAndZigbeeSerial();
 
   if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigMqtt()))
   {
@@ -597,6 +633,7 @@ void setup(void)
     DEBUG_PRINTLN(F("Config files load OK"));
   }
 
+  /*
   String boardName;
   switch (ConfigSettings.board)
   {
@@ -611,6 +648,7 @@ void setup(void)
     break;
   }
   boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+*/
 
   pinMode(ConfigSettings.rstZigbeePin, OUTPUT);
   pinMode(ConfigSettings.flashZigbeePin, OUTPUT);
@@ -657,7 +695,7 @@ void setup(void)
   }
 }
 
-WiFiClient client;
+WiFiClient client[3];
 double loopCount;
 
 void loop(void)
@@ -672,7 +710,7 @@ void loop(void)
   }
   else
   {
-    if (!client.connected())
+    if (!client[0].connected() && !client[1].connected() && !client[2].connected())
     {
       webServerHandleClient();
     }
@@ -688,20 +726,31 @@ void loop(void)
       ESP.restart();
     }
   }
+
   // Check if a client has connected
-  if (!client)
+  if (!client[0] && !client[1] && !client[2])
   {
     // eat any bytes in the swSer buffer as there is nothing to see them
     while (Serial2.available())
     {
       Serial2.read();
     }
-
-    client = server.available();
+  }
+  if (!client[0])
+  {
+    client[0] = server.available();
+  }
+  if (!client[1])
+  {
+    client[1] = server.available();
+  }
+  if (!client[2])
+  {
+    client[2] = server.available();
   }
 #define min(a, b) ((a) < (b) ? (a) : (b))
   char output_sprintf[2];
-  if (client.connected())
+  if (client[0].connected())
   {
     if (ConfigSettings.connectedSocket != true)
     {
@@ -711,15 +760,16 @@ void loop(void)
       DEBUG_PRINTLN(ConfigSettings.socketTime);
       mqttPublishIo("socket", "ON");
     }
-    int count = client.available();
+    int count = client[0].available();
 
     if (count > 0)
     {
       //DEBUG_PRINT("Buff count : ");
       //DEBUG_PRINTLN(count);
-      bytes_read = client.read(net_buf, min(count, BUFFER_SIZE));
+      bytes_read = client[0].read(net_buf, min(count, BUFFER_SIZE));
       Serial2.write(net_buf, bytes_read);
 
+      /*
       if (bytes_read > 0)
       {
         String tmpTime;
@@ -744,12 +794,14 @@ void loop(void)
         }
         logPush('\n');
       }
+      */
+
       Serial2.flush();
     }
   }
   else
   {
-    client.stop();
+    client[0].stop();
     if (ConfigSettings.connectedSocket != false)
     {
       ConfigSettings.connectedSocket = false;
@@ -758,6 +810,38 @@ void loop(void)
       DEBUG_PRINTLN(ConfigSettings.socketTime);
       mqttPublishIo("socket", "OFF");
     }
+  }
+
+  if (client[1].connected())
+  {
+    int count = client[1].available();
+
+    if (count > 0)
+    {
+      bytes_read = client[1].read(net_buf, min(count, BUFFER_SIZE));
+      Serial2.write(net_buf, bytes_read);
+      Serial2.flush();
+    }
+  }
+  else
+  {
+    client[1].stop();
+  }
+
+  if (client[2].connected())
+  {
+    int count = client[2].available();
+
+    if (count > 0)
+    {
+      bytes_read = client[2].read(net_buf, min(count, BUFFER_SIZE));
+      Serial2.write(net_buf, bytes_read);
+      Serial2.flush();
+    }
+  }
+  else
+  {
+    client[2].stop();
   }
   // now check the swSer for any bytes to send to the network
   bytes_read = 0;
@@ -770,6 +854,7 @@ void loop(void)
     bytes_read++;
   }
 
+  /*
   if (buffOK)
   {
 
@@ -805,13 +890,27 @@ void loop(void)
     loopCount = 0;
     buffOK = false;
   }
+*/
 
   if (bytes_read > 0)
   {
     //DEBUG_PRINT("bytes_read : ");
     //DEBUG_PRINTLN(bytes_read);
-    client.write((const uint8_t *)serial_buf, bytes_read);
-    client.flush();
+    if (client[0])
+    {
+      client[0].write((const uint8_t *)serial_buf, bytes_read);
+      client[0].flush();
+    }
+    if (client[1])
+    {
+      client[1].write((const uint8_t *)serial_buf, bytes_read);
+      client[1].flush();
+    }
+    if (client[2])
+    {
+      client[2].write((const uint8_t *)serial_buf, bytes_read);
+      client[2].flush();
+    }
   }
   loopCount++;
   if (ConfigSettings.mqttEnable)

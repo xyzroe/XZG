@@ -34,6 +34,20 @@
 #define ZRXD_2 36
 #define ZTXD_2 4
 
+//---China-GW---
+//LAN
+#define ETH_CLK_MODE_3 ETH_CLOCK_GPIO0_IN
+#define ETH_POWER_PIN_3 2
+#define ETH_TYPE_3 ETH_PHY_LAN8720
+#define ETH_ADDR_3 0
+#define ETH_MDC_PIN_3 23
+#define ETH_MDIO_PIN_3 18
+//ZIGBEE
+#define RESTART_ZIGBEE_3 12
+#define FLASH_ZIGBEE_3 14
+#define ZRXD_3 32
+#define ZTXD_3 33
+
 #define PRODUCTION 1
 #define FLASH 0
 

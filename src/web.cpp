@@ -11,6 +11,7 @@
 #include "etc.h"
 #include <Update.h>
 #include "html.h"
+#include "zigbee.h"
 
 #include "webh/glyphicons.woff.gz.h"
 #include "webh/required.css.gz.h"
@@ -434,6 +435,27 @@ void handleRoot()
 
   result.replace("{{hwRev}}", ConfigSettings.boardName);
 
+  result.replace("{{espModel}}", String(ESP.getChipModel()));
+  result.replace("{{espCores}}", String(ESP.getChipCores()));
+  result.replace("{{espFreq}}", String(ESP.getCpuFreqMHz()));
+
+  result.replace("{{espHeapFree}}", String(ESP.getFreeHeap() / 1024));
+  result.replace("{{espHeapSize}}", String(ESP.getHeapSize() / 1024));
+
+  esp_chip_info_t chip_info;
+  esp_chip_info(&chip_info);
+
+  if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
+  {
+    result.replace("{{espFlashType}}", "embedded");
+  }
+  else
+  {
+    result.replace("{{espFlashType}}", "external");
+  }
+
+  result.replace("{{espFlashSize}}", String(ESP.getFlashChipSize() / (1024 * 1024)));
+
   String ethState = "<strong>Connected : </strong>";
   if (ConfigSettings.connectedEther)
   {
@@ -772,8 +794,10 @@ void handleLogs()
   result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-sm-8'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-  //result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-  //result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
+#ifdef DEBUG 
+  result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+  result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
+#endif
   result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
   result += F("</div></div>");
@@ -979,77 +1003,12 @@ void handleClearConsole()
 
 void handleGetVersion()
 {
-  uint8_t cmd[2];
-  cmd[0] = 0x55;
-  cmd[1] = 0x55;
-
-  Serial2.flush();
-  for (int i = 0; i < 2; i++)
-  {
-    zigbeeCmdSend(cmd[i]);
-  }
-  delay(50);
-
-  uint8_t cmd2[3];
-  cmd2[0] = 0x03;
-  cmd2[1] = 0x28;
-  cmd2[2] = 0x28;
-
-  //Serial2.flush();
-  for (int i = 0; i < 3; i++)
-  {
-    zigbeeCmdSend(cmd2[i]);
-  }
+  cmdGetZigVersion();
 }
 
 void handleZigRestart()
 {
-  uint8_t cmd[2];
-  cmd[0] = 0x55;
-  cmd[1] = 0x55;
-
-  Serial2.flush();
-  for (int i = 0; i < 2; i++)
-  {
-    zigbeeCmdSend(cmd[i]);
-  }
-  delay(50);
-
-  uint8_t cmd2[3];
-  cmd2[0] = 0x03;
-  cmd2[1] = 0x25;
-  cmd2[2] = 0x25;
-
-  //Serial2.flush();
-  for (int i = 0; i < 3; i++)
-  {
-    zigbeeCmdSend(cmd2[i]);
-  }
-}
-
-void zigbeeCmdSend(uint8_t one_byte)
-{
-  char output_sprintf[2];
-
-  uint8_t cmd[1];
-  cmd[0] = one_byte;
-  DEBUG_PRINTLN(cmd[0]);
-  Serial2.write(cmd, 1);
-
-  String buff = "";
-
-  printLogTime();
-
-  logPush('-');
-  logPush('>');
-
-  sprintf(output_sprintf, "%02x", cmd[0]);
-  logPush(' ');
-  logPush(output_sprintf[0]);
-  logPush(output_sprintf[1]);
-
-  logPush('\n');
-  serverWeb.send(200, F("text/html"), "");
+  cmdZigRestart();
 }
 
 void handleZigbeeRestart()
