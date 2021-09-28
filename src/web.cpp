@@ -413,17 +413,27 @@ void handleRoot()
   result.replace("{{pageName}}", "Status");
 
   String socketStatus;
-  if (ConfigSettings.connectedSocket)
+  String readableTime;
+  getReadableTime(readableTime, ConfigSettings.socketTime);
+  if (ConfigSettings.connectedClients > 0)
   {
     socketStatus = "<img src='/img/ok.png'>";
+    socketStatus = socketStatus + " " + readableTime + " (" + ConfigSettings.connectedClients;
+    if (ConfigSettings.connectedClients > 1)
+    {
+      socketStatus = socketStatus + " clients)";
+    }
+    else
+    {
+      socketStatus = socketStatus + " client)";
+    }
   }
   else
   {
     socketStatus = "<img src='/img/nok.png'>";
+    socketStatus = socketStatus + " " + readableTime;
   }
-  String readableTime;
-  getReadableTime(readableTime, ConfigSettings.socketTime);
-  socketStatus = socketStatus + " " + readableTime;
+
   result.replace("{{connectedSocket}}", socketStatus);
 
   getReadableTime(readableTime, 0);
@@ -794,7 +804,7 @@ void handleLogs()
   result += F("<div id='main' class='col-sm-12'>");
   result += F("<div id='help_btns' class='col-sm-8'>");
   result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-#ifdef DEBUG 
+#ifdef DEBUG
   result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
   result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
 #endif

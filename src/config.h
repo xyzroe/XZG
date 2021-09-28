@@ -51,6 +51,7 @@
 #define PRODUCTION 1
 #define FLASH 0
 
+#define MAX_SOCKET_CLIENTS 10
 #define BAUD_RATE 38400
 #define TCP_LISTEN_PORT 9999
 
@@ -79,7 +80,8 @@ struct ConfigSettingsStruct
   bool disableWeb;
   double refreshLogs;
   char hostname[50];
-  bool connectedSocket;
+  bool connectedSocket[10];
+  int connectedClients;
   bool radioModeWiFi;
   unsigned long socketTime;
   unsigned long disconnectEthTime;

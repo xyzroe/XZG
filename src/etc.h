@@ -18,3 +18,5 @@ void zigbeeRestart();
 void getDeviceID(String &devID);
 void writeDefultConfig(const char *path, String StringConfig);
 String hexToDec(String hexString);
+
+#define min(a, b) ((a) < (b) ? (a) : (b))

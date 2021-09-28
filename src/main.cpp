@@ -123,7 +123,7 @@ void WiFiEvent(WiFiEvent_t event)
   }
 }
 
-WiFiServer server(TCP_LISTEN_PORT, 1);
+WiFiServer server(TCP_LISTEN_PORT, MAX_SOCKET_CLIENTS);
 
 IPAddress parse_ip_address(const char *str)
 {
@@ -693,10 +693,110 @@ void setup(void)
   {
     mqttConnectSetup();
   }
+
+  ConfigSettings.connectedClients = 0;
 }
 
-WiFiClient client[3];
-double loopCount;
+WiFiClient client[10];
+//double loopCount;
+
+void socketClientConnected(int client)
+{
+  if (ConfigSettings.connectedSocket[client] != true)
+  {
+    DEBUG_PRINT("Connected client ");
+    DEBUG_PRINTLN(client);
+    if (ConfigSettings.connectedClients == 0)
+    {
+      ConfigSettings.socketTime = millis();
+      DEBUG_PRINT("Socket time ");
+      DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "ON");
+    }
+    ConfigSettings.connectedSocket[client] = true;
+    ConfigSettings.connectedClients++;
+  }
+}
+
+void socketClientDisconnected(int client)
+{
+  if (ConfigSettings.connectedSocket[client] != false)
+  {
+    DEBUG_PRINT("Disconnected client ");
+    DEBUG_PRINTLN(client);
+    ConfigSettings.connectedSocket[client] = false;
+    ConfigSettings.connectedClients--;
+    if (ConfigSettings.connectedClients == 0)
+    {
+      ConfigSettings.socketTime = millis();
+      DEBUG_PRINT("Socket time ");
+      DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "OFF");
+    }
+  }
+}
+
+void printRecvSocket(size_t bytes_read, uint8_t net_buf[BUFFER_SIZE])
+{
+  char output_sprintf[2];
+  if (bytes_read > 0)
+  {
+    String tmpTime;
+    String buff = "";
+    timeLog = millis();
+    tmpTime = String(timeLog, DEC);
+    logPush('[');
+    for (int j = 0; j < tmpTime.length(); j++)
+    {
+      logPush(tmpTime[j]);
+    }
+    logPush(']');
+    logPush('-');
+    logPush('>');
+
+    for (int i = 0; i < bytes_read; i++)
+    {
+      sprintf(output_sprintf, "%02x", net_buf[i]);
+      logPush(' ');
+      logPush(output_sprintf[0]);
+      logPush(output_sprintf[1]);
+    }
+    logPush('\n');
+  }
+}
+
+void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
+{
+  char output_sprintf[2];
+  for (int i = 0; i < bytes_read; i++)
+  {
+    sprintf(output_sprintf, "%02x", serial_buf[i]);
+    if (serial_buf[i] == 0x01)
+    {
+
+      String tmpTime;
+      String buff = "";
+      timeLog = millis();
+      tmpTime = String(timeLog, DEC);
+      logPush('[');
+      for (int j = 0; j < tmpTime.length(); j++)
+      {
+        logPush(tmpTime[j]);
+      }
+      logPush(']');
+      logPush('<');
+      logPush('-');
+    }
+    logPush(' ');
+
+    logPush(output_sprintf[0]);
+    logPush(output_sprintf[1]);
+    if (serial_buf[i] == 0x03)
+    {
+      logPush('\n');
+    }
+  }
+}
 
 void loop(void)
 {
@@ -710,7 +810,7 @@ void loop(void)
   }
   else
   {
-    if (!client[0].connected() && !client[1].connected() && !client[2].connected())
+    if (ConfigSettings.connectedClients == 0)
     {
       webServerHandleClient();
     }
@@ -727,123 +827,50 @@ void loop(void)
     }
   }
 
-  // Check if a client has connected
-  if (!client[0] && !client[1] && !client[2])
+  // Check if there is no clients
+  if (ConfigSettings.connectedClients == 0)
   {
-    // eat any bytes in the swSer buffer as there is nothing to see them
+    // eat any bytes in the buffer as there is noone to see them
     while (Serial2.available())
     {
       Serial2.read();
     }
   }
-  if (!client[0])
+
+  // look for clients
+  for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
   {
-    client[0] = server.available();
-  }
-  if (!client[1])
-  {
-    client[1] = server.available();
-  }
-  if (!client[2])
-  {
-    client[2] = server.available();
-  }
-#define min(a, b) ((a) < (b) ? (a) : (b))
-  char output_sprintf[2];
-  if (client[0].connected())
-  {
-    if (ConfigSettings.connectedSocket != true)
+    if (!client[i])
     {
-      ConfigSettings.connectedSocket = true;
-      ConfigSettings.socketTime = millis();
-      DEBUG_PRINT("true ConfigSettings.socketTime ");
-      DEBUG_PRINTLN(ConfigSettings.socketTime);
-      mqttPublishIo("socket", "ON");
+      client[i] = server.available();
     }
-    int count = client[0].available();
+  }
 
-    if (count > 0)
+
+  // work with client, read from the network and write to UART
+  for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
+  {
+    if (client[i].connected())
     {
-      //DEBUG_PRINT("Buff count : ");
-      //DEBUG_PRINTLN(count);
-      bytes_read = client[0].read(net_buf, min(count, BUFFER_SIZE));
-      Serial2.write(net_buf, bytes_read);
-
-      /*
-      if (bytes_read > 0)
+      socketClientConnected(i);
+      int count = client[i].available();
+      if (count > 0)
       {
-        String tmpTime;
-        String buff = "";
-        timeLog = millis();
-        tmpTime = String(timeLog, DEC);
-        logPush('[');
-        for (int j = 0; j < tmpTime.length(); j++)
-        {
-          logPush(tmpTime[j]);
-        }
-        logPush(']');
-        logPush('-');
-        logPush('>');
-
-        for (int i = 0; i < bytes_read; i++)
-        {
-          sprintf(output_sprintf, "%02x", net_buf[i]);
-          logPush(' ');
-          logPush(output_sprintf[0]);
-          logPush(output_sprintf[1]);
-        }
-        logPush('\n');
+        bytes_read = client[i].read(net_buf, min(count, BUFFER_SIZE));
+        Serial2.write(net_buf, bytes_read);
+        Serial2.flush();
+        printRecvSocket(bytes_read, net_buf); //print rx to web console
       }
-      */
-
-      Serial2.flush();
     }
-  }
-  else
-  {
-    client[0].stop();
-    if (ConfigSettings.connectedSocket != false)
+    else
     {
-      ConfigSettings.connectedSocket = false;
-      ConfigSettings.socketTime = millis();
-      DEBUG_PRINT("false ConfigSettings.socketTime ");
-      DEBUG_PRINTLN(ConfigSettings.socketTime);
-      mqttPublishIo("socket", "OFF");
+      client[i].stop();
+      socketClientDisconnected(i);
     }
   }
 
-  if (client[1].connected())
-  {
-    int count = client[1].available();
 
-    if (count > 0)
-    {
-      bytes_read = client[1].read(net_buf, min(count, BUFFER_SIZE));
-      Serial2.write(net_buf, bytes_read);
-      Serial2.flush();
-    }
-  }
-  else
-  {
-    client[1].stop();
-  }
-
-  if (client[2].connected())
-  {
-    int count = client[2].available();
-
-    if (count > 0)
-    {
-      bytes_read = client[2].read(net_buf, min(count, BUFFER_SIZE));
-      Serial2.write(net_buf, bytes_read);
-      Serial2.flush();
-    }
-  }
-  else
-  {
-    client[2].stop();
-  }
-  // now check the swSer for any bytes to send to the network
+  // now check UART for any bytes to send to the network
   bytes_read = 0;
   bool buffOK = false;
 
@@ -854,65 +881,26 @@ void loop(void)
     bytes_read++;
   }
 
-  /*
-  if (buffOK)
-  {
-
-    // uint8_t tmp[128];
-    for (int i = 0; i < bytes_read; i++)
-    {
-      sprintf(output_sprintf, "%02x", serial_buf[i]);
-      if (serial_buf[i] == 0x01)
-      {
-
-        String tmpTime;
-        String buff = "";
-        timeLog = millis();
-        tmpTime = String(timeLog, DEC);
-        logPush('[');
-        for (int j = 0; j < tmpTime.length(); j++)
-        {
-          logPush(tmpTime[j]);
-        }
-        logPush(']');
-        logPush('<');
-        logPush('-');
-      }
-      logPush(' ');
-
-      logPush(output_sprintf[0]);
-      logPush(output_sprintf[1]);
-      if (serial_buf[i] == 0x03)
-      {
-        logPush('\n');
-      }
-    }
-    loopCount = 0;
-    buffOK = false;
-  }
-*/
-
+  // now send all bytes from UART to the network
   if (bytes_read > 0)
   {
-    //DEBUG_PRINT("bytes_read : ");
-    //DEBUG_PRINTLN(bytes_read);
-    if (client[0])
+    for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
     {
-      client[0].write((const uint8_t *)serial_buf, bytes_read);
-      client[0].flush();
-    }
-    if (client[1])
-    {
-      client[1].write((const uint8_t *)serial_buf, bytes_read);
-      client[1].flush();
-    }
-    if (client[2])
-    {
-      client[2].write((const uint8_t *)serial_buf, bytes_read);
-      client[2].flush();
+      if (client[i].connected())
+      {
+        client[i].write((const uint8_t *)serial_buf, bytes_read);
+        client[i].flush();
+      }
     }
   }
-  loopCount++;
+
+  //print tx to web console
+  if (buffOK)
+  {
+    printSendSocket(bytes_read, serial_buf);
+    buffOK = false;
+  }
+
   if (ConfigSettings.mqttEnable)
   {
     mqttLoop();
