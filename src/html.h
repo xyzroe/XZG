@@ -116,6 +116,7 @@ const char HTTP_SERIAL[] PROGMEM =
 const char HTTP_HELP[] PROGMEM =
     "<h2>Help</h2>"
     "<div id='main' class='col-sm-9'>"
+    /*
     "<div id='help_btns'>"
     "<a href='#' class='btn btn-primary'><i class='glyphicon glyphicon-cog'></i>Primary</a>"
     "<a href='#' class='btn btn-secondary'><i class='glyphicon glyphicon-file'></i>Secondary</a>"
@@ -123,6 +124,7 @@ const char HTTP_HELP[] PROGMEM =
     "<a href='#' class='btn btn-danger'><i class='glyphicon glyphicon-lock'></i>Danger</a>"
     "<a href='#' class='btn btn-warning'><i class='glyphicon glyphicon-tags'></i>Warning</a>"
     "</div>"
+    */
     "<script src='https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js'></script>"
     "<script type='module' src='https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js'></script>"
     "<zero-md src='https://raw.githubusercontent.com/xyzroe/ZigStarGW-FW/main/README.md'></zero-md>"

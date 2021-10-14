@@ -161,7 +161,12 @@ bool loadSystemVar()
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String StringConfig = "{\"board\":1,\"emergencyWifi\":0}";
+    String CPUtemp;
+    getBlankCPUtemp(CPUtemp);
+    int correct = CPUtemp.toInt() - 30;
+    String tempOffset =  String(correct);
+
+    String StringConfig = "{\"board\":1,\"emergencyWifi\":0,\"tempOffset\":" + tempOffset + "}";
     DEBUG_PRINTLN(StringConfig);
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
@@ -184,7 +189,23 @@ bool loadSystemVar()
 
   ConfigSettings.board = (int)doc["board"];
   ConfigSettings.emergencyWifi = (int)doc["emergencyWifi"];
+  ConfigSettings.tempOffset = (int)doc["tempOffset"];
+  if (!ConfigSettings.tempOffset){
+    DEBUG_PRINTLN(F("no tempOffset in system.json"));
+    configFile.close();
 
+    String CPUtemp;
+    getBlankCPUtemp(CPUtemp);
+    int correct = CPUtemp.toInt() - 30;
+    String tempOffset =  String(correct);
+    doc["tempOffset"] = int(tempOffset.toInt());
+
+    configFile = LITTLEFS.open(path, FILE_WRITE);
+    serializeJson(doc, configFile);
+    configFile.close();
+    DEBUG_PRINTLN(F("saved tempOffset in system.json"));
+    ConfigSettings.tempOffset = int(tempOffset.toInt());
+  }
   configFile.close();
   return true;
 }
@@ -310,7 +331,7 @@ bool loadConfigSerial()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    String StringConfig = "{\"baud\":115200,\"port\":4444}";
+    String StringConfig = "{\"baud\":115200,\"port\":6638}";
 
     writeDefultConfig(path, StringConfig);
   }
@@ -394,14 +415,14 @@ void setupWifiAP()
 
   for (int i = 0; i < AP_NameString.length(); i++)
     AP_NameChar[i] = AP_NameString.charAt(i);
-
+/*
   String WIFIPASSSTR = "ZigStar1";
   char WIFIPASS[WIFIPASSSTR.length() + 1];
   memset(WIFIPASS, 0, WIFIPASSSTR.length() + 1);
   for (int i = 0; i < WIFIPASSSTR.length(); i++)
     WIFIPASS[i] = WIFIPASSSTR.charAt(i);
-
-  WiFi.softAP(AP_NameChar, WIFIPASS);
+*/
+  WiFi.softAP(AP_NameChar); //, WIFIPASS);
   WiFi.setSleep(false);
 }
 

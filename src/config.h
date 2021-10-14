@@ -102,6 +102,7 @@ struct ConfigSettingsStruct
   bool mqttDiscovery;
   unsigned long mqttReconnectTime;
   unsigned long mqttHeartbeatTime;
+  int tempOffset;
 };
 
 struct InfosStruct
