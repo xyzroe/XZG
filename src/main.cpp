@@ -20,11 +20,10 @@
 #undef ETH_CLK_MODE
 #endif
 
-#ifdef BONJOUR_SUPPORT
 #include <ESPmDNS.h>
-#endif
 
 #include "mqtt.h"
+#include <ESP32Ping.h>
 
 // application config
 unsigned long timeLog;
@@ -36,10 +35,9 @@ String modeWiFi = "STA";
 // serial end ethernet buffer size
 #define BUFFER_SIZE 256
 
-#ifdef BONJOUR_SUPPORT
 // multicast DNS responder
 MDNSResponder mdns;
-#endif
+
 
 void saveEmergencyWifi(bool state)
 {
@@ -83,16 +81,7 @@ void WiFiEvent(WiFiEvent_t event)
     break;
   case SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
-    ConfigSettings.connectedEther = true;
-    ConfigSettings.disconnectEthTime = 0;
-    if (ConfigSettings.emergencyWifi && !ConfigSettings.enableWiFi)
-    {
-      saveEmergencyWifi(0);
-      WiFi.disconnect();
-      WiFi.mode(WIFI_OFF);
-      ConfigSettings.emergencyWifi = 0;
-      DEBUG_PRINTLN(F("saveEmergencyWifi 0"));
-    }
+    ConfigSettings.disconnectEthTime = millis();
     break;
   case SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
@@ -107,6 +96,7 @@ void WiFiEvent(WiFiEvent_t event)
     DEBUG_PRINT(ETH.linkSpeed());
     DEBUG_PRINTLN(F("Mbps"));
     ConfigSettings.connectedEther = true;
+    ConfigSettings.disconnectEthTime = 0;
     break;
   case SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
@@ -691,7 +681,34 @@ void setup(void)
 
   initWebServer();
 
-#ifdef BONJOUR_SUPPORT
+  if(Ping.ping(ETH.gatewayIP())) 
+  {
+    ConfigSettings.connectedEther = true;
+    ConfigSettings.disconnectEthTime = 0;
+    if (ConfigSettings.emergencyWifi && !ConfigSettings.enableWiFi)
+    {
+      saveEmergencyWifi(0);
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      ConfigSettings.emergencyWifi = 0;
+      DEBUG_PRINTLN(F("saveEmergencyWifi(0)"));
+    }
+  } 
+  else 
+  {
+    DEBUG_PRINTLN(F("error ping"));
+    ConfigSettings.connectedEther = false;
+    ConfigSettings.disconnectEthTime = millis();
+  }
+  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
+  {
+    DEBUG_PRINT(F("ConfigSettings.enableWiFi "));
+    DEBUG_PRINTLN(ConfigSettings.enableWiFi);
+    DEBUG_PRINT(F("ConfigSettings.emergencyWifi "));
+    DEBUG_PRINTLN(ConfigSettings.emergencyWifi);
+    enableWifi();
+  }
+
   if (!MDNS.begin(ConfigSettings.hostname))
   {
     DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
@@ -708,12 +725,7 @@ void setup(void)
   MDNS.addServiceTxt("zig_star_gw", "tcp", "baud_rate", String(ConfigSettings.serialSpeed));
   MDNS.addServiceTxt("zig_star_gw", "tcp", "data_flow_control", "software");
 
-#endif
 
-  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
-  {
-    enableWifi();
-  }
   server.begin(ConfigSettings.socketPort);
 
   if (ConfigSettings.mqttEnable)

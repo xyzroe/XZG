@@ -57,8 +57,6 @@
 
 #define ETH_ERROR_TIME 30
 
-#define BONJOUR_SUPPORT
-
 #define FORMAT_LITTLEFS_IF_FAILED true
 
 struct ConfigSettingsStruct

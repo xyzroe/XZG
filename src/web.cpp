@@ -517,7 +517,8 @@ void handleRoot()
       String AP_NameString;
       getDeviceID(AP_NameString);
       wifiState += "AP <br><strong>SSID : </strong>" + AP_NameString;
-      wifiState += "<br><strong>Password : </strong>ZigStar1";
+      wifiState += "<br>No password";
+      //wifiState += "<br><strong>Password : </strong>ZigStar1";
       wifiState += "<br><strong>IP : </strong>192.168.4.1";
     }
     else
