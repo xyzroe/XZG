@@ -38,6 +38,7 @@ String modeWiFi = "STA";
 // multicast DNS responder
 MDNSResponder mdns;
 
+void mDNS_start();
 
 void saveEmergencyWifi(bool state)
 {
@@ -71,17 +72,57 @@ void saveBoard(int rev)
   configFile.close();
 }
 
+bool checkPing() 
+{
+  DEBUG_PRINT(F("Try to ping "));
+  DEBUG_PRINTLN(ETH.gatewayIP());
+  if(Ping.ping(ETH.gatewayIP())) 
+  {
+    DEBUG_PRINTLN(F("okey ping"));
+    //ConfigSettings.connectedEther = true;
+    //ConfigSettings.disconnectEthTime = 0;
+    if (ConfigSettings.emergencyWifi)
+    {
+      DEBUG_PRINTLN(F("saveEmergencyWifi(0)"));
+      saveEmergencyWifi(0);
+      DEBUG_PRINTLN(F("ESP.restart"));
+      ESP.restart();
+      //WiFi.disconnect();
+      //WiFi.mode(WIFI_OFF);
+      //ConfigSettings.emergencyWifi = 0;
+    }
+    return true;
+  } 
+  else 
+  {
+    DEBUG_PRINTLN(F("error ping"));
+    return false;
+    /*
+    ConfigSettings.connectedEther = false;
+    ConfigSettings.disconnectEthTime = millis();
+    */
+  }
+  /*
+  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
+  {
+    DEBUG_PRINT(F("ConfigSettings.enableWiFi "));
+    DEBUG_PRINTLN(ConfigSettings.enableWiFi);
+    DEBUG_PRINT(F("ConfigSettings.emergencyWifi "));
+    DEBUG_PRINTLN(ConfigSettings.emergencyWifi);
+    enableWifi();
+  }
+  */
+}
 void WiFiEvent(WiFiEvent_t event)
 {
   switch (event)
   {
   case SYSTEM_EVENT_ETH_START:
     DEBUG_PRINTLN(F("ETH Started"));
-
+    //ConfigSettings.disconnectEthTime = millis();
     break;
   case SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
-    ConfigSettings.disconnectEthTime = millis();
     break;
   case SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
@@ -95,8 +136,12 @@ void WiFiEvent(WiFiEvent_t event)
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(ETH.linkSpeed());
     DEBUG_PRINTLN(F("Mbps"));
-    ConfigSettings.connectedEther = true;
-    ConfigSettings.disconnectEthTime = 0;
+    if (checkPing()) 
+    {
+      ConfigSettings.connectedEther = true;
+      ConfigSettings.disconnectEthTime = 0;
+      mDNS_start();
+    }
     break;
   case SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
@@ -489,6 +534,7 @@ void enableWifi()
     DEBUG_PRINTLN(F("AP"));
     ConfigSettings.radioModeWiFi = true;
   }
+  mDNS_start();
 }
 
 void setupEthernetAndZigbeeSerial()
@@ -582,6 +628,28 @@ void setupEthernetAndZigbeeSerial()
     DEBUG_PRINTLN(ConfigSettings.serialSpeed);
     Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
     break;
+  }
+}
+
+void mDNS_start()
+{
+  if (!MDNS.begin(ConfigSettings.hostname))
+  {
+    DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
+    while (1)
+    {
+      delay(1000);
+    }
+  }
+  else 
+  {
+    DEBUG_PRINTLN(F("mDNS responder started"));
+    MDNS.addService("http", "tcp", 80);
+    MDNS.addService("zig_star_gw", "tcp", ConfigSettings.socketPort);
+    MDNS.addServiceTxt("zig_star_gw", "tcp", "version", "1.0");
+    MDNS.addServiceTxt("zig_star_gw", "tcp", "radio_type", "znp");
+    MDNS.addServiceTxt("zig_star_gw", "tcp", "baud_rate", String(ConfigSettings.serialSpeed));
+    MDNS.addServiceTxt("zig_star_gw", "tcp", "data_flow_control", "software");
   }
 }
 
@@ -681,8 +749,12 @@ void setup(void)
 
   initWebServer();
 
+/*
+  DEBUG_PRINT(F("Try to ping "));
+  DEBUG_PRINTLN(ETH.gatewayIP());
   if(Ping.ping(ETH.gatewayIP())) 
   {
+    DEBUG_PRINTLN(F("okey ping"));
     ConfigSettings.connectedEther = true;
     ConfigSettings.disconnectEthTime = 0;
     if (ConfigSettings.emergencyWifi && !ConfigSettings.enableWiFi)
@@ -700,6 +772,7 @@ void setup(void)
     ConfigSettings.connectedEther = false;
     ConfigSettings.disconnectEthTime = millis();
   }
+  */
   if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
   {
     DEBUG_PRINT(F("ConfigSettings.enableWiFi "));
@@ -708,22 +781,6 @@ void setup(void)
     DEBUG_PRINTLN(ConfigSettings.emergencyWifi);
     enableWifi();
   }
-
-  if (!MDNS.begin(ConfigSettings.hostname))
-  {
-    DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
-    while (1)
-    {
-      delay(1000);
-    }
-  }
-  DEBUG_PRINTLN(F("mDNS responder started"));
-  MDNS.addService("http", "tcp", 80);
-  MDNS.addService("zig_star_gw", "tcp", ConfigSettings.socketPort);
-  MDNS.addServiceTxt("zig_star_gw", "tcp", "version", "1.0");
-  MDNS.addServiceTxt("zig_star_gw", "tcp", "radio_type", "znp");
-  MDNS.addServiceTxt("zig_star_gw", "tcp", "baud_rate", String(ConfigSettings.serialSpeed));
-  MDNS.addServiceTxt("zig_star_gw", "tcp", "data_flow_control", "software");
 
 
   server.begin(ConfigSettings.socketPort);
