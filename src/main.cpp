@@ -785,12 +785,12 @@ void setup(void)
 
   server.begin(ConfigSettings.socketPort);
 
+  ConfigSettings.connectedClients = 0;
+
   if (ConfigSettings.mqttEnable)
   {
     mqttConnectSetup();
   }
-
-  ConfigSettings.connectedClients = 0;
 }
 
 WiFiClient client[10];
@@ -800,12 +800,12 @@ void socketClientConnected(int client)
 {
   if (ConfigSettings.connectedSocket[client] != true)
   {
-    DEBUG_PRINT("Connected client ");
+    DEBUG_PRINT(F("Connected client "));
     DEBUG_PRINTLN(client);
     if (ConfigSettings.connectedClients == 0)
     {
       ConfigSettings.socketTime = millis();
-      DEBUG_PRINT("Socket time ");
+      DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
       mqttPublishIo("socket", "ON");
     }
@@ -818,14 +818,14 @@ void socketClientDisconnected(int client)
 {
   if (ConfigSettings.connectedSocket[client] != false)
   {
-    DEBUG_PRINT("Disconnected client ");
+    DEBUG_PRINT(F("Disconnected client "));
     DEBUG_PRINTLN(client);
     ConfigSettings.connectedSocket[client] = false;
     ConfigSettings.connectedClients--;
     if (ConfigSettings.connectedClients == 0)
     {
       ConfigSettings.socketTime = millis();
-      DEBUG_PRINT("Socket time ");
+      DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
       mqttPublishIo("socket", "OFF");
     }
@@ -997,7 +997,7 @@ void loop(void)
     buffOK = false;
   }
 
-  if (ConfigSettings.mqttEnable)
+  if (ConfigSettings.mqttEnable && (ConfigSettings.connectedEther || ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi))
   {
     mqttLoop();
   }

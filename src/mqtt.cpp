@@ -26,7 +26,7 @@ void mqttConnectSetup()
 
 void mqttReconnect()
 {
-    DEBUG_PRINT("Attempting MQTT connection...");
+    DEBUG_PRINT(F("Attempting MQTT connection..."));
 
     byte willQoS = 0;
     String willTopic = String(ConfigSettings.mqttTopic) + "/avty";
@@ -40,31 +40,35 @@ void mqttReconnect()
     }
     else
     {
-        DEBUG_PRINT("failed, rc=");
+        DEBUG_PRINT(F("failed, rc="));
         DEBUG_PRINT(clientPubSub.state());
-        DEBUG_PRINTLN(" try again in 5 seconds");
+        DEBUG_PRINTLN(F(" try again in 5 seconds"));
         ConfigSettings.mqttReconnectTime = millis() + 5000;
     }
 }
 
 void mqttOnConnect()
 {
-    DEBUG_PRINTLN("connected");
+    DEBUG_PRINTLN(F("connected"));
     mqttSubscribe("cmd");
+    DEBUG_PRINTLN(F("mqtt Subscribed"));
     if (ConfigSettings.mqttInterval > 0)
     {
         mqttPublishState();
+        DEBUG_PRINTLN(F("mqtt Published State"));
     }
-
     if (ConfigSettings.mqttDiscovery)
     {
         mqttPublishDiscovery();
+        DEBUG_PRINTLN(F("mqtt Published Discovery"));
     }
     mqttPublishIo("rst_esp", "OFF");
     mqttPublishIo("rst_zig", "OFF");
     mqttPublishIo("enbl_bsl", "OFF");
     mqttPublishIo("socket", "OFF");
+    DEBUG_PRINTLN(F("mqtt Published State"));
     mqttPublishAvty();
+    DEBUG_PRINTLN(F("mqtt Published Avty"));
 }
 
 void mqttPublishMsg(String topic, String msg)
@@ -163,26 +167,31 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     const char *command = jsonBuffer["cmd"];
 
-    if (strcmp(command, "rst_esp") == 0)
-    {
-        printLogMsg("ESP restart MQTT");
-        ESP.restart();
-        return;
-    }
+    DEBUG_PRINT(F("mqtt Callback - "));
+    DEBUG_PRINTLN(jjson);
 
-    if (strcmp(command, "rst_zig") == 0)
-    {
-        printLogMsg("Zigbee restart MQTT");
-        zigbeeRestart();
-        return;
-    }
+    if (command) {
+        DEBUG_PRINT(F("mqtt cmd - "));
+        DEBUG_PRINTLN(command);
+        if (strcmp(command, "rst_esp") == 0)
+        {
+            printLogMsg("ESP restart MQTT");
+            ESP.restart();
+        }
 
-    if (strcmp(command, "enbl_bsl") == 0)
-    {
-        printLogMsg("Zigbee BSL enable MQTT");
-        zigbeeEnableBSL();
-        return;
+        if (strcmp(command, "rst_zig") == 0)
+        {
+            printLogMsg("Zigbee restart MQTT");
+            zigbeeRestart();
+        }
+
+        if (strcmp(command, "enbl_bsl") == 0)
+        {
+            printLogMsg("Zigbee BSL enable MQTT");
+            zigbeeEnableBSL();
+        }
     }
+    return;
 }
 
 void mqttSubscribe(String topic)
@@ -198,7 +207,9 @@ void mqttLoop()
     {
         if (ConfigSettings.mqttReconnectTime == 0)
         {
-            mqttReconnect();
+            //mqttReconnect();
+            DEBUG_PRINTLN(F("mqttReconnect in 5 seconds"));
+            ConfigSettings.mqttReconnectTime = millis() + 5000;
         }
         else
         {
