@@ -645,11 +645,11 @@ void mDNS_start()
   {
     DEBUG_PRINTLN(F("mDNS responder started"));
     MDNS.addService("http", "tcp", 80);
-    MDNS.addService("zig_star_gw", "tcp", ConfigSettings.socketPort);
-    MDNS.addServiceTxt("zig_star_gw", "tcp", "version", "1.0");
-    MDNS.addServiceTxt("zig_star_gw", "tcp", "radio_type", "znp");
-    MDNS.addServiceTxt("zig_star_gw", "tcp", "baud_rate", String(ConfigSettings.serialSpeed));
-    MDNS.addServiceTxt("zig_star_gw", "tcp", "data_flow_control", "software");
+    MDNS.addService("zigstar_gw", "tcp", ConfigSettings.socketPort);
+    MDNS.addServiceTxt("zigstar_gw", "tcp", "version", "1.0");
+    MDNS.addServiceTxt("zigstar_gw", "tcp", "radio_type", "znp");
+    MDNS.addServiceTxt("zigstar_gw", "tcp", "baud_rate", String(ConfigSettings.serialSpeed));
+    MDNS.addServiceTxt("zigstar_gw", "tcp", "data_flow_control", "software");
   }
 }
 

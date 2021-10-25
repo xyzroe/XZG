@@ -32,8 +32,10 @@ void mqttReconnect()
     String willTopic = String(ConfigSettings.mqttTopic) + "/avty";
     const char *willMessage = "offline";
     boolean willRetain = false;
+    String clientID;
+    getDeviceID(clientID);
 
-    if (clientPubSub.connect("arduinoClient", ConfigSettings.mqttUser, ConfigSettings.mqttPass, willTopic.c_str(), willQoS, willRetain, willMessage))
+    if (clientPubSub.connect(clientID.c_str(), ConfigSettings.mqttUser, ConfigSettings.mqttPass, willTopic.c_str(), willQoS, willRetain, willMessage))
     {
         ConfigSettings.mqttReconnectTime = 0;
         mqttOnConnect();
@@ -71,9 +73,9 @@ void mqttOnConnect()
     DEBUG_PRINTLN(F("mqtt Published Avty"));
 }
 
-void mqttPublishMsg(String topic, String msg)
+void mqttPublishMsg(String topic, String msg, bool retain)
 {
-    clientPubSub.beginPublish(topic.c_str(), msg.length(), false);
+    clientPubSub.beginPublish(topic.c_str(), msg.length(), retain);
     clientPubSub.print(msg.c_str());
     clientPubSub.endPublish();
 }
@@ -83,7 +85,7 @@ void mqttPublishAvty()
     String topic(ConfigSettings.mqttTopic);
     topic = topic + "/avty";
     String mqttBuffer = "online";
-    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str());
+    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
 }
 
 void mqttPublishState()
@@ -377,7 +379,7 @@ void mqttPublishDiscovery()
         }
         serializeJson(buffJson, mqttBuffer);
         DEBUG_PRINTLN(mqttBuffer);
-        mqttPublishMsg(topic, mqttBuffer);
+        mqttPublishMsg(topic, mqttBuffer, true);
         buffJson.clear();
         mqttBuffer = "";
     }

@@ -7,6 +7,6 @@ void mqttPublishState();
 void mqttOnConnect();
 void mqttPublishAvty();
 void mqttPublishDiscovery();
-void mqttPublishMsg(String topic, String msg);
+void mqttPublishMsg(String topic, String msg, bool retain);
 void mqttPublishIo(String const &io, String const &state);
 void mqttSubscribe(String topic);
