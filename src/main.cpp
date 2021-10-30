@@ -784,6 +784,7 @@ void setup(void)
 
 
   server.begin(ConfigSettings.socketPort);
+  server.setNoDelay(true);
 
   ConfigSettings.connectedClients = 0;
 
@@ -896,8 +897,10 @@ void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 
 void loop(void)
 {
-  size_t bytes_read;
+  uint16_t net_bytes_read=0;
   uint8_t net_buf[BUFFER_SIZE];
+
+  uint16_t serial_bytes_read=0;
   uint8_t serial_buf[BUFFER_SIZE];
 
   if (!ConfigSettings.disableWeb)
@@ -923,78 +926,61 @@ void loop(void)
     }
   }
 
-  // Check if there is no clients
-  if (ConfigSettings.connectedClients == 0)
+  if (server.hasClient())
   {
-    // eat any bytes in the buffer as there is noone to see them
-    while (Serial2.available())
-    {
-      Serial2.read();
-    }
-  }
-
-  // look for clients
-  for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
-  {
-    if (!client[i])
-    {
-      client[i] = server.available();
-    }
-  }
-
-
-  // work with client, read from the network and write to UART
-  for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
-  {
-    if (client[i].connected())
-    {
-      socketClientConnected(i);
-      int count = client[i].available();
-      if (count > 0)
-      {
-        bytes_read = client[i].read(net_buf, min(count, BUFFER_SIZE));
-        Serial2.write(net_buf, bytes_read);
-        Serial2.flush();
-        printRecvSocket(bytes_read, net_buf); //print rx to web console
+    for(byte i = 0; i < MAX_SOCKET_CLIENTS; i++){
+      //find free/disconnected spot
+      if (!client[i] || !client[i].connected()){
+        if(client[i]){
+          client[i].stop(); 
+        }
+        client[i] = server.available();
+        continue;
       }
+    }
+    //no free/disconnected spot so reject
+    WiFiClient TempClient = server.available();
+    TempClient.stop();
+  }
+  
+  for(byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
+  {               
+    if(client[cln]) 
+    {
+      socketClientConnected(cln); 
+      while(client[cln].available())
+      { // read from LAN
+        net_buf[net_bytes_read] = client[cln].read(); 
+        if(net_bytes_read<BUFFER_SIZE-1) net_bytes_read++;
+      } // send to Zigbee
+      Serial2.write(net_buf, net_bytes_read); 
+      // print to web console
+      printRecvSocket(net_bytes_read, net_buf);
+      net_bytes_read = 0;
     }
     else
     {
-      client[i].stop();
-      socketClientDisconnected(i);
+      socketClientDisconnected(cln);
+    }   
+    
+  }
+
+  if(Serial2.available())
+  {
+    while(Serial2.available())
+    { // read from Zigbee    
+      serial_buf[serial_bytes_read] = Serial2.read(); 
+      if(serial_bytes_read<BUFFER_SIZE-1) serial_bytes_read++;
     }
-  }
-
-
-  // now check UART for any bytes to send to the network
-  bytes_read = 0;
-  bool buffOK = false;
-
-  while (Serial2.available() && bytes_read < BUFFER_SIZE)
-  {
-    buffOK = true;
-    serial_buf[bytes_read] = Serial2.read();
-    bytes_read++;
-  }
-
-  // now send all bytes from UART to the network
-  if (bytes_read > 0)
-  {
-    for (int i = 0; i < MAX_SOCKET_CLIENTS; i++)
-    {
-      if (client[i].connected())
-      {
-        client[i].write((const uint8_t *)serial_buf, bytes_read);
-        client[i].flush();
-      }
+    // send to LAN
+    for(byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
+    {   
+      if(client[cln])                     
+        client[cln].write(serial_buf, serial_bytes_read);
     }
-  }
-
-  //print tx to web console
-  if (buffOK)
-  {
-    printSendSocket(bytes_read, serial_buf);
-    buffOK = false;
+    // print to web console
+    printSendSocket(serial_bytes_read, serial_buf);
+    serial_bytes_read = 0;
   }
 
   if (ConfigSettings.mqttEnable && (ConfigSettings.connectedEther || ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi))
