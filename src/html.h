@@ -3,6 +3,12 @@ const char HTTP_HEADER[] PROGMEM =
     "<script type='text/javascript' src='/js/jquery-min.js'></script>"
     "<script type='text/javascript' src='/js/bootstrap.min.js'></script>"
     "<script type='text/javascript' src='/js/functions.js'></script>"
+    "<script>function logoutButton() {"
+    "var xhr = new XMLHttpRequest();"
+    "xhr.open('GET', '/logout', true);"
+    "xhr.send();"
+    "setTimeout(function(){ window.open('/logged-out','_self'); }, 500);"
+    "}</script>"
     "<link href='css/required.css' rel='stylesheet' type='text/css' />"
     "<link rel='icon' href='img/logo.png'>"
     "<title>{{pageName}} - ZigStar GW</title>"
@@ -41,11 +47,16 @@ const char HTTP_HEADER[] PROGMEM =
     "<li class='nav-item'>"
     "<a class='nav-link' href='/help'><i class='glyphicon glyphicon-info-sign'></i>Help</a>"
     "</li>"
+    "{{logoutLink}}"
     "</ul></div>"
     "</nav>";
 
-const char HTTP_WIFI[] PROGMEM =
+const char LOGOUT_LINK[] PROGMEM = 
+    "<li class='nav-item'>"
+    "<a class='nav-link' href='javascript:logoutButton();'><i class='glyphicon glyphicon glyphicon-log-out'></i>Logout</a>"
+    "</li>";
 
+const char HTTP_WIFI[] PROGMEM =
     "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
     "<div id='main' class='col-sm-6'><form method='POST' action='saveWifi'>"
@@ -130,6 +141,11 @@ const char HTTP_HELP[] PROGMEM =
     "<zero-md src='https://raw.githubusercontent.com/xyzroe/ZigStarGW-FW/main/README.md'></zero-md>"
     "</div>";
 
+const char HTTP_ERROR[] PROGMEM =
+    "<h2>{{pageName}}</h2>"
+    "<div id='main' class='col-sm-9'>"
+    "</div>";
+
 const char HTTP_ETHERNET[] PROGMEM =
     "<h2>{{pageName}}</h2>"
     "<div id='main' class='col-sm-12'>"
@@ -173,6 +189,21 @@ const char HTTP_GENERAL[] PROGMEM =
     "<div class='form-group'>"
     "<label for='refreshLogs'>Refresh console log</label>"
     "<input class='form-control' id='refreshLogs' type='text' name='refreshLogs' value='{{refreshLogs}}'>"
+    "</div>"
+    "<div class='form-group'>"
+    "<div class='form-check'>"
+    "<input class='form-check-input' id='webAuth' type='checkbox' name='webAuth' {{webAuth}}>"
+    "<label class='form-check-label' for='webAuth'>Enable web server authentication</label>"
+    "<br>"
+    "</div>"
+    "</div>"
+    "<div class='form-group'>"
+    "<label for='webUser'>Username</label>"
+    "<input class='form-control' id='webUser' type='text' name='webUser' value='{{webUser}}'>"
+    "</div>"
+    "<div class='form-group'>"
+    "<label for='webPass'>Password</label>"
+    "<input class='form-control' id='webPass' type='password' name='webPass' value='{{webPass}}'>"
     "</div>"
     "<button type='submit' class='btn btn-primary mb-2' name='save'>Save</button>"
     "</form></div>"

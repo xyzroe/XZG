@@ -72,11 +72,11 @@ void saveBoard(int rev)
   configFile.close();
 }
 
-bool checkPing() 
+bool checkPing()
 {
   DEBUG_PRINT(F("Try to ping "));
   DEBUG_PRINTLN(ETH.gatewayIP());
-  if(Ping.ping(ETH.gatewayIP())) 
+  if (Ping.ping(ETH.gatewayIP()))
   {
     DEBUG_PRINTLN(F("okey ping"));
     //ConfigSettings.connectedEther = true;
@@ -92,8 +92,8 @@ bool checkPing()
       //ConfigSettings.emergencyWifi = 0;
     }
     return true;
-  } 
-  else 
+  }
+  else
   {
     DEBUG_PRINTLN(F("error ping"));
     return false;
@@ -136,7 +136,7 @@ void WiFiEvent(WiFiEvent_t event)
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(ETH.linkSpeed());
     DEBUG_PRINTLN(F("Mbps"));
-    if (checkPing()) 
+    if (checkPing())
     {
       ConfigSettings.connectedEther = true;
       ConfigSettings.disconnectEthTime = 0;
@@ -199,7 +199,7 @@ bool loadSystemVar()
     String CPUtemp;
     getBlankCPUtemp(CPUtemp);
     int correct = CPUtemp.toInt() - 30;
-    String tempOffset =  String(correct);
+    String tempOffset = String(correct);
 
     String StringConfig = "{\"board\":1,\"emergencyWifi\":0,\"tempOffset\":" + tempOffset + "}";
     DEBUG_PRINTLN(StringConfig);
@@ -225,14 +225,15 @@ bool loadSystemVar()
   ConfigSettings.board = (int)doc["board"];
   ConfigSettings.emergencyWifi = (int)doc["emergencyWifi"];
   ConfigSettings.tempOffset = (int)doc["tempOffset"];
-  if (!ConfigSettings.tempOffset){
+  if (!ConfigSettings.tempOffset)
+  {
     DEBUG_PRINTLN(F("no tempOffset in system.json"));
     configFile.close();
 
     String CPUtemp;
     getBlankCPUtemp(CPUtemp);
     int correct = CPUtemp.toInt() - 30;
-    String tempOffset =  String(correct);
+    String tempOffset = String(correct);
     doc["tempOffset"] = int(tempOffset.toInt());
 
     configFile = LITTLEFS.open(path, FILE_WRITE);
@@ -326,7 +327,9 @@ bool loadConfigGeneral()
   {
     String deviceID = "ZigStarGW";
     //getDeviceID(deviceID);
-    String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableWeb\":0,\"refreshLogs\":1000}";
+    String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableWeb\":0,\"refreshLogs\":1000,\"webAuth\":0,\"webUser\":"
+                                                          ",\"webPass\":"
+                                                          "}";
 
     writeDefultConfig(path, StringConfig);
   }
@@ -355,6 +358,11 @@ bool loadConfigGeneral()
     ConfigSettings.refreshLogs = (double)doc["refreshLogs"];
   }
   strlcpy(ConfigSettings.hostname, doc["hostname"] | "", sizeof(ConfigSettings.hostname));
+
+  ConfigSettings.webAuth = (int)doc["webAuth"];
+  strlcpy(ConfigSettings.webUser, doc["webUser"] | "", sizeof(ConfigSettings.webUser));
+  strlcpy(ConfigSettings.webPass, doc["webPass"] | "", sizeof(ConfigSettings.webPass));
+
   configFile.close();
   return true;
 }
@@ -450,7 +458,7 @@ void setupWifiAP()
 
   for (int i = 0; i < AP_NameString.length(); i++)
     AP_NameChar[i] = AP_NameString.charAt(i);
-/*
+  /*
   String WIFIPASSSTR = "ZigStar1";
   char WIFIPASS[WIFIPASSSTR.length() + 1];
   memset(WIFIPASS, 0, WIFIPASSSTR.length() + 1);
@@ -641,7 +649,7 @@ void mDNS_start()
       delay(1000);
     }
   }
-  else 
+  else
   {
     DEBUG_PRINTLN(F("mDNS responder started"));
     MDNS.addService("http", "tcp", 80);
@@ -749,7 +757,7 @@ void setup(void)
 
   initWebServer();
 
-/*
+  /*
   DEBUG_PRINT(F("Try to ping "));
   DEBUG_PRINTLN(ETH.gatewayIP());
   if(Ping.ping(ETH.gatewayIP())) 
@@ -781,7 +789,6 @@ void setup(void)
     DEBUG_PRINTLN(ConfigSettings.emergencyWifi);
     enableWifi();
   }
-
 
   server.begin(ConfigSettings.socketPort);
   server.setNoDelay(true);
@@ -897,10 +904,10 @@ void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 
 void loop(void)
 {
-  uint16_t net_bytes_read=0;
+  uint16_t net_bytes_read = 0;
   uint8_t net_buf[BUFFER_SIZE];
 
-  uint16_t serial_bytes_read=0;
+  uint16_t serial_bytes_read = 0;
   uint8_t serial_buf[BUFFER_SIZE];
 
   if (!ConfigSettings.disableWeb)
@@ -928,11 +935,14 @@ void loop(void)
 
   if (server.hasClient())
   {
-    for(byte i = 0; i < MAX_SOCKET_CLIENTS; i++){
+    for (byte i = 0; i < MAX_SOCKET_CLIENTS; i++)
+    {
       //find free/disconnected spot
-      if (!client[i] || !client[i].connected()){
-        if(client[i]){
-          client[i].stop(); 
+      if (!client[i] || !client[i].connected())
+      {
+        if (client[i])
+        {
+          client[i].stop();
         }
         client[i] = server.available();
         continue;
@@ -942,18 +952,19 @@ void loop(void)
     WiFiClient TempClient = server.available();
     TempClient.stop();
   }
-  
-  for(byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
-  {               
-    if(client[cln]) 
+
+  for (byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
+  {
+    if (client[cln])
     {
-      socketClientConnected(cln); 
-      while(client[cln].available())
+      socketClientConnected(cln);
+      while (client[cln].available())
       { // read from LAN
-        net_buf[net_bytes_read] = client[cln].read(); 
-        if(net_bytes_read<BUFFER_SIZE-1) net_bytes_read++;
+        net_buf[net_bytes_read] = client[cln].read();
+        if (net_bytes_read < BUFFER_SIZE - 1)
+          net_bytes_read++;
       } // send to Zigbee
-      Serial2.write(net_buf, net_bytes_read); 
+      Serial2.write(net_buf, net_bytes_read);
       // print to web console
       printRecvSocket(net_bytes_read, net_buf);
       net_bytes_read = 0;
@@ -961,21 +972,21 @@ void loop(void)
     else
     {
       socketClientDisconnected(cln);
-    }   
-    
+    }
   }
 
-  if(Serial2.available())
+  if (Serial2.available())
   {
-    while(Serial2.available())
-    { // read from Zigbee    
-      serial_buf[serial_bytes_read] = Serial2.read(); 
-      if(serial_bytes_read<BUFFER_SIZE-1) serial_bytes_read++;
+    while (Serial2.available())
+    { // read from Zigbee
+      serial_buf[serial_bytes_read] = Serial2.read();
+      if (serial_bytes_read < BUFFER_SIZE - 1)
+        serial_bytes_read++;
     }
     // send to LAN
-    for(byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
-    {   
-      if(client[cln])                     
+    for (byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
+    {
+      if (client[cln])
         client[cln].write(serial_buf, serial_bytes_read);
     }
     // print to web console

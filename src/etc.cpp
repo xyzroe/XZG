@@ -118,21 +118,25 @@ void parse_ip_address(IPAddress &ip, const char *str)
 void zigbeeEnableBSL()
 {
   printLogMsg("Zigbee BSL pin ON");
+  DEBUG_PRINTLN(F("Zigbee BSL pin ON"));
   digitalWrite(ConfigSettings.flashZigbeePin, 0);
   mqttPublishIo("enbl_bsl", "ON");
   delay(100);
 
   printLogMsg("Zigbee RST pin ON");
+  DEBUG_PRINTLN(F("Zigbee RST pin ON"));
   digitalWrite(ConfigSettings.rstZigbeePin, 0);
   mqttPublishIo("rst_zig", "ON");
   delay(250);
 
   printLogMsg("Zigbee RST pin OFF");
+  DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
   digitalWrite(ConfigSettings.rstZigbeePin, 1);
   mqttPublishIo("rst_zig", "OFF");
   delay(2000);
 
   printLogMsg("Zigbee BSL pin OFF");
+  DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
   digitalWrite(ConfigSettings.flashZigbeePin, 1);
   mqttPublishIo("enbl_bsl", "OFF");
   printLogMsg("Now you can flash CC2652!");
@@ -141,10 +145,12 @@ void zigbeeEnableBSL()
 void zigbeeRestart()
 {
   printLogMsg("Zigbee RST pin ON");
+  DEBUG_PRINTLN(F("Zigbee RST pin ON"));
   digitalWrite(ConfigSettings.rstZigbeePin, 0);
   mqttPublishIo("rst_zig", "ON");
   delay(250);
   printLogMsg("Zigbee RST pin OFF");
+  DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
   digitalWrite(ConfigSettings.rstZigbeePin, 1);
   mqttPublishIo("rst_zig", "OFF");
 }

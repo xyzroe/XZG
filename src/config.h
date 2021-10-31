@@ -101,6 +101,9 @@ struct ConfigSettingsStruct
   unsigned long mqttReconnectTime;
   unsigned long mqttHeartbeatTime;
   int tempOffset;
+  bool webAuth;
+  char webUser[50];
+  char webPass[50];
 };
 
 struct InfosStruct
@@ -113,7 +116,6 @@ struct InfosStruct
 typedef CircularBuffer<char, 1024> LogConsoleType;
 
 #define WL_MAC_ADDR_LENGTH 6
-
 
 #ifdef DEBUG
 #define DEBUG_PRINT(x) Serial.print(x)

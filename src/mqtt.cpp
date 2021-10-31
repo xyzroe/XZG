@@ -44,8 +44,11 @@ void mqttReconnect()
     {
         DEBUG_PRINT(F("failed, rc="));
         DEBUG_PRINT(clientPubSub.state());
-        DEBUG_PRINTLN(F(" try again in 5 seconds"));
-        ConfigSettings.mqttReconnectTime = millis() + 5000;
+        DEBUG_PRINT(F(" try again in "));
+        DEBUG_PRINT(ConfigSettings.mqttInterval);
+        DEBUG_PRINTLN(F(" seconds"));
+
+        ConfigSettings.mqttReconnectTime = millis() + ConfigSettings.mqttInterval * 1000;
     }
 }
 

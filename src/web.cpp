@@ -68,10 +68,14 @@ void initWebServer()
   serverWeb.on("/cmdZigRestart", handleZigRestart);
   serverWeb.on("/cmdZigRST", handleZigbeeRestart);
   serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
-  serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility
+  serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility | will be disabled on 1.0.0
   serverWeb.on("/help", handleHelp);
   serverWeb.on("/esp_update", handleESPUpdate);
+  serverWeb.on("/logged-out", handleLoggedOut);
   serverWeb.onNotFound(handleNotFound);
+
+  serverWeb.on("/logout", []()
+               { serverWeb.send(401); });
 
   /*handling uploading firmware file */
   serverWeb.on(
@@ -83,32 +87,35 @@ void initWebServer()
       },
       []()
       {
-        HTTPUpload &upload = serverWeb.upload();
-        if (upload.status == UPLOAD_FILE_START)
+        if (checkAuth())
         {
-          Serial.printf("Update: %s\n", upload.filename.c_str());
-          if (!Update.begin(UPDATE_SIZE_UNKNOWN))
-          { //start with max available size
-            Update.printError(Serial);
-          }
-        }
-        else if (upload.status == UPLOAD_FILE_WRITE)
-        {
-          /* flashing firmware to ESP*/
-          if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+          HTTPUpload &upload = serverWeb.upload();
+          if (upload.status == UPLOAD_FILE_START)
           {
-            Update.printError(Serial);
+            Serial.printf("Update: %s\n", upload.filename.c_str());
+            if (!Update.begin(UPDATE_SIZE_UNKNOWN))
+            { //start with max available size
+              Update.printError(Serial);
+            }
           }
-        }
-        else if (upload.status == UPLOAD_FILE_END)
-        {
-          if (Update.end(true))
-          { //true to set the size to the current progress
-            Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-          }
-          else
+          else if (upload.status == UPLOAD_FILE_WRITE)
           {
-            Update.printError(Serial);
+            /* flashing firmware to ESP*/
+            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+            {
+              Update.printError(Serial);
+            }
+          }
+          else if (upload.status == UPLOAD_FILE_END)
+          {
+            if (Update.end(true))
+            { //true to set the size to the current progress
+              Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+            }
+            else
+            {
+              Update.printError(Serial);
+            }
           }
         }
       });
@@ -178,208 +185,342 @@ void handle_ok_png()
   serverWeb.send_P(200, dataType, (const char *)ok_png_gz, ok_png_gz_len);
 }
 
+void handleLoggedOut()
+{
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result.replace("{{logoutLink}}", "");
+  result += FPSTR(HTTP_ERROR);
+  result += F("</html>");
+  result.replace("{{pageName}}", "Logged out");
+
+  serverWeb.send(200, F("text/html"), result);
+}
+
 void handleNotFound()
 {
-
-  String message = F("File Not Found\n\n");
-  message += F("URI: ");
-  message += serverWeb.uri();
-  message += F("\nMethod: ");
-  message += (serverWeb.method() == HTTP_GET) ? "GET" : "POST";
-  message += F("\nArguments: ");
-  message += serverWeb.args();
-  message += F("\n");
-
-  for (uint8_t i = 0; i < serverWeb.args(); i++)
+  if (checkAuth())
   {
-    message += " " + serverWeb.argName(i) + ": " + serverWeb.arg(i) + "\n";
-  }
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_ERROR);
+    result += F("</html>");
+    result.replace("{{pageName}}", "Not found - 404");
 
-  serverWeb.send(404, F("text/plain"), message);
+    serverWeb.send(404, F("text/html"), result);
+  }
+}
+
+bool checkAuth()
+{
+  String result;
+  result += F("<html>");
+  result += FPSTR(HTTP_HEADER);
+  result.replace("{{logoutLink}}", "");
+
+  result += FPSTR(HTTP_ERROR);
+  result += F("</html>");
+  result.replace("{{pageName}}", "Authentication failed");
+
+  const char *www_realm = "Login Required";
+
+  if (ConfigSettings.webAuth && !serverWeb.authenticate(ConfigSettings.webUser, ConfigSettings.webPass))
+  {
+    serverWeb.requestAuthentication(DIGEST_AUTH, www_realm, result);
+    return false;
+  }
+  else
+  {
+    return true;
+  }
 }
 
 void handleHelp()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_HELP);
-  result += F("</html>");
-  result.replace("{{pageName}}", "Help");
-
-  serverWeb.send(200, "text/html", result);
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_HELP);
+    result += F("</html>");
+    result.replace("{{pageName}}", "Help");
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleGeneral()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_GENERAL);
-  result += F("</html>");
-
-  result.replace("{{pageName}}", "General");
-
-  if (ConfigSettings.disableWeb)
+  if (checkAuth())
   {
-    result.replace("{{disableWeb}}", "checked");
-  }
-  else
-  {
-    result.replace("{{disableWeb}}", "");
-  }
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_GENERAL);
+    result += F("</html>");
 
-  result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
-  result.replace("{{hostname}}", (String)ConfigSettings.hostname);
+    result.replace("{{pageName}}", "General");
 
-  serverWeb.send(200, "text/html", result);
+    if (ConfigSettings.disableWeb)
+    {
+      result.replace("{{disableWeb}}", "checked");
+    }
+    else
+    {
+      result.replace("{{disableWeb}}", "");
+    }
+
+    result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
+    result.replace("{{hostname}}", (String)ConfigSettings.hostname);
+
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{webAuth}}", "checked");
+    }
+    else
+    {
+      result.replace("{{webAuth}}", "");
+    }
+    result.replace("{{webUser}}", (String)ConfigSettings.webUser);
+    result.replace("{{webPass}}", (String)ConfigSettings.webPass);
+
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleSaveSucces(String msg)
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result += F("<div id='main' class='col-sm-12'>");
-  result += F("<div id='main' class='col-sm-6'>");
-  result += F("<form method='GET' action='reboot' id='upload_form'>");
-  result += F("<label>Save ");
-  result += msg;
-  result += F(" OK !</label><br><br><br>");
-  result += F("<button type='submit' class='btn btn-warning mb-2'>Reboot</button>");
-  result += F("</form></div></div>");
-  result += F("</html>");
-  result.replace("{{pageName}}", "Saved");
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result += F("<div id='main' class='col-sm-12'>");
+    result += F("<div id='main' class='col-sm-6'>");
+    result += F("<form method='GET' action='reboot' id='upload_form'>");
+    result += F("<label>Save ");
+    result += msg;
+    result += F(" OK !</label><br><br><br>");
+    result += F("<button type='submit' class='btn btn-warning mb-2'>Reboot</button>");
+    result += F("</form></div></div>");
+    result += F("</html>");
+    result.replace("{{pageName}}", "Saved");
 
-  serverWeb.send(200, "text/html", result);
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleWifi()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_WIFI);
-  result += F("</html>");
-
-  result.replace("{{pageName}}", "Config WiFi");
-
-  DEBUG_PRINTLN(ConfigSettings.enableWiFi);
-  if (ConfigSettings.enableWiFi)
+  if (checkAuth())
   {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_WIFI);
+    result += F("</html>");
 
-    result.replace("{{checkedWiFi}}", "Checked");
-  }
-  else
-  {
-    result.replace("{{checkedWiFi}}", "");
-  }
-  result.replace("{{ssid}}", String(ConfigSettings.ssid));
-  result.replace("{{passWifi}}", String(ConfigSettings.password));
-  if (ConfigSettings.dhcpWiFi)
-  {
-    result.replace("{{modeWiFi}}", "Checked");
-  }
-  else
-  {
-    result.replace("{{modeWiFi}}", "");
-  }
-  result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
-  result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
-  result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
+    result.replace("{{pageName}}", "Config WiFi");
 
-  serverWeb.send(200, "text/html", result);
+    DEBUG_PRINTLN(ConfigSettings.enableWiFi);
+    if (ConfigSettings.enableWiFi)
+    {
+
+      result.replace("{{checkedWiFi}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{checkedWiFi}}", "");
+    }
+    result.replace("{{ssid}}", String(ConfigSettings.ssid));
+    result.replace("{{passWifi}}", String(ConfigSettings.password));
+    if (ConfigSettings.dhcpWiFi)
+    {
+      result.replace("{{modeWiFi}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{modeWiFi}}", "");
+    }
+    result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
+    result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
+    result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
+
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleSerial()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_SERIAL);
-  result += F("</html>");
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_SERIAL);
+    result += F("</html>");
 
-  result.replace("{{pageName}}", "Config Serial");
+    result.replace("{{pageName}}", "Config Serial");
 
-  if (ConfigSettings.serialSpeed == 9600)
-  {
-    result.replace("{{selected9600}}", "Selected");
-  }
-  else if (ConfigSettings.serialSpeed == 19200)
-  {
-    result.replace("{{selected19200}}", "Selected");
-  }
-  else if (ConfigSettings.serialSpeed == 38400)
-  {
-    result.replace("{{selected38400}}", "Selected");
-  }
-  else if (ConfigSettings.serialSpeed == 57600)
-  {
-    result.replace("{{selected57600}}", "Selected");
-  }
-  else if (ConfigSettings.serialSpeed == 115200)
-  {
-    result.replace("{{selected115200}}", "Selected");
-  }
-  else
-  {
-    result.replace("{{selected115200}}", "Selected");
-  }
-  result.replace("{{socketPort}}", String(ConfigSettings.socketPort));
+    if (ConfigSettings.serialSpeed == 9600)
+    {
+      result.replace("{{selected9600}}", "Selected");
+    }
+    else if (ConfigSettings.serialSpeed == 19200)
+    {
+      result.replace("{{selected19200}}", "Selected");
+    }
+    else if (ConfigSettings.serialSpeed == 38400)
+    {
+      result.replace("{{selected38400}}", "Selected");
+    }
+    else if (ConfigSettings.serialSpeed == 57600)
+    {
+      result.replace("{{selected57600}}", "Selected");
+    }
+    else if (ConfigSettings.serialSpeed == 115200)
+    {
+      result.replace("{{selected115200}}", "Selected");
+    }
+    else
+    {
+      result.replace("{{selected115200}}", "Selected");
+    }
+    result.replace("{{socketPort}}", String(ConfigSettings.socketPort));
 
-  serverWeb.send(200, "text/html", result);
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleEther()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_ETHERNET);
-  result += F("</html>");
-
-  result.replace("{{pageName}}", "Config Ethernet");
-
-  if (ConfigSettings.dhcp)
+  if (checkAuth())
   {
-    result.replace("{{modeEther}}", "Checked");
-  }
-  else
-  {
-    result.replace("{{modeEther}}", "");
-  }
-  result.replace("{{ipEther}}", ConfigSettings.ipAddress);
-  result.replace("{{maskEther}}", ConfigSettings.ipMask);
-  result.replace("{{GWEther}}", ConfigSettings.ipGW);
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_ETHERNET);
+    result += F("</html>");
 
-  serverWeb.send(200, "text/html", result);
+    result.replace("{{pageName}}", "Config Ethernet");
+
+    if (ConfigSettings.dhcp)
+    {
+      result.replace("{{modeEther}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{modeEther}}", "");
+    }
+    result.replace("{{ipEther}}", ConfigSettings.ipAddress);
+    result.replace("{{maskEther}}", ConfigSettings.ipMask);
+    result.replace("{{GWEther}}", ConfigSettings.ipGW);
+
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleMqtt()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_MQTT);
-  result += F("</html>");
-
-  result.replace("{{pageName}}", "Config MQTT");
-
-  if (ConfigSettings.mqttEnable)
+  if (checkAuth())
   {
-    result.replace("{{mqttEnable}}", "Checked");
-  }
-  else
-  {
-    result.replace("{{mqttEnable}}", "");
-  }
-  result.replace("{{mqttServer}}", String(ConfigSettings.mqttServer));
-  result.replace("{{mqttPort}}", String(ConfigSettings.mqttPort));
-  result.replace("{{mqttUser}}", String(ConfigSettings.mqttUser));
-  result.replace("{{mqttPass}}", String(ConfigSettings.mqttPass));
-  result.replace("{{mqttTopic}}", String(ConfigSettings.mqttTopic));
-  /*
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += FPSTR(HTTP_MQTT);
+    result += F("</html>");
+
+    result.replace("{{pageName}}", "Config MQTT");
+
+    if (ConfigSettings.mqttEnable)
+    {
+      result.replace("{{mqttEnable}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{mqttEnable}}", "");
+    }
+    result.replace("{{mqttServer}}", String(ConfigSettings.mqttServer));
+    result.replace("{{mqttPort}}", String(ConfigSettings.mqttPort));
+    result.replace("{{mqttUser}}", String(ConfigSettings.mqttUser));
+    result.replace("{{mqttPass}}", String(ConfigSettings.mqttPass));
+    result.replace("{{mqttTopic}}", String(ConfigSettings.mqttTopic));
+    /*
   if (ConfigSettings.mqttRetain)
   {
     result.replace("{{mqttRetain}}", "Checked");
@@ -389,372 +530,437 @@ void handleMqtt()
     result.replace("{{mqttRetain}}", "");
   }
   */
-  result.replace("{{mqttInterval}}", String(ConfigSettings.mqttInterval));
-  if (ConfigSettings.mqttDiscovery)
-  {
-    result.replace("{{mqttDiscovery}}", "Checked");
-  }
-  else
-  {
-    result.replace("{{mqttDiscovery}}", "");
-  }
+    result.replace("{{mqttInterval}}", String(ConfigSettings.mqttInterval));
+    if (ConfigSettings.mqttDiscovery)
+    {
+      result.replace("{{mqttDiscovery}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{mqttDiscovery}}", "");
+    }
 
-  serverWeb.send(200, "text/html", result);
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleRoot()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += FPSTR(HTTP_ROOT);
-  result += F("</html>");
-
-  result.replace("{{pageName}}", "Status");
-
-  String socketStatus;
-  String readableTime;
-  getReadableTime(readableTime, ConfigSettings.socketTime);
-  if (ConfigSettings.connectedClients > 0)
+  if (checkAuth())
   {
-    socketStatus = "<img src='/img/ok.png'>";
-    socketStatus = socketStatus + " " + readableTime + " (" + ConfigSettings.connectedClients;
-    if (ConfigSettings.connectedClients > 1)
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
     {
-      socketStatus = socketStatus + " clients)";
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
     }
     else
     {
-      socketStatus = socketStatus + " client)";
+      result.replace("{{logoutLink}}", "");
     }
-  }
-  else
-  {
-    socketStatus = "<img src='/img/nok.png'>";
-    socketStatus = socketStatus + " " + readableTime;
-  }
+    result += FPSTR(HTTP_ROOT);
+    result += F("</html>");
 
-  result.replace("{{connectedSocket}}", socketStatus);
+    result.replace("{{pageName}}", "Status");
 
-  getReadableTime(readableTime, 0);
-  result.replace("{{uptime}}", readableTime);
-
-  String CPUtemp;
-  getCPUtemp(CPUtemp);
-  result.replace("{{deviceTemp}}", CPUtemp);
-
-  result.replace("{{hwRev}}", ConfigSettings.boardName);
-
-  result.replace("{{espModel}}", String(ESP.getChipModel()));
-  result.replace("{{espCores}}", String(ESP.getChipCores()));
-  result.replace("{{espFreq}}", String(ESP.getCpuFreqMHz()));
-
-  result.replace("{{espHeapFree}}", String(ESP.getFreeHeap() / 1024));
-  result.replace("{{espHeapSize}}", String(ESP.getHeapSize() / 1024));
-
-  esp_chip_info_t chip_info;
-  esp_chip_info(&chip_info);
-
-  if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
-  {
-    result.replace("{{espFlashType}}", "embedded");
-  }
-  else
-  {
-    result.replace("{{espFlashType}}", "external");
-  }
-
-  result.replace("{{espFlashSize}}", String(ESP.getFlashChipSize() / (1024 * 1024)));
-
-  String ethState = "<strong>Connected : </strong>";
-  if (ConfigSettings.connectedEther)
-  {
-    int speed = ETH.linkSpeed();
-    String SpeedEth = String(speed) + String(" Mbps");
-    if (ETH.fullDuplex())
+    String socketStatus;
+    String readableTime;
+    getReadableTime(readableTime, ConfigSettings.socketTime);
+    if (ConfigSettings.connectedClients > 0)
     {
-      SpeedEth += String(", FULL DUPLEX");
-    }
-    else
-    {
-      SpeedEth += String(", HALF DUPLEX");
-    }
-    ethState += "<img src='/img/ok.png'>";
-    ethState += "<br><strong>MAC : </strong>" + ETH.macAddress();
-    ethState += "<br><strong>Speed : </strong> " + SpeedEth;
-    ethState += "<br><strong>Mode : </strong>";
-    if (ConfigSettings.dhcp)
-    {
-      ethState += "DHCP<br><strong>IP : </strong>" + ETH.localIP().toString();
-      ethState += "<br><strong>Mask : </strong>" + ETH.subnetMask().toString();
-      ethState += "<br><strong>GW : </strong>" + ETH.gatewayIP().toString();
-    }
-    else
-    {
-      ethState = ethState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddress;
-      ethState = ethState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMask;
-      ethState = ethState + "<br><strong>GW : </strong>" + ConfigSettings.ipGW;
-    }
-  }
-  else
-  {
-    ethState += "<img src='/img/nok.png'>";
-  }
-  result.replace("{{stateEther}}", ethState);
-
-  String wifiState = "<strong>Enabled : </strong>";
-  if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
-  {
-    wifiState += "<img src='/img/ok.png'>";
-    if (ConfigSettings.emergencyWifi)
-    {
-      wifiState += "<strong> Emergency mode</strong>";
-    }
-    wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
-    wifiState += "<br><strong>Mode : </strong> ";
-    if (ConfigSettings.radioModeWiFi)
-    {
-      String AP_NameString;
-      getDeviceID(AP_NameString);
-      wifiState += "AP <br><strong>SSID : </strong>" + AP_NameString;
-      wifiState += "<br>No password";
-      //wifiState += "<br><strong>Password : </strong>ZigStar1";
-      wifiState += "<br><strong>IP : </strong>192.168.4.1";
-    }
-    else
-    {
-      int rssi = WiFi.RSSI();
-      String rssiWifi = String(rssi) + String(" dBm");
-      wifiState = wifiState + "STA <br><strong>SSID : </strong>" + ConfigSettings.ssid;
-      wifiState += "<br><strong>RSSI : </strong>" + rssiWifi;
-      wifiState += "<br><strong>Mode : </strong>";
-      if (ConfigSettings.dhcpWiFi)
+      socketStatus = "<img src='/img/ok.png'>";
+      socketStatus = socketStatus + " " + readableTime + " (" + ConfigSettings.connectedClients;
+      if (ConfigSettings.connectedClients > 1)
       {
-        wifiState += "DHCP<br><strong>IP : </strong>" + WiFi.localIP().toString();
-        wifiState += "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
-        wifiState += "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+        socketStatus = socketStatus + " clients)";
       }
       else
       {
-        wifiState = wifiState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
-        wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
-        wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
+        socketStatus = socketStatus + " client)";
       }
     }
-  }
-  else
-  {
-    wifiState += "<img src='/img/nok.png'>";
-  }
-  result.replace("{{stateWifi}}", wifiState);
+    else
+    {
+      socketStatus = "<img src='/img/nok.png'>";
+      socketStatus = socketStatus + " " + readableTime;
+    }
 
-  String mqttState = "<strong>Enabled : </strong>";
-  if (ConfigSettings.mqttEnable)
-  {
-    mqttState += "<img src='/img/ok.png'>";
-    mqttState = mqttState + "<br><strong>Server : </strong>" + ConfigSettings.mqttServer;
-    mqttState += "<br><strong>Connected : </strong>";
-    if (ConfigSettings.mqttReconnectTime == 0)
+    result.replace("{{connectedSocket}}", socketStatus);
+
+    getReadableTime(readableTime, 0);
+    result.replace("{{uptime}}", readableTime);
+
+    String CPUtemp;
+    getCPUtemp(CPUtemp);
+    result.replace("{{deviceTemp}}", CPUtemp);
+
+    result.replace("{{hwRev}}", ConfigSettings.boardName);
+
+    result.replace("{{espModel}}", String(ESP.getChipModel()));
+    result.replace("{{espCores}}", String(ESP.getChipCores()));
+    result.replace("{{espFreq}}", String(ESP.getCpuFreqMHz()));
+
+    result.replace("{{espHeapFree}}", String(ESP.getFreeHeap() / 1024));
+    result.replace("{{espHeapSize}}", String(ESP.getHeapSize() / 1024));
+
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
+    if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
+    {
+      result.replace("{{espFlashType}}", "embedded");
+    }
+    else
+    {
+      result.replace("{{espFlashType}}", "external");
+    }
+
+    result.replace("{{espFlashSize}}", String(ESP.getFlashChipSize() / (1024 * 1024)));
+
+    String ethState = "<strong>Connected : </strong>";
+    if (ConfigSettings.connectedEther)
+    {
+      int speed = ETH.linkSpeed();
+      String SpeedEth = String(speed) + String(" Mbps");
+      if (ETH.fullDuplex())
+      {
+        SpeedEth += String(", FULL DUPLEX");
+      }
+      else
+      {
+        SpeedEth += String(", HALF DUPLEX");
+      }
+      ethState += "<img src='/img/ok.png'>";
+      ethState += "<br><strong>MAC : </strong>" + ETH.macAddress();
+      ethState += "<br><strong>Speed : </strong> " + SpeedEth;
+      ethState += "<br><strong>Mode : </strong>";
+      if (ConfigSettings.dhcp)
+      {
+        ethState += "DHCP<br><strong>IP : </strong>" + ETH.localIP().toString();
+        ethState += "<br><strong>Mask : </strong>" + ETH.subnetMask().toString();
+        ethState += "<br><strong>GW : </strong>" + ETH.gatewayIP().toString();
+      }
+      else
+      {
+        ethState = ethState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddress;
+        ethState = ethState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMask;
+        ethState = ethState + "<br><strong>GW : </strong>" + ConfigSettings.ipGW;
+      }
+    }
+    else
+    {
+      ethState += "<img src='/img/nok.png'>";
+    }
+    result.replace("{{stateEther}}", ethState);
+
+    String wifiState = "<strong>Enabled : </strong>";
+    if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi)
+    {
+      wifiState += "<img src='/img/ok.png'>";
+      if (ConfigSettings.emergencyWifi)
+      {
+        wifiState += "<strong> Emergency mode</strong>";
+      }
+      wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
+      wifiState += "<br><strong>Mode : </strong> ";
+      if (ConfigSettings.radioModeWiFi)
+      {
+        String AP_NameString;
+        getDeviceID(AP_NameString);
+        wifiState += "AP <br><strong>SSID : </strong>" + AP_NameString;
+        wifiState += "<br>No password";
+        //wifiState += "<br><strong>Password : </strong>ZigStar1";
+        wifiState += "<br><strong>IP : </strong>192.168.4.1";
+      }
+      else
+      {
+        int rssi = WiFi.RSSI();
+        String rssiWifi = String(rssi) + String(" dBm");
+        wifiState = wifiState + "STA <br><strong>SSID : </strong>" + ConfigSettings.ssid;
+        wifiState += "<br><strong>RSSI : </strong>" + rssiWifi;
+        wifiState += "<br><strong>Mode : </strong>";
+        if (ConfigSettings.dhcpWiFi)
+        {
+          wifiState += "DHCP<br><strong>IP : </strong>" + WiFi.localIP().toString();
+          wifiState += "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
+          wifiState += "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+        }
+        else
+        {
+          wifiState = wifiState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
+          wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
+          wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
+        }
+      }
+    }
+    else
+    {
+      wifiState += "<img src='/img/nok.png'>";
+    }
+    result.replace("{{stateWifi}}", wifiState);
+
+    String mqttState = "<strong>Enabled : </strong>";
+    if (ConfigSettings.mqttEnable)
     {
       mqttState += "<img src='/img/ok.png'>";
+      mqttState = mqttState + "<br><strong>Server : </strong>" + ConfigSettings.mqttServer;
+      mqttState += "<br><strong>Connected : </strong>";
+      if (ConfigSettings.mqttReconnectTime == 0)
+      {
+        mqttState += "<img src='/img/ok.png'>";
+      }
+      else
+      {
+        mqttState += "<img src='/img/nok.png'>";
+      }
     }
     else
     {
       mqttState += "<img src='/img/nok.png'>";
     }
-  }
-  else
-  {
-    mqttState += "<img src='/img/nok.png'>";
-  }
-  result.replace("{{stateMqtt}}", mqttState);
+    result.replace("{{stateMqtt}}", mqttState);
 
-  serverWeb.send(200, "text/html", result);
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleSaveGeneral()
 {
-  String StringConfig;
-  String disableWeb;
-  String refreshLogs;
+  if (checkAuth())
+  {
+    String StringConfig;
+    String disableWeb;
+    String refreshLogs;
+    String hostname;
+    String webAuth;
+    String webUser;
+    String webPass;
 
-  if (serverWeb.arg("disableWeb") == "on")
-  {
-    disableWeb = "1";
-  }
-  else
-  {
-    disableWeb = "0";
-  }
+    if (serverWeb.arg("disableWeb") == "on")
+    {
+      disableWeb = "1";
+    }
+    else
+    {
+      disableWeb = "0";
+    }
 
-  if (serverWeb.arg("refreshLogs").toDouble() < 1000)
-  {
-    refreshLogs = "1000";
-  }
-  else
-  {
-    refreshLogs = serverWeb.arg("refreshLogs");
-  }
+    if (serverWeb.arg("refreshLogs").toDouble() < 1000)
+    {
+      refreshLogs = "1000";
+    }
+    else
+    {
+      refreshLogs = serverWeb.arg("refreshLogs");
+    }
 
-  String hostname = serverWeb.arg("hostname");
-  DEBUG_PRINTLN(hostname);
-  const char *path = "/config/configGeneral.json";
+    if (serverWeb.arg("hostname") != "")
+    {
+      hostname = serverWeb.arg("hostname");
+    }
+    else
+    {
+      hostname = "ZigStarGW";
+    }
 
-  StringConfig = "{\"disableWeb\":" + disableWeb + ",\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\"}";
-  DEBUG_PRINTLN(StringConfig);
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
+    if (serverWeb.arg("webAuth") == "on")
+    {
+      webAuth = "1";
+    }
+    else
+    {
+      webAuth = "0";
+    }
 
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
-  if (!configFile)
-  {
-    DEBUG_PRINTLN(F("failed open"));
+    if (serverWeb.arg("webUser") != "")
+    {
+      webUser = serverWeb.arg("webUser");
+    }
+    else
+    {
+      webUser = "admin";
+    }
+
+    if (serverWeb.arg("webPass") != "")
+    {
+      webPass = serverWeb.arg("webPass");
+    }
+    else
+    {
+      webPass = "admin";
+    }
+
+    //DEBUG_PRINTLN(hostname);
+    const char *path = "/config/configGeneral.json";
+
+    StringConfig = "{\"disableWeb\":" + disableWeb + ",\"refreshLogs\":" + refreshLogs + ",\"webAuth\":" + webAuth + ",\"webUser\":\"" + webUser + "\",\"webPass\":\"" + webPass + "\",\"hostname\":\"" + hostname + "\"}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed open"));
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    handleSaveSucces("config");
   }
-  else
-  {
-    serializeJson(doc, configFile);
-  }
-  handleSaveSucces("config");
 }
 
 void handleSaveWifi()
 {
-  if (!serverWeb.hasArg("WIFISSID"))
+  if (checkAuth())
   {
-    serverWeb.send(500, "text/plain", "BAD ARGS");
-    return;
-  }
+    if (!serverWeb.hasArg("WIFISSID"))
+    {
+      serverWeb.send(500, "text/plain", "BAD ARGS");
+      return;
+    }
 
-  String StringConfig;
-  String enableWiFi;
-  if (serverWeb.arg("wifiEnable") == "on")
-  {
-    enableWiFi = "1";
-  }
-  else
-  {
-    enableWiFi = "0";
-  }
-  String ssid = serverWeb.arg("WIFISSID");
-  String pass = serverWeb.arg("WIFIpassword");
+    String StringConfig;
+    String enableWiFi;
+    if (serverWeb.arg("wifiEnable") == "on")
+    {
+      enableWiFi = "1";
+    }
+    else
+    {
+      enableWiFi = "0";
+    }
+    String ssid = serverWeb.arg("WIFISSID");
+    String pass = serverWeb.arg("WIFIpassword");
 
-  String dhcpWiFi;
-  if (serverWeb.arg("dhcpWiFi") == "on")
-  {
-    dhcpWiFi = "1";
-  }
-  else
-  {
-    dhcpWiFi = "0";
-  }
+    String dhcpWiFi;
+    if (serverWeb.arg("dhcpWiFi") == "on")
+    {
+      dhcpWiFi = "1";
+    }
+    else
+    {
+      dhcpWiFi = "0";
+    }
 
-  String ipAddress = serverWeb.arg("ipAddress");
-  String ipMask = serverWeb.arg("ipMask");
-  String ipGW = serverWeb.arg("ipGW");
+    String ipAddress = serverWeb.arg("ipAddress");
+    String ipMask = serverWeb.arg("ipMask");
+    String ipGW = serverWeb.arg("ipGW");
 
-  const char *path = "/config/configWifi.json";
+    const char *path = "/config/configWifi.json";
 
-  StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
-  DEBUG_PRINTLN(StringConfig);
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
+    StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
 
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
-  if (!configFile)
-  {
-    DEBUG_PRINTLN(F("failed open"));
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed open"));
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    handleSaveSucces("config");
   }
-  else
-  {
-    serializeJson(doc, configFile);
-  }
-  handleSaveSucces("config");
 }
 
 void handleSaveSerial()
 {
-  String StringConfig;
-  String serialSpeed = serverWeb.arg("baud");
-  String socketPort = serverWeb.arg("port");
-  const char *path = "/config/configSerial.json";
-
-  StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
-  DEBUG_PRINTLN(StringConfig);
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
-
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
-  if (!configFile)
+  if (checkAuth())
   {
-    DEBUG_PRINTLN(F("failed open"));
+    String StringConfig;
+    String serialSpeed = serverWeb.arg("baud");
+    String socketPort = serverWeb.arg("port");
+    const char *path = "/config/configSerial.json";
+
+    StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
+
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed open"));
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    handleSaveSucces("config");
   }
-  else
-  {
-    serializeJson(doc, configFile);
-  }
-  handleSaveSucces("config");
 }
 
 void handleSaveEther()
 {
-  if (!serverWeb.hasArg("ipAddress"))
+  if (checkAuth())
   {
-    serverWeb.send(500, "text/plain", "BAD ARGS");
-    return;
-  }
+    if (!serverWeb.hasArg("ipAddress"))
+    {
+      serverWeb.send(500, "text/plain", "BAD ARGS");
+      return;
+    }
 
-  String StringConfig;
-  String dhcp;
-  if (serverWeb.arg("dhcp") == "on")
-  {
-    dhcp = "1";
-  }
-  else
-  {
-    dhcp = "0";
-  }
-  String ipAddress = serverWeb.arg("ipAddress");
-  String ipMask = serverWeb.arg("ipMask");
-  String ipGW = serverWeb.arg("ipGW");
+    String StringConfig;
+    String dhcp;
+    if (serverWeb.arg("dhcp") == "on")
+    {
+      dhcp = "1";
+    }
+    else
+    {
+      dhcp = "0";
+    }
+    String ipAddress = serverWeb.arg("ipAddress");
+    String ipMask = serverWeb.arg("ipMask");
+    String ipGW = serverWeb.arg("ipGW");
 
-  const char *path = "/config/configEther.json";
+    const char *path = "/config/configEther.json";
 
-  StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
-  DEBUG_PRINTLN(StringConfig);
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
+    StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
 
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
-  if (!configFile)
-  {
-    DEBUG_PRINTLN(F("failed open"));
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed open"));
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    handleSaveSucces("config");
   }
-  else
-  {
-    serializeJson(doc, configFile);
-  }
-  handleSaveSucces("config");
 }
 
 void handleSaveMqtt()
 {
-  String StringConfig;
-  String enable;
-  if (serverWeb.arg("enable") == "on")
+  if (checkAuth())
   {
-    enable = "1";
-  }
-  else
-  {
-    enable = "0";
-  }
+    String StringConfig;
+    String enable;
+    if (serverWeb.arg("enable") == "on")
+    {
+      enable = "1";
+    }
+    else
+    {
+      enable = "0";
+    }
 
-  String server = serverWeb.arg("server");
-  String port = serverWeb.arg("port");
-  String user = serverWeb.arg("user");
-  String pass = serverWeb.arg("pass");
-  String topic = serverWeb.arg("topic");
-  /*
+    String server = serverWeb.arg("server");
+    String port = serverWeb.arg("port");
+    String user = serverWeb.arg("user");
+    String pass = serverWeb.arg("pass");
+    String topic = serverWeb.arg("topic");
+    /*
   String retain;
   if (serverWeb.arg("retain") == "on")
   {
@@ -765,251 +971,328 @@ void handleSaveMqtt()
     retain = "0";
   }
   */
-  String interval = serverWeb.arg("interval");
-  String discovery;
-  if (serverWeb.arg("discovery") == "on")
-  {
-    discovery = "1";
-  }
-  else
-  {
-    discovery = "0";
-  }
-  const char *path = "/config/configMqtt.json";
+    String interval = serverWeb.arg("interval");
+    String discovery;
+    if (serverWeb.arg("discovery") == "on")
+    {
+      discovery = "1";
+    }
+    else
+    {
+      discovery = "0";
+    }
+    const char *path = "/config/configMqtt.json";
 
-  StringConfig = "{\"enable\":" + enable + ",\"server\":\"" + server + "\",\"port\":" + port + ",\"user\":\"" + user + "\",\"pass\":\"" + pass + "\",\"topic\":\"" + topic + "\",\"interval\":" + interval + ",\"discovery\":" + discovery + "}";
+    StringConfig = "{\"enable\":" + enable + ",\"server\":\"" + server + "\",\"port\":" + port + ",\"user\":\"" + user + "\",\"pass\":\"" + pass + "\",\"topic\":\"" + topic + "\",\"interval\":" + interval + ",\"discovery\":" + discovery + "}";
 
-  DEBUG_PRINTLN(StringConfig);
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
+    DEBUG_PRINTLN(StringConfig);
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, StringConfig);
 
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
-  if (!configFile)
-  {
-    DEBUG_PRINTLN(F("failed open"));
+    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    if (!configFile)
+    {
+      DEBUG_PRINTLN(F("failed open"));
+    }
+    else
+    {
+      serializeJson(doc, configFile);
+    }
+    handleSaveSucces("config");
   }
-  else
-  {
-    serializeJson(doc, configFile);
-  }
-  handleSaveSucces("config");
 }
 
 void handleLogs()
 {
-  String result;
+  if (checkAuth())
+  {
+    String result;
 
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result += F("<div id='main' class='col-sm-12'>");
-  result += F("<div id='help_btns' class='col-sm-8'>");
-  result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result += F("<div id='main' class='col-sm-12'>");
+    result += F("<div id='help_btns' class='col-sm-8'>");
+    result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
 #ifdef DEBUG
-  result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-  result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
+    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
 #endif
-  result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
-  result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
-  result += F("</div></div>");
-  result += F("<div id='main' class='col-sm-8'>");
-  result += F("<div class='col-md-12'>Raw data :</div>");
-  result += F("<textarea class='col-md-12' id='console' rows='16' ></textarea>");
-  result += F("</div>");
-  result += F("</body>");
-  result += F("<script language='javascript'>");
-  result += F("logRefresh({{refreshLogs}});");
-  result += F("</script>");
-  result += F("</html>");
+    result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
+    result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
+    result += F("</div></div>");
+    result += F("<div id='main' class='col-sm-8'>");
+    result += F("<div class='col-md-12'>Raw data :</div>");
+    result += F("<textarea class='col-md-12' id='console' rows='16' ></textarea>");
+    result += F("</div>");
+    result += F("</body>");
+    result += F("<script language='javascript'>");
+    result += F("logRefresh({{refreshLogs}});");
+    result += F("</script>");
+    result += F("</html>");
 
-  result.replace("{{pageName}}", "Console");
-  result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
+    result.replace("{{pageName}}", "Console");
+    result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
 
-  serverWeb.send(200, F("text/html"), result);
+    serverWeb.send(200, F("text/html"), result);
+  }
 }
 
 void handleReboot()
 {
-  String result;
+  if (checkAuth())
+  {
+    String result;
 
-  result += F("<html>");
-  result += F("<meta http-equiv='refresh' content='1; URL=/'>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result = result + F("</body></html>");
-  result.replace("{{pageName}}", "Rebooted");
-  serverWeb.send(200, F("text/html"), result);
+    result += F("<html>");
+    result += F("<meta http-equiv='refresh' content='1; URL=/'>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result = result + F("</body></html>");
+    result.replace("{{pageName}}", "Rebooted");
 
-  ESP.restart();
+    serverWeb.send(200, F("text/html"), result);
+
+    ESP.restart();
+  }
 }
 
 void handleUpdate()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result += F("<div class='btn-group-vertical'>");
-  result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
-  result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
-  result += F("</div>");
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result += F("<div class='btn-group-vertical'>");
+    result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
+    result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
+    result += F("</div>");
 
-  result = result + F("</body></html>");
-  result.replace("{{pageName}}", "Update Zigbee");
-  serverWeb.send(200, F("text/html"), result);
+    result = result + F("</body></html>");
+    result.replace("{{pageName}}", "Update Zigbee");
+
+    serverWeb.send(200, F("text/html"), result);
+  }
 }
 
 void handleESPUpdate()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result += FPSTR(HTTP_UPDATE);
-  result = result + F("</body></html>");
-  result.replace("{{pageName}}", "Update ESP32");
-  serverWeb.sendHeader("Connection", "close");
-  serverWeb.send(200, "text/html", result);
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result += FPSTR(HTTP_UPDATE);
+    result = result + F("</body></html>");
+    result.replace("{{pageName}}", "Update ESP32");
+    serverWeb.sendHeader("Connection", "close");
+
+    serverWeb.send(200, "text/html", result);
+  }
 }
 
 void handleFSbrowser()
 {
-  String result;
-  result += F("<html>");
-  result += FPSTR(HTTP_HEADER);
-  result += F("<h2>{{pageName}}</h2>");
-  result += F("<div id='main' class='col-sm-12'>");
-  result += F("<div id='help_btns' class='col-md-11'>");
-  result.replace("{{pageName}}", "FSBrowser");
-
-  String str = "";
-  File root = LITTLEFS.open("/config");
-  File file = root.openNextFile();
-  while (file)
+  if (checkAuth())
   {
-    String tmp = file.name();
-    tmp = tmp.substring(8);
-    result += F("<a href='#' onClick=\"readfile('");
-    result += tmp;
-    result += F("');\">");
-    result += tmp;
-    result += F("<br>(");
-    result += file.size();
-    result += F(" B)</a>");
-    file = root.openNextFile();
-  }
-  result += F("</div>");
-  result += F("<div id='main' class='col-md-9'>");
-  result += F("<div class='app-main-content'>");
-  result += F("<form method='POST' action='saveFile'>");
-  result += F("<div class='form-group'>");
-  result += F("<div><label for='file'>File : <span id='title'></span></label>");
-  result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
-  result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
-  result += F("</textarea>");
-  result += F("</div>");
-  result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
-  result += F("</form>");
-  result += F("</div>");
-  result += F("</div>");
-  result += F("</div>");
-  result += F("</body></html>");
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    result += F("<h2>{{pageName}}</h2>");
+    result += F("<div id='main' class='col-sm-12'>");
+    result += F("<div id='help_btns' class='col-md-11'>");
+    result.replace("{{pageName}}", "FSBrowser");
 
-  serverWeb.send(200, F("text/html"), result);
+    String str = "";
+    File root = LITTLEFS.open("/config");
+    File file = root.openNextFile();
+    while (file)
+    {
+      String tmp = file.name();
+      tmp = tmp.substring(8);
+      result += F("<a href='#' onClick=\"readfile('");
+      result += tmp;
+      result += F("');\">");
+      result += tmp;
+      result += F("<br>(");
+      result += file.size();
+      result += F(" B)</a>");
+      file = root.openNextFile();
+    }
+    result += F("</div>");
+    result += F("<div id='main' class='col-md-9'>");
+    result += F("<div class='app-main-content'>");
+    result += F("<form method='POST' action='saveFile'>");
+    result += F("<div class='form-group'>");
+    result += F("<div><label for='file'>File : <span id='title'></span></label>");
+    result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
+    result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
+    result += F("</textarea>");
+    result += F("</div>");
+    result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
+    result += F("</form>");
+    result += F("</div>");
+    result += F("</div>");
+    result += F("</div>");
+    result += F("</body></html>");
+
+    serverWeb.send(200, F("text/html"), result);
+  }
 }
 
 void handleReadfile()
 {
-  String result;
-  String filename = "/config/" + serverWeb.arg(0);
-  File file = LITTLEFS.open(filename, "r");
-
-  if (!file)
+  if (checkAuth())
   {
-    return;
-  }
+    String result;
+    String filename = "/config/" + serverWeb.arg(0);
+    File file = LITTLEFS.open(filename, "r");
 
-  while (file.available())
-  {
-    result += (char)file.read();
+    if (!file)
+    {
+      return;
+    }
+
+    while (file.available())
+    {
+      result += (char)file.read();
+    }
+    file.close();
+
+    serverWeb.send(200, F("text/html"), result);
   }
-  file.close();
-  serverWeb.send(200, F("text/html"), result);
 }
 
 void handleSavefile()
 {
-  if (serverWeb.method() != HTTP_POST)
+  if (checkAuth())
   {
-    serverWeb.send(405, F("text/plain"), F("Method Not Allowed"));
-  }
-  else
-  {
-    String filename = "/config/" + serverWeb.arg(0);
-    String content = serverWeb.arg(1);
-    File file = LITTLEFS.open(filename, "w");
-    if (!file)
+    if (serverWeb.method() != HTTP_POST)
     {
-      DEBUG_PRINT(F("Failed to open file for reading\r\n"));
-      return;
-    }
-
-    int bytesWritten = file.print(content);
-
-    if (bytesWritten > 0)
-    {
-      DEBUG_PRINTLN(F("File was written"));
-      DEBUG_PRINTLN(bytesWritten);
+      serverWeb.send(405, F("text/plain"), F("Method Not Allowed"));
     }
     else
     {
-      DEBUG_PRINTLN(F("File write failed"));
-    }
+      String filename = "/config/" + serverWeb.arg(0);
+      String content = serverWeb.arg(1);
+      File file = LITTLEFS.open(filename, "w");
+      if (!file)
+      {
+        DEBUG_PRINT(F("Failed to open file for reading\r\n"));
+        return;
+      }
 
-    file.close();
-    serverWeb.sendHeader(F("Location"), F("/fsbrowser"));
-    serverWeb.send(303);
+      int bytesWritten = file.print(content);
+
+      if (bytesWritten > 0)
+      {
+        DEBUG_PRINTLN(F("File was written"));
+        DEBUG_PRINTLN(bytesWritten);
+      }
+      else
+      {
+        DEBUG_PRINTLN(F("File write failed"));
+      }
+
+      file.close();
+      serverWeb.sendHeader(F("Location"), F("/fsbrowser"));
+      serverWeb.send(303);
+    }
   }
 }
 
 void handleLogBuffer()
 {
-  String result;
-  result = logPrint();
-  serverWeb.send(200, F("text/html"), result);
+  if (checkAuth())
+  {
+    String result;
+    result = logPrint();
+
+    serverWeb.send(200, F("text/html"), result);
+  }
 }
 
 void handleScanNetwork()
 {
-  String result = "";
-  int n = WiFi.scanNetworks();
-  if (n == 0)
+  if (checkAuth())
   {
-    result = " <label for='ssid'>SSID</label>";
-    result += "<input class='form-control' id='ssid' type='text' name='WIFISSID' value='{{ssid}}'> <a onclick='scanNetwork();' class='btn btn-primary mb-2'>Scan</a><div id='networks'></div>";
-  }
-  else
-  {
-
-    result = "<select name='WIFISSID' onChange='updateSSID(this.value);'>";
-    result += "<OPTION value=''>--Choose SSID--</OPTION>";
-    for (int i = 0; i < n; ++i)
+    String result = "";
+    int n = WiFi.scanNetworks();
+    if (n == 0)
     {
-      result += "<OPTION value='";
-      result += WiFi.SSID(i);
-      result += "'>";
-      result += WiFi.SSID(i) + " (" + WiFi.RSSI(i) + ")";
-      result += "</OPTION>";
+      result = " <label for='ssid'>SSID</label>";
+      result += "<input class='form-control' id='ssid' type='text' name='WIFISSID' value='{{ssid}}'> <a onclick='scanNetwork();' class='btn btn-primary mb-2'>Scan</a><div id='networks'></div>";
     }
-    result += "</select>";
+    else
+    {
+
+      result = "<select name='WIFISSID' onChange='updateSSID(this.value);'>";
+      result += "<OPTION value=''>--Choose SSID--</OPTION>";
+      for (int i = 0; i < n; ++i)
+      {
+        result += "<OPTION value='";
+        result += WiFi.SSID(i);
+        result += "'>";
+        result += WiFi.SSID(i) + " (" + WiFi.RSSI(i) + ")";
+        result += "</OPTION>";
+      }
+      result += "</select>";
+    }
+
+    serverWeb.send(200, F("text/html"), result);
   }
-  serverWeb.send(200, F("text/html"), result);
 }
 void handleClearConsole()
 {
-  logClear();
+  if (checkAuth())
+  {
+    logClear();
 
-  serverWeb.send(200, F("text/html"), "");
+    serverWeb.send(200, F("text/html"), "");
+  }
 }
 
 void handleGetVersion()
@@ -1024,14 +1307,22 @@ void handleZigRestart()
 
 void handleZigbeeRestart()
 {
-  serverWeb.send(200, F("text/html"), "");
-  zigbeeRestart();
+  if (checkAuth())
+  {
+    serverWeb.send(200, F("text/html"), "");
+
+    zigbeeRestart();
+  }
 }
 
 void handleZigbeeBSL()
 {
-  serverWeb.send(200, F("text/html"), "");
-  zigbeeEnableBSL();
+  if (checkAuth())
+  {
+    serverWeb.send(200, F("text/html"), "");
+
+    zigbeeEnableBSL();
+  }
 }
 
 void printLogTime()
