@@ -25,12 +25,13 @@
 #include "mqtt.h"
 #include <ESP32Ping.h>
 
+
 // application config
 unsigned long timeLog;
 ConfigSettingsStruct ConfigSettings;
 InfosStruct Infos;
 bool configOK = false;
-String modeWiFi = "STA";
+//String modeWiFi = "STA";
 
 // serial end ethernet buffer size
 #define BUFFER_SIZE 256
@@ -39,6 +40,7 @@ String modeWiFi = "STA";
 MDNSResponder mdns;
 
 void mDNS_start();
+bool setupSTAWifi();
 
 void saveEmergencyWifi(bool state)
 {
@@ -153,6 +155,10 @@ void WiFiEvent(WiFiEvent_t event)
     ConfigSettings.connectedEther = false;
     ConfigSettings.disconnectEthTime = millis();
     break;
+  case SYSTEM_EVENT_STA_DISCONNECTED:
+    DEBUG_PRINTLN(F("WIFI STA DISCONNECTED")); 
+    setupSTAWifi();
+    break;
   default:
     break;
   }
@@ -253,7 +259,7 @@ bool loadConfigWifi()
   File configFile = LITTLEFS.open(path, FILE_READ);
   if (!configFile)
   {
-    String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
+    String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disableEmerg\":0}";
 
     writeDefultConfig(path, StringConfig);
   }
@@ -279,6 +285,7 @@ bool loadConfigWifi()
   strlcpy(ConfigSettings.ipMaskWiFi, doc["mask"] | "", sizeof(ConfigSettings.ipMaskWiFi));
   strlcpy(ConfigSettings.ipGWWiFi, doc["gw"] | "", sizeof(ConfigSettings.ipGWWiFi));
   ConfigSettings.enableWiFi = (int)doc["enableWiFi"];
+  ConfigSettings.disableEmerg = (int)doc["disableEmerg"];
 
   configFile.close();
   return true;
@@ -524,7 +531,7 @@ void enableWifi()
     if (!setupSTAWifi())
     {
       setupWifiAP();
-      modeWiFi = "AP";
+      //modeWiFi = "AP";
       ConfigSettings.radioModeWiFi = true;
       DEBUG_PRINTLN(F("AP"));
     }
@@ -538,7 +545,7 @@ void enableWifi()
   {
     DEBUG_PRINTLN(F("Error SSID & PASS"));
     setupWifiAP();
-    modeWiFi = "AP";
+    //modeWiFi = "AP";
     DEBUG_PRINTLN(F("AP"));
     ConfigSettings.radioModeWiFi = true;
   }
@@ -584,6 +591,8 @@ void setupEthernetAndZigbeeSerial()
       DEBUG_PRINT(F("Zigbee serial setup @ "));
       DEBUG_PRINTLN(ConfigSettings.serialSpeed);
       Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_2, ZTXD_2);
+
+      oneWireBegin();
     }
     else
     {
@@ -799,6 +808,7 @@ void setup(void)
   {
     mqttConnectSetup();
   }
+
 }
 
 WiFiClient client[10];
@@ -922,7 +932,7 @@ void loop(void)
     }
   }
 
-  if (ConfigSettings.connectedEther == false && ConfigSettings.disconnectEthTime != 0 && ConfigSettings.enableWiFi != 1 && ConfigSettings.emergencyWifi != 1)
+  if (ConfigSettings.connectedEther == 0 && ConfigSettings.disconnectEthTime != 0 && ConfigSettings.enableWiFi != 1 && ConfigSettings.emergencyWifi != 1 && ConfigSettings.disableEmerg == 0)
   {
     if ((millis() - ConfigSettings.disconnectEthTime) >= (ETH_ERROR_TIME * 1000))
     {

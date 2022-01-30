@@ -9,6 +9,9 @@ uint8_t temprature_sens_read();
 #endif
 uint8_t temprature_sens_read();
 
+void oneWireBegin();
+void oneWireRead(String &DStemp);
+
 void getCPUtemp(String &CPUtemp);
 void getBlankCPUtemp(String &CPUtemp);
 //void parse_ip_address(IPAddress &ip, const char *str)

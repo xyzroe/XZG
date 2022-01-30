@@ -10,7 +10,38 @@
 #include "mqtt.h"
 #include "web.h"
 
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <DS18B20.h>
+
+OneWire oneWire(ONE_WIRE_BUS);
+
+DS18B20 sensor(&oneWire);
+
 extern struct ConfigSettingsStruct ConfigSettings;
+
+void oneWireBegin()
+{
+  DEBUG_PRINTLN(F("oneWire begin"));
+  sensor.begin();
+}
+
+void oneWireRead(String &DStemp)
+{
+  sensor.requestTemperatures();
+  float tempC = sensor.getTempC();
+  DEBUG_PRINTLN(tempC);
+  if(tempC != DEVICE_DISCONNECTED_C) 
+  {
+    DEBUG_PRINTLN(F("oneWire OK"));
+    DStemp = tempC;
+  } 
+  else
+  {
+    DEBUG_PRINTLN(F("oneWire error"));
+    DStemp = 255;
+  }
+}
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {

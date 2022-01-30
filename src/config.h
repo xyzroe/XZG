@@ -29,7 +29,7 @@
 #define ETH_MDC_PIN_2 23
 #define ETH_MDIO_PIN_2 18
 //ZIGBEE
-#define RESTART_ZIGBEE_2 12
+#define RESTART_ZIGBEE_2 16
 #define FLASH_ZIGBEE_2 32
 #define ZRXD_2 36
 #define ZTXD_2 4
@@ -51,13 +51,15 @@
 #define PRODUCTION 1
 #define FLASH 0
 
-#define MAX_SOCKET_CLIENTS 10
+#define MAX_SOCKET_CLIENTS 5
 #define BAUD_RATE 38400
 #define TCP_LISTEN_PORT 9999
 
 #define ETH_ERROR_TIME 30
 
 #define FORMAT_LITTLEFS_IF_FAILED true
+
+#define ONE_WIRE_BUS 33
 
 struct ConfigSettingsStruct
 {
@@ -104,6 +106,7 @@ struct ConfigSettingsStruct
   bool webAuth;
   char webUser[50];
   char webPass[50];
+  bool disableEmerg;
 };
 
 struct InfosStruct

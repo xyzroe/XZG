@@ -383,15 +383,24 @@ void handleWifi()
     {
       result.replace("{{checkedWiFi}}", "");
     }
+    DEBUG_PRINTLN(ConfigSettings.disableEmerg);
+    if (ConfigSettings.disableEmerg)
+    {
+      result.replace("{{checkedDisEmerg}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{checkedDisEmerg}}", "");
+    }
     result.replace("{{ssid}}", String(ConfigSettings.ssid));
     result.replace("{{passWifi}}", String(ConfigSettings.password));
     if (ConfigSettings.dhcpWiFi)
     {
-      result.replace("{{modeWiFi}}", "Checked");
+      result.replace("{{dchp}}", "Checked");
     }
     else
     {
-      result.replace("{{modeWiFi}}", "");
+      result.replace("{{dchp}}", "");
     }
     result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
     result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
@@ -595,6 +604,22 @@ void handleRoot()
     getCPUtemp(CPUtemp);
     result.replace("{{deviceTemp}}", CPUtemp);
 
+    
+    if (ConfigSettings.board == 2) {
+      String OWWstrg;
+      oneWireRead(OWWstrg);
+
+      if (OWWstrg != "0.00" && OWWstrg != "255")
+      {
+        OWWstrg = "<br><strong>OW temperature : </strong>" + OWWstrg + " &deg;C";
+        result.replace("{{dsTemp}}", OWWstrg);
+      }
+      else
+      {
+        result.replace("{{dsTemp}}", "");
+      }
+    }
+
     result.replace("{{hwRev}}", ConfigSettings.boardName);
 
     result.replace("{{espModel}}", String(ESP.getChipModel()));
@@ -678,19 +703,28 @@ void handleRoot()
         int rssi = WiFi.RSSI();
         String rssiWifi = String(rssi) + String(" dBm");
         wifiState = wifiState + "STA <br><strong>SSID : </strong>" + ConfigSettings.ssid;
-        wifiState += "<br><strong>RSSI : </strong>" + rssiWifi;
-        wifiState += "<br><strong>Mode : </strong>";
-        if (ConfigSettings.dhcpWiFi)
+        wifiState += "<br><strong>Connected : </strong>";
+        if (rssi != 0)
         {
-          wifiState += "DHCP<br><strong>IP : </strong>" + WiFi.localIP().toString();
-          wifiState += "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
-          wifiState += "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+          wifiState += "<img src='/img/ok.png'>";
+          wifiState += "<br><strong>RSSI : </strong>" + rssiWifi;
+          wifiState += "<br><strong>Mode : </strong>";
+          if (ConfigSettings.dhcpWiFi)
+          {
+            wifiState += "DHCP<br><strong>IP : </strong>" + WiFi.localIP().toString();
+            wifiState += "<br><strong>Mask : </strong>" + WiFi.subnetMask().toString();
+            wifiState += "<br><strong>GW : </strong>" + WiFi.gatewayIP().toString();
+          }
+          else
+          {
+            wifiState = wifiState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
+            wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
+            wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
+          }
         }
         else
         {
-          wifiState = wifiState + "STATIC<br><strong>IP : </strong>" + ConfigSettings.ipAddressWiFi;
-          wifiState = wifiState + "<br><strong>Mask : </strong>" + ConfigSettings.ipMaskWiFi;
-          wifiState = wifiState + "<br><strong>GW : </strong>" + ConfigSettings.ipGWWiFi;
+          wifiState += "<img src='/img/nok.png'>";
         }
       }
     }
@@ -848,10 +882,18 @@ void handleSaveWifi()
     String ipAddress = serverWeb.arg("ipAddress");
     String ipMask = serverWeb.arg("ipMask");
     String ipGW = serverWeb.arg("ipGW");
-
+    String disableEmerg;
+    if (serverWeb.arg("disableEmerg") == "on")
+    {
+      disableEmerg = "1";
+    }
+    else
+    {
+      disableEmerg = "0";
+    }
     const char *path = "/config/configWifi.json";
 
-    StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+    StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"disableEmerg\":\"" + disableEmerg + "\"}";
     DEBUG_PRINTLN(StringConfig);
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);

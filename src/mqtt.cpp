@@ -57,21 +57,21 @@ void mqttOnConnect()
     DEBUG_PRINTLN(F("connected"));
     mqttSubscribe("cmd");
     DEBUG_PRINTLN(F("mqtt Subscribed"));
-    if (ConfigSettings.mqttInterval > 0)
-    {
-        mqttPublishState();
-        DEBUG_PRINTLN(F("mqtt Published State"));
-    }
     if (ConfigSettings.mqttDiscovery)
     {
         mqttPublishDiscovery();
         DEBUG_PRINTLN(F("mqtt Published Discovery"));
     }
+    if (ConfigSettings.mqttInterval > 0)
+    {
+        mqttPublishState();
+        DEBUG_PRINTLN(F("mqtt Published State"));
+    }
     mqttPublishIo("rst_esp", "OFF");
     mqttPublishIo("rst_zig", "OFF");
     mqttPublishIo("enbl_bsl", "OFF");
     mqttPublishIo("socket", "OFF");
-    DEBUG_PRINTLN(F("mqtt Published State"));
+    DEBUG_PRINTLN(F("mqtt Published IOs"));
     mqttPublishAvty();
     DEBUG_PRINTLN(F("mqtt Published Avty"));
 }
@@ -102,16 +102,20 @@ void mqttPublishState()
     String CPUtemp;
     getCPUtemp(CPUtemp);
     root["temperature"] = CPUtemp;
-    /*
-    if (ConfigSettings.connectedSocket)
-    {
-        root["socket"] = "ON";
+
+    
+    if (ConfigSettings.board == 2) {
+        String OWWstrg;
+        oneWireRead(OWWstrg);
+
+        if (OWWstrg != "0.00" && OWWstrg != "255")
+        {
+        root["ow_temperature"] = OWWstrg;
+        }
     }
-    else
-    {
-        root["socket"] = "OFF";
-    }
-    */
+    
+    root["connections"] = ConfigSettings.connectedClients;
+    
     if (ConfigSettings.connectedEther)
     {
         if (ConfigSettings.dhcp)
@@ -249,7 +253,10 @@ void mqttPublishDiscovery()
     DynamicJsonDocument via(1024);
     via["ids"] = ETH.macAddress();
 
-    for (int i = 0; i < 9; i++)
+    int lastAutoMsg = 10;
+    if (ConfigSettings.board == 2) lastAutoMsg--;
+
+    for (int i = 0; i <= lastAutoMsg; i++)
     {
         switch (i)
         {
@@ -356,7 +363,7 @@ void mqttPublishDiscovery()
         case 7:
         {
             topic = "homeassistant/sensor/" + deviceName + "/temperature/config";
-            buffJson["name"] = "CPU temperature";
+            buffJson["name"] = "ESP temperature";
             buffJson["uniq_id"] = deviceName + "/temperature";
             buffJson["stat_t"] = mtopic + "/state";
             buffJson["avty_t"] = mtopic + "/avty";
@@ -376,6 +383,32 @@ void mqttPublishDiscovery()
             buffJson["val_tpl"] = "{{ value_json.hostname }}";
             buffJson["json_attr_t"] = mtopic + "/state";
             buffJson["icon"] = "mdi:account-network";
+            buffJson["dev"] = via;
+            break;
+        }
+        case 9:
+        {
+            topic = "homeassistant/sensor/" + deviceName + "/connections/config";
+            buffJson["name"] = "Socket connections";
+            buffJson["uniq_id"] = deviceName + "/connections";
+            buffJson["stat_t"] = mtopic + "/state";
+            buffJson["avty_t"] = mtopic + "/avty";
+            buffJson["val_tpl"] = "{{ value_json.connections }}";
+            buffJson["json_attr_t"] = mtopic + "/state";
+            buffJson["icon"] = "mdi:check-network-outline";
+            buffJson["dev"] = via;
+            break;
+        }
+        case 10:
+        {
+            topic = "homeassistant/sensor/" + deviceName + "/ow_temperature/config";
+            buffJson["name"] = "OW temperature";
+            buffJson["uniq_id"] = deviceName + "/ow_temperature";
+            buffJson["stat_t"] = mtopic + "/state";
+            buffJson["avty_t"] = mtopic + "/avty";
+            buffJson["val_tpl"] = "{{ value_json.ow_temperature }}";
+            buffJson["json_attr_t"] = mtopic + "/state";
+            buffJson["icon"] = "mdi:coolant-temperature";
             buffJson["dev"] = via;
             break;
         }
