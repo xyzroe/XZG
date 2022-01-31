@@ -619,6 +619,10 @@ void handleRoot()
         result.replace("{{dsTemp}}", "");
       }
     }
+    else
+    {
+      result.replace("{{dsTemp}}", "");
+    }
 
     result.replace("{{hwRev}}", ConfigSettings.boardName);
 
