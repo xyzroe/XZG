@@ -48,4 +48,4 @@ void checkUpdateFirmware();
 void runUpdateFirmware(uint8_t *data, size_t len);
 
 
-#define UPD_FILE "https://github.com/xyzroe/ZigStarGW-MT/releases/latest/download/ZigStarGW.bin"
+#define UPD_FILE "https://github.com/xyzroe/ZigStarGW-FW/releases/latest/download/ZigStarGW.bin"
