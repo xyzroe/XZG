@@ -12,6 +12,7 @@
 #include <Update.h>
 #include "html.h"
 #include "zigbee.h"
+#include <HTTPClient.h>
 
 #include "webh/glyphicons.woff.gz.h"
 #include "webh/required.css.gz.h"
@@ -22,11 +23,14 @@
 #include "webh/nok.png.gz.h"
 #include "webh/ok.png.gz.h"
 #include "webh/wait.gif.gz.h"
+#include "webh/toast.js.gz.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern unsigned long timeLog;
 
 WebServer serverWeb(80);
+
+HTTPClient clientWeb;
 
 void webServerHandleClient()
 {
@@ -39,6 +43,7 @@ void initWebServer()
   serverWeb.on("/js/functions.js", handle_functions_js);
   serverWeb.on("/js/jquery-min.js", handle_jquery_js);
   serverWeb.on("/css/required.css", handle_required_css);
+  serverWeb.on("/js/toast.js", handle_toast_js);
   serverWeb.on("/fonts/glyphicons.woff", handle_glyphicons_woff);
   serverWeb.on("/img/logo.png", handle_logo_png);
   serverWeb.on("/img/wait.gif", handle_wait_gif);
@@ -71,6 +76,7 @@ void initWebServer()
   serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility | will be disabled on 1.0.0
   serverWeb.on("/help", handleHelp);
   serverWeb.on("/esp_update", handleESPUpdate);
+  serverWeb.on("/web_update", handleWEBUpdate);
   serverWeb.on("/logged-out", handleLoggedOut);
   serverWeb.onNotFound(handleNotFound);
 
@@ -148,6 +154,13 @@ void handle_required_css()
   const char *dataType = "text/css";
   serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
   serverWeb.send_P(200, dataType, (const char *)required_css_gz, required_css_gz_len);
+}
+
+void handle_toast_js()
+{
+  const char *dataType = "text/javascript";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)toast_js_gz, toast_js_gz_len);
 }
 
 void handle_glyphicons_woff()
@@ -607,11 +620,11 @@ void handleRoot()
     
     if (ConfigSettings.board == 2) {
       String OWWstrg;
-      oneWireRead(OWWstrg);
+      float temp_ow = oneWireRead();
 
-      if (OWWstrg != "0.00" && OWWstrg != "255")
+      if (temp_ow)
       {
-        OWWstrg = "<br><strong>OW temperature : </strong>" + OWWstrg + " &deg;C";
+        OWWstrg = "<br><strong>OW temperature : </strong>" + String(temp_ow) + " &deg;C";
         result.replace("{{dsTemp}}", OWWstrg);
       }
       else
@@ -1395,4 +1408,104 @@ void printLogMsg(String msg)
     logPush(msg[j]);
   }
   logPush('\n');
+}
+
+void handleWEBUpdate()
+{
+  if (checkAuth())
+  {
+    String result;
+    result += F("<html>");
+    result += FPSTR(HTTP_HEADER);
+    if (ConfigSettings.webAuth)
+    {
+      result.replace("{{logoutLink}}", LOGOUT_LINK);
+    }
+    else
+    {
+      result.replace("{{logoutLink}}", "");
+    }
+    
+    result += F("<h2>{{pageName}}</h2>");
+    //result += FPSTR(HTTP_UPDATE);
+    result = result + F("</body></html>");
+    result.replace("{{pageName}}", "Update ESP32");
+    serverWeb.sendHeader("Connection", "close");
+
+    serverWeb.send(200, "text/html", result);
+    checkUpdateFirmware();
+  }
+}
+
+int totalLength;       //total size of firmware
+int currentLength = 0; //current size of written firmware
+
+void progressFunc(unsigned int progress,unsigned int total) {
+  Serial.printf("Progress: %u of %u\r", progress, total);
+};
+
+
+void checkUpdateFirmware()
+{
+  clientWeb.begin(UPD_FILE);
+  clientWeb.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS); 
+  // Get file, just to check if each reachable
+  int resp = clientWeb.GET();
+  Serial.print("Response: ");
+  Serial.println(resp);
+  // If file is reachable, start downloading
+  if(resp == HTTP_CODE_OK) 
+  {   
+      // get length of document (is -1 when Server sends no Content-Length header)
+      totalLength = clientWeb.getSize();
+      // transfer to local variable
+      int len = totalLength;
+      // this is required to start firmware update process
+      Update.begin(UPDATE_SIZE_UNKNOWN);
+      Update.onProgress(progressFunc);
+      DEBUG_PRINT("FW Size: ");
+      
+      DEBUG_PRINTLN(totalLength);
+      // create buffer for read
+      uint8_t buff[128] = { 0 };
+      // get tcp stream
+      WiFiClient * stream = clientWeb.getStreamPtr();
+      // read all data from server
+      DEBUG_PRINTLN("Updating firmware...");
+      while(clientWeb.connected() && (len > 0 || len == -1)) {
+          // get available data size
+          size_t size = stream->available();
+          if(size) {
+            // read up to 128 byte
+            int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+            // pass to function
+            runUpdateFirmware(buff, c);
+            if(len > 0) {
+                len -= c;
+            }
+          }
+          //DEBUG_PRINT("Bytes left to flash ");
+          //DEBUG_PRINTLN(len);
+           //delay(1);
+      }
+  }
+  else
+  {
+    Serial.println("Cannot download firmware file. Only HTTP response 200: OK is supported. Double check firmware location #defined in UPD_FILE.");
+  }
+  clientWeb.end();
+}
+
+void runUpdateFirmware(uint8_t *data, size_t len)
+{
+  Update.write(data, len);
+  currentLength += len;
+  // Print dots while waiting for update to finish
+  Serial.print('.');
+  // if current length of written firmware is not equal to total firmware size, repeat
+  if(currentLength != totalLength) return;
+  Update.end(true);
+  Serial.printf("\nUpdate Success, Total Size: %u\nRebooting...\n", currentLength);
+  // Restart ESP32 to see changes 
+  ESP.restart();
 }

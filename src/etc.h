@@ -10,7 +10,7 @@ uint8_t temprature_sens_read();
 uint8_t temprature_sens_read();
 
 void oneWireBegin();
-void oneWireRead(String &DStemp);
+float oneWireRead();//String &DStemp);
 
 void getCPUtemp(String &CPUtemp);
 void getBlankCPUtemp(String &CPUtemp);

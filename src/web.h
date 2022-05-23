@@ -35,6 +35,7 @@ void handle_functions_js();
 void handle_jquery_js();
 void handle_bootstrap_js();
 void handle_required_css();
+void handle_toast_js();
 void handle_glyphicons_woff();
 void handle_logo_png();
 void handle_wait_gif();
@@ -42,3 +43,9 @@ void handle_nok_png();
 void handle_ok_png();
 void zigbeeCmdSend(uint8_t one_byte);
 bool checkAuth();
+void handleWEBUpdate();
+void checkUpdateFirmware();
+void runUpdateFirmware(uint8_t *data, size_t len);
+
+
+#define UPD_FILE "https://github.com/xyzroe/ZigStarGW-MT/releases/latest/download/ZigStarGW.bin"

@@ -105,12 +105,10 @@ void mqttPublishState()
 
     
     if (ConfigSettings.board == 2) {
-        String OWWstrg;
-        oneWireRead(OWWstrg);
-
-        if (OWWstrg != "0.00" && OWWstrg != "255")
-        {
-        root["ow_temperature"] = OWWstrg;
+        //String OWWstrg;
+        float temp_OW = oneWireRead();
+        if (temp_OW) {
+            root["ow_temperature"] = temp_OW;
         }
     }
     
@@ -254,164 +252,172 @@ void mqttPublishDiscovery()
     via["ids"] = ETH.macAddress();
 
     int lastAutoMsg = 10;
-    if (ConfigSettings.board == 2) lastAutoMsg--;
+    //if (ConfigSettings.board == 2) lastAutoMsg--;
 
     for (int i = 0; i <= lastAutoMsg; i++)
     {
         switch (i)
         {
-        case 0:
-        {
-            DynamicJsonDocument dev(1024);
-            dev["ids"] = ETH.macAddress();
-            dev["name"] = ConfigSettings.hostname;
-            dev["mf"] = "Zig Star";
-            dev["mdl"] = ConfigSettings.boardName;
-            dev["sw"] = VERSION;
+            case 0:
+            {
+                DynamicJsonDocument dev(1024);
+                dev["ids"] = ETH.macAddress();
+                dev["name"] = ConfigSettings.hostname;
+                dev["mf"] = "Zig Star";
+                dev["mdl"] = ConfigSettings.boardName;
+                dev["sw"] = VERSION;
 
-            topic = "homeassistant/switch/" + deviceName + "/rst_esp/config";
-            buffJson["name"] = "Restart ESP";
-            buffJson["uniq_id"] = deviceName + "/rst_esp";
-            buffJson["stat_t"] = mtopic + "/io/rst_esp";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:restore-alert";
-            buffJson["pl_on"] = "{cmd:\"rst_esp\"}";
-            buffJson["pl_off"] = "{cmd:\"rst_esp\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = dev;
-            break;
+                topic = "homeassistant/switch/" + deviceName + "/rst_esp/config";
+                buffJson["name"] = "Restart ESP";
+                buffJson["uniq_id"] = deviceName + "/rst_esp";
+                buffJson["stat_t"] = mtopic + "/io/rst_esp";
+                buffJson["cmd_t"] = mtopic + "/cmd";
+                buffJson["icon"] = "mdi:restore-alert";
+                buffJson["pl_on"] = "{cmd:\"rst_esp\"}";
+                buffJson["pl_off"] = "{cmd:\"rst_esp\"}";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["dev"] = dev;
+                break;
+            }
+            case 1:
+            {
+                topic = "homeassistant/switch/" + deviceName + "/rst_zig/config";
+                buffJson["name"] = "Restart Zigbee";
+                buffJson["uniq_id"] = deviceName + "/rst_zig";
+                buffJson["stat_t"] = mtopic + "/io/rst_zig";
+                buffJson["cmd_t"] = mtopic + "/cmd";
+                buffJson["icon"] = "mdi:restart";
+                buffJson["pl_on"] = "{cmd:\"rst_zig\"}";
+                buffJson["pl_off"] = "{cmd:\"rst_zig\"}";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 2:
+            {
+                topic = "homeassistant/switch/" + deviceName + "/enbl_bsl/config";
+                buffJson["name"] = "Enable BSL";
+                buffJson["uniq_id"] = deviceName + "/enbl_bsl";
+                buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
+                buffJson["cmd_t"] = mtopic + "/cmd";
+                buffJson["icon"] = "mdi:flash";
+                buffJson["pl_on"] = "{cmd:\"enbl_bsl\"}";
+                buffJson["pl_off"] = "{cmd:\"enbl_bsl\"}";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 3:
+            {
+                topic = "homeassistant/binary_sensor/" + deviceName + "/socket/config";
+                buffJson["name"] = "Socket";
+                buffJson["uniq_id"] = deviceName + "/socket";
+                buffJson["stat_t"] = mtopic + "/io/socket";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["dev_cla"] = "connectivity";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 4:
+            {
+                topic = "homeassistant/binary_sensor/" + deviceName + "/emrgncMd/config";
+                buffJson["name"] = "Emergency mode";
+                buffJson["uniq_id"] = deviceName + "/emrgncMd";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.emergencyMode }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["dev_cla"] = "power";
+                buffJson["icon"] = "mdi:access-point-network";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 5:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/uptime/config";
+                buffJson["name"] = "Uptime";
+                buffJson["uniq_id"] = deviceName + "/uptime";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.uptime }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:clock";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 6:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/ip/config";
+                buffJson["name"] = "IP";
+                buffJson["uniq_id"] = deviceName + "/ip";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.ip }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:check-network";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 7:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/temperature/config";
+                buffJson["name"] = "ESP temperature";
+                buffJson["uniq_id"] = deviceName + "/temperature";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.temperature }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:coolant-temperature";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 8:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/hostname/config";
+                buffJson["name"] = "Hostname";
+                buffJson["uniq_id"] = deviceName + "/hostname";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.hostname }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:account-network";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 9:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/connections/config";
+                buffJson["name"] = "Socket connections";
+                buffJson["uniq_id"] = deviceName + "/connections";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.connections }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:check-network-outline";
+                buffJson["dev"] = via;
+                break;
+            }
+            case 10:
+            {
+                topic = "homeassistant/sensor/" + deviceName + "/ow_temperature/config";
+                buffJson["name"] = "OW temperature";
+                buffJson["uniq_id"] = deviceName + "/ow_temperature";
+                buffJson["stat_t"] = mtopic + "/state";
+                buffJson["avty_t"] = mtopic + "/avty";
+                buffJson["val_tpl"] = "{{ value_json.ow_temperature }}";
+                buffJson["json_attr_t"] = mtopic + "/state";
+                buffJson["icon"] = "mdi:coolant-temperature";
+                buffJson["dev"] = via;
+                break;
+            }
         }
-        case 1:
-        {
-            topic = "homeassistant/switch/" + deviceName + "/rst_zig/config";
-            buffJson["name"] = "Restart Zigbee";
-            buffJson["uniq_id"] = deviceName + "/rst_zig";
-            buffJson["stat_t"] = mtopic + "/io/rst_zig";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:restart";
-            buffJson["pl_on"] = "{cmd:\"rst_zig\"}";
-            buffJson["pl_off"] = "{cmd:\"rst_zig\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 2:
-        {
-            topic = "homeassistant/switch/" + deviceName + "/enbl_bsl/config";
-            buffJson["name"] = "Enable BSL";
-            buffJson["uniq_id"] = deviceName + "/enbl_bsl";
-            buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:flash";
-            buffJson["pl_on"] = "{cmd:\"enbl_bsl\"}";
-            buffJson["pl_off"] = "{cmd:\"enbl_bsl\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 3:
-        {
-            topic = "homeassistant/binary_sensor/" + deviceName + "/socket/config";
-            buffJson["name"] = "Socket";
-            buffJson["uniq_id"] = deviceName + "/socket";
-            buffJson["stat_t"] = mtopic + "/io/socket";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev_cla"] = "connectivity";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 4:
-        {
-            topic = "homeassistant/binary_sensor/" + deviceName + "/emrgncMd/config";
-            buffJson["name"] = "Emergency mode";
-            buffJson["uniq_id"] = deviceName + "/emrgncMd";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.emergencyMode }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["dev_cla"] = "power";
-            buffJson["icon"] = "mdi:access-point-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 5:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/uptime/config";
-            buffJson["name"] = "Uptime";
-            buffJson["uniq_id"] = deviceName + "/uptime";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.uptime }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:clock";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 6:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/ip/config";
-            buffJson["name"] = "IP";
-            buffJson["uniq_id"] = deviceName + "/ip";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.ip }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:check-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 7:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/temperature/config";
-            buffJson["name"] = "ESP temperature";
-            buffJson["uniq_id"] = deviceName + "/temperature";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.temperature }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:coolant-temperature";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 8:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/hostname/config";
-            buffJson["name"] = "Hostname";
-            buffJson["uniq_id"] = deviceName + "/hostname";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.hostname }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:account-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 9:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/connections/config";
-            buffJson["name"] = "Socket connections";
-            buffJson["uniq_id"] = deviceName + "/connections";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.connections }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:check-network-outline";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 10:
-        {
-            topic = "homeassistant/sensor/" + deviceName + "/ow_temperature/config";
-            buffJson["name"] = "OW temperature";
-            buffJson["uniq_id"] = deviceName + "/ow_temperature";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.ow_temperature }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:coolant-temperature";
-            buffJson["dev"] = via;
-            break;
-        }
+        if (i == 10) {
+            if (ConfigSettings.board == 2) {
+                float temp_OW = oneWireRead();
+                if (temp_OW == false) {
+                    break;
+                }
+            }
         }
         serializeJson(buffJson, mqttBuffer);
         DEBUG_PRINTLN(mqttBuffer);

@@ -22,7 +22,7 @@ def after_build(source, target, env):
         VERSION_NUMBER = '0.0.0'
 
     NEW_NAME_FULL = 'bin/ZigStarGW_v'+VERSION_NUMBER+'.full.bin'
-    NEW_NAME = 'bin/ZigStarGW_v'+VERSION_NUMBER+'.bin'
+    NEW_NAME = 'bin/ZigStarGW.bin'
 
     shutil.move('bin/ZigStarGW.bin', NEW_NAME_FULL)
     shutil.move('bin/firmware.bin', NEW_NAME)

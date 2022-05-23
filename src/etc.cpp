@@ -26,20 +26,20 @@ void oneWireBegin()
   sensor.begin();
 }
 
-void oneWireRead(String &DStemp)
+float oneWireRead()//String &DStemp)
 {
   sensor.requestTemperatures();
   float tempC = sensor.getTempC();
   DEBUG_PRINTLN(tempC);
-  if(tempC != DEVICE_DISCONNECTED_C) 
+  if(tempC != DEVICE_DISCONNECTED_C && tempC != 0.0) 
   {
     DEBUG_PRINTLN(F("oneWire OK"));
-    DStemp = tempC;
+    return tempC;
   } 
   else
   {
-    DEBUG_PRINTLN(F("oneWire error"));
-    DStemp = 255;
+    DEBUG_PRINTLN(F("oneWire not found"));
+    return false;
   }
 }
 

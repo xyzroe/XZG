@@ -9,7 +9,7 @@ var uglify = require('gulp-uglify');
 var pump = require('pump');
 
 function stylesConcat() {
-    return gulp.src(['../../src/websrc/css/style.css', '../../src/websrc/css/glyphicons.css', '../../src/websrc/css/bootstrap.min.css'])
+    return gulp.src(['../../src/websrc/css/style.css', '../../src/websrc/css/glyphicons.css', '../../src/websrc/css/bootstrap.min.css', '../../src/websrc/css/toast.min.css'])
         .pipe(concat({
             path: 'required.css',
             stat: {
