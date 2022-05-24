@@ -229,7 +229,10 @@ const char HTTP_ROOT[] PROGMEM =
     "<br><strong>Uptime : </strong>{{uptime}}"
     "<br><strong>ESP temperature : </strong>{{deviceTemp}} &deg;C"
     "{{dsTemp}}"
-    "<br><strong id='ver' v=" VERSION ">FW version : </strong>" VERSION
+    "<br><strong id='ver' v=" VERSION ">FW version : </strong>" VERSION 
+    #ifdef DEBUG
+    " DEBUG"
+    #endif
     "<br><strong>Hardware : </strong>{{hwRev}}"
     "<br><strong>ESP32 model : </strong>{{espModel}}"
     "<br><strong>CPU : </strong>{{espCores}} cores @ {{espFreq}} MHz"

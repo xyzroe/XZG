@@ -10,10 +10,10 @@ uint8_t temprature_sens_read();
 uint8_t temprature_sens_read();
 
 void oneWireBegin();
-float oneWireRead();//String &DStemp);
+float oneWireRead();
 
-void getCPUtemp(String &CPUtemp);
-void getBlankCPUtemp(String &CPUtemp);
+float getCPUtemp(bool clear = false);
+
 //void parse_ip_address(IPAddress &ip, const char *str)
 void zigbeeEnableBSL();
 void zigbeeRestart();

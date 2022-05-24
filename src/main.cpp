@@ -25,6 +25,12 @@
 #include "mqtt.h"
 #include <ESP32Ping.h>
 
+#include <DNSServer.h>
+
+const byte DNS_PORT = 53;
+IPAddress apIP(192, 168, 1, 1);
+DNSServer dnsServer;
+
 
 // application config
 unsigned long timeLog;
@@ -202,9 +208,8 @@ bool loadSystemVar()
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
 
-    String CPUtemp;
-    getBlankCPUtemp(CPUtemp);
-    int correct = CPUtemp.toInt() - 30;
+    float CPUtemp = getCPUtemp(true);
+    int correct = CPUtemp - 30;
     String tempOffset = String(correct);
 
     String StringConfig = "{\"board\":1,\"emergencyWifi\":0,\"tempOffset\":" + tempOffset + "}";
@@ -236,9 +241,8 @@ bool loadSystemVar()
     DEBUG_PRINTLN(F("no tempOffset in system.json"));
     configFile.close();
 
-    String CPUtemp;
-    getBlankCPUtemp(CPUtemp);
-    int correct = CPUtemp.toInt() - 30;
+    float CPUtemp = getCPUtemp(true);
+    int correct = CPUtemp - 30;
     String tempOffset = String(correct);
     doc["tempOffset"] = int(tempOffset.toInt());
 
@@ -472,7 +476,11 @@ void setupWifiAP()
   for (int i = 0; i < WIFIPASSSTR.length(); i++)
     WIFIPASS[i] = WIFIPASSSTR.charAt(i);
 */
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   WiFi.softAP(AP_NameChar); //, WIFIPASS);
+  // if DNSServer is started with "*" for domain name, it will reply with
+  // provided IP to all DNS request
+  dnsServer.start(DNS_PORT, "*", apIP);
   WiFi.setSleep(false);
 }
 
@@ -1007,5 +1015,9 @@ void loop(void)
   if (ConfigSettings.mqttEnable && (ConfigSettings.connectedEther || ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi))
   {
     mqttLoop();
+  }
+  if (WiFi.getMode() == 2)
+  {
+    dnsServer.processNextRequest();
   }
 }

@@ -11,7 +11,7 @@
 #include "etc.h"
 #include <Update.h>
 #include "html.h"
-#include "zigbee.h"
+//#include "zigbee.h"
 #include <HTTPClient.h>
 
 #include "webh/glyphicons.woff.gz.h"
@@ -69,8 +69,8 @@ void initWebServer()
   serverWeb.on("/getLogBuffer", handleLogBuffer);
   serverWeb.on("/scanNetwork", handleScanNetwork);
   serverWeb.on("/cmdClearConsole", handleClearConsole);
-  serverWeb.on("/cmdGetVersion", handleGetVersion);
-  serverWeb.on("/cmdZigRestart", handleZigRestart);
+  //serverWeb.on("/cmdGetVersion", handleGetVersion);
+  //serverWeb.on("/cmdZigRestart", handleZigRestart);
   serverWeb.on("/cmdZigRST", handleZigbeeRestart);
   serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
   serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); //for cc-2538.py ESPHome edition back compatibility | will be disabled on 1.0.0
@@ -78,7 +78,7 @@ void initWebServer()
   serverWeb.on("/esp_update", handleESPUpdate);
   serverWeb.on("/web_update", handleWEBUpdate);
   serverWeb.on("/logged-out", handleLoggedOut);
-  serverWeb.onNotFound(handleNotFound);
+  serverWeb.onNotFound(handleRoot);//handleNotFound);
 
   serverWeb.on("/logout", []()
                { serverWeb.send(401); });
@@ -613,9 +613,8 @@ void handleRoot()
     getReadableTime(readableTime, 0);
     result.replace("{{uptime}}", readableTime);
 
-    String CPUtemp;
-    getCPUtemp(CPUtemp);
-    result.replace("{{deviceTemp}}", CPUtemp);
+    float CPUtemp = getCPUtemp();
+    result.replace("{{deviceTemp}}", String(CPUtemp));
 
     
     if (ConfigSettings.board == 2) {
@@ -1081,10 +1080,10 @@ void handleLogs()
     result += F("<div id='main' class='col-sm-12'>");
     result += F("<div id='help_btns' class='col-sm-8'>");
     result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-#ifdef DEBUG
-    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
-#endif
+//#ifdef DEBUG
+//    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+//    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
+//#endif
     result += F("<button type='button' onclick='cmd(\"ZigRST\");' class='btn btn-primary'>Zigbee Restart</button> ");
     result += F("<button type='button' onclick='cmd(\"ZigBSL\");' class='btn btn-warning'>Zigbee BSL</button> ");
     result += F("</div></div>");
@@ -1354,6 +1353,7 @@ void handleClearConsole()
   }
 }
 
+/*
 void handleGetVersion()
 {
   cmdGetZigVersion();
@@ -1363,6 +1363,7 @@ void handleZigRestart()
 {
   cmdZigRestart();
 }
+*/
 
 void handleZigbeeRestart()
 {

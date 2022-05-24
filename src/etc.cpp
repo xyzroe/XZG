@@ -22,24 +22,32 @@ extern struct ConfigSettingsStruct ConfigSettings;
 
 void oneWireBegin()
 {
-  DEBUG_PRINTLN(F("oneWire begin"));
-  sensor.begin();
+  if (ConfigSettings.board == 2) {
+    sensor.begin();
+    DEBUG_PRINTLN(F("oneWire begin OK"));
+  }
 }
 
 float oneWireRead()//String &DStemp)
-{
-  sensor.requestTemperatures();
-  float tempC = sensor.getTempC();
-  DEBUG_PRINTLN(tempC);
-  if(tempC != DEVICE_DISCONNECTED_C && tempC != 0.0) 
-  {
-    DEBUG_PRINTLN(F("oneWire OK"));
-    return tempC;
-  } 
-  else
-  {
-    DEBUG_PRINTLN(F("oneWire not found"));
-    return false;
+{ 
+  if (ConfigSettings.board == 2) {
+    sensor.requestTemperatures();
+    float tempC = sensor.getTempC();
+    DEBUG_PRINTLN(tempC);
+    if(tempC != DEVICE_DISCONNECTED_C && tempC != 0.0) 
+    {
+      DEBUG_PRINTLN(F("oneWire OK"));
+      return tempC;
+    } 
+    else
+    {
+      DEBUG_PRINTLN(F("oneWire not found"));
+      return false;
+    }
+  }
+  else {
+      DEBUG_PRINTLN(F("oneWire not supported"));
+      return false;
   }
 }
 
@@ -81,40 +89,27 @@ void getReadableTime(String &readableTime, unsigned long beginTime)
   readableTime += String(seconds) + "";
 }
 
-void getCPUtemp(String &CPUtemp)
-{
+float getCPUtemp(bool clear)
+{ 
+  float CPUtemp = 0.0;
   if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
   {
-    //DEBUG_PRINTLN(F("enable wifi to enable temp sensor "));
-    WiFi.mode(WIFI_STA);
+    WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
   }
-  CPUtemp = (temprature_sens_read() - 32) / 1.8 - ConfigSettings.tempOffset;
-  //DEBUG_PRINT(F("CPU temp "));
-  //DEBUG_PRINTLN(CPUtemp);
-  if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
-  {
-    WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
-    //DEBUG_PRINTLN(F("disable wifi"));
-  }
-}
 
-void getBlankCPUtemp(String &CPUtemp)
-{
-  if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
-  {
-    //DEBUG_PRINTLN(F("enable wifi to enable temp sensor "));
-    WiFi.mode(WIFI_STA);
+  if (clear == true) {
+    CPUtemp = (temprature_sens_read() - 32) / 1.8;
   }
-  CPUtemp = (temprature_sens_read() - 32) / 1.8;
-  //DEBUG_PRINT(F("CPU temp "));
-  //DEBUG_PRINTLN(CPUtemp);
+  else {
+    CPUtemp = (temprature_sens_read() - 32) / 1.8 - ConfigSettings.tempOffset;
+  }
+  
   if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
   {
     WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
-    //DEBUG_PRINTLN(F("disable wifi"));
+    WiFi.mode(WIFI_OFF); // disable wifi
   }
+  return CPUtemp;
 }
 
 /*

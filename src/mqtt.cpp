@@ -62,11 +62,7 @@ void mqttOnConnect()
         mqttPublishDiscovery();
         DEBUG_PRINTLN(F("mqtt Published Discovery"));
     }
-    if (ConfigSettings.mqttInterval > 0)
-    {
-        mqttPublishState();
-        DEBUG_PRINTLN(F("mqtt Published State"));
-    }
+
     mqttPublishIo("rst_esp", "OFF");
     mqttPublishIo("rst_zig", "OFF");
     mqttPublishIo("enbl_bsl", "OFF");
@@ -74,6 +70,11 @@ void mqttOnConnect()
     DEBUG_PRINTLN(F("mqtt Published IOs"));
     mqttPublishAvty();
     DEBUG_PRINTLN(F("mqtt Published Avty"));
+    if (ConfigSettings.mqttInterval > 0)
+    {
+        mqttPublishState();
+        DEBUG_PRINTLN(F("mqtt Published State"));
+    }
 }
 
 void mqttPublishMsg(String topic, String msg, bool retain)
@@ -99,18 +100,21 @@ void mqttPublishState()
     String readableTime;
     getReadableTime(readableTime, 0);
     root["uptime"] = readableTime;
-    String CPUtemp;
-    getCPUtemp(CPUtemp);
-    root["temperature"] = CPUtemp;
+
+    float CPUtemp = getCPUtemp();
+    root["temperature"] = String(CPUtemp);
 
     
-    if (ConfigSettings.board == 2) {
+    //if (ConfigSettings.board == 2) {
         //String OWWstrg;
-        float temp_OW = oneWireRead();
-        if (temp_OW) {
-            root["ow_temperature"] = temp_OW;
-        }
+    float temp_OW = oneWireRead();
+    if (temp_OW) {
+        root["ow_temperature"] = String(temp_OW);
     }
+    else {
+        root["ow_temperature"] = NULL;
+    }
+    //}
     
     root["connections"] = ConfigSettings.connectedClients;
     
@@ -148,7 +152,7 @@ void mqttPublishState()
     String mqttBuffer;
     serializeJson(root, mqttBuffer);
     DEBUG_PRINTLN(mqttBuffer);
-    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str());
+    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
     ConfigSettings.mqttHeartbeatTime = millis() + (ConfigSettings.mqttInterval * 1000);
 }
 
@@ -158,7 +162,7 @@ void mqttPublishIo(String const &io, String const &state)
     {
         String topic(ConfigSettings.mqttTopic);
         topic = topic + "/io/" + io;
-        clientPubSub.publish(topic.c_str(), state.c_str());
+        clientPubSub.publish(topic.c_str(), state.c_str(), true);
     }
 }
 
@@ -265,44 +269,48 @@ void mqttPublishDiscovery()
                 dev["name"] = ConfigSettings.hostname;
                 dev["mf"] = "Zig Star";
                 dev["mdl"] = ConfigSettings.boardName;
+                #ifdef DEBUG
+                dev["sw"] = String(VERSION) + " DEBUG";
+                #else
                 dev["sw"] = VERSION;
+                #endif
 
-                topic = "homeassistant/switch/" + deviceName + "/rst_esp/config";
+                topic = "homeassistant/button/" + deviceName + "/rst_esp/config";
                 buffJson["name"] = "Restart ESP";
                 buffJson["uniq_id"] = deviceName + "/rst_esp";
                 buffJson["stat_t"] = mtopic + "/io/rst_esp";
                 buffJson["cmd_t"] = mtopic + "/cmd";
                 buffJson["icon"] = "mdi:restore-alert";
-                buffJson["pl_on"] = "{cmd:\"rst_esp\"}";
-                buffJson["pl_off"] = "{cmd:\"rst_esp\"}";
+                buffJson["payload_press"] = "{cmd:\"rst_esp\"}";
+                //buffJson["pl_off"] = "{cmd:\"rst_esp\"}";
                 buffJson["avty_t"] = mtopic + "/avty";
                 buffJson["dev"] = dev;
                 break;
             }
             case 1:
             {
-                topic = "homeassistant/switch/" + deviceName + "/rst_zig/config";
+                topic = "homeassistant/button/" + deviceName + "/rst_zig/config";
                 buffJson["name"] = "Restart Zigbee";
                 buffJson["uniq_id"] = deviceName + "/rst_zig";
                 buffJson["stat_t"] = mtopic + "/io/rst_zig";
                 buffJson["cmd_t"] = mtopic + "/cmd";
                 buffJson["icon"] = "mdi:restart";
-                buffJson["pl_on"] = "{cmd:\"rst_zig\"}";
-                buffJson["pl_off"] = "{cmd:\"rst_zig\"}";
+                buffJson["payload_press"] = "{cmd:\"rst_zig\"}";
+                //buffJson["pl_off"] = "{cmd:\"rst_zig\"}";
                 buffJson["avty_t"] = mtopic + "/avty";
                 buffJson["dev"] = via;
                 break;
             }
             case 2:
             {
-                topic = "homeassistant/switch/" + deviceName + "/enbl_bsl/config";
+                topic = "homeassistant/button/" + deviceName + "/enbl_bsl/config";
                 buffJson["name"] = "Enable BSL";
                 buffJson["uniq_id"] = deviceName + "/enbl_bsl";
                 buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
                 buffJson["cmd_t"] = mtopic + "/cmd";
                 buffJson["icon"] = "mdi:flash";
-                buffJson["pl_on"] = "{cmd:\"enbl_bsl\"}";
-                buffJson["pl_off"] = "{cmd:\"enbl_bsl\"}";
+                buffJson["payload_press"] = "{cmd:\"enbl_bsl\"}";
+                //buffJson["pl_off"] = "{cmd:\"enbl_bsl\"}";
                 buffJson["avty_t"] = mtopic + "/avty";
                 buffJson["dev"] = via;
                 break;
@@ -412,15 +420,18 @@ void mqttPublishDiscovery()
             }
         }
         if (i == 10) {
-            if (ConfigSettings.board == 2) {
-                float temp_OW = oneWireRead();
-                if (temp_OW == false) {
-                    break;
-                }
+            //if (ConfigSettings.board == 2) {
+            float temp_OW = oneWireRead();
+            if (temp_OW == false) {
+                break;
             }
+            //}
+            //else {
+            //    break;
+            //}
         }
         serializeJson(buffJson, mqttBuffer);
-        DEBUG_PRINTLN(mqttBuffer);
+        //DEBUG_PRINTLN(mqttBuffer);
         mqttPublishMsg(topic, mqttBuffer, true);
         buffJson.clear();
         mqttBuffer = "";
