@@ -6,6 +6,20 @@
 
 #include "version.h"
 
+//---DEFAULT---
+//LAN
+#define ETH_CLK_MODE_0 ETH_CLOCK_GPIO0_IN
+#define ETH_POWER_PIN_0 255
+#define ETH_TYPE_0 ETH_PHY_LAN8720
+#define ETH_ADDR_0 1
+#define ETH_MDC_PIN_0 255
+#define ETH_MDIO_PIN_0 255
+//ZIGBEE
+#define RESTART_ZIGBEE_0 15
+#define FLASH_ZIGBEE_0 22
+#define ZRXD_0 23
+#define ZTXD_0 19
+
 //---WT32-ETH01---
 //LAN
 #define ETH_CLK_MODE_1 ETH_CLOCK_GPIO0_IN

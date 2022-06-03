@@ -4,7 +4,8 @@
 #include "WiFi.h"
 #include <WebServer.h>
 #include "FS.h"
-#include "LITTLEFS.h"
+#include "FS.h"
+#include <LittleFS.h>
 #include "web.h"
 #include "config.h"
 #include "log.h"
@@ -849,7 +850,7 @@ void handleSaveGeneral()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed open"));
@@ -914,7 +915,7 @@ void handleSaveWifi()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed open"));
@@ -941,7 +942,7 @@ void handleSaveSerial()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed open"));
@@ -985,7 +986,7 @@ void handleSaveEther()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed open"));
@@ -1047,7 +1048,7 @@ void handleSaveMqtt()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed open"));
@@ -1205,7 +1206,7 @@ void handleFSbrowser()
     result.replace("{{pageName}}", "FSBrowser");
 
     String str = "";
-    File root = LITTLEFS.open("/config");
+    File root = LittleFS.open("/config");
     File file = root.openNextFile();
     while (file)
     {
@@ -1247,7 +1248,7 @@ void handleReadfile()
   {
     String result;
     String filename = "/config/" + serverWeb.arg(0);
-    File file = LITTLEFS.open(filename, "r");
+    File file = LittleFS.open(filename, "r");
 
     if (!file)
     {
@@ -1276,7 +1277,7 @@ void handleSavefile()
     {
       String filename = "/config/" + serverWeb.arg(0);
       String content = serverWeb.arg(1);
-      File file = LITTLEFS.open(filename, "w");
+      File file = LittleFS.open(filename, "w");
       if (!file)
       {
         DEBUG_PRINT(F("Failed to open file for reading\r\n"));

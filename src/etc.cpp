@@ -3,7 +3,8 @@
 #include <etc.h>
 #include <WiFi.h>
 #include <ETH.h>
-#include "LITTLEFS.h"
+#include "FS.h"
+#include <LittleFS.h>
 
 #include "config.h"
 #include "log.h"
@@ -11,12 +12,11 @@
 #include "web.h"
 
 #include <OneWire.h>
-#include <DallasTemperature.h>
 #include <DS18B20.h>
 
-OneWire oneWire(ONE_WIRE_BUS);
+OneWire ds(ONE_WIRE_BUS);
 
-DS18B20 sensor(&oneWire);
+DS18B20 sensor(&ds);
 
 extern struct ConfigSettingsStruct ConfigSettings;
 
@@ -28,13 +28,13 @@ void oneWireBegin()
   }
 }
 
-float oneWireRead()//String &DStemp)
+float oneWireRead()
 { 
   if (ConfigSettings.board == 2) {
     sensor.requestTemperatures();
     float tempC = sensor.getTempC();
     DEBUG_PRINTLN(tempC);
-    if(tempC != DEVICE_DISCONNECTED_C && tempC != 0.0) 
+    if(tempC != -127 && tempC != 0.0)
     {
       DEBUG_PRINTLN(F("oneWire OK"));
       return tempC;
@@ -220,7 +220,7 @@ void writeDefultConfig(const char *path, String StringConfig)
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, StringConfig);
 
-  File configFile = LITTLEFS.open(path, FILE_WRITE);
+  File configFile = LittleFS.open(path, FILE_WRITE);
   if (!configFile)
   {
     DEBUG_PRINTLN(F("failed write"));

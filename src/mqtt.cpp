@@ -4,7 +4,8 @@
 #include "WiFi.h"
 #include <WebServer.h>
 #include "FS.h"
-#include "LITTLEFS.h"
+#include "FS.h"
+#include <LittleFS.h>
 #include "web.h"
 #include "config.h"
 #include "log.h"

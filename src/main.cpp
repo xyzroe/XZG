@@ -4,7 +4,8 @@
 #include <WebServer.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
-#include "LITTLEFS.h"
+#include "FS.h"
+#include <LittleFS.h>
 #include "config.h"
 #include "web.h"
 #include "log.h"
@@ -53,13 +54,13 @@ void saveEmergencyWifi(bool state)
   const char *path = "/config/system.json";
   DynamicJsonDocument doc(1024);
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   deserializeJson(doc, configFile);
   configFile.close();
 
   doc["emergencyWifi"] = int(state);
 
-  configFile = LITTLEFS.open(path, FILE_WRITE);
+  configFile = LittleFS.open(path, FILE_WRITE);
   serializeJson(doc, configFile);
   configFile.close();
 }
@@ -69,13 +70,13 @@ void saveBoard(int rev)
   const char *path = "/config/system.json";
   DynamicJsonDocument doc(1024);
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   deserializeJson(doc, configFile);
   configFile.close();
 
   doc["board"] = int(rev);
 
-  configFile = LITTLEFS.open(path, FILE_WRITE);
+  configFile = LittleFS.open(path, FILE_WRITE);
   serializeJson(doc, configFile);
   configFile.close();
 }
@@ -203,7 +204,7 @@ bool loadSystemVar()
 {
   const char *path = "/config/system.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     DEBUG_PRINTLN(F("failed open. try to write defaults"));
@@ -217,7 +218,7 @@ bool loadSystemVar()
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
 
-    File configFile = LITTLEFS.open(path, FILE_WRITE);
+    File configFile = LittleFS.open(path, FILE_WRITE);
     if (!configFile)
     {
       DEBUG_PRINTLN(F("failed write"));
@@ -246,7 +247,7 @@ bool loadSystemVar()
     String tempOffset = String(correct);
     doc["tempOffset"] = int(tempOffset.toInt());
 
-    configFile = LITTLEFS.open(path, FILE_WRITE);
+    configFile = LittleFS.open(path, FILE_WRITE);
     serializeJson(doc, configFile);
     configFile.close();
     DEBUG_PRINTLN(F("saved tempOffset in system.json"));
@@ -260,7 +261,7 @@ bool loadConfigWifi()
 {
   const char *path = "/config/configWifi.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disableEmerg\":0}";
@@ -268,7 +269,7 @@ bool loadConfigWifi()
     writeDefultConfig(path, StringConfig);
   }
 
-  configFile = LITTLEFS.open(path, FILE_READ);
+  configFile = LittleFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, configFile);
 
@@ -278,7 +279,7 @@ bool loadConfigWifi()
     DEBUG_PRINTLN(error.f_str());
 
     configFile.close();
-    LITTLEFS.remove(path);
+    LittleFS.remove(path);
     return false;
   }
 
@@ -299,7 +300,7 @@ bool loadConfigEther()
 {
   const char *path = "/config/configEther.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
@@ -307,7 +308,7 @@ bool loadConfigEther()
     writeDefultConfig(path, StringConfig);
   }
 
-  configFile = LITTLEFS.open(path, FILE_READ);
+  configFile = LittleFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, configFile);
 
@@ -317,7 +318,7 @@ bool loadConfigEther()
     DEBUG_PRINTLN(error.f_str());
 
     configFile.close();
-    LITTLEFS.remove(path);
+    LittleFS.remove(path);
     return false;
   }
 
@@ -333,7 +334,7 @@ bool loadConfigGeneral()
 {
   const char *path = "/config/configGeneral.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     String deviceID = "ZigStarGW";
@@ -345,7 +346,7 @@ bool loadConfigGeneral()
     writeDefultConfig(path, StringConfig);
   }
 
-  configFile = LITTLEFS.open(path, FILE_READ);
+  configFile = LittleFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, configFile);
 
@@ -355,7 +356,7 @@ bool loadConfigGeneral()
     DEBUG_PRINTLN(error.f_str());
 
     configFile.close();
-    LITTLEFS.remove(path);
+    LittleFS.remove(path);
     return false;
   }
 
@@ -382,7 +383,7 @@ bool loadConfigSerial()
 {
   const char *path = "/config/configSerial.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     String StringConfig = "{\"baud\":115200,\"port\":6638}";
@@ -390,7 +391,7 @@ bool loadConfigSerial()
     writeDefultConfig(path, StringConfig);
   }
 
-  configFile = LITTLEFS.open(path, FILE_READ);
+  configFile = LittleFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, configFile);
 
@@ -400,7 +401,7 @@ bool loadConfigSerial()
     DEBUG_PRINTLN(error.f_str());
 
     configFile.close();
-    LITTLEFS.remove(path);
+    LittleFS.remove(path);
     return false;
   }
 
@@ -418,7 +419,7 @@ bool loadConfigMqtt()
 {
   const char *path = "/config/configMqtt.json";
 
-  File configFile = LITTLEFS.open(path, FILE_READ);
+  File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
     String deviceID;
@@ -428,7 +429,7 @@ bool loadConfigMqtt()
     writeDefultConfig(path, StringConfig);
   }
 
-  configFile = LITTLEFS.open(path, FILE_READ);
+  configFile = LittleFS.open(path, FILE_READ);
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, configFile);
 
@@ -438,7 +439,7 @@ bool loadConfigMqtt()
     DEBUG_PRINTLN(error.f_str());
 
     configFile.close();
-    LITTLEFS.remove(path);
+    LittleFS.remove(path);
     return false;
   }
 
@@ -632,7 +633,7 @@ void setupEthernetAndZigbeeSerial()
 
   default:
     String boardName = "Unknown";
-    if (!ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1))
+    if (!ETH.begin(ETH_ADDR_0, ETH_POWER_PIN_0, ETH_MDC_PIN_0, ETH_MDIO_PIN_0, ETH_TYPE_0, ETH_CLK_MODE_0))
     {
       ConfigSettings.emergencyWifi = 1;
       DEBUG_PRINTLN(F("Please set board type in system.json"));
@@ -646,12 +647,12 @@ void setupEthernetAndZigbeeSerial()
     boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
     DEBUG_PRINT(F("Board - "));
     DEBUG_PRINTLN(boardName);
-    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_1;
-    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_1;
+    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_0;
+    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_0;
 
     DEBUG_PRINT(F("Zigbee serial setup @ "));
     DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_1, ZTXD_1);
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_0, ZTXD_0);
     break;
   }
 }
@@ -686,7 +687,7 @@ void setup(void)
 
   WiFi.onEvent(WiFiEvent);
 
-  if (!LITTLEFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
+  if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
     DEBUG_PRINTLN(F("Error with LITTLEFS"));
     return;
@@ -698,7 +699,7 @@ void setup(void)
     DEBUG_PRINTLN(F("Error load system vars"));
     const char *path = "/config";
 
-    if (LITTLEFS.mkdir(path))
+    if (LittleFS.mkdir(path))
     {
       DEBUG_PRINTLN(F("Config dir created"));
       delay(500);
