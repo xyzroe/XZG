@@ -112,6 +112,8 @@ To minify and compress the frontend, enter the folder ```tools/webfilesbuilder``
 * Run ```npx gulp``` to compress the web UI to make it ready for the ESP  
 
 
+### Like ♥️?
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/xyzroe)
 
 #### Thanks
 
