@@ -1,1 +1,1 @@
-- auto recoonect to wifi if no wifi at start. not run AP first.
+- Code cleanup

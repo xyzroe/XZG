@@ -256,3 +256,53 @@ String hexToDec(String hexString)
 
   return String(decValue);
 }
+
+void saveEmergencyWifi(bool state)
+{ 
+  DEBUG_PRINT(F("saveEmergencyWifi "));
+  DEBUG_PRINTLN(state);
+
+  const char *path = "/config/system.json";
+  DynamicJsonDocument doc(1024);
+
+  File configFile = LittleFS.open(path, FILE_READ);
+  deserializeJson(doc, configFile);
+  configFile.close();
+
+  doc["emergencyWifi"] = int(state);
+
+  configFile = LittleFS.open(path, FILE_WRITE);
+  serializeJson(doc, configFile);
+  configFile.close();
+}
+
+
+void saveRestartCount(int count)
+{
+  const char *path = "/config/system.json";
+  DynamicJsonDocument doc(1024);
+
+  File configFile = LittleFS.open(path, FILE_READ);
+  deserializeJson(doc, configFile);
+  configFile.close();
+
+  doc["restarts"] = int(count);
+
+  configFile = LittleFS.open(path, FILE_WRITE);
+  serializeJson(doc, configFile);
+  configFile.close();
+  delay(500);
+}
+
+void resetSettings()
+{ 
+
+  const char *path = "/config/configGeneral.json";
+
+  String deviceID = "ZigStarGW";
+  //getDeviceID(deviceID);
+  String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableWeb\":0,\"refreshLogs\":1000,\"webAuth\":0,\"webUser\":"",\"webPass\":""}";
+
+  writeDefultConfig(path, StringConfig);
+  ESP.restart();
+}

@@ -4,7 +4,7 @@
 #include "WiFi.h"
 #include <WebServer.h>
 #include "FS.h"
-#include "FS.h"
+//#include "FS.h"
 #include <LittleFS.h>
 #include "web.h"
 #include "config.h"
@@ -506,6 +506,15 @@ void handleEther()
     result.replace("{{maskEther}}", ConfigSettings.ipMask);
     result.replace("{{GWEther}}", ConfigSettings.ipGW);
 
+    if (ConfigSettings.disablePingCtrl)
+    {
+      result.replace("{{disablePingCtrl}}", "Checked");
+    }
+    else
+    {
+      result.replace("{{disablePingCtrl}}", "");
+    }
+
     serverWeb.send(200, "text/html", result);
   }
 }
@@ -706,7 +715,7 @@ void handleRoot()
       }
       wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
       wifiState += "<br><strong>Mode : </strong> ";
-      if (ConfigSettings.radioModeWiFi)
+      if (ConfigSettings.wifiModeAP)
       {
         String AP_NameString;
         getDeviceID(AP_NameString);
@@ -903,6 +912,7 @@ void handleSaveWifi()
     if (serverWeb.arg("disableEmerg") == "on")
     {
       disableEmerg = "1";
+      saveEmergencyWifi(0);
     }
     else
     {
@@ -979,9 +989,19 @@ void handleSaveEther()
     String ipMask = serverWeb.arg("ipMask");
     String ipGW = serverWeb.arg("ipGW");
 
+    String disablePingCtrl;
+    if (serverWeb.arg("disablePingCtrl") == "on")
+    {
+      disablePingCtrl = "1";
+    }
+    else
+    {
+      disablePingCtrl = "0";
+    }
+
     const char *path = "/config/configEther.json";
 
-    StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+    StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"disablePingCtrl\":\"" + disablePingCtrl + "\"}";
     DEBUG_PRINTLN(StringConfig);
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, StringConfig);
@@ -1211,7 +1231,8 @@ void handleFSbrowser()
     while (file)
     {
       String tmp = file.name();
-      tmp = tmp.substring(8);
+      //DEBUG_PRINTLN(tmp);
+      //tmp = tmp.substring(8);
       result += F("<a href='#' onClick=\"readfile('");
       result += tmp;
       result += F("');\">");

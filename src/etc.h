@@ -20,6 +20,12 @@ void zigbeeRestart();
 
 void getDeviceID(String &devID);
 void writeDefultConfig(const char *path, String StringConfig);
+
+void saveEmergencyWifi(bool state);
+void saveRestartCount(int count);
+
+void resetSettings();
+
 String hexToDec(String hexString);
 
 #define min(a, b) ((a) < (b) ? (a) : (b))

@@ -92,11 +92,11 @@ struct ConfigSettingsStruct
   int serialSpeed;
   int socketPort;
   bool disableWeb;
-  double refreshLogs;
+  int refreshLogs;
   char hostname[50];
   bool connectedSocket[10];
   int connectedClients;
-  bool radioModeWiFi;
+  bool wifiModeAP;
   unsigned long socketTime;
   unsigned long disconnectEthTime;
   int board;
@@ -121,6 +121,10 @@ struct ConfigSettingsStruct
   char webUser[50];
   char webPass[50];
   bool disableEmerg;
+  int wifiRetries;
+  bool disablePingCtrl;
+  int restarts;
+  unsigned long wifiAPenblTime;
 };
 
 struct InfosStruct

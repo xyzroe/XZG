@@ -48,22 +48,9 @@ MDNSResponder mdns;
 
 void mDNS_start();
 bool setupSTAWifi();
+void setupWifiAP();
 
-void saveEmergencyWifi(bool state)
-{
-  const char *path = "/config/system.json";
-  DynamicJsonDocument doc(1024);
 
-  File configFile = LittleFS.open(path, FILE_READ);
-  deserializeJson(doc, configFile);
-  configFile.close();
-
-  doc["emergencyWifi"] = int(state);
-
-  configFile = LittleFS.open(path, FILE_WRITE);
-  serializeJson(doc, configFile);
-  configFile.close();
-}
 
 void saveBoard(int rev)
 {
@@ -82,7 +69,12 @@ void saveBoard(int rev)
 }
 
 bool checkPing()
-{
+{ 
+  if (ConfigSettings.disablePingCtrl == 1)
+  {
+    DEBUG_PRINTLN(F("Ping control disabled"));
+    return true;
+  }
   DEBUG_PRINT(F("Try to ping "));
   DEBUG_PRINTLN(ETH.gatewayIP());
   if (Ping.ping(ETH.gatewayIP()))
@@ -123,17 +115,19 @@ bool checkPing()
   */
 }
 void WiFiEvent(WiFiEvent_t event)
-{
+{ 
+  DEBUG_PRINT(F("WiFiEvent "));
+  DEBUG_PRINTLN(event);
   switch (event)
   {
-  case SYSTEM_EVENT_ETH_START:
+  case 18://SYSTEM_EVENT_ETH_START:
     DEBUG_PRINTLN(F("ETH Started"));
     //ConfigSettings.disconnectEthTime = millis();
     break;
-  case SYSTEM_EVENT_ETH_CONNECTED:
+  case 20://SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
     break;
-  case SYSTEM_EVENT_ETH_GOT_IP:
+  case 22://SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
     DEBUG_PRINT(ETH.macAddress());
     DEBUG_PRINT(F(", IPv4: "));
@@ -152,7 +146,10 @@ void WiFiEvent(WiFiEvent_t event)
       mDNS_start();
     }
     break;
-  case SYSTEM_EVENT_ETH_DISCONNECTED:
+  case SYSTEM_EVENT_STA_GOT_IP:
+    DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
+    ConfigSettings.wifiRetries = 0;
+  case 21://SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
     ConfigSettings.connectedEther = false;
     ConfigSettings.disconnectEthTime = millis();
@@ -164,7 +161,16 @@ void WiFiEvent(WiFiEvent_t event)
     break;
   case SYSTEM_EVENT_STA_DISCONNECTED:
     DEBUG_PRINTLN(F("WIFI STA DISCONNECTED")); 
-    setupSTAWifi();
+    ConfigSettings.wifiRetries++;
+    DEBUG_PRINT(ConfigSettings.wifiRetries); 
+    DEBUG_PRINTLN(F(" times")); 
+    if (ConfigSettings.wifiRetries < 7) {
+      setupSTAWifi();
+    }
+    else 
+    {
+      setupWifiAP();
+    }
     break;
   default:
     break;
@@ -253,6 +259,7 @@ bool loadSystemVar()
     DEBUG_PRINTLN(F("saved tempOffset in system.json"));
     ConfigSettings.tempOffset = int(tempOffset.toInt());
   }
+  ConfigSettings.restarts = (int)doc["restarts"];
   configFile.close();
   return true;
 }
@@ -303,8 +310,7 @@ bool loadConfigEther()
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
   {
-    String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\"}";
-
+    String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
     writeDefultConfig(path, StringConfig);
   }
 
@@ -326,6 +332,8 @@ bool loadConfigEther()
   strlcpy(ConfigSettings.ipAddress, doc["ip"] | "", sizeof(ConfigSettings.ipAddress));
   strlcpy(ConfigSettings.ipMask, doc["mask"] | "", sizeof(ConfigSettings.ipMask));
   strlcpy(ConfigSettings.ipGW, doc["gw"] | "", sizeof(ConfigSettings.ipGW));
+  ConfigSettings.disablePingCtrl = (int)doc["disablePingCtrl"];
+
   configFile.close();
   return true;
 }
@@ -459,6 +467,9 @@ bool loadConfigMqtt()
 
 void setupWifiAP()
 {
+  ConfigSettings.wifiModeAP = true;
+  ConfigSettings.wifiRetries = 0;
+
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
 
@@ -483,10 +494,24 @@ void setupWifiAP()
   // provided IP to all DNS request
   dnsServer.start(DNS_PORT, "*", apIP);
   WiFi.setSleep(false);
+  ConfigSettings.wifiAPenblTime = millis();
 }
 
 bool setupSTAWifi()
-{
+{ 
+  ConfigSettings.wifiModeAP = false;
+  //DEBUG_PRINT(F("ConfigSettings.wifiRetries "));
+  //DEBUG_PRINTLN(ConfigSettings.wifiRetries);
+  //if (ConfigSettings.wifiRetries > 3) {
+  //    DEBUG_PRINTLN(F("WIFI set but no connect after 3 tries. setupWifiAP()"));
+  //    setupWifiAP();
+      //modeWiFi = "AP";
+  //    ConfigSettings.wifiModeAP = true;
+  //    DEBUG_PRINTLN(F("AP"));
+      //saveEmergencyWifi(1);
+      //DEBUG_PRINTLN(F("ESP.restart"));
+      //ESP.restart();
+  //}
 
   WiFi.mode(WIFI_STA);
   DEBUG_PRINTLN(F("WiFi.mode(WIFI_STA)"));
@@ -537,32 +562,34 @@ void enableWifi()
   if ((strlen(ConfigSettings.ssid) != 0) && (strlen(ConfigSettings.password) != 0))
   {
     DEBUG_PRINTLN(F("Ok SSID & PASS"));
-    if (!setupSTAWifi())
-    {
-      setupWifiAP();
+    setupSTAWifi();
+    DEBUG_PRINTLN(F("setupSTAWifi"));
+      //ConfigSettings.wifiModeAP = false;
+      //setupWifiAP();
       //modeWiFi = "AP";
-      ConfigSettings.radioModeWiFi = true;
-      DEBUG_PRINTLN(F("AP"));
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("setupSTAWifi"));
-      ConfigSettings.radioModeWiFi = false;
-    }
+      //ConfigSettings.wifiModeAP = true;
+      //DEBUG_PRINTLN(F("AP"));
+  
+    //else
+    //{
+   //   DEBUG_PRINTLN(F("setupSTAWifi"));
+    //  ConfigSettings.wifiModeAP = false;
+    //}
   }
   else
   {
-    DEBUG_PRINTLN(F("Error SSID & PASS"));
+    DEBUG_PRINTLN(F("NO SSID & PASS"));
     setupWifiAP();
-    //modeWiFi = "AP";
-    DEBUG_PRINTLN(F("AP"));
-    ConfigSettings.radioModeWiFi = true;
+    DEBUG_PRINTLN(F("setupWifiAP"));
+    //ConfigSettings.wifiModeAP = true;
   }
   mDNS_start();
 }
 
 void setupEthernetAndZigbeeSerial()
 {
+  DEBUG_PRINT(F("Board - "));
+  DEBUG_PRINTLN(ConfigSettings.board);
   switch (ConfigSettings.board)
   {
 
@@ -632,27 +659,31 @@ void setupEthernetAndZigbeeSerial()
     break;
 
   default:
-    String boardName = "Unknown";
-    if (!ETH.begin(ETH_ADDR_0, ETH_POWER_PIN_0, ETH_MDC_PIN_0, ETH_MDIO_PIN_0, ETH_TYPE_0, ETH_CLK_MODE_0))
-    {
-      ConfigSettings.emergencyWifi = 1;
-      DEBUG_PRINTLN(F("Please set board type in system.json"));
-      saveBoard(0);
-    }
-    else
-    {
-      saveBoard(1);
-      boardName = "WT32-ETH01";
-    }
-    boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
-    DEBUG_PRINT(F("Board - "));
-    DEBUG_PRINTLN(boardName);
-    ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_0;
-    ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_0;
+    //String boardName = "Unknown";
+    //if (!ETH.begin(ETH_ADDR_0, ETH_POWER_PIN_0, ETH_MDC_PIN_0, ETH_MDIO_PIN_0, ETH_TYPE_0, ETH_CLK_MODE_0))
+    //{
+    //ConfigSettings.emergencyWifi = 1;
+    //DEBUG_PRINTLN(F("Please set board type in system.json"));
+    //saveBoard(0);
+    DEBUG_PRINTLN(F("NO BOARD TYPE! Start from beginning"));
+    saveBoard(1);
+    delay(1000);
+    ESP.restart();
+    //}
+    //else
+    //{
+    // saveBoard(1);
+    //boardName = "WT32-ETH01";
+    //}
+    //boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+    //DEBUG_PRINT(F("Board - "));
+    //DEBUG_PRINTLN(boardName);
+    //ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_0;
+    //ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_0;
 
-    DEBUG_PRINT(F("Zigbee serial setup @ "));
-    DEBUG_PRINTLN(ConfigSettings.serialSpeed);
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_0, ZTXD_0);
+    //DEBUG_PRINT(F("Zigbee serial setup @ "));
+    //DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+    //Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_0, ZTXD_0);
     break;
   }
 }
@@ -713,6 +744,10 @@ void setup(void)
   else
   {
     DEBUG_PRINTLN(F("System vars load OK"));
+    ConfigSettings.restarts++;
+    DEBUG_PRINT(F("Restarts count "));
+    DEBUG_PRINTLN(ConfigSettings.restarts);
+    saveRestartCount(ConfigSettings.restarts);
   }
 
   if (!loadConfigSerial())
@@ -817,7 +852,17 @@ void setup(void)
   {
     mqttConnectSetup();
   }
+  
+  DEBUG_PRINTLN(millis());
 
+  saveRestartCount(0);
+
+  if (ConfigSettings.restarts > 5)
+  { 
+    DEBUG_PRINTLN(F("RESET ALL SETTINGS!"));
+    resetSettings();
+  }
+  
 }
 
 WiFiClient client[10];
@@ -874,6 +919,7 @@ void printRecvSocket(size_t bytes_read, uint8_t net_buf[BUFFER_SIZE])
       logPush(tmpTime[j]);
     }
     logPush(']');
+    logPush(' ');
     logPush('-');
     logPush('>');
 
@@ -891,33 +937,41 @@ void printRecvSocket(size_t bytes_read, uint8_t net_buf[BUFFER_SIZE])
 void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 {
   char output_sprintf[2];
+  String tmpTime;
+  String buff = "";
+  timeLog = millis();
+  tmpTime = String(timeLog, DEC);
+  logPush('[');
+  for (int j = 0; j < tmpTime.length(); j++)
+  {
+    logPush(tmpTime[j]);
+  }
+  logPush(']');
+  logPush(' ');
+  logPush('<');
+  logPush('-');
   for (int i = 0; i < bytes_read; i++)
   {
+    //if (serial_buf[i] == 0x01)
+    //{
+    //}
     sprintf(output_sprintf, "%02x", serial_buf[i]);
-    if (serial_buf[i] == 0x01)
-    {
-
-      String tmpTime;
-      String buff = "";
-      timeLog = millis();
-      tmpTime = String(timeLog, DEC);
-      logPush('[');
-      for (int j = 0; j < tmpTime.length(); j++)
-      {
-        logPush(tmpTime[j]);
-      }
-      logPush(']');
-      logPush('<');
-      logPush('-');
-    }
     logPush(' ');
-
     logPush(output_sprintf[0]);
     logPush(output_sprintf[1]);
-    if (serial_buf[i] == 0x03)
-    {
-      logPush('\n');
-    }
+    //if (serial_buf[i] == 0x03)
+   // {
+      
+    //}
+  }
+  logPush('\n');
+}
+
+void system_loop()
+{
+  if ((millis() > ConfigSettings.wifiAPenblTime + 7*60*1000) && ConfigSettings.wifiModeAP == true && (strlen(ConfigSettings.ssid) != 0) && (strlen(ConfigSettings.password) != 0))
+  {
+    setupSTAWifi();
   }
 }
 
@@ -928,6 +982,8 @@ void loop(void)
 
   uint16_t serial_bytes_read = 0;
   uint8_t serial_buf[BUFFER_SIZE];
+
+  system_loop();
 
   if (!ConfigSettings.disableWeb)
   {
@@ -941,16 +997,32 @@ void loop(void)
     }
   }
 
-  if (ConfigSettings.connectedEther == 0 && ConfigSettings.disconnectEthTime != 0 && ConfigSettings.enableWiFi != 1 && ConfigSettings.emergencyWifi != 1 && ConfigSettings.disableEmerg == 0)
+  if (ConfigSettings.enableWiFi == 0)
   {
-    if ((millis() - ConfigSettings.disconnectEthTime) >= (ETH_ERROR_TIME * 1000))
+    if (ConfigSettings.connectedEther == 0 && ConfigSettings.disconnectEthTime != 0 && ConfigSettings.emergencyWifi != 1 && ConfigSettings.disableEmerg == 0)
     {
-      DEBUG_PRINTLN(F("saveEmergencyWifi(1)"));
-      saveEmergencyWifi(1);
-      DEBUG_PRINTLN(F("ESP.restart"));
-      ESP.restart();
+      if ((millis() - ConfigSettings.disconnectEthTime) >= (ETH_ERROR_TIME * 1000))
+      {
+        DEBUG_PRINTLN(F("NO ETH and not enabled WIFI. saveEmergencyWifi(1)"));
+        saveEmergencyWifi(1);
+        DEBUG_PRINTLN(F("ESP.restart"));
+        ESP.restart();
+      }
     }
   }
+  //else
+  //{
+  //  DEBUG_PRINT(F("ConfigSettings.wifiRetries "));
+  //  DEBUG_PRINTLN(ConfigSettings.wifiRetries);
+  //  if (ConfigSettings.wifiRetries > 3) {
+  //      DEBUG_PRINTLN(F("WIFI set but no connect after 3 tries. saveEmergencyWifi(1)"));
+  //      saveEmergencyWifi(1);
+  //      DEBUG_PRINTLN(F("ESP.restart"));
+  //      ESP.restart();
+  //  }
+  //}
+
+  
 
   if (server.hasClient())
   {
