@@ -13,16 +13,13 @@
 #include "html.h"
 #include <HTTPClient.h>
 
-#include "webh/glyphicons.woff.gz.h"
 #include "webh/required.css.gz.h"
 #include "webh/bootstrap.min.js.gz.h"
 #include "webh/functions.js.gz.h"
 #include "webh/jquery-min.js.gz.h"
 #include "webh/logo.png.gz.h"
-#include "webh/nok.png.gz.h"
-#include "webh/ok.png.gz.h"
-#include "webh/wait.gif.gz.h"
-#include "webh/toast.js.gz.h"
+#include "webh/masonry.js.gz.h"
+#include "webh/favicon.ico.gz.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern unsigned long timeLog;
@@ -30,6 +27,8 @@ extern unsigned long timeLog;
 WebServer serverWeb(80);
 
 HTTPClient clientWeb;
+
+void handle_masonry_js();
 
 void webServerHandleClient()
 {
@@ -39,15 +38,12 @@ void webServerHandleClient()
 void initWebServer()
 {
   serverWeb.on("/js/bootstrap.min.js", handle_bootstrap_js);
+  serverWeb.on("/js/masonry.min.js", handle_masonry_js);
   serverWeb.on("/js/functions.js", handle_functions_js);
   serverWeb.on("/js/jquery-min.js", handle_jquery_js);
   serverWeb.on("/css/required.css", handle_required_css);
-  serverWeb.on("/js/toast.js", handle_toast_js);
-  serverWeb.on("/fonts/glyphicons.woff", handle_glyphicons_woff);
   serverWeb.on("/img/logo.png", handle_logo_png);
-  serverWeb.on("/img/wait.gif", handle_wait_gif);
-  serverWeb.on("/img/nok.png", handle_nok_png);
-  serverWeb.on("/img/ok.png", handle_ok_png);
+  serverWeb.on("/favicon.ico", handle_favicon);
   serverWeb.on("/", handleRoot);
   serverWeb.on("/general", handleGeneral);
   serverWeb.on("/security", handleSecurity);
@@ -61,7 +57,7 @@ void initWebServer()
   serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
   serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
 
-  serverWeb.on("/logs-browser", handleLogsBrowser);
+  //serverWeb.on("/logs-browser", handleLogsBrowser);
   serverWeb.on("/reboot", handleReboot);
   serverWeb.on("/updates", handleUpdate);
   serverWeb.on("/readFile", handleReadfile);
@@ -145,6 +141,13 @@ void handle_bootstrap_js()
   serverWeb.send_P(200, dataType, (const char *)bootstrap_min_js_gz, bootstrap_min_js_gz_len);
 }
 
+void handle_masonry_js()
+{
+  const char *dataType = "text/javascript";
+  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+  serverWeb.send_P(200, dataType, (const char *)masonry_js_gz, masonry_js_gz_len);
+}
+
 void handle_jquery_js()
 {
   const char *dataType = "text/javascript";
@@ -159,18 +162,11 @@ void handle_required_css()
   serverWeb.send_P(200, dataType, (const char *)required_css_gz, required_css_gz_len);
 }
 
-void handle_toast_js()
+void handle_favicon()
 {
-  const char *dataType = "text/javascript";
+  const char *dataType = "img/ico";
   serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-  serverWeb.send_P(200, dataType, (const char *)toast_js_gz, toast_js_gz_len);
-}
-
-void handle_glyphicons_woff()
-{
-  const char *dataType = "font/woff";
-  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-  serverWeb.send_P(200, dataType, (const char *)glyphicons_woff_gz, glyphicons_woff_gz_len);
+  serverWeb.send_P(200, dataType, (const char *)favicon_ico_gz, favicon_ico_gz_len);
 }
 
 void handle_logo_png()
@@ -178,27 +174,6 @@ void handle_logo_png()
   const char *dataType = "img/png";
   serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
   serverWeb.send_P(200, dataType, (const char *)logo_png_gz, logo_png_gz_len);
-}
-
-void handle_wait_gif()
-{
-  const char *dataType = "img/gif";
-  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-  serverWeb.send_P(200, dataType, (const char *)wait_gif_gz, wait_gif_gz_len);
-}
-
-void handle_nok_png()
-{
-  const char *dataType = "img/png";
-  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-  serverWeb.send_P(200, dataType, (const char *)nok_png_gz, nok_png_gz_len);
-}
-
-void handle_ok_png()
-{
-  const char *dataType = "img/png";
-  serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-  serverWeb.send_P(200, dataType, (const char *)ok_png_gz, ok_png_gz_len);
 }
 
 void handleLoggedOut()
@@ -1146,35 +1121,9 @@ void handleSysTools()
     result += FPSTR(HTTP_SYSTOOLS);
     //result += F("</div></div>");
     result = result + F("</body></html>");
-    result.replace("{{pageName}}", "System tools");
+    result.replace("{{pageName}}", "System and Tools");
     serverWeb.sendHeader("Connection", "close");
-
-    serverWeb.send(200, "text/html", result);
-  }
-}
-
-void handleLogsBrowser()
-{
-  if (checkAuth())
-  {
-    String result;
-    result += F("<html>");
-    result += FPSTR(HTTP_HEADER);
-    result += FPSTR(LOGS_BROWSER);
-    if (ConfigSettings.webAuth)
-    {
-      result.replace("{{logoutLink}}", LOGOUT_LINK);
-    }
-    else
-    {
-      result.replace("{{logoutLink}}", "");
-    }
-//     result += F("<div class='col py-3'>");
-//     result += F("<h2>{{pageName}}</h2>");
-//     result += F("<div id='main' class='col-sm-12'>");
-//     result += F("<div id='help_btns' class='col-md-11'>");
-    result.replace("{{pageName}}", "Logs and Browser");
-
+    
     String fileList = "";
     File root = LittleFS.open("/config");
     File file = root.openNextFile();
@@ -1184,7 +1133,7 @@ void handleLogsBrowser()
       //DEBUG_PRINTLN(tmp);
       //tmp = tmp.substring(8);
       fileList += F("<tr>");
-      fileList += F("<td><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-filetype-json' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14 4.5V11h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM4.151 15.29a1.176 1.176 0 0 1-.111-.449h.764a.578.578 0 0 0 .255.384c.07.049.154.087.25.114.095.028.201.041.319.041.164 0 .301-.023.413-.07a.559.559 0 0 0 .255-.193.507.507 0 0 0 .084-.29.387.387 0 0 0-.152-.326c-.101-.08-.256-.144-.463-.193l-.618-.143a1.72 1.72 0 0 1-.539-.214 1.001 1.001 0 0 1-.352-.367 1.068 1.068 0 0 1-.123-.524c0-.244.064-.457.19-.639.128-.181.304-.322.528-.422.225-.1.484-.149.777-.149.304 0 .564.05.779.152.217.102.384.239.5.41.12.17.186.359.2.566h-.75a.56.56 0 0 0-.12-.258.624.624 0 0 0-.246-.181.923.923 0 0 0-.37-.068c-.216 0-.387.05-.512.152a.472.472 0 0 0-.185.384c0 .121.048.22.144.3a.97.97 0 0 0 .404.175l.621.143c.217.05.406.12.566.211a1 1 0 0 1 .375.358c.09.148.135.335.135.56 0 .247-.063.466-.188.656a1.216 1.216 0 0 1-.539.439c-.234.105-.52.158-.858.158-.254 0-.476-.03-.665-.09a1.404 1.404 0 0 1-.478-.252 1.13 1.13 0 0 1-.29-.375Zm-3.104-.033a1.32 1.32 0 0 1-.082-.466h.764a.576.576 0 0 0 .074.27.499.499 0 0 0 .454.246c.19 0 .33-.055.422-.164.091-.11.137-.265.137-.466v-2.745h.791v2.725c0 .44-.119.774-.357 1.005-.237.23-.565.345-.985.345a1.59 1.59 0 0 1-.568-.094 1.145 1.145 0 0 1-.407-.266 1.14 1.14 0 0 1-.243-.39Zm9.091-1.585v.522c0 .256-.039.47-.117.641a.862.862 0 0 1-.322.387.877.877 0 0 1-.47.126.883.883 0 0 1-.47-.126.87.87 0 0 1-.32-.387 1.55 1.55 0 0 1-.117-.641v-.522c0-.258.039-.471.117-.641a.87.87 0 0 1 .32-.387.868.868 0 0 1 .47-.129c.177 0 .333.043.47.129a.862.862 0 0 1 .322.387c.078.17.117.383.117.641Zm.803.519v-.513c0-.377-.069-.701-.205-.973a1.46 1.46 0 0 0-.59-.63c-.253-.146-.559-.22-.916-.22-.356 0-.662.074-.92.22a1.441 1.441 0 0 0-.589.628c-.137.271-.205.596-.205.975v.513c0 .375.068.699.205.973.137.271.333.48.589.626.258.145.564.217.92.217.357 0 .663-.072.917-.217.256-.146.452-.355.589-.626.136-.274.205-.598.205-.973Zm1.29-.935v2.675h-.746v-3.999h.662l1.752 2.66h.032v-2.66h.75v4h-.656l-1.761-2.676h-.032Z'/></svg><a href='#' onClick=\"readfile('");
+      fileList += F("<td><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-filetype-json' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14 4.5V11h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM4.151 15.29a1.176 1.176 0 0 1-.111-.449h.764a.578.578 0 0 0 .255.384c.07.049.154.087.25.114.095.028.201.041.319.041.164 0 .301-.023.413-.07a.559.559 0 0 0 .255-.193.507.507 0 0 0 .084-.29.387.387 0 0 0-.152-.326c-.101-.08-.256-.144-.463-.193l-.618-.143a1.72 1.72 0 0 1-.539-.214 1.001 1.001 0 0 1-.352-.367 1.068 1.068 0 0 1-.123-.524c0-.244.064-.457.19-.639.128-.181.304-.322.528-.422.225-.1.484-.149.777-.149.304 0 .564.05.779.152.217.102.384.239.5.41.12.17.186.359.2.566h-.75a.56.56 0 0 0-.12-.258.624.624 0 0 0-.246-.181.923.923 0 0 0-.37-.068c-.216 0-.387.05-.512.152a.472.472 0 0 0-.185.384c0 .121.048.22.144.3a.97.97 0 0 0 .404.175l.621.143c.217.05.406.12.566.211a1 1 0 0 1 .375.358c.09.148.135.335.135.56 0 .247-.063.466-.188.656a1.216 1.216 0 0 1-.539.439c-.234.105-.52.158-.858.158-.254 0-.476-.03-.665-.09a1.404 1.404 0 0 1-.478-.252 1.13 1.13 0 0 1-.29-.375Zm-3.104-.033a1.32 1.32 0 0 1-.082-.466h.764a.576.576 0 0 0 .074.27.499.499 0 0 0 .454.246c.19 0 .33-.055.422-.164.091-.11.137-.265.137-.466v-2.745h.791v2.725c0 .44-.119.774-.357 1.005-.237.23-.565.345-.985.345a1.59 1.59 0 0 1-.568-.094 1.145 1.145 0 0 1-.407-.266 1.14 1.14 0 0 1-.243-.39Zm9.091-1.585v.522c0 .256-.039.47-.117.641a.862.862 0 0 1-.322.387.877.877 0 0 1-.47.126.883.883 0 0 1-.47-.126.87.87 0 0 1-.32-.387 1.55 1.55 0 0 1-.117-.641v-.522c0-.258.039-.471.117-.641a.87.87 0 0 1 .32-.387.868.868 0 0 1 .47-.129c.177 0 .333.043.47.129a.862.862 0 0 1 .322.387c.078.17.117.383.117.641Zm.803.519v-.513c0-.377-.069-.701-.205-.973a1.46 1.46 0 0 0-.59-.63c-.253-.146-.559-.22-.916-.22-.356 0-.662.074-.92.22a1.441 1.441 0 0 0-.589.628c-.137.271-.205.596-.205.975v.513c0 .375.068.699.205.973.137.271.333.48.589.626.258.145.564.217.92.217.357 0 .663-.072.917-.217.256-.146.452-.355.589-.626.136-.274.205-.598.205-.973Zm1.29-.935v2.675h-.746v-3.999h.662l1.752 2.66h.032v-2.66h.75v4h-.656l-1.761-2.676h-.032Z'/></svg><a href='#config_file' onClick=\"readfile('");
       fileList += tmp;
       fileList += F("');\">");
       fileList += tmp;
@@ -1196,47 +1145,96 @@ void handleLogsBrowser()
       file = root.openNextFile();
     }
     result.replace("{{fileList}}", fileList);
-//     result += F("</div>");
-//     result += F("<div id='main' class='col-md-9'>");
-//     result += F("<div class='app-main-content'>");
-//     result += F("<form method='POST' action='saveFile'>");
-//     result += F("<div class='form-group'>");
-//     result += F("<div><label for='file'>File : <span id='title'></span></label>");
-//     result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
-//     result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
-//     result += F("</textarea>");
-//     result += F("</div>");
-//     result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
-//     result += F("</form>");
-//     result += F("</div>");
-//     result += F("</div>");
-//     result += F("</div>");
-
-//     result += F("<br>");
-//     result += F("<div id='main' class='col-sm-12'>");
-//     result += F("<div id='help_btns' class='col-sm-8'>");
-//     result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-// //#ifdef DEBUG
-// //    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-// //    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
-// //#endif
-//     result += F("</div></div>");
-//     result += F("<div id='main' class='col-sm-8'>");
-//     result += F("<div class='col-md-12'>Raw data :</div>");
-//     result += F("<textarea class='col-md-12' id='console' rows='8' ></textarea>");
-//     result += F("</div>");
-//     result += F("</body>");
-
-//     result += F("<script language='javascript'>");
-//     result += F("logRefresh({{refreshLogs}});");
-//     result += F("</script>");
-//     result += F("</div></div></div>");
-    result += F("</body></html>");
     result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
 
-    serverWeb.send(200, F("text/html"), result);
+    serverWeb.send(200, "text/html", result);
   }
 }
+
+// void handleLogsBrowser()
+// {
+//   if (checkAuth())
+//   {
+//     String result;
+//     result += F("<html>");
+//     result += FPSTR(HTTP_HEADER);
+//     result += FPSTR(LOGS_BROWSER);
+//     if (ConfigSettings.webAuth)
+//     {
+//       result.replace("{{logoutLink}}", LOGOUT_LINK);
+//     }
+//     else
+//     {
+//       result.replace("{{logoutLink}}", "");
+//     }
+// //     result += F("<div class='col py-3'>");
+// //     result += F("<h2>{{pageName}}</h2>");
+// //     result += F("<div id='main' class='col-sm-12'>");
+// //     result += F("<div id='help_btns' class='col-md-11'>");
+//     result.replace("{{pageName}}", "Logs and Browser");
+
+//     String fileList = "";
+//     File root = LittleFS.open("/config");
+//     File file = root.openNextFile();
+//     while (file)
+//     {
+//       String tmp = file.name();
+//       //DEBUG_PRINTLN(tmp);
+//       //tmp = tmp.substring(8);
+//       fileList += F("<tr>");
+//       fileList += F("<td><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-filetype-json' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14 4.5V11h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM4.151 15.29a1.176 1.176 0 0 1-.111-.449h.764a.578.578 0 0 0 .255.384c.07.049.154.087.25.114.095.028.201.041.319.041.164 0 .301-.023.413-.07a.559.559 0 0 0 .255-.193.507.507 0 0 0 .084-.29.387.387 0 0 0-.152-.326c-.101-.08-.256-.144-.463-.193l-.618-.143a1.72 1.72 0 0 1-.539-.214 1.001 1.001 0 0 1-.352-.367 1.068 1.068 0 0 1-.123-.524c0-.244.064-.457.19-.639.128-.181.304-.322.528-.422.225-.1.484-.149.777-.149.304 0 .564.05.779.152.217.102.384.239.5.41.12.17.186.359.2.566h-.75a.56.56 0 0 0-.12-.258.624.624 0 0 0-.246-.181.923.923 0 0 0-.37-.068c-.216 0-.387.05-.512.152a.472.472 0 0 0-.185.384c0 .121.048.22.144.3a.97.97 0 0 0 .404.175l.621.143c.217.05.406.12.566.211a1 1 0 0 1 .375.358c.09.148.135.335.135.56 0 .247-.063.466-.188.656a1.216 1.216 0 0 1-.539.439c-.234.105-.52.158-.858.158-.254 0-.476-.03-.665-.09a1.404 1.404 0 0 1-.478-.252 1.13 1.13 0 0 1-.29-.375Zm-3.104-.033a1.32 1.32 0 0 1-.082-.466h.764a.576.576 0 0 0 .074.27.499.499 0 0 0 .454.246c.19 0 .33-.055.422-.164.091-.11.137-.265.137-.466v-2.745h.791v2.725c0 .44-.119.774-.357 1.005-.237.23-.565.345-.985.345a1.59 1.59 0 0 1-.568-.094 1.145 1.145 0 0 1-.407-.266 1.14 1.14 0 0 1-.243-.39Zm9.091-1.585v.522c0 .256-.039.47-.117.641a.862.862 0 0 1-.322.387.877.877 0 0 1-.47.126.883.883 0 0 1-.47-.126.87.87 0 0 1-.32-.387 1.55 1.55 0 0 1-.117-.641v-.522c0-.258.039-.471.117-.641a.87.87 0 0 1 .32-.387.868.868 0 0 1 .47-.129c.177 0 .333.043.47.129a.862.862 0 0 1 .322.387c.078.17.117.383.117.641Zm.803.519v-.513c0-.377-.069-.701-.205-.973a1.46 1.46 0 0 0-.59-.63c-.253-.146-.559-.22-.916-.22-.356 0-.662.074-.92.22a1.441 1.441 0 0 0-.589.628c-.137.271-.205.596-.205.975v.513c0 .375.068.699.205.973.137.271.333.48.589.626.258.145.564.217.92.217.357 0 .663-.072.917-.217.256-.146.452-.355.589-.626.136-.274.205-.598.205-.973Zm1.29-.935v2.675h-.746v-3.999h.662l1.752 2.66h.032v-2.66h.75v4h-.656l-1.761-2.676h-.032Z'/></svg><a href='#' onClick=\"readfile('");
+//       fileList += tmp;
+//       fileList += F("');\">");
+//       fileList += tmp;
+//       fileList += F("</a></td>");
+//       fileList += F("<td>");
+//       fileList += file.size();
+//       fileList += F("B</td>");
+//       fileList += F("<tr>");
+//       file = root.openNextFile();
+//     }
+//     result.replace("{{fileList}}", fileList);
+// //     result += F("</div>");
+// //     result += F("<div id='main' class='col-md-9'>");
+// //     result += F("<div class='app-main-content'>");
+// //     result += F("<form method='POST' action='saveFile'>");
+// //     result += F("<div class='form-group'>");
+// //     result += F("<div><label for='file'>File : <span id='title'></span></label>");
+// //     result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
+// //     result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
+// //     result += F("</textarea>");
+// //     result += F("</div>");
+// //     result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
+// //     result += F("</form>");
+// //     result += F("</div>");
+// //     result += F("</div>");
+// //     result += F("</div>");
+
+// //     result += F("<br>");
+// //     result += F("<div id='main' class='col-sm-12'>");
+// //     result += F("<div id='help_btns' class='col-sm-8'>");
+// //     result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
+// // //#ifdef DEBUG
+// // //    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
+// // //    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
+// // //#endif
+// //     result += F("</div></div>");
+// //     result += F("<div id='main' class='col-sm-8'>");
+// //     result += F("<div class='col-md-12'>Raw data :</div>");
+// //     result += F("<textarea class='col-md-12' id='console' rows='8' ></textarea>");
+// //     result += F("</div>");
+// //     result += F("</body>");
+
+// //     result += F("<script language='javascript'>");
+// //     result += F("logRefresh({{refreshLogs}});");
+// //     result += F("</script>");
+// //     result += F("</div></div></div>");
+//     result += F("</body></html>");
+//     result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
+
+//     serverWeb.send(200, F("text/html"), result);
+//   }
+// }
 
 void handleReadfile()
 {
@@ -1293,7 +1291,7 @@ void handleSavefile()
       }
 
       file.close();
-      serverWeb.sendHeader(F("Location"), F("/logs-browser"));
+      serverWeb.sendHeader(F("Location"), F("/sys-tools"));
       serverWeb.send(303);
     }
   }

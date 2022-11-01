@@ -5,11 +5,27 @@
 
 }
 
-@media (max-width: 576px) {
+@media (max-width: 767px) {
   .nav-container {
-    width: 60px !important;
+    position: fixed;
+    left: -250px;
+    transition: all 0.3s ease-out;
+    top: -1px !important;
   }
 
+  nav.navbar {
+    display: flex !important;
+    z-index: 99;
+  }
+
+  #pagenamePC {
+    display: none;
+  }
+}
+
+.sidenav-active {
+  left: -1px !important;
+  transition: all 0.6s ease-out;
 }
 
 .toast {
@@ -17,8 +33,9 @@
   margin-right: 20px;
 }
 
-.nav-link svg {
-  transform: translate(-40%, 0%);
+.nav-container {
+  min-width: fit-content;
+  z-index: 100;
 }
 
 .nav-shadow {

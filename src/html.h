@@ -16,20 +16,24 @@ const char HTTP_HEADER[] PROGMEM = R"=====(
 </head>
 
 <body>
-<div class="toast position-fixed bottom-0 end-0 fade toast_show hide"
-" data-bs-autohide="false">
-    <div class="toast-header">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16" reserveAspectRatio="xMidYMid slice" focusable="false" role="img">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-</svg>
-        <strong class="mr-auto" style="padding-left: 10px;">Tip</strong>
-    </div>
-    <div class="toast-body">
-    Statuses and other information in this window are updated when the page refreshes.
-    <div class="mt-2 pt-2 border-top">
-      <button type="button" class="btn btn-outline-primary" data-bs-dismiss="toast" onclick="localStorage.setItem('refresh_tip_got', 1)">Got it!</button>
-    </div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast fade toast_show hide" data-bs-autohide="false" role="alert">
+        <div class="toast-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-circle"
+                viewBox="0 0 16 16" reserveAspectRatio="xMidYMid slice" focusable="false" role="img">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path
+                    d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+            </svg>
+            <strong class="mr-auto" style="padding-left: 10px;">Tip</strong>
+        </div>
+        <div class="toast-body">
+            Statuses and other information in this window are updated when the page refreshes.
+            <div class="mt-2 pt-2 border-top">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="toast"
+                    onclick="localStorage.setItem('refresh_tip_got', 1)">Got it!</button>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="100" aria-modal="true" role="dialog">
@@ -48,9 +52,17 @@ const char HTTP_HEADER[] PROGMEM = R"=====(
     </div>
   </div>
 </div>
+<nav class="navbar shadow sticky-top bg-light" style="display: none;">
+<div class="container">
+  <div class="navbar-brand">
+    <span class="navbar-toggler-icon" onclick="$('#sidenav').addClass('sidenav-active');"></span>
+  </div>
+  <h2 class="position-absolute top-50 start-50 translate-middle" style="color: lightcoral;">{{pageName}}</h2>
+</div>
+</nav>
   <div class='container-fluid'>
     <div class='row flex-nowrap'>
-      <div class='col-auto nav-container px-0 col-md-3 col-xl-2 bg-dark nav-shadow'>
+      <div id="sidenav" class='col-auto nav-container px-0 col-md-3 col-xl-2 bg-dark nav-shadow'>
         <div class='d-flex flex-column align-items-center align-items-sm-start pt-2 text-white min-vh-100'>
           <div class='logo-wrapper'>
             <img src='./img/logo.png'>
@@ -125,7 +137,7 @@ const char HTTP_HEADER[] PROGMEM = R"=====(
                 <span class='ms-1 d-none d-sm-inline'>System and Tools</span>
               </a>
             </li>
-            <li class='nav-item'>
+            <!-- <li class='nav-item'>
               <a href='/logs-browser' class='nav-link align-middle'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder'
                   viewBox='0 0 16 16'>
@@ -134,7 +146,7 @@ const char HTTP_HEADER[] PROGMEM = R"=====(
                 </svg>
                 <span class='ms-1 d-none d-sm-inline'>Console and Browser</span>
               </a>
-            </li>
+            </li> -->
             <li class='nav-item'>
               <a href='/about' class='nav-link align-middle'>
                 <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
@@ -152,6 +164,8 @@ const char HTTP_HEADER[] PROGMEM = R"=====(
           {{logoutLink}}
         </div>
       </div>
+      <div class='col py-3'>
+        <h2 class="mb-3" id="pagenamePC">{{pageName}}</h2>
       )=====";
 
 const char LOGOUT_LINK[] PROGMEM =
@@ -160,9 +174,7 @@ const char LOGOUT_LINK[] PROGMEM =
     "</li>";
 
 const char HTTP_ROOT[] PROGMEM = R"=====(
-<div class='col py-3'>
-  <h2>{{pageName}}</h2>
-  <div id='main2' class='row'>
+  <div id='main2' class='row masonry' data-masonry='{"percentPosition": true }'>
   <!-- <span>Statuses and other information in this window are updated when the page refreshes</span> -->
     <div class='col-sm-12 col-md-6 mb-4'>
       <div class='card'>
@@ -352,11 +364,10 @@ const char HTTP_ROOT[] PROGMEM = R"=====(
 
 </div>
 </div>
+<script src="/js/masonry.min.js"></script>
      )=====";
 
 const char HTTP_GENERAL[] PROGMEM = R"=====(
-<div class='col py-3'>
-    <h2>{{pageName}}</h2>
     <div class='row'>
         <div class="col-sm-12">
             <form method="POST" action="saveGeneral">
@@ -451,8 +462,6 @@ const char HTTP_GENERAL[] PROGMEM = R"=====(
 )=====";
 
 const char HTTP_ETHERNET[] PROGMEM = R"=====(
-    <div class='col py-3'>
-    <h2>{{pageName}}</h2>
     <div class='row'>
         <form method='POST' action='saveEther'>
             <div class='col-sm-12 cardPadding'>
@@ -551,8 +560,6 @@ const char HTTP_WIFI[] PROGMEM =
     "</div>";
 
 const char HTTP_SERIAL[] PROGMEM = R"=====(
-    <div class='col py-3'>
-  <h2>{{pageName}}</h2>
   <div id='main'>
     <form method='POST' action='saveSerial'>
       <div class='card'>
@@ -595,8 +602,6 @@ const char HTTP_SERIAL[] PROGMEM = R"=====(
     )=====";
 
 const char HTTP_SECURITY[] PROGMEM = R"=====(
-<div class='col py-3'>
-  <h2>{{pageName}}</h2>
   <div id='main'>
     <form method='POST' action='saveSecurity'>
       <div class='card'>
@@ -637,50 +642,118 @@ const char HTTP_SECURITY[] PROGMEM = R"=====(
 )=====";
 
 const char HTTP_SYSTOOLS[] PROGMEM = R"=====(
-<div class='col py-3'>
-  <h2>{{pageName}}</h2>
-  <div id='main' class="row">
-    <div class="col-sm-12 col-md-6 mb-4">
-      <div class='card'>
-        <div class='card-header'>ESP32 Update</div>
-        <div class='card-body'>
-          <form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
-            <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
-            <label id='file-input' for='file'> Choose file...</label>
-            <input id="updButton" type='submit' class='btn btn-warning mb-2' value='ESP32 OTA Update' disabled>
-            <br>
-            <div id='prg'></div>
-            <div id='prgbar'>
-              <div id='bar'></div>
+  <ul class="nav nav-tabs nav-fill mb-3" role="tablist" style="flex-wrap: inherit;">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#systemControl" type="button"
+        role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="16"
+          height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+          <path fill-rule="evenodd"
+            d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z" />
+        </svg>System Control</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
+        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="16"
+          height="16" fill="currentColor" class="bi bi-tools" viewBox="0 0 16 16">
+          <path
+            d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3c0-.269-.035-.53-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814L1 0Zm9.646 10.646a.5.5 0 0 1 .708 0l2.914 2.915a.5.5 0 0 1-.707.707l-2.915-2.914a.5.5 0 0 1 0-.708ZM3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026L3 11Z" />
+        </svg>System Tools</button>
+    </li>
+  </ul>
+
+  <div id='main'>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="systemControl" role="tabpanel" aria-labelledby="home-tab">
+        <div class="row masonry" data-masonry='{"percentPosition": true }'>
+          <div class="col-sm-12 col-md-6 mb-4">
+            <div class='card'>
+              <div class='card-header'>Modules control</div>
+              <div class='card-body'>
+                <div class="row">
+                  <button type='button' onclick="cmd('ZigRST');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Restart</button>
+                  <button type='button' onclick="cmd('ZigBSL');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Flash Mode</button>
+                  <button type='button' onclick="cmd('EspReboot');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>ESP32 Restart</button>
+                </div>
+              </div>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-12 col-md-6 mb-4">
-      <div class='card'>
-        <div class='card-header'>Modules control</div>
-        <div class='card-body'>
-          <div class="row">
-            <button type='button' onclick="cmd('ZigRST');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Restart</button>
-            <button type='button' onclick="cmd('ZigBSL');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Flash Mode</button>
-            <button type='button' onclick="cmd('EspReboot');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>ESP32 Restart</button>
+          </div>
+          <div class="col-sm-12 col-md-6 mb-4">
+            <div class='card'>
+              <div class='card-header'>Current session control</div>
+              <div class='card-body'>
+                <div class="row">
+                  <button type='button' onclick="cmd('AdapterModeLAN');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>LAN Mode ON</button>
+                  <button type='button' onclick="cmd('AdapterModeUSB');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>USB Mode ON</button>
+                  <button type='button' onclick="cmd('LedYellowToggle');"
+                    class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Yellow LED
+                    Toggle</button>
+                  <button type="button" onclick="cmd('LedBlueToggle');"
+                    class="btn btn-outline-primary col-sm-12 col-md-auto mb-1">Blue LED Toggle</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
-    </div>
-    <div class="col-sm-12 col-md-6 mb-4">
-      <div class='card'>
-        <div class='card-header'>Current session control</div>
-        <div class='card-body'>
-          <div class="row">
-            <button type='button' onclick="cmd('AdapterModeLAN');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>LAN Mode ON</button>
-            <button type='button' onclick="cmd('AdapterModeUSB');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>USB Mode ON</button>
-            <button type='button' onclick="cmd('LedYellowToggle');" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Yellow LED
-              Toggle</button>
-            <button type="button" onclick="cmd('LedBlueToggle');" class="btn btn-outline-primary col-sm-12 col-md-auto mb-1">Blue LED Toggle</button>
+      <div class="tab-pane fade" id="systemTools" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="row masonry" data-masonry='{"percentPosition": true }'>
+          <div class="col-sm-12 col-md-6 mb-4">
+            <div class='card'>
+              <div class='card-header'>ESP32 Update</div>
+              <div class='card-body'>
+                <form class="container" method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+                  <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
+                  <label id='file-input' for='file'> Choose file...</label>
+                  <input id="updButton" type='submit' class='btn btn-warning mb-2' value='ESP32 OTA Update' disabled>
+                  <br>
+                  <div id='prg'></div>
+                  <div id='prgbar'>
+                    <div id='bar'></div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-6 mb-4">
+            <div class='card'>
+              <div class='card-header'>File Browser</div>
+              <div class='card-body'>
+                <table class="table">
+                  {{fileList}}
+                </table>
+                <form method="POST" action="saveFile">
+                  <div class="form-group">
+                    <div><label for="file">File : <span id="title"></span></label><input type="hidden" name="filename"
+                        id="filename" value=""></div><textarea class="form-control mb-2" id="config_file" name="file"
+                      rows="10"></textarea>
+                  </div><button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Save</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-6 mb-4">
+            <div class='card'>
+              <div class='card-header'>Debug console</div>
+              <div class='card-body'>
+                <div class="row">
+                  <div class="col">
+                    <div class="col-sm-12">Raw data :</div>
+                    <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
+                    <button type="button" onclick="cmd('ClearConsole');document.getElementById('console').value=''"
+                      class="btn btn-outline-primary col-sm-12 col-md-6">Clear Console</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -688,6 +761,8 @@ const char HTTP_SYSTOOLS[] PROGMEM = R"=====(
 
 </div>
 </div>
+<script src="/js/masonry.min.js"></script>
+<script language="javascript">logRefresh({{refreshLogs}});</script>
 <script>
   function sub(obj) {
     let fileName = obj.value.split('\\\\');
@@ -700,7 +775,7 @@ const char HTTP_SYSTOOLS[] PROGMEM = R"=====(
     }
     document.getElementById('file-input').innerHTML = '   ' + fileName[fileName.length - 1];
   };
-  $('form').submit(function (e) {
+  $('form#upload_form').submit(function (e) {
     e.preventDefault();
     var form = $('#upload_form')[0];
     var data = new FormData(form);
@@ -741,68 +816,74 @@ const char HTTP_SYSTOOLS[] PROGMEM = R"=====(
 </script>
     )=====";
 
-const char LOGS_BROWSER[] PROGMEM = R"=====(
-<div class="col py-3">
-  <h2>{{pageName}}</h2>
-  <div id='main' class="row">
-    <div class="col-sm-12 col-md-6 mb-4">
-      <div class='card'>
-        <div class='card-header'>File Browser</div>
-        <div class='card-body'>
-          <table class="table">
-            {{fileList}}
-          </table>
-          <form method="POST" action="saveFile">
-            <div class="form-group">
-              <div><label for="file">File : <span id="title"></span></label><input type="hidden" name="filename"
-                  id="filename" value=""></div><textarea class="form-control mb-2" id="file" name="file" rows="10"></textarea>
-            </div><button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Save</button>
-          </form>
+// const char LOGS_BROWSER[] PROGMEM = R"=====(
+// <div class="col py-3">
+//   <h2>{{pageName}}</h2>
+//   <div id='main' class="row">
+//     <div class="col-sm-12 col-md-6 mb-4">
+//       <div class='card'>
+//         <div class='card-header'>File Browser</div>
+//         <div class='card-body'>
+//           <table class="table">
+//             {{fileList}}
+//           </table>
+//           <form method="POST" action="saveFile">
+//             <div class="form-group">
+//               <div><label for="file">File : <span id="title"></span></label><input type="hidden" name="filename"
+//                   id="filename" value=""></div><textarea class="form-control mb-2" id="file" name="file" rows="10"></textarea>
+//             </div><button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Save</button>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//     <div class="col-sm-12 col-md-6 mb-4">
+//       <div class='card'>
+//         <div class='card-header'>Debug console</div>
+//         <div class='card-body'>
+//           <div class="row">
+//             <div class="col">
+//               <div class="col-sm-12">Raw data :</div>
+//               <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
+//               <button type="button" onclick="cmd('ClearConsole');document.getElementById('console').value=''" class="btn btn-outline-primary col-sm-12 col-md-6">Clear Console</button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+
+// </div>
+// </div>
+// <script language="javascript">logRefresh({{refreshLogs}});</script>
+// )=====";
+
+const char HTTP_ABOUT[] PROGMEM = R"=====(
+    <div id='main' class='row justify-content-center mt-5'>
+        <!-- <div id='help_btns'>
+            <a href='#' class='btn btn-primary'><i class='glyphicon glyphicon-cog'></i>Primary</a>
+            <a href='#' class='btn btn-secondary'><i class='glyphicon glyphicon-file'></i>Secondary</a>
+            <a href='#' class='btn btn-success'><i class='glyphicon glyphicon-flag'></i>Success</a>
+            <a href='#' class='btn btn-danger'><i class='glyphicon glyphicon-lock'></i>Danger</a>
+            <a href='#' class='btn btn-warning'><i class='glyphicon glyphicon-tags'></i>Warning</a>
         </div>
-      </div>
-    </div>
-    <div class="col-sm-12 col-md-6 mb-4">
-      <div class='card'>
-        <div class='card-header'>Debug console</div>
-        <div class='card-body'>
-          <div class="row">
-            <div class="col">
-              <div class="col-sm-12">Raw data :</div>
-              <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
-              <button type="button" onclick="cmd('ClearConsole');document.getElementById('console').value=''" class="btn btn-outline-primary col-sm-12 col-md-6">Clear Console</button>
-            </div>
-          </div>
+        //
+        <script
+            src='https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js'></script>
+        //
+        <script type='module' src='https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js'></script>
+        // <zero-md src='https://raw.githubusercontent.com/smlight-dev/SLZB-06/main/README.md'></zero-md> -->
+        <div class="col-sm-12 text-center">
+            <a href='http://smlight.tech/product/slzb-06/' target="_blank" style="text-decoration: none; color: link;"><h6><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+              </svg>Official web site with support page</h6></a>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
 </div>
 </div>
-<script language="javascript">logRefresh({{refreshLogs}});</script>
-)=====";
-
-const char HTTP_ABOUT[] PROGMEM =
-    "<div class='col py-3'>"
-    "<h2>About</h2>"
-    "<div id='main' class='col-sm-9'>"
-    /*
-    "<div id='help_btns'>"
-    "<a href='#' class='btn btn-primary'><i class='glyphicon glyphicon-cog'></i>Primary</a>"
-    "<a href='#' class='btn btn-secondary'><i class='glyphicon glyphicon-file'></i>Secondary</a>"
-    "<a href='#' class='btn btn-success'><i class='glyphicon glyphicon-flag'></i>Success</a>"
-    "<a href='#' class='btn btn-danger'><i class='glyphicon glyphicon-lock'></i>Danger</a>"
-    "<a href='#' class='btn btn-warning'><i class='glyphicon glyphicon-tags'></i>Warning</a>"
-    "</div>"
-    */
-    // "<script src='https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js'></script>"
-    // "<script type='module' src='https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js'></script>"
-    // "<zero-md src='https://raw.githubusercontent.com/smlight-dev/SLZB-06/main/README.md'></zero-md>"
-    "<a class='nav-link' href='https://smlight.tech/products/slzb06'><i class='glyphicon glyphicon-info-sign'></i>Official web site with support page</a>"
-    "</div>"
-    "</div>"
-    "</div>"
-    "</div>";
+    )=====";
 
 const char HTTP_ERROR[] PROGMEM =
     "<h2>{{pageName}}</h2>"
