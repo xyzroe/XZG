@@ -22,7 +22,6 @@
 #include "webh/favicon.ico.gz.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
-extern unsigned long timeLog;
 
 WebServer serverWeb(80);
 
@@ -649,7 +648,7 @@ void handleRoot()
 
     float CPUtemp = getCPUtemp();
         result.replace("{{deviceTemp}}", String(CPUtemp));
-        result.replace("{{hwRev}}", ConfigSettings.boardName);
+        result.replace("{{hwRev}}", BOARD_NAME);
         result.replace("{{espModel}}", String(ESP.getChipModel()));
         result.replace("{{espCores}}", String(ESP.getChipCores()));
         result.replace("{{espFreq}}", String(ESP.getCpuFreqMHz()));
@@ -691,15 +690,15 @@ void handleRoot()
                     }
 
 
-        if (ConfigSettings.enableWiFi || ConfigSettings.emergencyWifi) {
+        if (WiFi.getMode() == WIFI_MODE_STA || WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA) {
             result.replace("{{wifiMode}}", "Client");             
 //            wifiState += "<img src='/img/ok.png'>";
-            if (ConfigSettings.emergencyWifi) {
+            if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA) {
                 wifiState += "<strong> Emergency mode</strong>";
             }
 //            wifiState += "<br><strong>MAC : </strong>" + WiFi.softAPmacAddress();
 //            wifiState += "<br><strong>Mode : </strong> ";
-            if (ConfigSettings.wifiModeAP) {
+            if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA) {
                 result.replace("{{wifiIp}}", WiFi.localIP().toString());  
         String AP_NameString;
                 getDeviceID(AP_NameString);
@@ -1423,7 +1422,7 @@ void handleLedBlueToggle()
 void printLogTime()
 {
   String tmpTime;
-  timeLog = millis();
+  unsigned long timeLog = millis();
   tmpTime = String(timeLog, DEC);
   logPush('[');
   for (int j = 0; j < tmpTime.length(); j++)

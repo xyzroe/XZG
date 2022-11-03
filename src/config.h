@@ -22,8 +22,12 @@
 #define LED_YELLOW 14
 #define BTN 35
 #define MODE_SWITCH 4
-#define DEBOUNCE_TIME 70 
+#define DEBOUNCE_TIME 70
 
+#define BOARD_NAME "SLZB-06"
+
+const int16_t overseerInterval = 5 * 1000; //check lan or wifi connection every 5sec
+const uint8_t overseerMaxRetry = 12; //5x12 = 60sec delay for AP start
 
 #define PRODUCTION 1
 #define FLASH 0
@@ -35,6 +39,8 @@
 #define ETH_ERROR_TIME 30
 
 #define FORMAT_LITTLEFS_IF_FAILED true
+
+enum COORDINATOR_MODE_t : uint8_t {COORDINATOR_MODE_USB, COORDINATOR_MODE_WIFI, COORDINATOR_MODE_LAN};
 
 struct ConfigSettingsStruct
 {
@@ -58,12 +64,9 @@ struct ConfigSettingsStruct
   char hostname[50];
   bool connectedSocket[10];
   int connectedClients;
-  bool wifiModeAP;
   unsigned long socketTime;
   unsigned long disconnectEthTime;
   int board;
-  char boardName[50];
-  bool emergencyWifi;
   int tempOffset;
   bool webAuth;
   char webUser[50];
@@ -72,11 +75,12 @@ struct ConfigSettingsStruct
   bool usbMode;
   bool disableLedBlue;
   bool disableLedYellow;
-  int wifiRetries;
+  //int wifiRetries;
   bool disablePingCtrl;
-  int restarts;
-  unsigned long wifiAPenblTime;
+  //int restarts;
+  //unsigned long wifiAPenblTime;
   bool disableLeds;
+  COORDINATOR_MODE_t coordinator_mode;
 };
 
 struct InfosStruct

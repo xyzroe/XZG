@@ -50,25 +50,26 @@ void getReadableTime(String &readableTime, unsigned long beginTime)
   readableTime += String(seconds) + "";
 }
 
+float readtemp(bool clear){
+  if (clear == true) {
+    return (temprature_sens_read() - 32) / 1.8;
+  }
+  else {
+    return (temprature_sens_read() - 32) / 1.8 - ConfigSettings.tempOffset;
+  }
+}
+
 float getCPUtemp(bool clear)
 { 
   float CPUtemp = 0.0;
-  if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
+  if (WiFi.getMode() != WIFI_MODE_AP || WiFi.getMode() != WIFI_MODE_APSTA || WiFi.getMode() != WIFI_MODE_STA)
   {
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
-  }
-
-  if (clear == true) {
-    CPUtemp = (temprature_sens_read() - 32) / 1.8;
-  }
-  else {
-    CPUtemp = (temprature_sens_read() - 32) / 1.8 - ConfigSettings.tempOffset;
-  }
-  
-  if (!ConfigSettings.enableWiFi && !ConfigSettings.emergencyWifi)
-  {
+    CPUtemp = readtemp(clear);
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF); // disable wifi
+  }else{
+    CPUtemp = readtemp(clear);
   }
   return CPUtemp;
 }
