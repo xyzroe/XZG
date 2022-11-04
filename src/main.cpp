@@ -632,7 +632,7 @@ void setupEthernetAndZigbeeSerial()
     }
     else
     {
-      saveBoard(3);
+      saveBoard(4);
       ESP.restart();
     }
     break;
@@ -653,7 +653,28 @@ void setupEthernetAndZigbeeSerial()
     }
     else
     {
-      saveBoard(0);
+      saveBoard(1);
+      ESP.restart();
+    }
+    break;
+
+  case 4:
+    if (ETH.begin(ETH_ADDR_4, ETH_POWER_PIN_4, ETH_MDC_PIN_4, ETH_MDIO_PIN_4, ETH_TYPE_4, ETH_CLK_MODE_4))
+    {
+      String boardName = "Omilex EPS32-POE";
+      boardName.toCharArray(ConfigSettings.boardName, sizeof(ConfigSettings.boardName));
+      DEBUG_PRINT(F("Board - "));
+      DEBUG_PRINTLN(boardName);
+      ConfigSettings.rstZigbeePin = RESTART_ZIGBEE_4;
+      ConfigSettings.flashZigbeePin = FLASH_ZIGBEE_4;
+
+      DEBUG_PRINT(F("Zigbee serial setup @ "));
+      DEBUG_PRINTLN(ConfigSettings.serialSpeed);
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_4, ZTXD_4);
+    }
+    else
+    {
+      saveBoard(1);
       ESP.restart();
     }
     break;

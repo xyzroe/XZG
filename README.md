@@ -1,9 +1,8 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
+
+  
 # ZigStar LAN Gateway - Firmware
 This firmware delevoped to use with [ZigStar LAN Gateway](https://github.com/mercenaruss/zigstar_gateways)
-
-<div align="center">
-<img src="https://github.com/mercenaruss/zigstar_gateways/raw/main/img/Default.png" width="45%">  
-</div>
 
 # Functions
 - Zigbee UART port forwarding using socket LAN connection
@@ -110,7 +109,7 @@ Gulp script also minifies CSS and JS files and compresses (gzip) them.
 To minify and compress the frontend, enter the folder ```tools/webfilesbuilder``` and:
 * Run ```npm install``` to install dependencies  
 * Run ```npx gulp``` to compress the web UI to make it ready for the ESP  
-
+cd
 
 ### Like ♥️?
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/xyzroe)

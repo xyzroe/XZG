@@ -77,17 +77,33 @@ function checkLatestRelease() {
 		downloadCount += release.assets[i].download_count;
 	  }
 
-	  var releaseInfo = "New firmware version (" + release.name + ") was found on GitHub. It was downloaded " + downloadCount.toLocaleString() + " times. Go -> Tools -> Update ESP32 page to get more info.";
-
+	  
     var div1 = document.getElementById('ver');
 
     const exampleAttr= div1.getAttribute('v');
 
-    if (exampleAttr != release.name) {
+    var gitVer = Number(release.name.split('.').join(""));
+    var localVer = Number(exampleAttr.split('.').join(""));
+
+    var releaseInfo = "New firmware version (" + gitVer + ") was found on GitHub. It was downloaded " + downloadCount.toLocaleString() + " times. Go -> Tools -> Update ESP32 page to get more info.";
+
+    var betaInfo = "Thanks for testing new version! Don't forget to give feedback ;)";
+
+
+    if (gitVer > localVer) {
       new Toast({
         title: false,
         text: releaseInfo,
         theme: "warning",
+        autohide: false,
+        interval: false
+      });
+    }
+    else if (gitVer < localVer) {
+      new Toast({
+        title: false,
+        text: betaInfo,
+        theme: "success",
         autohide: false,
         interval: false
       });

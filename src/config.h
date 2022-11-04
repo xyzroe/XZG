@@ -50,8 +50,8 @@
 
 //---China-GW---
 //LAN
-#define ETH_CLK_MODE_3 ETH_CLOCK_GPIO0_IN
-#define ETH_POWER_PIN_3 2
+#define ETH_CLK_MODE_3 ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN_3 12
 #define ETH_TYPE_3 ETH_PHY_LAN8720
 #define ETH_ADDR_3 0
 #define ETH_MDC_PIN_3 23
@@ -61,6 +61,20 @@
 #define FLASH_ZIGBEE_3 14
 #define ZRXD_3 32
 #define ZTXD_3 33
+
+//---Omilex EPS32-POE---
+//LAN
+#define ETH_CLK_MODE_4 ETH_CLOCK_GPIO17_OUT
+#define ETH_POWER_PIN_4 12
+#define ETH_TYPE_4 ETH_PHY_LAN8720
+#define ETH_ADDR_4 0
+#define ETH_MDC_PIN_4 23
+#define ETH_MDIO_PIN_4 18
+//ZIGBEE
+#define RESTART_ZIGBEE_4 16
+#define FLASH_ZIGBEE_4 32
+#define ZRXD_4 36
+#define ZTXD_4 4
 
 #define PRODUCTION 1
 #define FLASH 0
