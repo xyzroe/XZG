@@ -61,9 +61,11 @@ float readtemp(bool clear){
 
 float getCPUtemp(bool clear)
 { 
+  DEBUG_PRINTLN(F("getCPUtemp"));
   float CPUtemp = 0.0;
-  if (WiFi.getMode() != WIFI_MODE_AP || WiFi.getMode() != WIFI_MODE_APSTA || WiFi.getMode() != WIFI_MODE_STA)
+  if (WiFi.getMode() == WIFI_MODE_NULL || WiFi.getMode() == WIFI_OFF)
   {
+    DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
     CPUtemp = readtemp(clear);
     WiFi.disconnect();

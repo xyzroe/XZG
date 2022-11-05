@@ -1,3 +1,4 @@
+#include "Arduino.h"
 void initWebServer();
 void webServerHandleClient();
 void handleGeneral();

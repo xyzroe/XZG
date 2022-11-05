@@ -5,6 +5,7 @@
 #include <CircularBuffer.h>
 #include "version.h"
 
+#define DEBUG
 //ESP32 PINS TO CONTROL LAN8720
 #define ETH_CLK_MODE_1 ETH_CLOCK_GPIO0_IN
 #define ETH_POWER_PIN_1 16
@@ -28,6 +29,8 @@
 
 const int16_t overseerInterval = 5 * 1000; //check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 12; //5x12 = 60sec delay for AP start
+extern const char* prevCoordMode;
+extern const char* coordMode;
 
 #define PRODUCTION 1
 #define FLASH 0
@@ -72,7 +75,6 @@ struct ConfigSettingsStruct
   char webUser[50];
   char webPass[50];
   bool disableEmerg;
-  bool usbMode;
   bool disableLedBlue;
   bool disableLedYellow;
   //int wifiRetries;
@@ -81,6 +83,7 @@ struct ConfigSettingsStruct
   //unsigned long wifiAPenblTime;
   bool disableLeds;
   COORDINATOR_MODE_t coordinator_mode;
+  COORDINATOR_MODE_t prevCoordinator_mode;//for button
 };
 
 struct InfosStruct

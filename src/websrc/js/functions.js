@@ -2,9 +2,6 @@ const disbl = "disabled";
 
 $(document).ready(function () { //handle active nav
 	$("a[href='" + document.location.pathname + "']").parent().addClass('nav-active'); //handle sidenav page selection
-	if (!$("#usbMode").prop("checked")) { //
-		$("#lanMode").prop("checked", true);
-	}
 
 	if ($("#EthDhcpTog").attr("checked")) {
 		EthInputDsbl(true);
