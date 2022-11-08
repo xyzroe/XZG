@@ -26,7 +26,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 
 ## Installation and Configuration
 
-Please refer to the installation and configuration articles in our [documentation](https://smlight.tech/products/slzb-06/manual).
+Please refer to the installation and configuration articles in our [documentation](https://smlight.tech/manual/slzb-06/).
 
 
 ## Compiling from source
