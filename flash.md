@@ -7,7 +7,7 @@
 <div align="center">
 <script tye="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
 <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+<br>
+<br>
+Powered by [ESP Web Tools](https://esphome.github.io/esp-web-tools/)
 </div>
-<br>
-<br>
-<h6>Powered by [ESP Web Tools](https://esphome.github.io/esp-web-tools/)<h6>
