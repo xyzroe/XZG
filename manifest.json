@@ -1,0 +1,12 @@
+{
+    "name": "ZigStarGW-FW",
+    "builds": [
+      {
+        "chipFamily": "ESP32",
+        "improv": false,
+        "parts": [
+          { "path": "https://github.com/xyzroe/ZigStarGW-FW/releases/latest/download/ZigStarGW.bin", "offset": 0 }
+        ]
+      }
+    ]
+  }
