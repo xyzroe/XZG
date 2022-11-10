@@ -9,5 +9,7 @@
 <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
 <br>
 <br>
-Powered by [ESP Web Tools](https://esphome.github.io/esp-web-tools/)
+<br>
+<br>
+Powered by <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a>
 </div>
