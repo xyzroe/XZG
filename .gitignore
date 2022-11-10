@@ -3,6 +3,6 @@
 .vscode
 .gcc-flags.json
 .clang_complete
-bin
+#bin
 commit
 TASK-LIST.md
