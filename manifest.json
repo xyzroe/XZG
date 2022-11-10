@@ -5,7 +5,8 @@
         "chipFamily": "ESP32",
         "improv": false,
         "parts": [
-          { "path": "https://github.com/xyzroe/ZigStarGW-FW/releases/latest/download/ZigStarGW.bin", "offset": 0 }
+          { "path": "bin/bootloader_dio_40m.bin", "offset": 4096 },
+          { "path": "bin/partitions.bin", "offset": 32768 }
         ]
       }
     ]
