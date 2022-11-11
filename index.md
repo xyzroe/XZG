@@ -11,10 +11,10 @@
 <br>
 <br>
 <br>
-<h2>Find ZigStar 👁</h2>
+<h1>Find ZigStar 👁</h1>
 <br>
 <div align="center">
-<a href="http://zigstargw.local/" target="_blank"><button style="background-color: #2879d0;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 14px;border-radius: 8px;">Open device</button></a>
+<a href="http://zigstargw.local/" target="_blank"><button style="background-color: #2879d0;border: none;color: white;padding: 10px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;border-radius: 8px;">Open device</button></a>
 </div>
 <br>
 <br>
