@@ -22,15 +22,13 @@ extern struct ConfigSettingsStruct ConfigSettings;
 
 void oneWireBegin()
 {
-  if (ConfigSettings.board == 2) {
-    sensor.begin();
-    DEBUG_PRINTLN(F("oneWire begin OK"));
-  }
+  sensor.begin();
+  DEBUG_PRINTLN(F("oneWire begin OK"));
 }
 
 float oneWireRead()
 { 
-  if (ConfigSettings.board == 2) {
+  if (ConfigSettings.board == 2 || ConfigSettings.board == 4) { //ttgo or omilex
     sensor.requestTemperatures();
     float tempC = sensor.getTempC();
     DEBUG_PRINTLN(tempC);

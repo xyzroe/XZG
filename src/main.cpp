@@ -671,6 +671,8 @@ void setupEthernetAndZigbeeSerial()
       DEBUG_PRINT(F("Zigbee serial setup @ "));
       DEBUG_PRINTLN(ConfigSettings.serialSpeed);
       Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, ZRXD_4, ZTXD_4);
+
+      oneWireBegin();
     }
     else
     {
