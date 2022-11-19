@@ -24,8 +24,8 @@ void ledBlueToggle();
 void getDeviceID(String &devID);
 void writeDefultConfig(const char *path, String StringConfig);
 
-void saveEmergencyWifi(bool state);
-void saveRestartCount(int count);
+//void saveEmergencyWifi(bool state);
+//void saveRestartCount(int count);
 
 void resetSettings();
 

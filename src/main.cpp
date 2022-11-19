@@ -38,14 +38,12 @@ const char* prevCoordMode = "prevCoordMode"; //prevCoordMode node name
 void mDNS_start();
 void connectWifi();
 void handlelongBtn();
-void handletmrLanOverseer();
-void handletmrWifiOverseer();
+void handletmrNetworkOverseer();
 void setupCoordinatorMode();
 void startAP();
 
 Ticker tmrBtnLongPress(handlelongBtn, 1000, 0, MILLIS);
-Ticker tmrLanOverseer(handletmrLanOverseer, overseerInterval, 0, MILLIS);
-Ticker tmrWifiOverseer(handletmrWifiOverseer, overseerInterval, 0, MILLIS);
+Ticker tmrNetworkOverseer(handletmrNetworkOverseer, overseerInterval, 0, MILLIS);
 
 IPAddress apIP(192, 168, 1, 1);
 DNSServer dnsServer;
@@ -64,11 +62,12 @@ void stopAP(bool wifioff = false){
     if(apsta) WiFi.mode(WIFI_STA);
 }
 
-void handletmrWifiOverseer(){
-  DEBUG_PRINTLN(F("WiFi.status()"));
+void handletmrNetworkOverseer(){
+  if(ConfigSettings.coordinator_mode == COORDINATOR_MODE_WIFI){
+    DEBUG_PRINTLN(F("WiFi.status()"));
   DEBUG_PRINTLN(WiFi.status());
   if(WiFi.status() == WL_CONNECTED){
-    tmrWifiOverseer.stop();
+    tmrNetworkOverseer.stop();
     mDNS_start();
     initWebServer();
     DEBUG_PRINTLN(F("WIFI CONNECTED"));
@@ -79,29 +78,26 @@ void handletmrWifiOverseer(){
     startSoketServer();
     stopAP();
   }else{
-    if (tmrWifiOverseer.counter() > overseerMaxRetry){
+    if (tmrNetworkOverseer.counter() > overseerMaxRetry){
       DEBUG_PRINTLN(F("WIFI counter overflow"));
       startAP();
       connectWifi();
     }
   }
-}
-
-void handletmrLanOverseer(){
-  static uint8_t retry_count = 0;
+  }else{
   if (ConfigSettings.connectedEther){
-    retry_count = 0;
-    tmrLanOverseer.stop();
+    tmrNetworkOverseer.stop();
     mDNS_start();
     initWebServer();
     DEBUG_PRINTLN(F("LAN CONNECTED"));
     startSoketServer();
     stopAP(true);
   }else{
-    if (tmrLanOverseer.counter() > overseerMaxRetry){
+    if (tmrNetworkOverseer.counter() > overseerMaxRetry){
       DEBUG_PRINTLN(F("LAN counter overflow"));
       startAP();
     }
+  }
   }
 }
 
@@ -180,22 +176,22 @@ void WiFiEvent(WiFiEvent_t event)
     DEBUG_PRINTLN(F("ETH Disconnected"));
     ConfigSettings.connectedEther = false;
     ConfigSettings.disconnectEthTime = millis();
-    if(tmrLanOverseer.state() == STOPPED && ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN){
-      tmrLanOverseer.start();
+    if(tmrNetworkOverseer.state() == STOPPED && ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN){
+      tmrNetworkOverseer.start();
     }
     break;
   case SYSTEM_EVENT_ETH_STOP:
     DEBUG_PRINTLN(F("ETH Stopped"));
     ConfigSettings.connectedEther = false;
     ConfigSettings.disconnectEthTime = millis();
-    if(tmrLanOverseer.state() == STOPPED){
-      tmrLanOverseer.start();
+    if(tmrNetworkOverseer.state() == STOPPED){
+      tmrNetworkOverseer.start();
     }
     break;
   case SYSTEM_EVENT_STA_DISCONNECTED:
     DEBUG_PRINTLN(F("WIFI STA DISCONNECTED"));
-    if(tmrWifiOverseer.state() == STOPPED){
-      tmrWifiOverseer.start();
+    if(tmrNetworkOverseer.state() == STOPPED){
+      tmrNetworkOverseer.start();
     }
     break;
   default:
@@ -232,7 +228,7 @@ IPAddress parse_ip_address(const char *str)
 
 bool loadSystemVar()
 {
-  const char *path = "/config/system.json";
+  const char *path = "/config/system.json"; //todo del this config
 
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
@@ -290,7 +286,7 @@ bool loadSystemVar()
 
 bool loadConfigWifi()
 {
-  const char *path = "/config/configWifi.json";
+  const char *path = "/config/configWifi.json"; //todo move 2 define or global const
 
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
@@ -329,7 +325,7 @@ bool loadConfigWifi()
 
 bool loadConfigEther()
 {
-  const char *path = "/config/configEther.json";
+  const char *path = "/config/configEther.json"; //todo move 2 define or global const
 
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
@@ -364,7 +360,7 @@ bool loadConfigEther()
 
 bool loadConfigGeneral()
 {
-  const char *path = "/config/configGeneral.json";
+  const char *path = "/config/configGeneral.json"; //todo move 2 define or global const
 
   File configFile = LittleFS.open(path, FILE_READ);
   DEBUG_PRINTLN(configFile.readString());
@@ -373,7 +369,7 @@ bool loadConfigGeneral()
     String deviceID = "SLZB-06";
     //getDeviceID(deviceID);
     DEBUG_PRINTLN("RESET ConfigGeneral");
-    String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedYellow\":0,\"disableLedBlue\":0,\""+ coordMode +"\":2}\""+ prevCoordMode +"\":2}";
+    String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedYellow\":0,\"disableLedBlue\":0,\""+ coordMode +"\":0}\""+ prevCoordMode +"\":0}";
 
     writeDefultConfig(path, StringConfig);
   }
@@ -420,7 +416,7 @@ bool loadConfigGeneral()
 
 bool loadConfigSecurity()
 {
-  const char *path = "/config/configSecurity.json";
+  const char *path = "/config/configSecurity.json";//todo move 2 define or global const
 
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
@@ -455,7 +451,7 @@ bool loadConfigSecurity()
 
 bool loadConfigSerial()
 {
-  const char *path = "/config/configSerial.json";
+  const char *path = "/config/configSerial.json"; //todo move 2 define or global const
 
   File configFile = LittleFS.open(path, FILE_READ);
   if (!configFile)
@@ -530,7 +526,7 @@ void connectWifi()
   if ((strlen(ConfigSettings.ssid) != 0) && (strlen(ConfigSettings.password) != 0))
   {
   DEBUG_PRINTLN(F("Ok SSID & PASS"));
-  if (tmrWifiOverseer.counter() > overseerMaxRetry){
+  if (tmrNetworkOverseer.counter() > overseerMaxRetry){
     DEBUG_PRINTLN(F("WiFi.mode(WIFI_AP_STA)"));
     WiFi.mode(WIFI_AP_STA);
   }else{
@@ -692,16 +688,15 @@ void setupCoordinatorMode(){
   switch (ConfigSettings.coordinator_mode){
   case COORDINATOR_MODE_USB:
     DEBUG_PRINTLN(F("Coordinator USB mode"));
-    tmrWifiOverseer.stop();
-    tmrLanOverseer.stop();
+    tmrNetworkOverseer.stop();
     digitalWrite(MODE_SWITCH, 1); 
     break;
 
     case COORDINATOR_MODE_WIFI:
     DEBUG_PRINTLN(F("Coordinator WIFI mode"));
-    tmrLanOverseer.stop();
-    if(tmrWifiOverseer.state() == STOPPED){
-      tmrWifiOverseer.start();
+    tmrNetworkOverseer.stop();
+    if(tmrNetworkOverseer.state() == STOPPED){
+      tmrNetworkOverseer.start();
     }
     WiFi.onEvent(WiFiEvent);
     connectWifi();
@@ -709,9 +704,9 @@ void setupCoordinatorMode(){
 
     case COORDINATOR_MODE_LAN:
     DEBUG_PRINTLN(F("Coordinator LAN mode"));
-    tmrWifiOverseer.stop();
-    if(tmrLanOverseer.state() == STOPPED){
-      tmrLanOverseer.start();
+    tmrNetworkOverseer.stop();
+    if(tmrNetworkOverseer.state() == STOPPED){
+      tmrNetworkOverseer.start();
     }
     WiFi.onEvent(WiFiEvent);
     if ( ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1)){
@@ -746,6 +741,24 @@ void setup(){
   pinMode(LED_BLUE, OUTPUT);
   pinMode(BTN, INPUT);
   pinMode(MODE_SWITCH, OUTPUT);
+
+  //hard reset
+  if(!digitalRead(BTN)){
+    DEBUG_PRINTLN(F("[hard reset] Entering hard reset mode"));
+    uint8_t counter = 0;
+    while (!digitalRead(BTN)){
+      if (counter >= 10){
+        resetSettings();
+      }else{
+        counter++;
+        DEBUG_PRINTLN(counter);
+        delay(200);
+      }
+    }
+    DEBUG_PRINTLN(F("[hard reset] Btn up, exit"));
+  }
+  //--------------------
+
   attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
 
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
@@ -807,8 +820,6 @@ void setup(){
 
   DEBUG_PRINTLN(millis());
 
-  saveRestartCount(0);
-
   // if (ConfigSettings.restarts > 5)
   // { 
   //   DEBUG_PRINTLN(F("RESET ALL SETTINGS!"));
@@ -816,7 +827,6 @@ void setup(){
   // }
 
   Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD);
-
   printLogMsg("Setup done");
 }
 
@@ -921,12 +931,6 @@ void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 
 void loop(void)
 {
-  uint16_t net_bytes_read = 0;
-  uint8_t net_buf[BUFFER_SIZE];
-
-  uint16_t serial_bytes_read = 0;
-  uint8_t serial_buf[BUFFER_SIZE];
-
   if(btnFlag){
     if(!digitalRead(BTN)){//pressed
       if (tmrBtnLongPress.state() == STOPPED){
@@ -942,10 +946,14 @@ void loop(void)
 }
 
 tmrBtnLongPress.update();
-tmrWifiOverseer.update();
-tmrLanOverseer.update();
+tmrNetworkOverseer.update();
 
   if (ConfigSettings.coordinator_mode != COORDINATOR_MODE_USB){
+    uint16_t net_bytes_read = 0;
+    uint8_t net_buf[BUFFER_SIZE];
+    uint16_t serial_bytes_read = 0;
+    uint8_t serial_buf[BUFFER_SIZE];
+    
     if (!ConfigSettings.disableWeb)
   {
     webServerHandleClient();

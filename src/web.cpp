@@ -14,6 +14,15 @@
 #include "etc.h"
 #include "html.h"
 #include "log.h"
+#include "webh/PAGE_ABOUT.html.gz.h"
+#include "webh/PAGE_ETHERNET.html.gz.h"
+#include "webh/PAGE_GENERAL.html.gz.h"
+#include "webh/PAGE_LOADER.html.gz.h"
+#include "webh/PAGE_ROOT.html.gz.h"
+#include "webh/PAGE_SECURITY.html.gz.h"
+#include "webh/PAGE_SERIAL.html.gz.h"
+#include "webh/PAGE_SYSTOOLS.html.gz.h"
+#include "webh/PAGE_WIFI.html.gz.h"
 #include "webh/bootstrap.min.js.gz.h"
 #include "webh/favicon.ico.gz.h"
 #include "webh/functions.js.gz.h"
@@ -21,9 +30,26 @@
 #include "webh/logo.png.gz.h"
 #include "webh/masonry.js.gz.h"
 #include "webh/required.css.gz.h"
+#include "webh/PAGE_LOGOUT.html.gz.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern const char *coordMode;
+const char *contTypeTextHtml = "text/html";
+const char *contTypeTextJs = "text/javascript";
+const char *contTypeTextCss = "text/css";
+const char *checked = "true";
+const char *respHeaderName = "respValuesArr";
+const char *contTypeJson = "application/json";
+const char *contTypeText = "text/plain";
+
+enum API_PAGE_t : uint8_t { API_PAGE_ROOT,
+                                API_PAGE_GENERAL,
+                                API_PAGE_ETHERNET,
+                                API_PAGE_WIFI,
+                                API_PAGE_SERIAL,
+                                API_PAGE_SECURITY,
+                                API_PAGE_SYSTOOLS,
+                                API_PAGE_ABOUT };
 
 WebServer serverWeb(80);
 
@@ -36,33 +62,39 @@ void webServerHandleClient() {
 }
 
 void initWebServer() {
-    serverWeb.on("/js/bootstrap.min.js", handle_bootstrap_js);
-    serverWeb.on("/js/masonry.min.js", handle_masonry_js);
-    serverWeb.on("/js/functions.js", handle_functions_js);
-    serverWeb.on("/js/jquery-min.js", handle_jquery_js);
-    serverWeb.on("/css/required.css", handle_required_css);
-    serverWeb.on("/img/logo.png", handle_logo_png);
-    serverWeb.on("/favicon.ico", handle_favicon);
-    serverWeb.on("/", handleRoot);
-    serverWeb.on("/general", handleGeneral);
-    serverWeb.on("/security", handleSecurity);
-    serverWeb.on("/wifi", handleWifi);
-    serverWeb.on("/ethernet", handleEther);
-    serverWeb.on("/serial", handleSerial);
+    serverWeb.on("/js/bootstrap.min.js", []() { sendGzip(contTypeTextJs, bootstrap_min_js_gz, bootstrap_min_js_gz_len); });
+    serverWeb.on("/js/masonry.min.js", []() { sendGzip(contTypeTextJs, masonry_js_gz, masonry_js_gz_len); });
+    serverWeb.on("/js/functions.js", []() { sendGzip(contTypeTextJs, functions_js_gz, functions_js_gz_len); });
+    serverWeb.on("/js/jquery-min.js", []() { sendGzip(contTypeTextJs, jquery_min_js_gz, jquery_min_js_gz_len); });
+    serverWeb.on("/css/required.css", []() { sendGzip(contTypeTextJs, required_css_gz, required_css_gz_len); });
+    serverWeb.on("/img/logo.png", []() { sendGzip("img/ico", logo_png_gz, logo_png_gz_len); });
+    serverWeb.on("/favicon.ico", []() { sendGzip("img/png", favicon_ico_gz, favicon_ico_gz_len); });
 
-    serverWeb.on("/saveGeneral", HTTP_POST, handleSaveGeneral);
-    serverWeb.on("/saveSecurity", HTTP_POST, handleSaveSecurity);
-    serverWeb.on("/saveSerial", HTTP_POST, handleSaveSerial);
-    serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
-    serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
+    serverWeb.onNotFound([]() { serverWeb.send(HTTP_CODE_OK, contTypeText, F("URL NOT FOUND")); });  // handleNotFound);
+    serverWeb.on("/", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/general", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/security", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/wifi", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/ethernet", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/serial", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/about", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/sys-tools", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+
+    // serverWeb.on("/saveGeneral", HTTP_POST, handleSaveGeneral);
+    // serverWeb.on("/saveSecurity", HTTP_POST, handleSaveSecurity);
+    // serverWeb.on("/saveSerial", HTTP_POST, handleSaveSerial);
+    // serverWeb.on("/saveWifi", HTTP_POST, handleSaveWifi);
+    // serverWeb.on("/saveEther", HTTP_POST, handleSaveEther);
+    serverWeb.on("/saveParams", HTTP_POST, handleSaveParams);
 
     // serverWeb.on("/logs-browser", handleLogsBrowser);
     serverWeb.on("/reboot", handleReboot);
-    serverWeb.on("/updates", handleUpdate);
-    serverWeb.on("/readFile", handleReadfile);
+    // serverWeb.on("/updates", handleUpdate);
+    //serverWeb.on("/readFile", handleReadfile);
     serverWeb.on("/saveFile", handleSavefile);
     serverWeb.on("/getLogBuffer", handleLogBuffer);
-    serverWeb.on("/scanNetwork", handleScanNetwork);
+    // serverWeb.on("/wifiScan", handleScanNetwork);
+    // serverWeb.on("/wifiScanStatus", handleScanNetworkDone);
     serverWeb.on("/cmdClearConsole", handleClearConsole);
     serverWeb.on("/cmdZigRST", handleZigbeeRestart);
     serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
@@ -72,19 +104,19 @@ void initWebServer() {
     serverWeb.on("/cmdLedYellowToggle", handleLedYellowToggle);
     serverWeb.on("/cmdLedBlueToggle", handleLedBlueToggle);
     serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL);  // for cc-2538.py ESPHome edition back compatibility | will be disabled on 1.0.0
-    serverWeb.on("/about", handleAbout);
-    serverWeb.on("/sys-tools", handleSysTools);
-    serverWeb.on("/web_update", handleWEBUpdate);
-    serverWeb.on("/logged-out", handleLoggedOut);
-    serverWeb.onNotFound(handleRoot);  // handleNotFound);
-
-    serverWeb.on("/logout", []() { serverWeb.send(401); });
+    // serverWeb.on("/web_update", handleWEBUpdate);
+    //serverWeb.on("/logged-out", handleLoggedOut);
+    serverWeb.on("/api", handleApi);
+    serverWeb.on("/logout", []() { 
+        serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
+        serverWeb.send_P(401, contTypeTextHtml, (const char *)PAGE_LOGOUT_html_gz, PAGE_LOGOUT_html_gz_len);
+    });
 
     /*handling uploading firmware file */
     serverWeb.on(
         "/update", HTTP_POST, []() {
         serverWeb.sendHeader("Connection", "close");
-        serverWeb.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
         ESP.restart(); },
         []() {
             if (checkAuth()) {
@@ -102,7 +134,7 @@ void initWebServer() {
                 } else if (upload.status == UPLOAD_FILE_END) {
                     if (Update.end(true)) {  // true to set the size to the current progress
                         Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-                        serverWeb.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+                        serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
                     } else {
                         Update.printError(Serial);
                     }
@@ -113,92 +145,388 @@ void initWebServer() {
     DEBUG_PRINTLN(F("webserver setup done"));
 }
 
-void handle_functions_js() {
-    const char *dataType = "text/javascript";
+void sendGzip(const char *contentType, const uint8_t content[], uint16_t contentLen) {
     serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)functions_js_gz, functions_js_gz_len);
+    serverWeb.send_P(HTTP_CODE_OK, contentType, (const char *)content, contentLen);
 }
 
-void handle_bootstrap_js() {
-    const char *dataType = "text/javascript";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)bootstrap_min_js_gz, bootstrap_min_js_gz_len);
-}
+void handleApi() {  // http://192.168.0.116/api?action=0&page=0
+    enum API_ACTION_t : uint8_t { API_GET_PAGE,
+                                  API_GET_PARAM,
+                                  API_STARTWIFISCAN,
+                                  API_WIFISCANSTATUS,
+                                  API_GET_FILELIST,
+                                  API_GET_FILE };
+    const char *action = "action";
+    const char *page = "page";
+    const char *Authentication = "Authentication";
+    const char* param = "param";
 
-void handle_masonry_js() {
-    const char *dataType = "text/javascript";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)masonry_js_gz, masonry_js_gz_len);
-}
-
-void handle_jquery_js() {
-    const char *dataType = "text/javascript";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)jquery_min_js_gz, jquery_min_js_gz_len);
-}
-
-void handle_required_css() {
-    const char *dataType = "text/css";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)required_css_gz, required_css_gz_len);
-}
-
-void handle_favicon() {
-    const char *dataType = "img/ico";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)favicon_ico_gz, favicon_ico_gz_len);
-}
-
-void handle_logo_png() {
-    const char *dataType = "img/png";
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(200, dataType, (const char *)logo_png_gz, logo_png_gz_len);
-}
-
-void handleLoggedOut() {
-    String result;
-    result += F("<html>");
-    result += FPSTR(HTTP_HEADER);
-    result.replace("{{logoutLink}}", "");
-    result += FPSTR(HTTP_ERROR);
-    result += F("</html>");
-    result.replace("{{pageName}}", "Logged out");
-
-    serverWeb.send(200, F("text/html"), result);
-}
-
-void handleNotFound() {
-    if (checkAuth()) {
-        String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
+    if(ConfigSettings.webAuth){
+        if(!checkAuth()){//Authentication
+            serverWeb.sendHeader(Authentication, "fail");
+            serverWeb.send(401, contTypeText, F("wrong login or password"));
+            return;
+        }else{
+            serverWeb.sendHeader(Authentication, "ok");
         }
-        result += FPSTR(HTTP_ERROR);
-        result += F("</html>");
-        result.replace("{{pageName}}", "Not found - 404");
+    }
+    if (serverWeb.argName(0) != action) {
+        DEBUG_PRINTLN(F("[handleApi] wrong arg 'action'"));
+        DEBUG_PRINTLN(serverWeb.argName(0));
+        serverWeb.send(500, contTypeText, F("wrong args"));
+    } else {
+        const uint8_t action = serverWeb.arg(action).toInt();
+        DEBUG_PRINTLN(F("[handleApi] arg 0 is:"));
+        DEBUG_PRINTLN(action);
+        switch (action) {
+            case API_GET_FILE:{
+                String result = "wrong params";
+                if(serverWeb.hasArg("filename")){
+                    String filename = "/config/" + serverWeb.arg("filename");
+                    File file = LittleFS.open(filename, "r");
+                    if (!file) return;
+                    result = "";              
+                    while (file.available()) {
+                        result += (char)file.read();
+                    }
+                    file.close();    
+                }
+                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            }
+            break;
+            case API_GET_PARAM:{
+                    String resp = "wrong params";
+                    if(serverWeb.hasArg(param)){
+                        if (serverWeb.arg(param) == "refreshLogs"){
+                            resp = (String)ConfigSettings.refreshLogs;
+                        }
+                    }
+                    serverWeb.send(HTTP_CODE_OK, contTypeText, resp);
+                }
+                break;
+            case API_STARTWIFISCAN:
+                    if (WiFi.getMode() == WIFI_OFF) {  // enable wifi for scan
+                        WiFi.mode(WIFI_STA);
+                        WiFi.scanNetworks(true);
+                    } else if (WiFi.getMode() == WIFI_AP) {  // enable sta for scan
+                        WiFi.mode(WIFI_AP_STA);
+                    }
+                    serverWeb.send(HTTP_CODE_OK, contTypeTextHtml, "ok");
+                break;
+            case API_WIFISCANSTATUS: {
+                static uint8_t timeout = 0;
+                DynamicJsonDocument doc(1024);
+                String result = "";
+                int16_t scanRes = WiFi.scanComplete();
+                doc["scanDone"] = false;
+                if (scanRes == -2) {
+                    WiFi.scanNetworks(true);
+                } else if (scanRes > 0) {
+                    doc["scanDone"] = true;
+                    JsonArray wifi = doc.createNestedArray("wifi");
+                    for (int i = 0; i < scanRes; ++i) {
+                        JsonObject wifi_0 = wifi.createNestedObject();
+                        wifi_0["ssid"] = WiFi.SSID(i);
+                        wifi_0["rssi"] = WiFi.RSSI(i);
+                        wifi_0["channel"] = WiFi.channel(i);
+                        wifi_0["secure"] = WiFi.encryptionType(i);
+                    }
+                    WiFi.scanDelete();
+                    if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF);
+                }
+                if (timeout < 10) {
+                    timeout++;
+                } else {
+                    doc["scanDone"] = true;
+                    WiFi.scanDelete();
+                    timeout = 0;
+                    if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF);
+                }
 
-        serverWeb.send(404, F("text/html"), result);
+                serializeJson(doc, result);
+                serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
+                break;
+            }
+            case API_GET_PAGE:
+                if (!serverWeb.arg(page).length() > 0) {
+                    DEBUG_PRINTLN(F("[handleApi] wrong arg 'page'"));
+                    DEBUG_PRINTLN(serverWeb.argName(1));
+                    serverWeb.send(500, contTypeText, F("wrong args"));
+                    return;
+                }
+                switch (serverWeb.arg(page).toInt()) {
+                    case API_PAGE_ROOT:
+                        handleRoot();
+                        sendGzip(contTypeTextHtml, PAGE_ROOT_html_gz, PAGE_ROOT_html_gz_len);
+                        break;
+                    case API_PAGE_GENERAL:
+                        handleGeneral();
+                        sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
+                        break;
+                    case API_PAGE_ETHERNET:
+                        handleEther();
+                        sendGzip(contTypeTextHtml, PAGE_ETHERNET_html_gz, PAGE_ETHERNET_html_gz_len);
+                        break;
+                    case API_PAGE_WIFI:
+                        handleWifi();
+                        sendGzip(contTypeTextHtml, PAGE_WIFI_html_gz, PAGE_WIFI_html_gz_len);
+                        break;
+                    case API_PAGE_SERIAL:
+                        handleSerial();
+                        sendGzip(contTypeTextHtml, PAGE_SERIAL_html_gz, PAGE_SERIAL_html_gz_len);
+                        break;
+                    case API_PAGE_SECURITY:
+                        handleSecurity();
+                        sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
+                        break;
+                    case API_PAGE_SYSTOOLS:
+                        handleSysTools();
+                        sendGzip(contTypeTextHtml, PAGE_SYSTOOLS_html_gz, PAGE_SYSTOOLS_html_gz_len);
+                        break;
+                    case API_PAGE_ABOUT:
+                        handleAbout();
+                        sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+            case API_GET_FILELIST:{
+                String fileList = "";
+                DynamicJsonDocument doc(512);
+                JsonArray files = doc.createNestedArray("files");
+                File root = LittleFS.open("/config");
+                File file = root.openNextFile();
+                while (file) {
+                    JsonObject jsonfile = files.createNestedObject();
+                    jsonfile["filename"] = String(file.name());
+                    jsonfile["size"] = file.size();
+                    file = root.openNextFile();
+                }
+                serializeJson(doc, fileList);
+                serverWeb.send(HTTP_CODE_OK, contTypeJson, fileList);
+                break;
+            }
+
+            default:
+                DEBUG_PRINTLN(F("[handleApi] switch (action) err"));
+                break;
+        }
     }
 }
 
-bool checkAuth() {
+void handleSaveParams(){
     String result;
-    result += F("<html>");
-    result += FPSTR(HTTP_HEADER);
-    result.replace("{{logoutLink}}", "");
+    DynamicJsonDocument doc(512);
+    const char* pageId = "pageId";
+    const char* on = "on";
+    File configFile;
+    const uint8_t one = 1;
+    const uint8_t zero = 0;
+    if (serverWeb.hasArg(pageId)){
+       switch (serverWeb.arg(pageId).toInt()){
+            case API_PAGE_GENERAL:{
+                const char *path = "/config/configGeneral.json";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
 
-    result += FPSTR(HTTP_ERROR);
-    result += F("</html>");
-    result.replace("{{pageName}}", "Authentication failed");
+                if (serverWeb.hasArg(coordMode)) {
+                    const uint8_t mode = serverWeb.arg(coordMode).toInt();
+                    if(mode <= 2 && mode >= zero){
+                        ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>(mode);
+                        doc[coordMode] = ConfigSettings.coordinator_mode;
+                    }           
+                }
+                const char* disableLedYellow = "disableLedYellow";
+                if (serverWeb.arg(disableLedYellow) == on) {
+                    doc[disableLedYellow] = one;
+                } else {
+                    doc[disableLedYellow] = zero;
+                }
+                const char* disableLedBlue = "disableLedBlue";
+                if (serverWeb.arg(disableLedBlue) == on) {
+                    doc[disableLedBlue] = one;
+                } else {
+                    doc[disableLedBlue] = zero;
+                }
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+            case API_PAGE_ETHERNET:{
+                const char *path = "/config/configEther.json";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                doc["ip"] = serverWeb.arg("ipAddress");
+                doc["mask"] = serverWeb.arg("ipMask");
+                doc["gw"] = serverWeb.arg("ipGW");
+                const char* dhcp = "dhcp";
+                if (serverWeb.arg(dhcp) == "on") {
+                    doc[dhcp] = one;
+                } else {
+                    doc[dhcp] = zero;
+                }
+                const char* disablePingCtrl = "disablePingCtrl";
+                if (serverWeb.arg(disablePingCtrl) == "on") {
+                    doc[disablePingCtrl] = one;
+                } else {
+                    doc[disablePingCtrl] = zero;
+                }
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+            case API_PAGE_WIFI:{
+                const char *path = "/config/configWifi.json";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                doc["ssid"] = serverWeb.arg("WIFISSID");
+                doc["pass"] = serverWeb.arg("WIFIpassword");
+                const char* dhcpWiFi = "dhcpWiFi";
+                if (serverWeb.arg(dhcpWiFi) == on) {
+                    doc[dhcpWiFi] = 1;
+                } else {
+                    doc[dhcpWiFi] = 0;
+                }
+                doc["ip"] = serverWeb.arg("ipAddress");
+                doc["mask"] = serverWeb.arg("ipMask");
+                doc["gw"] = serverWeb.arg("ipGW");
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+            case API_PAGE_SERIAL:{
+                const char *path = "/config/configSerial.json";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                const char* baud = "baud";
+                if (serverWeb.hasArg(baud)){
+                    doc[baud] = serverWeb.arg(baud);
+                }else{
+                    doc[baud] = "115200";
+                }
+                const char* port = "port";
+                if (serverWeb.hasArg(baud)){
+                    doc[port] = serverWeb.arg(port);
+                }else{
+                    doc[port] = "6638";
+                }
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+            case API_PAGE_SECURITY:{
+                const char *path = "/config/configSecurity.json";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                const char* disableWeb = "disableWeb";
+                if (serverWeb.arg(disableWeb) == "on") {
+                    doc[disableWeb] = 1;
+                } else {
+                    doc[disableWeb] = 0;
+                }
+                const char* webAuth = "webAuth";
+                if (serverWeb.arg(webAuth) == "on") {
+                    doc[webAuth] = 1;
+                } else {
+                    doc[webAuth] = 0;
+                }
+                const char* webUser = "webUser";
+                if (serverWeb.arg(webUser) != "") {
+                    doc[webUser] = serverWeb.arg(webUser);
+                } else {
+                    doc[webUser] = "admin";
+                }
+                doc["webPass"] = serverWeb.arg("webPass");
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+            case API_PAGE_SYSTOOLS:{
+                const char *path = "/config/configGeneral.json";
+                const char *refreshLogs = "refreshLogs";
+                const char *hostname = "hostname";
+                configFile = LittleFS.open(path, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                if (serverWeb.hasArg(refreshLogs)){
+                    ConfigSettings.refreshLogs = serverWeb.arg(refreshLogs).toInt();
+                    doc[refreshLogs] = ConfigSettings.refreshLogs;
+                }
+                if (serverWeb.hasArg(hostname)){
+                    doc[hostname] = serverWeb.arg(hostname);
+                    strlcpy(ConfigSettings.hostname, serverWeb.arg(hostname).c_str(), sizeof(ConfigSettings.hostname));
+                }
+                configFile = LittleFS.open(path, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+            }
+            break;
+       
+            default:
+            break;
+       }
+       serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
+    }else{
+        serverWeb.send(500, contTypeText, "bad args");
+    }
+}
 
+// void handleLoggedOut() {
+//     String result;
+//     result += F("<html>");
+//     // result += FPSTR(HTTP_HEADER);
+//     result.replace("{{logoutLink}}", "");
+//     result += FPSTR(HTTP_ERROR);
+//     result += F("</html>");
+//     result.replace("{{pageName}}", "Logged out");
+
+//     serverWeb.send(200, F("text/html"), result);
+// }
+
+// void handleNotFound() {
+//     if (checkAuth()) {
+//         String result;
+//         result += F("<html>");
+//         // result += FPSTR(HTTP_HEADER);
+//         if (ConfigSettings.webAuth) {
+//             result.replace("{{logoutLink}}", LOGOUT_LINK);
+//         } else {
+//             result.replace("{{logoutLink}}", "");
+//         }
+//         result += FPSTR(HTTP_ERROR);
+//         result += F("</html>");
+//         result.replace("{{pageName}}", "Not found - 404");
+
+//         serverWeb.send(404, F("text/html"), result);
+//     }
+// }
+
+bool checkAuth() {
+    //String result;
+    //result += F("<html>");
+    // result += FPSTR(HTTP_HEADER);
+    //result.replace("{{logoutLink}}", "");
+
+    //result += FPSTR(HTTP_ERROR);
+    //result += F("</html>");
+    //result.replace("{{pageName}}", "Authentication failed");
+    if(!ConfigSettings.webAuth) return true;
     const char *www_realm = "Login Required";
-
-    if (ConfigSettings.webAuth && !serverWeb.authenticate(ConfigSettings.webUser, ConfigSettings.webPass)) {
-        serverWeb.requestAuthentication(DIGEST_AUTH, www_realm, result);
+    if (!serverWeb.authenticate(ConfigSettings.webUser, ConfigSettings.webPass)) {
+        serverWeb.requestAuthentication(DIGEST_AUTH, www_realm, "Authentication failed");
         return false;
     } else {
         return true;
@@ -206,53 +534,46 @@ bool checkAuth() {
 }
 
 void handleAbout() {
-    if (checkAuth()) {
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_ABOUT);
-        result += F("</html>");
-        result.replace("{{pageName}}", "About");
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        serverWeb.send(200, "text/html", result);
-    }
+        DynamicJsonDocument doc(512);
+        //result += F("<html>");
+        // result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_ABOUT);
+        //result += F("</html>");
+        doc["pageName"] = "About";
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
 void handleGeneral() {
-    if (checkAuth()) {
+        DynamicJsonDocument doc(1024);
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_GENERAL);
-        result += F("</html>");
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_GENERAL);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "General");
-        result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
-        result.replace("{{hostname}}", (String)ConfigSettings.hostname);
+        doc["pageName"] = "General";
         // DEBUG_PRINTLN(ConfigSettings.usbMode);
         switch (ConfigSettings.coordinator_mode) {
             case COORDINATOR_MODE_USB:
-                result.replace("{{checkedUsbMode}}", "Checked");
+                doc["checkedUsbMode"] = checked;
                 break;
             case COORDINATOR_MODE_WIFI:
-                result.replace("{{checkedWifiMode}}", "Checked");
+                doc["checkedWifiMode"] = checked;
                 break;
             case COORDINATOR_MODE_LAN:
-                result.replace("{{checkedLanMode}}", "Checked");
+                doc["checkedLanMode"] = checked;
                 break;
 
             default:
@@ -260,229 +581,252 @@ void handleGeneral() {
         }
         // DEBUG_PRINTLN(ConfigSettings.disableLedYellow);
         if (ConfigSettings.disableLedYellow) {
-            result.replace("{{checkedDisableLedYellow}}", "Checked");
-        } else {
-            result.replace("{{checkedDisableLedYellow}}", "");
+            doc["checkedDisableLedYellow"] = checked;
         }
         // DEBUG_PRINTLN(ConfigSettings.disableLedBlue);
         if (ConfigSettings.disableLedBlue) {
-            result.replace("{{checkedDisableLedBlue}}", "Checked");
-        } else {
-            result.replace("{{checkedDisableLedBlue}}", "");
+            doc["checkedDisableLedBlue"] = checked;
         }
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 void handleSecurity() {
-    if (checkAuth()) {
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_SECURITY);
-        result += F("</html>");
+        DynamicJsonDocument doc(1024);
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_SECURITY);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "Security");
+        doc["pageName"] = "Security";
 
         if (ConfigSettings.disableWeb) {
-            result.replace("{{disableWeb}}", "checked");
-        } else {
-            result.replace("{{disableWeb}}", "");
+            doc["disableWeb"] = checked;
         }
 
         if (ConfigSettings.webAuth) {
-            result.replace("{{webAuth}}", "checked");
-        } else {
-            result.replace("{{webAuth}}", "");
+            doc["webAuth"] = checked;
         }
-        result.replace("{{webUser}}", (String)ConfigSettings.webUser);
-        result.replace("{{webPass}}", (String)ConfigSettings.webPass);
+        doc["webUser"] = (String)ConfigSettings.webUser;
+        doc["webPass"] = (String)ConfigSettings.webPass;
 
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleSaveSucces(String msg) {
-    if (checkAuth()) {
-        String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += F("<div class='col py-3'>");
-        result += F("<h2>{{pageName}}</h2>");
-        result += F("<div id='main' class='col-sm-12'>");
-        result += F("<div id='main' class='col-sm-6'>");
-        result += F("<form method='GET' action='reboot' id='upload_form'>");
-        result += F("<label>Save ");
-        result += msg;
-        result += F(" OK !</label><br><br><br>");
-        result += F("<button type='submit' class='btn btn-success btn-lg mb-2'>Click to reboot</button>");
-        result += F("</form></div></div></div></div></div>");
-        result += F("</html>");
-        result.replace("{{pageName}}", "Saved");
+// void handleSaveSucces(String msg) {//todo remove
+//         String result;
+//         result += F("<html>");
+//         // result += FPSTR(HTTP_HEADER);
+//         if (ConfigSettings.webAuth) {
+//             result.replace("{{logoutLink}}", LOGOUT_LINK);
+//         } else {
+//             result.replace("{{logoutLink}}", "");
+//         }
+//         result += F("<div class='col py-3'>");
+//         result += F("<h2>{{pageName}}</h2>");
+//         result += F("<div id='main' class='col-sm-12'>");
+//         result += F("<div id='main' class='col-sm-6'>");
+//         result += F("<form method='GET' action='reboot' id='upload_form'>");
+//         result += F("<label>Save ");
+//         result += msg;
+//         result += F(" OK !</label><br><br><br>");
+//         result += F("<button type='submit' class='btn btn-success btn-lg mb-2'>Click to reboot</button>");
+//         result += F("</form></div></div></div></div></div>");
+//         result += F("</html>");
+//         result.replace("{{pageName}}", "Saved");
 
-        serverWeb.send(200, "text/html", result);
-    }
-}
+//         serverWeb.send(200, "text/html", result);
+// }
 
 void handleWifi() {
-    if (checkAuth()) {
+    // if (checkAuth()) {
+    //     String result;
+    //     result += F("<html>");
+    //     result += FPSTR(HTTP_HEADER);
+    //     if (ConfigSettings.webAuth) {
+    //         result.replace("{{logoutLink}}", LOGOUT_LINK);
+    //     } else {
+    //         result.replace("{{logoutLink}}", "");
+    //     }
+    //     result += FPSTR(HTTP_WIFI);
+    //     result += F("</html>");
+
+    //     result.replace("{{pageName}}", "Config WiFi");
+
+    //     DEBUG_PRINTLN(ConfigSettings.enableWiFi);
+    //     if (ConfigSettings.enableWiFi) {
+    //         result.replace("{{checkedWiFi}}", "Checked");
+    //     } else {
+    //         result.replace("{{checkedWiFi}}", "");
+    //     }
+    //     DEBUG_PRINTLN(ConfigSettings.disableEmerg);
+    //     if (ConfigSettings.disableEmerg) {
+    //         result.replace("{{checkedDisEmerg}}", "Checked");
+    //     } else {
+    //         result.replace("{{checkedDisEmerg}}", "");
+    //     }
+    //     result.replace("{{ssid}}", String(ConfigSettings.ssid));
+    //     result.replace("{{passWifi}}", String(ConfigSettings.password));
+    //     if (ConfigSettings.dhcpWiFi) {
+    //         result.replace("{{dchp}}", "Checked");
+    //     } else {
+    //         result.replace("{{dchp}}", "");
+    //     }
+    //     result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
+    //     result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
+    //     result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
+
+    //     serverWeb.send(200, "text/html", result);
+    // }
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_WIFI);
-        result += F("</html>");
+        DynamicJsonDocument doc(1024);
+        // result += F("<html>");
+        // result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_WIFI);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "Config WiFi");
+        doc["pageName"] = "Config WiFi";
 
-        DEBUG_PRINTLN(ConfigSettings.enableWiFi);
-        if (ConfigSettings.enableWiFi) {
-            result.replace("{{checkedWiFi}}", "Checked");
-        } else {
-            result.replace("{{checkedWiFi}}", "");
-        }
-        DEBUG_PRINTLN(ConfigSettings.disableEmerg);
-        if (ConfigSettings.disableEmerg) {
-            result.replace("{{checkedDisEmerg}}", "Checked");
-        } else {
-            result.replace("{{checkedDisEmerg}}", "");
-        }
-        result.replace("{{ssid}}", String(ConfigSettings.ssid));
-        result.replace("{{passWifi}}", String(ConfigSettings.password));
+        // DEBUG_PRINTLN(ConfigSettings.enableWiFi);
+        // if (ConfigSettings.enableWiFi) {
+        //     result.replace("{{checkedWiFi}}", "Checked");
+        // } else {
+        //     result.replace("{{checkedWiFi}}", "");
+        // }
+        // DEBUG_PRINTLN(ConfigSettings.disableEmerg);
+        // if (ConfigSettings.disableEmerg) {
+        //     result.replace("{{checkedDisEmerg}}", "Checked");
+        // } else {
+        //     result.replace("{{checkedDisEmerg}}", "");
+        // }
+        doc["ssid"] = String(ConfigSettings.ssid);
+        doc["passWifi"] = String(ConfigSettings.password);
         if (ConfigSettings.dhcpWiFi) {
-            result.replace("{{dchp}}", "Checked");
-        } else {
-            result.replace("{{dchp}}", "");
+            doc["dchp"] = checked;
         }
-        result.replace("{{ip}}", ConfigSettings.ipAddressWiFi);
-        result.replace("{{mask}}", ConfigSettings.ipMaskWiFi);
-        result.replace("{{gw}}", ConfigSettings.ipGWWiFi);
+        doc["ip"] = ConfigSettings.ipAddressWiFi;
+        doc["mask"] = ConfigSettings.ipMaskWiFi;
+        doc["gw"] = ConfigSettings.ipGWWiFi;
 
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
 void handleSerial() {
-    if (checkAuth()) {
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_SERIAL);
-        result += F("</html>");
+        DynamicJsonDocument doc(1024);
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_SERIAL);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "Config Serial");
+        doc["pageName"] = "Config Serial";
 
         if (ConfigSettings.serialSpeed == 9600) {
-            result.replace("{{selected9600}}", "Selected");
+            doc["selected9600"] = checked;
         } else if (ConfigSettings.serialSpeed == 19200) {
-            result.replace("{{selected19200}}", "Selected");
+            doc["selected19200"] = checked;
         } else if (ConfigSettings.serialSpeed == 38400) {
-            result.replace("{{selected38400}}", "Selected");
+            doc["selected38400"] = checked;
         } else if (ConfigSettings.serialSpeed == 57600) {
-            result.replace("{{selected57600}}", "Selected");
+            doc["selected57600"] = checked;
         } else if (ConfigSettings.serialSpeed == 115200) {
-            result.replace("{{selected115200}}", "Selected");
+            doc["selected115200"] = checked;
         } else {
-            result.replace("{{selected115200}}", "Selected");
+            doc["selected115200"] = checked;
         }
-        result.replace("{{socketPort}}", String(ConfigSettings.socketPort));
+        doc["socketPort"] = String(ConfigSettings.socketPort);
 
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
 void handleEther() {
-    if (checkAuth()) {
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_ETHERNET);
-        result += F("</html>");
+        DynamicJsonDocument doc(1024);
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += FPSTR(HTTP_ETHERNET);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "Config Ethernet");
+        doc["pageName"] = "Config Ethernet";
 
         if (ConfigSettings.dhcp) {
-            result.replace("{{modeEther}}", "Checked");
-        } else {
-            result.replace("{{modeEther}}", "");
+            doc["modeEther"] = checked;
         }
-        result.replace("{{ipEther}}", ConfigSettings.ipAddress);
-        result.replace("{{maskEther}}", ConfigSettings.ipMask);
-        result.replace("{{GWEther}}", ConfigSettings.ipGW);
+        doc["ipEther"] = ConfigSettings.ipAddress;
+        doc["maskEther"] = ConfigSettings.ipMask;
+        doc["GWEther"] = ConfigSettings.ipGW;
 
         if (ConfigSettings.disablePingCtrl) {
-            result.replace("{{disablePingCtrl}}", "Checked");
-        } else {
-            result.replace("{{disablePingCtrl}}", "");
+            doc["disablePingCtrl"] = checked;
         }
 
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
 void handleRoot() {
-    if (checkAuth()) {
         String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += FPSTR(HTTP_ROOT);
-        result += F("</html>");
+        DynamicJsonDocument doc(1024);
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     // doc["logoutLink}}", LOGOUT_LINK);
+        // } else {
+        //     // result.replace("{{logoutLink}}", "");
+        // }
+        // result += FPSTR(HTTP_ROOT);
+        // result += F("</html>");
 
-        result.replace("{{pageName}}", "Status");
-        result.replace("{{VERSION}}", VERSION);
+        doc["pageName"] = "Status";
+        doc["VERSION"] = VERSION;
 
         String readableTime;
         getReadableTime(readableTime, ConfigSettings.socketTime);
         if (ConfigSettings.connectedClients > 0) {
             if (ConfigSettings.connectedClients > 1) {
-                result.replace("{{connectedSocketStatus}}", "Yes, " + String(ConfigSettings.connectedClients) + "connection");
-                result.replace("{{connectedSocket}}", readableTime);
+                doc["connectedSocketStatus"] = "Yes, " + String(ConfigSettings.connectedClients) + "connection";
+                doc["connectedSocket"] = readableTime;
             } else {
-                result.replace("{{connectedSocketStatus}}", "Yes, " + String(ConfigSettings.connectedClients) + " connections");
-                result.replace("{{connectedSocket}}", readableTime);
+                doc["connectedSocketStatus"], "Yes, " + String(ConfigSettings.connectedClients) + " connections";
+                doc["connectedSocket"] = readableTime;
             }
         } else {
-            result.replace("{{connectedSocketStatus}}", "No");
-            result.replace("{{connectedSocket}}", "Not connected");
+            doc["connectedSocketStatus"] = "No";
+            doc["connectedSocket"] = "Not connected";
         }
 
         switch (ConfigSettings.coordinator_mode) {
             case COORDINATOR_MODE_USB:
-                result.replace("{{operationalMode}}", "Zigbee-to-USB");
+                doc["operationalMode"] = "Zigbee-to-USB";
                 break;
             case COORDINATOR_MODE_WIFI:
-                result.replace("{{operationalMode}}", "Zigbee-to-WIFI");
+                doc["operationalMode"] = "Zigbee-to-WIFI";
                 break;
             case COORDINATOR_MODE_LAN:
-                result.replace("{{operationalMode}}", "Zigbee-to-LAN");
+                doc["operationalMode"] = "Zigbee-to-LAN";
                 break;
 
             default:
@@ -491,24 +835,24 @@ void handleRoot() {
 
         // ETHERNET TAB
         if (ConfigSettings.dhcp) {
-                result.replace("{{ethDhcp}}", "On");
-                // result.replace("{{ethIp}}", ETH.localIP().toString());
-                // result.replace("{{etchMask}}", ETH.subnetMask().toString());
-                // result.replace("{{ethGate}}", ETH.gatewayIP().toString());
-            } else {
-                result.replace("{{ethDhcp}}", "Off");
-                // result.replace("{{ethIp}}", ConfigSettings.ipAddress);
-                // result.replace("{{etchMask}}", ConfigSettings.ipMask);
-                // result.replace("{{ethGate}}", ConfigSettings.ipGW);
-            }
+            doc["ethDhcp"] = "On";
+            // result.replace("{{ethIp}}", ETH.localIP().toString());
+            // result.replace("{{etchMask}}", ETH.subnetMask().toString());
+            // result.replace("{{ethGate}}", ETH.gatewayIP().toString());
+        } else {
+            doc["ethDhcp"] = "Off";
+            // result.replace("{{ethIp}}", ConfigSettings.ipAddress);
+            // result.replace("{{etchMask}}", ConfigSettings.ipMask);
+            // result.replace("{{ethGate}}", ConfigSettings.ipGW);
+        }
         if (ConfigSettings.connectedEther) {
-            result.replace("{{connectedEther}}", "Yes");
-            result.replace("{{ethConnection}}", "Connected");
-            result.replace("{{ethMac}}", ETH.macAddress());
-            result.replace("{{ethSpd}}", String(ETH.linkSpeed()) + String(" Mbps"));
-            result.replace("{{ethIp}}", ETH.localIP().toString());
-            result.replace("{{etchMask}}", ETH.subnetMask().toString());
-            result.replace("{{ethGate}}", ETH.gatewayIP().toString());
+            doc["connectedEther"] = "Yes";
+            doc["ethConnection"] = "Connected";
+            doc["ethMac"] = ETH.macAddress();
+            doc["ethSpd"] = String(ETH.linkSpeed()) + String(" Mbps");
+            doc["ethIp"] = ETH.localIP().toString();
+            doc["etchMask"] = ETH.subnetMask().toString();
+            doc["ethGate"] = ETH.gatewayIP().toString();
             // if (ConfigSettings.dhcp) {
             //     result.replace("{{ethDhcp}}", "On");
             //     // result.replace("{{ethIp}}", ETH.localIP().toString());
@@ -521,13 +865,13 @@ void handleRoot() {
             //     // result.replace("{{ethGate}}", ConfigSettings.ipGW);
             // }
         } else {
-            result.replace("{{connectedEther}}", "No");
-            result.replace("{{ethConnection}}", "Not connected");
-            result.replace("{{ethMac}}", "Not connected");
-            result.replace("{{ethSpd}}", "Not connected");
-            result.replace("{{ethIp}}", "Not connected");
-            result.replace("{{etchMask}}", "Not connected");
-            result.replace("{{ethGate}}", "Not connected");
+            doc["connectedEther"] = "No";
+            doc["ethConnection"] = "Not connected";
+            doc["ethMac"] = "Not connected";
+            doc["ethSpd"] = "Not connected";
+            doc["ethIp"] = "Not connected";
+            doc["etchMask"] = "Not connected";
+            doc["ethGate"] = "Not connected";
             // if (ConfigSettings.dhcp) {
             //     result.replace("{{ethDhcp}}", "On");
             //     result.replace("{{ethIp}}", "Not connected");
@@ -540,86 +884,86 @@ void handleRoot() {
             //     result.replace("{{ethGate}}", ConfigSettings.ipGW);
             // }
         }
-        
+
         getReadableTime(readableTime, 0);
-        result.replace("{{uptime}}", readableTime);
+        doc["uptime"] = readableTime;
 
         float CPUtemp = getCPUtemp();
-        result.replace("{{deviceTemp}}", String(CPUtemp));
-        result.replace("{{hwRev}}", BOARD_NAME);
-        result.replace("{{espModel}}", String(ESP.getChipModel()));
-        result.replace("{{espCores}}", String(ESP.getChipCores()));
-        result.replace("{{espFreq}}", String(ESP.getCpuFreqMHz()));
-        result.replace("{{espHeapFree}}", String(ESP.getFreeHeap() / 1024));
-        result.replace("{{espHeapSize}}", String(ESP.getHeapSize() / 1024));
+        doc["deviceTemp"] = String(CPUtemp);
+        doc["hwRev"] = BOARD_NAME;
+        doc["espModel"] = String(ESP.getChipModel());
+        doc["espCores"] = String(ESP.getChipCores());
+        doc["espFreq"] = String(ESP.getCpuFreqMHz());
+        doc["espHeapFree"] = String(ESP.getFreeHeap() / 1024);
+        doc["espHeapSize"] = String(ESP.getHeapSize() / 1024);
 
         esp_chip_info_t chip_info;
         esp_chip_info(&chip_info);
 
         if (chip_info.features & CHIP_FEATURE_EMB_FLASH) {
-            result.replace("{{espFlashType}}", "embedded");
+            doc["espFlashType"] = "embedded";
         } else {
-            result.replace("{{espFlashType}}", "external");
+            doc["espFlashType"] = "external";
         }
 
-        result.replace("{{espFlashSize}}", String(ESP.getFlashChipSize() / (1024 * 1024)));
+        doc["espFlashSize"] = String(ESP.getFlashChipSize() / (1024 * 1024));
 
         if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_WIFI) {
-            result.replace("{{wifiEnabled}}", "Yes");
+            doc["wifiEnabled"] = "Yes";
+
+            if (WiFi.status() == WL_CONNECTED) {  // STA connected
+                String rssiWifi = String(WiFi.RSSI()) + String(" dBm");
+                doc["wifiSsid"] = WiFi.SSID();
+                doc["wifiMac"] = WiFi.macAddress().c_str();
+                doc["wifiRssi"] = rssiWifi;
+                doc["wifiConnected"] = "Connected to " + WiFi.SSID();
+                doc["wifiIp"] = WiFi.localIP().toString();
+                doc["wifiSubnet"] = WiFi.subnetMask().toString();
+                doc["wifiGate"] = WiFi.gatewayIP().toString();
+            } else {
+                const char *connecting = "Connecting...";
+                doc["wifiSsid"] = ConfigSettings.ssid;
+                doc["wifiMac"] = WiFi.macAddress().c_str();
+                doc["wifiRssi"] = connecting;
+                doc["wifiConnected"] = connecting;
+                doc["wifiIp"] = ConfigSettings.dhcpWiFi ? WiFi.localIP().toString() : connecting;
+                doc["wifiSubnet"] = ConfigSettings.dhcpWiFi ? WiFi.subnetMask().toString() : connecting;
+                doc["wifiGate"] = ConfigSettings.dhcpWiFi ? WiFi.gatewayIP().toString() : connecting;
+            }
 
             if (ConfigSettings.dhcpWiFi) {
-                result.replace("{{wifiDhcp}}", "On");
+                doc["wifiDhcp"] = "On";
             } else {
-                result.replace("{{wifiDhcp}}", "Off");
-            }
-
-            if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA) {//AP active
-                result.replace("{{wifiIp}}", WiFi.localIP().toString());
-                String AP_NameString;
-                getDeviceID(AP_NameString);
-                result.replace("{{wifiSsid}}", AP_NameString + ", no password");
-                result.replace("{{wifiIp}}", "192.168.1.1 (SLZB-06 web interface)");
-                result.replace("{{wifiSubnet}}", "255.255.255.0 (Access point)");
-                result.replace("{{wifiGate}}", "192.168.1.1 (this device)");
-                result.replace("{{wifiDhcp}}", "On (Access point)");
-                result.replace("{{wifiModeAPStatus}}", "AP started");
-                result.replace("{{wifiMode}}", "AP");
-                result.replace("{{wifiModeAP}}", "Yes");
-            }else{
-                result.replace("{{wifiModeAP}}", "No");
-                result.replace("{{wifiModeAPStatus}}", "Not started");
-                result.replace("{{wifiMode}}", "Client");
-                if(WiFi.status() == WL_CONNECTED){ //STA connected
-                    String rssiWifi = String(WiFi.RSSI()) + String(" dBm");
-                    result.replace("{{wifiSsid}}", WiFi.SSID());	
-                    result.replace("{{wifiMac}}", WiFi.macAddress().c_str());
-                    result.replace("{{wifiRssi}}", rssiWifi); 
-                    result.replace("{{wifiConnected}}", "Connected to " + WiFi.SSID());
-                    result.replace("{{wifiIp}}", WiFi.localIP().toString());
-                    result.replace("{{wifiSubnet}}", WiFi.subnetMask().toString());
-                    result.replace("{{wifiGate}}", WiFi.gatewayIP().toString());
-                }else{
-                    const char* connecting = "Connecting...";
-                    result.replace("{{wifiSsid}}", ConfigSettings.ssid);	
-                    result.replace("{{wifiMac}}", WiFi.macAddress().c_str());
-                    result.replace("{{wifiRssi}}", connecting); 
-                    result.replace("{{wifiConnected}}", connecting);
-                    result.replace("{{wifiIp}}", ConfigSettings.dhcpWiFi ? WiFi.localIP().toString() : connecting);
-                    result.replace("{{wifiSubnet}}", ConfigSettings.dhcpWiFi ? WiFi.subnetMask().toString() : connecting);
-                    result.replace("{{wifiGate}}", ConfigSettings.dhcpWiFi ? WiFi.gatewayIP().toString() : connecting);
-                }
+                doc["wifiDhcp"] = "Off";
             }
         } else {
-            result.replace("{{wifiEnabled}}", "Disabled");
-            result.replace("{{wifiConnected}}", "Not connected");
-            result.replace("{{wifiMode}}", "Off");
-            result.replace("{{wifiSsid}}", "Off");
-            result.replace("{{wifiMac}}", "Off");
-            result.replace("{{wifiIp}}", "Off");
-            result.replace("{{wifiSubnet}}", "Off");
-            result.replace("{{wifiGate}}", "Off");
-            result.replace("{{wifiRssi}}", "Off");
-            result.replace("{{wifiDhcp}}", "Off");
+            doc["wifiEnabled"] = "No";
+            doc["wifiConnected"] = "Not connected";
+            doc["wifiMode"] = "Off";
+            doc["wifiSsid"] = "Off";
+            doc["wifiMac"] = "Off";
+            doc["wifiIp"] = "Off";
+            doc["wifiSubnet"] = "Off";
+            doc["wifiGate"] = "Off";
+            doc["wifiRssi"] = "Off";
+            doc["wifiDhcp"] = "Off";
+        }
+        if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA) {  // AP active
+            doc["wifiIp"] = WiFi.localIP().toString();
+            String AP_NameString;
+            getDeviceID(AP_NameString);
+            doc["wifiSsid"] = AP_NameString + "] = no password";
+            doc["wifiIp"] = "192.168.1.1 (SLZB-06 web interface)";
+            doc["wifiSubnet"] = "255.255.255.0 (Access point)";
+            doc["wifiGate"] = "192.168.1.1 (this device)";
+            doc["wifiDhcp"] = "On (Access point)";
+            doc["wifiModeAPStatus"] = "AP started";
+            doc["wifiMode"] = "AP";
+            doc["wifiModeAP"] = "Yes";
+        } else {
+            doc["wifiModeAP"] = "No";
+            doc["wifiModeAPStatus"] = "Not started";
+            doc["wifiMode"] = "Client";
         }
         // if (ConfigSettings.disableEmerg) {
         //     result.replace("{{wifiModeAP}}", "No");
@@ -628,249 +972,248 @@ void handleRoot() {
         //     result.replace("{{wifiModeAP}}", "Yes");
         //     result.replace("{{wifiModeAPStatus}}", "Not started");
         // }
-
-        serverWeb.send(200, "text/html", result);
-    }
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleSaveGeneral() {
-    if (checkAuth()) {
-        String StringConfig;
-        String refreshLogs;
-        String hostname;
-        String usbMode;
-        String disableLedYellow;
-        String disableLedBlue;
+// void handleSaveGeneral() {
+//     if (checkAuth()) {
+//         String StringConfig;
+//         String refreshLogs;
+//         String hostname;
+//         String usbMode;
+//         String disableLedYellow;
+//         String disableLedBlue;
 
-        if (serverWeb.arg("refreshLogs").toDouble() < 1000) {
-            refreshLogs = "1000";
-        } else {
-            refreshLogs = serverWeb.arg("refreshLogs");
-        }
+//         if (serverWeb.arg("refreshLogs").toDouble() < 1000) {
+//             refreshLogs = "1000";
+//         } else {
+//             refreshLogs = serverWeb.arg("refreshLogs");
+//         }
 
-        if (serverWeb.arg("hostname") != "") {
-            hostname = serverWeb.arg("hostname");
-        } else {
-            hostname = "SLZB-06";
-        }
-        // DEBUG_PRINTLN(hostname);
+//         if (serverWeb.arg("hostname") != "") {
+//             hostname = serverWeb.arg("hostname");
+//         } else {
+//             hostname = "SLZB-06";
+//         }
+//         // DEBUG_PRINTLN(hostname);
 
-        if (serverWeb.hasArg(coordMode)) {
-            printLogMsg(F("[SaveGeneral] 'coordMode' arg is:"));
-            printLogMsg(serverWeb.arg(coordMode));
-            ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>(serverWeb.arg(coordMode).toInt());
-            printLogMsg(F("[SaveGeneral] 'static_cast' res is:"));
-            printLogMsg(String(ConfigSettings.coordinator_mode));
-        } else {
-            printLogMsg(F("[SaveGeneral] no 'coordMode' arg"));
-        }
+//         if (serverWeb.hasArg(coordMode)) {
+//             printLogMsg(F("[SaveGeneral] 'coordMode' arg is:"));
+//             printLogMsg(serverWeb.arg(coordMode));
+//             ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>(serverWeb.arg(coordMode).toInt());
+//             printLogMsg(F("[SaveGeneral] 'static_cast' res is:"));
+//             printLogMsg(String(ConfigSettings.coordinator_mode));
+//         } else {
+//             printLogMsg(F("[SaveGeneral] no 'coordMode' arg"));
+//         }
 
-        if (serverWeb.arg("disableLedYellow") == "on") {
-            disableLedYellow = "1";
-        } else {
-            disableLedYellow = "0";
-            ConfigSettings.disableLeds = false;
-        }
-        if (serverWeb.arg("disableLedBlue") == "on") {
-            disableLedBlue = "1";
-        } else {
-            disableLedBlue = "0";
-            ConfigSettings.disableLeds = false;
-        }
-        const char *path = "/config/configGeneral.json";
+//         if (serverWeb.arg("disableLedYellow") == "on") {
+//             disableLedYellow = "1";
+//         } else {
+//             disableLedYellow = "0";
+//             ConfigSettings.disableLeds = false;
+//         }
+//         if (serverWeb.arg("disableLedBlue") == "on") {
+//             disableLedBlue = "1";
+//         } else {
+//             disableLedBlue = "0";
+//             ConfigSettings.disableLeds = false;
+//         }
+//         const char *path = "/config/configGeneral.json";
 
-        StringConfig = "{\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\",\"disableLeds\": " + String(ConfigSettings.disableLeds) + ",\"usbMode\":\"" + usbMode + "\",\"disableLedYellow\":\"" + disableLedYellow + "\",\"disableLedBlue\":" + disableLedBlue + ",\""+ coordMode +"\":"+String(ConfigSettings.coordinator_mode)+",\""+ prevCoordMode +"\":"+String(ConfigSettings.prevCoordinator_mode)+"}";
-        DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
-        deserializeJson(doc, StringConfig);
+//         StringConfig = "{\"refreshLogs\":" + refreshLogs + ",\"hostname\":\"" + hostname + "\",\"disableLeds\": " + String(ConfigSettings.disableLeds) + ",\"usbMode\":\"" + usbMode + "\",\"disableLedYellow\":\"" + disableLedYellow + "\",\"disableLedBlue\":" + disableLedBlue + ",\"" + coordMode + "\":" + String(ConfigSettings.coordinator_mode) + ",\"" + prevCoordMode + "\":" + String(ConfigSettings.prevCoordinator_mode) + "}";
+//         DEBUG_PRINTLN(StringConfig);
+//         DynamicJsonDocument doc(1024);
+//         deserializeJson(doc, StringConfig);
 
-        File configFile = LittleFS.open(path, FILE_WRITE);
-        if (!configFile) {
-            DEBUG_PRINTLN(F("failed open"));
-        } else {
-            serializeJson(doc, configFile);
-        }
-        handleSaveSucces("config");
-    }
-}
+//         File configFile = LittleFS.open(path, FILE_WRITE);
+//         if (!configFile) {
+//             DEBUG_PRINTLN(F("failed open"));
+//         } else {
+//             serializeJson(doc, configFile);
+//         }
+//         handleSaveSucces("config");
+//     }
+// }
 
-void handleSaveSecurity() {
-    if (checkAuth()) {
-        String StringConfig;
-        String disableWeb;
-        String webAuth;
-        String webUser;
-        String webPass;
+// void handleSaveSecurity() {
+//     if (checkAuth()) {
+//         String StringConfig;
+//         String disableWeb;
+//         String webAuth;
+//         String webUser;
+//         String webPass;
 
-        if (serverWeb.arg("disableWeb") == "on") {
-            disableWeb = "1";
-        } else {
-            disableWeb = "0";
-        }
+//         if (serverWeb.arg("disableWeb") == "on") {
+//             disableWeb = "1";
+//         } else {
+//             disableWeb = "0";
+//         }
 
-        if (serverWeb.arg("webAuth") == "on") {
-            webAuth = "1";
-        } else {
-            webAuth = "0";
-        }
+//         if (serverWeb.arg("webAuth") == "on") {
+//             webAuth = "1";
+//         } else {
+//             webAuth = "0";
+//         }
 
-        if (serverWeb.arg("webUser") != "") {
-            webUser = serverWeb.arg("webUser");
-        } else {
-            webUser = "admin";
-        }
+//         if (serverWeb.arg("webUser") != "") {
+//             webUser = serverWeb.arg("webUser");
+//         } else {
+//             webUser = "admin";
+//         }
 
-        if (serverWeb.arg("webPass") != "") {
-            webPass = serverWeb.arg("webPass");
-        } else {
-            webPass = "admin";
-        }
+//         if (serverWeb.arg("webPass") != "") {
+//             webPass = serverWeb.arg("webPass");
+//         } else {
+//             webPass = "admin";
+//         }
 
-        // DEBUG_PRINTLN(hostname);
-        const char *path = "/config/configSecurity.json";
+//         // DEBUG_PRINTLN(hostname);
+//         const char *path = "/config/configSecurity.json";
 
-        StringConfig = "{\"disableWeb\":" + disableWeb + ",\"webAuth\":" + webAuth + ",\"webUser\":\"" + webUser + "\",\"webPass\":\"" + webPass + "\"}";
-        DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
-        deserializeJson(doc, StringConfig);
+//         StringConfig = "{\"disableWeb\":" + disableWeb + ",\"webAuth\":" + webAuth + ",\"webUser\":\"" + webUser + "\",\"webPass\":\"" + webPass + "\"}";
+//         DEBUG_PRINTLN(StringConfig);
+//         DynamicJsonDocument doc(1024);
+//         deserializeJson(doc, StringConfig);
 
-        File configFile = LittleFS.open(path, FILE_WRITE);
-        if (!configFile) {
-            DEBUG_PRINTLN(F("failed open"));
-        } else {
-            serializeJson(doc, configFile);
-        }
-        handleSaveSucces("config");
-    }
-}
+//         File configFile = LittleFS.open(path, FILE_WRITE);
+//         if (!configFile) {
+//             DEBUG_PRINTLN(F("failed open"));
+//         } else {
+//             serializeJson(doc, configFile);
+//         }
+//         handleSaveSucces("config");
+//     }
+// }
 
-void handleSaveWifi() {
-    if (checkAuth()) {
-        if (!serverWeb.hasArg("WIFISSID")) {
-            serverWeb.send(500, "text/plain", "BAD ARGS");
-            return;
-        }
+// void handleSaveWifi() {
+//     if (checkAuth()) {
+//         if (!serverWeb.hasArg("WIFISSID")) {
+//             serverWeb.send(500, contTypeText, "BAD ARGS");
+//             return;
+//         }
 
-        String StringConfig;
-        String enableWiFi;
-        if (serverWeb.arg("wifiEnable") == "on") {
-            enableWiFi = "1";
-        } else {
-            enableWiFi = "0";
-        }
-        String ssid = serverWeb.arg("WIFISSID");
-        String pass = serverWeb.arg("WIFIpassword");
+//         String StringConfig;
+//         String enableWiFi;
+//         if (serverWeb.arg("wifiEnable") == "on") {
+//             enableWiFi = "1";
+//         } else {
+//             enableWiFi = "0";
+//         }
+//         String ssid = serverWeb.arg("WIFISSID");
+//         String pass = serverWeb.arg("WIFIpassword");
 
-        String dhcpWiFi;
-        if (serverWeb.arg("dhcpWiFi") == "on") {
-            dhcpWiFi = "1";
-        } else {
-            dhcpWiFi = "0";
-        }
+//         String dhcpWiFi;
+//         if (serverWeb.arg("dhcpWiFi") == "on") {
+//             dhcpWiFi = "1";
+//         } else {
+//             dhcpWiFi = "0";
+//         }
 
-        String ipAddress = serverWeb.arg("ipAddress");
-        String ipMask = serverWeb.arg("ipMask");
-        String ipGW = serverWeb.arg("ipGW");
-        String disableEmerg;
-        if (serverWeb.arg("disableEmerg") == "on") {
-            disableEmerg = "1";
-            saveEmergencyWifi(0);
-        } else {
-            disableEmerg = "0";
-        }
-        const char *path = "/config/configWifi.json";
+//         String ipAddress = serverWeb.arg("ipAddress");
+//         String ipMask = serverWeb.arg("ipMask");
+//         String ipGW = serverWeb.arg("ipGW");
+//         // String disableEmerg;
+//         // if (serverWeb.arg("disableEmerg") == "on") {
+//         //     disableEmerg = "1";
+//         //     saveEmergencyWifi(0);
+//         // } else {
+//         //     disableEmerg = "0";
+//         // }
+//         const char *path = "/config/configWifi.json";
 
-        StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"disableEmerg\":\"" + disableEmerg + "\"}";
-        DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
-        deserializeJson(doc, StringConfig);
+//         StringConfig = "{\"enableWiFi\":" + enableWiFi + ",\"ssid\":\"" + ssid + "\",\"pass\":\"" + pass + "\",\"dhcpWiFi\":" + dhcpWiFi + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\"}";
+//         DEBUG_PRINTLN(StringConfig);
+//         DynamicJsonDocument doc(1024);
+//         deserializeJson(doc, StringConfig);
 
-        File configFile = LittleFS.open(path, FILE_WRITE);
-        if (!configFile) {
-            DEBUG_PRINTLN(F("failed open"));
-        } else {
-            serializeJson(doc, configFile);
-        }
-        handleSaveSucces("config");
-    }
-}
+//         File configFile = LittleFS.open(path, FILE_WRITE);
+//         if (!configFile) {
+//             DEBUG_PRINTLN(F("failed open"));
+//         } else {
+//             serializeJson(doc, configFile);
+//         }
+//         handleSaveSucces("config");
+//     }
+// }
 
-void handleSaveSerial() {
-    if (checkAuth()) {
-        String StringConfig;
-        String serialSpeed = serverWeb.arg("baud");
-        String socketPort = serverWeb.arg("port");
-        const char *path = "/config/configSerial.json";
+// void handleSaveSerial() {
+//     if (checkAuth()) {
+//         String StringConfig;
+//         String serialSpeed = serverWeb.arg("baud");
+//         String socketPort = serverWeb.arg("port");
+//         const char *path = "/config/configSerial.json";
 
-        StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
-        DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
-        deserializeJson(doc, StringConfig);
+//         StringConfig = "{\"baud\":" + serialSpeed + ", \"port\":" + socketPort + "}";
+//         DEBUG_PRINTLN(StringConfig);
+//         DynamicJsonDocument doc(1024);
+//         deserializeJson(doc, StringConfig);
 
-        File configFile = LittleFS.open(path, FILE_WRITE);
-        if (!configFile) {
-            DEBUG_PRINTLN(F("failed open"));
-        } else {
-            serializeJson(doc, configFile);
-        }
-        handleSaveSucces("config");
-    }
-}
+//         File configFile = LittleFS.open(path, FILE_WRITE);
+//         if (!configFile) {
+//             DEBUG_PRINTLN(F("failed open"));
+//         } else {
+//             serializeJson(doc, configFile);
+//         }
+//         handleSaveSucces("config");
+//     }
+// }
 
-void handleSaveEther() {
-    if (checkAuth()) {
-        if (!serverWeb.hasArg("ipAddress")) {
-            serverWeb.send(500, "text/plain", "BAD ARGS");
-            return;
-        }
+// void handleSaveEther() {
+//     if (checkAuth()) {
+//         if (!serverWeb.hasArg("ipAddress")) {
+//             serverWeb.send(500, contTypeText, "BAD ARGS");
+//             return;
+//         }
 
-        String StringConfig;
-        String dhcp;
-        if (serverWeb.arg("dhcp") == "on") {
-            dhcp = "1";
-        } else {
-            dhcp = "0";
-        }
-        String ipAddress = serverWeb.arg("ipAddress");
-        String ipMask = serverWeb.arg("ipMask");
-        String ipGW = serverWeb.arg("ipGW");
+//         String StringConfig;
+//         String dhcp;
+//         if (serverWeb.arg("dhcp") == "on") {
+//             dhcp = "1";
+//         } else {
+//             dhcp = "0";
+//         }
+//         String ipAddress = serverWeb.arg("ipAddress");
+//         String ipMask = serverWeb.arg("ipMask");
+//         String ipGW = serverWeb.arg("ipGW");
 
-        String disablePingCtrl;
-        if (serverWeb.arg("disablePingCtrl") == "on") {
-            disablePingCtrl = "1";
-        } else {
-            disablePingCtrl = "0";
-        }
+//         String disablePingCtrl;
+//         if (serverWeb.arg("disablePingCtrl") == "on") {
+//             disablePingCtrl = "1";
+//         } else {
+//             disablePingCtrl = "0";
+//         }
 
-        const char *path = "/config/configEther.json";
+//         const char *path = "/config/configEther.json";
 
-        StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"disablePingCtrl\":\"" + disablePingCtrl + "\"}";
-        DEBUG_PRINTLN(StringConfig);
-        DynamicJsonDocument doc(1024);
-        deserializeJson(doc, StringConfig);
+//         StringConfig = "{\"dhcp\":" + dhcp + ",\"ip\":\"" + ipAddress + "\",\"mask\":\"" + ipMask + "\",\"gw\":\"" + ipGW + "\",\"disablePingCtrl\":\"" + disablePingCtrl + "\"}";
+//         DEBUG_PRINTLN(StringConfig);
+//         DynamicJsonDocument doc(1024);
+//         deserializeJson(doc, StringConfig);
 
-        File configFile = LittleFS.open(path, FILE_WRITE);
-        if (!configFile) {
-            DEBUG_PRINTLN(F("failed open"));
-        } else {
-            serializeJson(doc, configFile);
-        }
-        handleSaveSucces("config");
-    }
-}
+//         File configFile = LittleFS.open(path, FILE_WRITE);
+//         if (!configFile) {
+//             DEBUG_PRINTLN(F("failed open"));
+//         } else {
+//             serializeJson(doc, configFile);
+//         }
+//         handleSaveSucces("config");
+//     }
+// }
 
-void handleReboot() {
+void handleReboot() {//todo remove
     if (checkAuth()) {
         String result;
 
         result += F("<html>");
         result += F("<meta http-equiv='refresh' content='1; URL=/'>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
+        // result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     result.replace("{{logoutLink}}", LOGOUT_LINK);
+        // } else {
+        //     result.replace("{{logoutLink}}", "");
+        // }
         result += F("<div class='col py-3'>");
         result += F("<h2>{{pageName}}</h2>");
         result += F("</div></div></div>");
@@ -883,181 +1226,74 @@ void handleReboot() {
     }
 }
 
-void handleUpdate() {
-    if (checkAuth()) {
-        String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        result += F("<h2>{{pageName}}</h2>");
-        result += F("<div class='btn-group-vertical'>");
-        result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
-        result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
-        result += F("</div>");
+// void handleUpdate() {
+//     if (checkAuth()) {
+//         String result;
+//         result += F("<html>");
+//         // result += FPSTR(HTTP_HEADER);
+//         if (ConfigSettings.webAuth) {
+//             result.replace("{{logoutLink}}", LOGOUT_LINK);
+//         } else {
+//             result.replace("{{logoutLink}}", "");
+//         }
+//         result += F("<h2>{{pageName}}</h2>");
+//         result += F("<div class='btn-group-vertical'>");
+//         result += F("<a href='/setchipid' class='btn btn-primary mb-2'>setChipId</button>");
+//         result += F("<a href='/setmodeprod' class='btn btn-primary mb-2'>setModeProd</button>");
+//         result += F("</div>");
 
-        result = result + F("</body></html>");
-        result.replace("{{pageName}}", "Update Zigbee");
+//         result = result + F("</body></html>");
+//         result.replace("{{pageName}}", "Update Zigbee");
 
-        serverWeb.send(200, F("text/html"), result);
-    }
-}
-
-void handleSysTools() {
-    if (checkAuth()) {
-        String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
-        // result += F("<div class='col py-3'>");
-        // result += F("<h2>{{pageName}}</h2>");
-        result += FPSTR(HTTP_SYSTOOLS);
-        // result += F("</div></div>");
-        result = result + F("</body></html>");
-        result.replace("{{pageName}}", "System and Tools");
-        serverWeb.sendHeader("Connection", "close");
-
-        String fileList = "";
-        File root = LittleFS.open("/config");
-        File file = root.openNextFile();
-        while (file) {
-            String tmp = file.name();
-            // DEBUG_PRINTLN(tmp);
-            // tmp = tmp.substring(8);
-            fileList += F("<tr>");
-            fileList += F("<td><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-filetype-json' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14 4.5V11h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM4.151 15.29a1.176 1.176 0 0 1-.111-.449h.764a.578.578 0 0 0 .255.384c.07.049.154.087.25.114.095.028.201.041.319.041.164 0 .301-.023.413-.07a.559.559 0 0 0 .255-.193.507.507 0 0 0 .084-.29.387.387 0 0 0-.152-.326c-.101-.08-.256-.144-.463-.193l-.618-.143a1.72 1.72 0 0 1-.539-.214 1.001 1.001 0 0 1-.352-.367 1.068 1.068 0 0 1-.123-.524c0-.244.064-.457.19-.639.128-.181.304-.322.528-.422.225-.1.484-.149.777-.149.304 0 .564.05.779.152.217.102.384.239.5.41.12.17.186.359.2.566h-.75a.56.56 0 0 0-.12-.258.624.624 0 0 0-.246-.181.923.923 0 0 0-.37-.068c-.216 0-.387.05-.512.152a.472.472 0 0 0-.185.384c0 .121.048.22.144.3a.97.97 0 0 0 .404.175l.621.143c.217.05.406.12.566.211a1 1 0 0 1 .375.358c.09.148.135.335.135.56 0 .247-.063.466-.188.656a1.216 1.216 0 0 1-.539.439c-.234.105-.52.158-.858.158-.254 0-.476-.03-.665-.09a1.404 1.404 0 0 1-.478-.252 1.13 1.13 0 0 1-.29-.375Zm-3.104-.033a1.32 1.32 0 0 1-.082-.466h.764a.576.576 0 0 0 .074.27.499.499 0 0 0 .454.246c.19 0 .33-.055.422-.164.091-.11.137-.265.137-.466v-2.745h.791v2.725c0 .44-.119.774-.357 1.005-.237.23-.565.345-.985.345a1.59 1.59 0 0 1-.568-.094 1.145 1.145 0 0 1-.407-.266 1.14 1.14 0 0 1-.243-.39Zm9.091-1.585v.522c0 .256-.039.47-.117.641a.862.862 0 0 1-.322.387.877.877 0 0 1-.47.126.883.883 0 0 1-.47-.126.87.87 0 0 1-.32-.387 1.55 1.55 0 0 1-.117-.641v-.522c0-.258.039-.471.117-.641a.87.87 0 0 1 .32-.387.868.868 0 0 1 .47-.129c.177 0 .333.043.47.129a.862.862 0 0 1 .322.387c.078.17.117.383.117.641Zm.803.519v-.513c0-.377-.069-.701-.205-.973a1.46 1.46 0 0 0-.59-.63c-.253-.146-.559-.22-.916-.22-.356 0-.662.074-.92.22a1.441 1.441 0 0 0-.589.628c-.137.271-.205.596-.205.975v.513c0 .375.068.699.205.973.137.271.333.48.589.626.258.145.564.217.92.217.357 0 .663-.072.917-.217.256-.146.452-.355.589-.626.136-.274.205-.598.205-.973Zm1.29-.935v2.675h-.746v-3.999h.662l1.752 2.66h.032v-2.66h.75v4h-.656l-1.761-2.676h-.032Z'/></svg><a href='#config_file' onClick=\"readfile('");
-            fileList += tmp;
-            fileList += F("');\">");
-            fileList += tmp;
-            fileList += F("</a></td>");
-            fileList += F("<td>");
-            fileList += file.size();
-            fileList += F("B</td>");
-            fileList += F("<tr>");
-            file = root.openNextFile();
-        }
-        result.replace("{{fileList}}", fileList);
-        result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
-
-        serverWeb.send(200, "text/html", result);
-    }
-}
-
-// void handleLogsBrowser()
-// {
-//   if (checkAuth())
-//   {
-//     String result;
-//     result += F("<html>");
-//     result += FPSTR(HTTP_HEADER);
-//     result += FPSTR(LOGS_BROWSER);
-//     if (ConfigSettings.webAuth)
-//     {
-//       result.replace("{{logoutLink}}", LOGOUT_LINK);
+//         serverWeb.send(200, F("text/html"), result);
 //     }
-//     else
-//     {
-//       result.replace("{{logoutLink}}", "");
-//     }
-// //     result += F("<div class='col py-3'>");
-// //     result += F("<h2>{{pageName}}</h2>");
-// //     result += F("<div id='main' class='col-sm-12'>");
-// //     result += F("<div id='help_btns' class='col-md-11'>");
-//     result.replace("{{pageName}}", "Logs and Browser");
-
-//     String fileList = "";
-//     File root = LittleFS.open("/config");
-//     File file = root.openNextFile();
-//     while (file)
-//     {
-//       String tmp = file.name();
-//       //DEBUG_PRINTLN(tmp);
-//       //tmp = tmp.substring(8);
-//       fileList += F("<tr>");
-//       fileList += F("<td><svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-filetype-json' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14 4.5V11h-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM4.151 15.29a1.176 1.176 0 0 1-.111-.449h.764a.578.578 0 0 0 .255.384c.07.049.154.087.25.114.095.028.201.041.319.041.164 0 .301-.023.413-.07a.559.559 0 0 0 .255-.193.507.507 0 0 0 .084-.29.387.387 0 0 0-.152-.326c-.101-.08-.256-.144-.463-.193l-.618-.143a1.72 1.72 0 0 1-.539-.214 1.001 1.001 0 0 1-.352-.367 1.068 1.068 0 0 1-.123-.524c0-.244.064-.457.19-.639.128-.181.304-.322.528-.422.225-.1.484-.149.777-.149.304 0 .564.05.779.152.217.102.384.239.5.41.12.17.186.359.2.566h-.75a.56.56 0 0 0-.12-.258.624.624 0 0 0-.246-.181.923.923 0 0 0-.37-.068c-.216 0-.387.05-.512.152a.472.472 0 0 0-.185.384c0 .121.048.22.144.3a.97.97 0 0 0 .404.175l.621.143c.217.05.406.12.566.211a1 1 0 0 1 .375.358c.09.148.135.335.135.56 0 .247-.063.466-.188.656a1.216 1.216 0 0 1-.539.439c-.234.105-.52.158-.858.158-.254 0-.476-.03-.665-.09a1.404 1.404 0 0 1-.478-.252 1.13 1.13 0 0 1-.29-.375Zm-3.104-.033a1.32 1.32 0 0 1-.082-.466h.764a.576.576 0 0 0 .074.27.499.499 0 0 0 .454.246c.19 0 .33-.055.422-.164.091-.11.137-.265.137-.466v-2.745h.791v2.725c0 .44-.119.774-.357 1.005-.237.23-.565.345-.985.345a1.59 1.59 0 0 1-.568-.094 1.145 1.145 0 0 1-.407-.266 1.14 1.14 0 0 1-.243-.39Zm9.091-1.585v.522c0 .256-.039.47-.117.641a.862.862 0 0 1-.322.387.877.877 0 0 1-.47.126.883.883 0 0 1-.47-.126.87.87 0 0 1-.32-.387 1.55 1.55 0 0 1-.117-.641v-.522c0-.258.039-.471.117-.641a.87.87 0 0 1 .32-.387.868.868 0 0 1 .47-.129c.177 0 .333.043.47.129a.862.862 0 0 1 .322.387c.078.17.117.383.117.641Zm.803.519v-.513c0-.377-.069-.701-.205-.973a1.46 1.46 0 0 0-.59-.63c-.253-.146-.559-.22-.916-.22-.356 0-.662.074-.92.22a1.441 1.441 0 0 0-.589.628c-.137.271-.205.596-.205.975v.513c0 .375.068.699.205.973.137.271.333.48.589.626.258.145.564.217.92.217.357 0 .663-.072.917-.217.256-.146.452-.355.589-.626.136-.274.205-.598.205-.973Zm1.29-.935v2.675h-.746v-3.999h.662l1.752 2.66h.032v-2.66h.75v4h-.656l-1.761-2.676h-.032Z'/></svg><a href='#' onClick=\"readfile('");
-//       fileList += tmp;
-//       fileList += F("');\">");
-//       fileList += tmp;
-//       fileList += F("</a></td>");
-//       fileList += F("<td>");
-//       fileList += file.size();
-//       fileList += F("B</td>");
-//       fileList += F("<tr>");
-//       file = root.openNextFile();
-//     }
-//     result.replace("{{fileList}}", fileList);
-// //     result += F("</div>");
-// //     result += F("<div id='main' class='col-md-9'>");
-// //     result += F("<div class='app-main-content'>");
-// //     result += F("<form method='POST' action='saveFile'>");
-// //     result += F("<div class='form-group'>");
-// //     result += F("<div><label for='file'>File : <span id='title'></span></label>");
-// //     result += F("<input type='hidden' name='filename' id='filename' value=''></div>");
-// //     result += F("<textarea class='form-control' id='file' name='file' rows='10'>");
-// //     result += F("</textarea>");
-// //     result += F("</div>");
-// //     result += F("<button type='submit' class='btn btn-primary mb-2'>Save</button>");
-// //     result += F("</form>");
-// //     result += F("</div>");
-// //     result += F("</div>");
-// //     result += F("</div>");
-
-// //     result += F("<br>");
-// //     result += F("<div id='main' class='col-sm-12'>");
-// //     result += F("<div id='help_btns' class='col-sm-8'>");
-// //     result += F("<button type='button' onclick='cmd(\"ClearConsole\");document.getElementById(\"console\").value=\"\";' class='btn btn-secondary'>Clear Console</button> ");
-// // //#ifdef DEBUG
-// // //    result += F("<button type='button' onclick='cmd(\"GetVersion\");' class='btn btn-success'>Get Version</button> ");
-// // //    result += F("<button type='button' onclick='cmd(\"ZigRestart\");' class='btn btn-danger'>Zig Restart</button> ");
-// // //#endif
-// //     result += F("</div></div>");
-// //     result += F("<div id='main' class='col-sm-8'>");
-// //     result += F("<div class='col-md-12'>Raw data :</div>");
-// //     result += F("<textarea class='col-md-12' id='console' rows='8' ></textarea>");
-// //     result += F("</div>");
-// //     result += F("</body>");
-
-// //     result += F("<script language='javascript'>");
-// //     result += F("logRefresh({{refreshLogs}});");
-// //     result += F("</script>");
-// //     result += F("</div></div></div>");
-//     result += F("</body></html>");
-//     result.replace("{{refreshLogs}}", (String)ConfigSettings.refreshLogs);
-
-//     serverWeb.send(200, F("text/html"), result);
-//   }
 // }
 
-void handleReadfile() {
-    if (checkAuth()) {
+void handleSysTools() {
         String result;
-        String filename = "/config/" + serverWeb.arg(0);
-        File file = LittleFS.open(filename, "r");
-
-        if (!file) {
-            return;
-        }
-
-        while (file.available()) {
-            result += (char)file.read();
-        }
-        file.close();
-
-        serverWeb.send(200, F("text/html"), result);
-    }
+        DynamicJsonDocument doc(512);
+        // result += F("<html>");
+        //  result += FPSTR(HTTP_HEADER);
+        // if (ConfigSettings.webAuth) {
+        //     doc["logoutLink"] = LOGOUT_LINK;
+        // } else {
+        //     doc["logoutLink"] = "";
+        // }
+        // result += F("<div class='col py-3'>");
+        // result += F("<h2>{{pageName}}</h2>");
+        // result += FPSTR(HTTP_SYSTOOLS);
+        // result += F("</div></div>");
+        // result = result + F("</body></html>");
+        doc["pageName"] = "System and Tools";
+        doc["hostname"] = ConfigSettings.hostname;
+        doc["refreshLogs"] = ConfigSettings.refreshLogs;
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
 }
+
+// void handleReadfile() {
+//     if (checkAuth()) {
+//         String result;
+//         String filename = "/config/" + serverWeb.arg(0);
+//         File file = LittleFS.open(filename, "r");
+
+//         if (!file) {
+//             return;
+//         }
+
+//         while (file.available()) {
+//             result += (char)file.read();
+//         }
+//         file.close();
+
+//         serverWeb.send(200, F("text/html"), result);
+//     }
+// }
 
 void handleSavefile() {
     if (checkAuth()) {
         if (serverWeb.method() != HTTP_POST) {
-            serverWeb.send(405, F("text/plain"), F("Method Not Allowed"));
+            serverWeb.send(405, contTypeText, F("Method Not Allowed"));
         } else {
             String filename = "/config/" + serverWeb.arg(0);
             String content = serverWeb.arg(1);
@@ -1088,38 +1324,61 @@ void handleLogBuffer() {
         String result;
         result = logPrint();
 
-        serverWeb.send(200, F("text/html"), result);
+        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
 }
 
-void handleScanNetwork() {
-    if (checkAuth()) {
-        String result = "";
-        int n = WiFi.scanNetworks();
-        if (n == 0) {
-            result = " <label for='ssid'>SSID</label>";
-            result += "<input class='form-control' id='ssid' type='text' name='WIFISSID' value='{{ssid}}'> <a onclick='scanNetwork();' class='btn btn-primary mb-2'>Scan</a><div id='networks'></div>";
-        } else {
-            result = "<select name='WIFISSID' onChange='updateSSID(this.value);'>";
-            result += "<OPTION value=''>--Choose SSID--</OPTION>";
-            for (int i = 0; i < n; ++i) {
-                result += "<OPTION value='";
-                result += WiFi.SSID(i);
-                result += "'>";
-                result += WiFi.SSID(i) + " (" + WiFi.RSSI(i) + ")";
-                result += "</OPTION>";
-            }
-            result += "</select>";
-        }
+// void handleScanNetworkDone() {
+//     static uint8_t timeout = 0;
+//     DynamicJsonDocument doc(1024);
+//     String result = "";
+//     int16_t scanRes = WiFi.scanComplete();
+//     doc["scanDone"] = false;
+//     if (scanRes == -2) {
+//         WiFi.scanNetworks(true);
+//     } else if (scanRes > 0) {
+//         doc["scanDone"] = true;
+//         JsonArray wifi = doc.createNestedArray("wifi");
+//         for (int i = 0; i < scanRes; ++i) {
+//             JsonObject wifi_0 = wifi.createNestedObject();
+//             wifi_0["ssid"] = WiFi.SSID(i);
+//             wifi_0["rssi"] = WiFi.RSSI(i);
+//             wifi_0["channel"] = WiFi.channel(i);
+//             wifi_0["secure"] = WiFi.encryptionType(i);
+//         }
+//         WiFi.scanDelete();
+//         if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF);
+//     }
+//     if (timeout < 5) {
+//         timeout++;
+//     } else {
+//         doc["scanDone"] = true;
+//         WiFi.scanDelete();
+//         timeout = 0;
+//         if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF);
+//     }
 
-        serverWeb.send(200, F("text/html"), result);
-    }
-}
-void handleClearConsole() {
+//     serializeJson(doc, result);
+//     serverWeb.send(200, F("application/json"), result);
+// }
+
+// void handleScanNetwork() {
+//     if (checkAuth()) {
+//         if (WiFi.getMode() == WIFI_OFF) {  // enable wifi for scan
+//             WiFi.mode(WIFI_STA);
+//             WiFi.scanNetworks(true);
+//         } else if (WiFi.getMode() == WIFI_AP) {  // enable sta for scan
+//             WiFi.mode(WIFI_AP_STA);
+//         }
+//         serverWeb.send(200, F("text/html"), "ok");
+//     }
+// }
+
+void handleClearConsole() {//todo move to api
     if (checkAuth()) {
         logClear();
 
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
     }
 }
 
@@ -1137,7 +1396,7 @@ void handleZigRestart()
 
 void handleZigbeeRestart() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         zigbeeRestart();
     }
@@ -1145,7 +1404,7 @@ void handleZigbeeRestart() {
 
 void handleZigbeeBSL() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         zigbeeEnableBSL();
     }
@@ -1153,7 +1412,7 @@ void handleZigbeeBSL() {
 
 void handleAdapterModeUSB() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         adapterModeUSB();
     }
@@ -1161,7 +1420,7 @@ void handleAdapterModeUSB() {
 
 void handleAdapterModeLAN() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         adapterModeLAN();
     }
@@ -1169,7 +1428,7 @@ void handleAdapterModeLAN() {
 
 void handleLedYellowToggle() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         ledYellowToggle();
     }
@@ -1177,7 +1436,7 @@ void handleLedYellowToggle() {
 
 void handleLedBlueToggle() {
     if (checkAuth()) {
-        serverWeb.send(200, F("text/html"), "");
+        serverWeb.send(HTTP_CODE_OK, contTypeText, "");
 
         ledBlueToggle();
     }
@@ -1205,27 +1464,27 @@ void printLogMsg(String msg) {
     logPush('\n');
 }
 
-void handleWEBUpdate() {
-    if (checkAuth()) {
-        String result;
-        result += F("<html>");
-        result += FPSTR(HTTP_HEADER);
-        if (ConfigSettings.webAuth) {
-            result.replace("{{logoutLink}}", LOGOUT_LINK);
-        } else {
-            result.replace("{{logoutLink}}", "");
-        }
+// void handleWEBUpdate() {
+//     if (checkAuth()) {
+//         String result;
+//         result += F("<html>");
+//         // result += FPSTR(HTTP_HEADER);
+//         if (ConfigSettings.webAuth) {
+//             result.replace("{{logoutLink}}", LOGOUT_LINK);
+//         } else {
+//             result.replace("{{logoutLink}}", "");
+//         }
 
-        result += F("<h2>{{pageName}}</h2>");
-        // result += FPSTR(HTTP_SYSTOOLS);
-        result = result + F("</body></html>");
-        result.replace("{{pageName}}", "Update ESP32");
-        serverWeb.sendHeader("Connection", "close");
+//         result += F("<h2>{{pageName}}</h2>");
+//         // result += FPSTR(HTTP_SYSTOOLS);
+//         result = result + F("</body></html>");
+//         result.replace("{{pageName}}", "Update ESP32");
+//         serverWeb.sendHeader("Connection", "close");
 
-        serverWeb.send(200, "text/html", result);
-        checkUpdateFirmware();
-    }
-}
+//         serverWeb.send(200, "text/html", result);
+//         checkUpdateFirmware();
+//     }
+// }
 
 int totalLength;        // total size of firmware
 int currentLength = 0;  // current size of written firmware

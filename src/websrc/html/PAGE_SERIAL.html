@@ -1,0 +1,36 @@
+<div id='main'>
+    <form class="saveParams" method='POST' action="saveParams">
+        <div class='card'>
+            <div class='card-header'>Serial options</div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class='col-sm-12 col-md-6 mb-4'>
+                        <div class='form-group'>
+                            <label for='baud'>Serial Speed</label>
+                            <select class='form-select' id='baud' name='baud'>
+                                <option data-replace="9600" value='9600'>9600 bauds</option>
+                                <option data-replace="19200" value='19200'>19200 bauds</option>
+                                <option data-replace="38400" value='38400'>38400 bauds</option>
+                                <option data-replace="57600" value='57600'>57600 bauds</option>
+                                <option data-replace="115200" value='115200'>115200 bauds</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 col-md-6 mb-4'>
+                        <div class='form-group'>
+                            <label for='port'>Socket Port</label>
+                            <input data-replace="socketPort" class='form-control' id='port' type='number' name='port'
+                                min='100' max='65000'>
+                        </div>
+                    </div>
+                </div>
+                <div class='col-sm-12'>
+                    <div class="row justify-content-md-center">
+                        <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                            name='save'>Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

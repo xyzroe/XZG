@@ -216,51 +216,70 @@ String hexToDec(String hexString)
   return String(decValue);
 }
 
-void saveEmergencyWifi(bool state)
-{ 
-  DEBUG_PRINT(F("saveEmergencyWifi "));
-  DEBUG_PRINTLN(state);
+// void saveEmergencyWifi(bool state)
+// { 
+//   DEBUG_PRINT(F("saveEmergencyWifi "));
+//   DEBUG_PRINTLN(state);
 
-  const char *path = "/config/system.json";
-  DynamicJsonDocument doc(1024);
+//   const char *path = "/config/system.json";
+//   DynamicJsonDocument doc(1024);
 
-  File configFile = LittleFS.open(path, FILE_READ);
-  deserializeJson(doc, configFile);
-  configFile.close();
+//   File configFile = LittleFS.open(path, FILE_READ);
+//   deserializeJson(doc, configFile);
+//   configFile.close();
 
-  doc["emergencyWifi"] = int(state);
+//   doc["emergencyWifi"] = int(state);
 
-  configFile = LittleFS.open(path, FILE_WRITE);
-  serializeJson(doc, configFile);
-  configFile.close();
-}
+//   configFile = LittleFS.open(path, FILE_WRITE);
+//   serializeJson(doc, configFile);
+//   configFile.close();
+// }
 
 
-void saveRestartCount(int count)
-{
-  const char *path = "/config/system.json";
-  DynamicJsonDocument doc(1024);
+// void saveRestartCount(int count)
+// {
+//   const char *path = "/config/system.json";
+//   DynamicJsonDocument doc(1024);
 
-  File configFile = LittleFS.open(path, FILE_READ);
-  deserializeJson(doc, configFile);
-  configFile.close();
+//   File configFile = LittleFS.open(path, FILE_READ);
+//   deserializeJson(doc, configFile);
+//   configFile.close();
 
-  doc["restarts"] = int(count);
+//   doc["restarts"] = int(count);
 
-  configFile = LittleFS.open(path, FILE_WRITE);
-  serializeJson(doc, configFile);
-  configFile.close();
-  delay(500);
-}
+//   configFile = LittleFS.open(path, FILE_WRITE);
+//   serializeJson(doc, configFile);
+//   configFile.close();
+//   delay(500);
+// }
 
 void resetSettings()
 { 
 
-  const char *path = "/config/configSecurity.json";
+  // const char *path = "/config/configSecurity.json";
 
-  String StringConfig = "{\"disableWeb\":0,\"webAuth\":0,\"webUser\":"",\"webPass\":""}";
+  // String StringConfig = "{\"disableWeb\":0,\"webAuth\":0,\"webUser\":"",\"webPass\":""}";
 
-  writeDefultConfig(path, StringConfig);
-
+  // writeDefultConfig(path, StringConfig);
+  DEBUG_PRINTLN(F("[resetSettings] Start"));
+  digitalWrite(LED_BLUE, 1);
+  digitalWrite(LED_YELLOW, 0);
+  for (uint8_t i = 0; i < 15; i++){
+    delay(200);
+    digitalWrite(LED_BLUE, !digitalRead(LED_BLUE));
+    digitalWrite(LED_YELLOW, !digitalRead(LED_YELLOW));
+  }
+  DEBUG_PRINTLN(F("[resetSettings] Led blinking done"));
+  if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)){
+    DEBUG_PRINTLN(F("Error with LITTLEFS"));
+  }
+  //LittleFS.rmdir("/config");  //todo move 2 define or global const
+  LittleFS.remove("/config/configSerial.json");  //todo move 2 define or global const
+  LittleFS.remove("/config/configSecurity.json");  //todo move 2 define or global const
+  LittleFS.remove("/config/configGeneral.json");  //todo move 2 define or global const
+  LittleFS.remove("/config/configEther.json");  //todo move 2 define or global const
+  LittleFS.remove("/config/configWifi.json");  //todo move 2 define or global const
+  LittleFS.remove("/config/system.json");  //todo move 2 define or global const
+  DEBUG_PRINTLN(F("[resetSettings] Config del done"));
   ESP.restart();
 }
