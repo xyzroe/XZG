@@ -1,5 +1,12 @@
 # SMLIGHT SLZB-06 Zigbee 3.0 PoE Ethernet USB Adapter's FIRMWARE
 
+<hr></hr>
+
+## NEW FIRMWARE [V0.9.8-BETA](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.8-beta) IS AVAILABLE FOR BETA-TESTS
+Zigbee-to-WiFi mode intorduced and lot of reworks. See the latest changelog [here](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.8-beta).
+
+<hr></hr>
+
 This repository contains latest firmware for ESP32 peripheral module of [SLZB-06 Zigbee Ethernet PoE USB Adapter](https://smlight.tech/product/slzb-06). Firmware is opensource, so feel free to improve it by making commit to this repository. 
 
 [![GitHub version](https://img.shields.io/github/release/smlight-dev/slzb-06-firmware.svg)](https://github.com/smlight-dev/slzb-06-firmware/releases)
@@ -12,6 +19,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 **In light of current war against Ukraine, we kinly asking you to support Ukrainian people by any means - support Ukrainian refugees please, [donate to Ukraine](https://bank.gov.ua/en/news/all/natsionalniy-bank-vidkriv-spetsrahunok-dlya-zboru-koshtiv-na-potrebi-armiyi), buy Ukrainian products or do business with Ukrainians.**
 
 <hr></hr>
+
 
 
 ## KEY FIRMWARE FEATURES
