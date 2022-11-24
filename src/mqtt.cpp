@@ -277,7 +277,7 @@ void mqttPublishDiscovery()
                 #endif
 
                 topic = "homeassistant/button/" + deviceName + "/rst_esp/config";
-                buffJson["name"] = "Restart ESP";
+                buffJson["name"] = deviceName + " Restart ESP";
                 buffJson["uniq_id"] = deviceName + "/rst_esp";
                 buffJson["stat_t"] = mtopic + "/io/rst_esp";
                 buffJson["cmd_t"] = mtopic + "/cmd";
@@ -291,7 +291,7 @@ void mqttPublishDiscovery()
             case 1:
             {
                 topic = "homeassistant/button/" + deviceName + "/rst_zig/config";
-                buffJson["name"] = "Restart Zigbee";
+                buffJson["name"] = deviceName + " Restart Zigbee";
                 buffJson["uniq_id"] = deviceName + "/rst_zig";
                 buffJson["stat_t"] = mtopic + "/io/rst_zig";
                 buffJson["cmd_t"] = mtopic + "/cmd";
@@ -305,7 +305,7 @@ void mqttPublishDiscovery()
             case 2:
             {
                 topic = "homeassistant/button/" + deviceName + "/enbl_bsl/config";
-                buffJson["name"] = "Enable BSL";
+                buffJson["name"] = deviceName + " Enable BSL";
                 buffJson["uniq_id"] = deviceName + "/enbl_bsl";
                 buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
                 buffJson["cmd_t"] = mtopic + "/cmd";
@@ -319,7 +319,7 @@ void mqttPublishDiscovery()
             case 3:
             {
                 topic = "homeassistant/binary_sensor/" + deviceName + "/socket/config";
-                buffJson["name"] = "Socket";
+                buffJson["name"] = deviceName + " Socket";
                 buffJson["uniq_id"] = deviceName + "/socket";
                 buffJson["stat_t"] = mtopic + "/io/socket";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -330,7 +330,7 @@ void mqttPublishDiscovery()
             case 4:
             {
                 topic = "homeassistant/binary_sensor/" + deviceName + "/emrgncMd/config";
-                buffJson["name"] = "Emergency mode";
+                buffJson["name"] = deviceName + " Emergency mode";
                 buffJson["uniq_id"] = deviceName + "/emrgncMd";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -344,7 +344,7 @@ void mqttPublishDiscovery()
             case 5:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/uptime/config";
-                buffJson["name"] = "Uptime";
+                buffJson["name"] = deviceName + " Uptime";
                 buffJson["uniq_id"] = deviceName + "/uptime";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -357,7 +357,7 @@ void mqttPublishDiscovery()
             case 6:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/ip/config";
-                buffJson["name"] = "IP";
+                buffJson["name"] = deviceName + " IP";
                 buffJson["uniq_id"] = deviceName + "/ip";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -370,7 +370,7 @@ void mqttPublishDiscovery()
             case 7:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/temperature/config";
-                buffJson["name"] = "ESP temperature";
+                buffJson["name"] = deviceName + " ESP temperature";
                 buffJson["uniq_id"] = deviceName + "/temperature";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -378,12 +378,15 @@ void mqttPublishDiscovery()
                 buffJson["json_attr_t"] = mtopic + "/state";
                 buffJson["icon"] = "mdi:coolant-temperature";
                 buffJson["dev"] = via;
+                buffJson["dev_cla"] = "temperature";
+                buffJson["stat_cla"] = "measurement";
+                buffJson["unit_of_meas"] = "°C";
                 break;
             }
             case 8:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/hostname/config";
-                buffJson["name"] = "Hostname";
+                buffJson["name"] = deviceName + " Hostname";
                 buffJson["uniq_id"] = deviceName + "/hostname";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -396,7 +399,7 @@ void mqttPublishDiscovery()
             case 9:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/connections/config";
-                buffJson["name"] = "Socket connections";
+                buffJson["name"] = deviceName + " Socket connections";
                 buffJson["uniq_id"] = deviceName + "/connections";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -409,7 +412,7 @@ void mqttPublishDiscovery()
             case 10:
             {
                 topic = "homeassistant/sensor/" + deviceName + "/ow_temperature/config";
-                buffJson["name"] = "OW temperature";
+                buffJson["name"] = deviceName + " OW temperature";
                 buffJson["uniq_id"] = deviceName + "/ow_temperature";
                 buffJson["stat_t"] = mtopic + "/state";
                 buffJson["avty_t"] = mtopic + "/avty";
@@ -417,6 +420,9 @@ void mqttPublishDiscovery()
                 buffJson["json_attr_t"] = mtopic + "/state";
                 buffJson["icon"] = "mdi:coolant-temperature";
                 buffJson["dev"] = via;
+                buffJson["dev_cla"] = "temperature";
+                buffJson["stat_cla"] = "measurement";
+                buffJson["unit_of_meas"] = "°C";
                 break;
             }
         }
