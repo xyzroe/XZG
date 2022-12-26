@@ -9,7 +9,7 @@ var uglify = require('gulp-uglify');
 var pump = require('pump');
 
 function stylesConcat() {
-    return gulp.src(['../../src/websrc/css/style.css', '../../src/websrc/css/glyphicons.css', '../../src/websrc/css/bootstrap.min.css', '../../src/websrc/css/toast.min.css'])
+    return gulp.src(['../../src/websrc/css/style.css', '../../src/websrc/css/bootstrap.min.css'])
         .pipe(concat({
             path: 'required.css',
             stat: {
@@ -151,9 +151,44 @@ function imgs() {
         }));
 }
 
+function htmlgz() {
+	return gulp.src("../../src/websrc/html/*.*")
+        .pipe(gulp.dest("../../src/websrc/html/"))
+            .pipe(gzip({
+                append: true
+            }))
+        .pipe(gulp.dest('../../src/websrc/gzipped/html/'));
+}
+
+function htmls() {
+    return gulp.src("../../src/websrc/gzipped/html/*.*")
+        .pipe(flatmap(function(stream, file) {
+			var filename = path.basename(file.path);
+            var wstream = fs.createWriteStream("../../src/webh/" + filename + ".h");
+            wstream.on("error", function(err) {
+                gutil.log(err);
+            });
+			var data = file.contents;
+            wstream.write("#define " + filename.replace(/\.|-/g, "_") + "_len " + data.length + "\n");
+            wstream.write("const uint8_t " + filename.replace(/\.|-/g, "_") + "[] PROGMEM = {")
+            
+            for (i = 0; i < data.length; i++) {
+                if (i % 1000 == 0) wstream.write("\n");
+                wstream.write('0x' + ('00' + data[i].toString(16)).slice(-2));
+                if (i < data.length - 1) wstream.write(',');
+            }
+
+            wstream.write("\n};")
+            wstream.end();
+
+            return stream;
+        }));
+}
+
 const styleTasks = gulp.series(stylesConcat, styles);
 const scriptTasks = gulp.series(scriptsgz, scripts);
 const fontTasks = gulp.series(fontgz, fonts);
 const imgTasks = gulp.series(imggz, imgs);
+const htmlTasks = gulp.series(htmlgz, htmls);
 
-exports.default = gulp.parallel(styleTasks, scriptTasks, fontTasks, imgTasks);
+exports.default = gulp.parallel(styleTasks, scriptTasks, fontTasks, imgTasks, htmlTasks);

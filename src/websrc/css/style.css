@@ -1,3 +1,49 @@
+nav h2, #pagenamePC{
+  color: lightcoral;
+}
+
+#smPreloader{
+  position: absolute;
+  left: calc(50% - 50px);
+  top: calc(50% - 200px);
+  z-index: 1000;
+  width: 100px;
+  height: 100px;
+}
+
+.card-disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-disabled > *{
+  pointer-events: none;
+}
+
+.smCircle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+#circle-1 {
+  background: #ff000052;
+  position: absolute;
+  top: 100px;
+  left: 60px;
+}
+#circle-2 {
+  background: #ff00008a;
+  position: absolute;
+  top: 100px;
+}
+#circle-3 {
+  background: #ff000087;
+  position: absolute;
+  top: 50px;
+  left: 30px;
+}
+
 @media (min-width: 576px) {
   .nav {
     padding-left: 8px;
@@ -5,11 +51,27 @@
 
 }
 
-@media (max-width: 576px) {
+@media (max-width: 767px) {
   .nav-container {
-    width: 60px !important;
+    position: fixed;
+    left: -250px;
+    transition: all 0.3s ease-out;
+    top: -1px !important;
   }
 
+  nav.navbar {
+    display: flex !important;
+    z-index: 99;
+  }
+
+  #pagenamePC {
+    display: none;
+  }
+}
+
+.sidenav-active {
+  left: -1px !important;
+  transition: all 0.6s ease-out;
 }
 
 .toast {
@@ -17,8 +79,9 @@
   margin-right: 20px;
 }
 
-.nav-link svg {
-  transform: translate(-40%, 0%);
+.nav-container {
+  min-width: fit-content;
+  z-index: 100;
 }
 
 .nav-shadow {
