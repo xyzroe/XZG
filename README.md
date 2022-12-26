@@ -26,7 +26,10 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 - ESP32 OTA update, ESP32 (peripheral) and CC2652P (Zigbee) restart;
 - Switch CC2652P (Zigbee) to flash mode;
 - Fully responsive web-interface based on the latest Bootstrap 5.2.  
-![](https://github.com/smlight-dev/slzb-06-manual/blob/main/docs/images/fw/root.png)  
+![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
+![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_2.png)
+![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_3.png)
+![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_4.png)
 
 ## Installation and Configuration
 
