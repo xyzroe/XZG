@@ -19,13 +19,20 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 
 ## KEY FIRMWARE FEATURES
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Blue led On = USB mode, Blue led Off = Ethernet mode);
+- Adapter mode selector throug web-interface: Zigbee-to-Ethernet, Zigbee-to-USB and Zigbee-to-WiFI);
 - Secure login through username and password;
+- Zigbee2MQTT and ZHA config helper;
 - Control behaviour of LED (you can disable Mode LED, Power LED through firmware, or toggle both by the button long press);
 - DHCP or static IP address for Ethernet connection;
 - ESP32 OTA update, ESP32 (peripheral) and CC2652P (Zigbee) restart;
 - Switch CC2652P (Zigbee) to flash mode;
+- Pairing mode for adapter in router mode;
 - Fully responsive web-interface based on the latest Bootstrap 5.2.
 
+### 5 minutes video review on Youtube (click):
+[![Video review firmware v0.9.8 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/v0.9.8-fw-review-youtube-screen.png)](https://www.youtube.com/watch?v=BNA-ghy3Niw)
+
+### SLZB-06 firmware screenshots
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_2.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_3.png)
