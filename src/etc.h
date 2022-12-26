@@ -21,14 +21,11 @@ void adapterModeLAN();
 void ledYellowToggle();
 void ledBlueToggle();
 
-void getDeviceID(String &devID);
-void writeDefultConfig(const char *path, String StringConfig);
-
-//void saveEmergencyWifi(bool state);
-//void saveRestartCount(int count);
+void getDeviceID(char * arr);
+void writeDefultConfig(const char *path, JsonDocument& doc);
 
 void resetSettings();
 
 String hexToDec(String hexString);
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
+//#define min(a, b) ((a) < (b) ? (a) : (b))

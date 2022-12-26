@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [0.9.8-beta] 20221119
+## [0.9.8] 20221226
 ### Added
 - NEW WIFI COORDINATOR MODE ARRIVED!;
+- ZHA zeroconf discovery [PR 84111](https://github.com/home-assistant/core/pull/84111)
+- Added visual confirmation of command execution success for all buttons in the interface;
+- New feature "Keep network & web server" available in USB mode. This function allows you to leave one of the communication channels active and have access to the web interface. The device itself will select an available channel according to priority: WIFI, ETHERNET, WIFI AP;
+- "Serial" page renamed to "Z2M and ZHA";
+- Added Z2M and ZHA config generator on "Z2M and ZHA" page;
+- Added a check of the success of connecting to Wi-Fi, after entering SSID and PASS;
+- Added a check of operation and communication with the Zigbee module at startup. The blue LED flashes - waiting for a response. The green LED lit up - the check was successful. Blinking blue and yellow - there is no communication with the Zigbee module or the module is not working;
 - New GET/SET API for settings;
 - Added a new WIFI page;
 - Added preloader. It is displayed during page loading;
@@ -15,7 +22,11 @@ All notable changes to this project will be documented in this file.
 - Card grid now have responsible height.
 
 ### Changed
-- No more html.h all html code moved to separate page files
+- Now all buttons work through a single API;
+- Zigbee socket is now available in access point mode. This means that you can now flash the Zigbee module in access point mode;
+- All svg icons combined into one;
+- "About" page rework;
+- No more html.h all html code moved to separate page files;
 - Coordinator modes logic rework - according to the [latest v0.9.8 scheme](https://github.com/smlight-dev/slzb-06-firmware/blob/main/images/mode-logic-v0.9.8.jpg);
 - HUGE web interface update. Web interface now is "One Page App", no more senseless page refreshes;
 - Completely reworked saving settings in web.cpp, now used ArduinoJson;
@@ -28,11 +39,12 @@ All notable changes to this project will be documented in this file.
 - Sidenav on mobile devices now hidden. Swipe from right screen corner to show sidenav;
 - Center link on "About page";
 - Link at the "About" page now opens in new tab;
-- Merge "sys-tools" & "logs-browser" pages.
+- Merge "sys-tools" & "logs-browser" pages;
 
 ### Fixed
+- Wi-Fi access point is no longer disabled during network scanning; 
 - Toast position fix;
-- Link to the site has been corrected on "About" page.
+- Link to the site has been corrected on "About" page;
 
 
 ### Removed

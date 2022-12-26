@@ -2,7 +2,6 @@
 #include <ArduinoJson.h>
 #include <etc.h>
 #include <WiFi.h>
-#include <ETH.h>
 #include "FS.h"
 #include <LittleFS.h>
 
@@ -11,6 +10,7 @@
 #include "web.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
+extern const char* deviceModel;
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
@@ -140,53 +140,52 @@ void ledBlueToggle()
   digitalWrite(LED_BLUE, !digitalRead(LED_BLUE));
 }
 
-void getDeviceID(String &devID)
-{
-  String mac;
-  mac = ETH.macAddress();
-  if (strcmp(mac.c_str(), "00:00:00:00:00:00") != 0)
-  {
-    DEBUG_PRINTLN(F("Using ETH mac to ID"));
-    DEBUG_PRINTLN(mac);
-  }
-  else
-  {
-    mac = WiFi.softAPmacAddress();
-    if (strcmp(mac.c_str(), "") != 0)
-    {
-      DEBUG_PRINTLN(F("Using WIFI mac to ID"));
-      DEBUG_PRINTLN(mac);
-    }
-    else
-    {
-      mac = "00:00:00:12:34:56";
-      DEBUG_PRINTLN(F("Using zero mac to ID"));
-      DEBUG_PRINTLN(mac);
-    }
-  }
-  mac = mac.substring(9);
-  mac = mac.substring(0, 2) + mac.substring(3, 5);
-  devID = "SLZB-06--" + String(mac);
-  DEBUG_PRINTLN(devID);
+void getDeviceID(char * arr){
+  uint64_t mac = ESP.getEfuseMac();
+  uint8_t a;
+  uint8_t b;
+  a ^= mac >> 8*0;
+  a ^= mac >> 8*1;
+  a ^= mac >> 8*2;
+  a ^= mac >> 8*3;
+  b ^= mac >> 8*4;
+  b ^= mac >> 8*5;
+  b ^= mac >> 8*6;
+  b ^= mac >> 8*7;
+  sprintf(arr, "%s--%3d%3d", deviceModel, a, b);
 }
 
-void writeDefultConfig(const char *path, String StringConfig)
-{
-  DEBUG_PRINTLN(path);
-  DEBUG_PRINTLN(F("failed open. try to write defaults"));
-  DEBUG_PRINTLN(StringConfig);
+// void writeDefultConfig(const char *path, String StringConfig)
+// {
+//   DEBUG_PRINTLN(path);
+//   DEBUG_PRINTLN(F("failed open. try to write defaults"));
+//   DEBUG_PRINTLN(StringConfig);
 
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, StringConfig);
+//   DynamicJsonDocument doc(1024);
+//   deserializeJson(doc, StringConfig);
+
+//   File configFile = LittleFS.open(path, FILE_WRITE);
+//   if (!configFile)
+//   {
+//     DEBUG_PRINTLN(F("failed write"));
+//     //return false;
+//   }
+//   else
+//   {
+//     serializeJson(doc, configFile);
+//   }
+//   configFile.close();
+// }
+
+void writeDefultConfig(const char *path, JsonDocument& doc){
+  DEBUG_PRINTLN(path);
+  DEBUG_PRINTLN(F("Write defaults"));
 
   File configFile = LittleFS.open(path, FILE_WRITE);
-  if (!configFile)
-  {
+  if (!configFile){
     DEBUG_PRINTLN(F("failed write"));
     //return false;
-  }
-  else
-  {
+  }else{
     serializeJson(doc, configFile);
   }
   configFile.close();
@@ -216,51 +215,7 @@ String hexToDec(String hexString)
   return String(decValue);
 }
 
-// void saveEmergencyWifi(bool state)
-// { 
-//   DEBUG_PRINT(F("saveEmergencyWifi "));
-//   DEBUG_PRINTLN(state);
-
-//   const char *path = "/config/system.json";
-//   DynamicJsonDocument doc(1024);
-
-//   File configFile = LittleFS.open(path, FILE_READ);
-//   deserializeJson(doc, configFile);
-//   configFile.close();
-
-//   doc["emergencyWifi"] = int(state);
-
-//   configFile = LittleFS.open(path, FILE_WRITE);
-//   serializeJson(doc, configFile);
-//   configFile.close();
-// }
-
-
-// void saveRestartCount(int count)
-// {
-//   const char *path = "/config/system.json";
-//   DynamicJsonDocument doc(1024);
-
-//   File configFile = LittleFS.open(path, FILE_READ);
-//   deserializeJson(doc, configFile);
-//   configFile.close();
-
-//   doc["restarts"] = int(count);
-
-//   configFile = LittleFS.open(path, FILE_WRITE);
-//   serializeJson(doc, configFile);
-//   configFile.close();
-//   delay(500);
-// }
-
-void resetSettings()
-{ 
-
-  // const char *path = "/config/configSecurity.json";
-
-  // String StringConfig = "{\"disableWeb\":0,\"webAuth\":0,\"webUser\":"",\"webPass\":""}";
-
-  // writeDefultConfig(path, StringConfig);
+void resetSettings(){ 
   DEBUG_PRINTLN(F("[resetSettings] Start"));
   digitalWrite(LED_BLUE, 1);
   digitalWrite(LED_YELLOW, 0);
@@ -273,7 +228,6 @@ void resetSettings()
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)){
     DEBUG_PRINTLN(F("Error with LITTLEFS"));
   }
-  //LittleFS.rmdir("/config");  //todo move 2 define or global const
   LittleFS.remove("/config/configSerial.json");  //todo move 2 define or global const
   LittleFS.remove("/config/configSecurity.json");  //todo move 2 define or global const
   LittleFS.remove("/config/configGeneral.json");  //todo move 2 define or global const

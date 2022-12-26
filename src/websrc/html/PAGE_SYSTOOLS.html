@@ -1,24 +1,22 @@
-<ul class="nav nav-tabs nav-fill mb-3" role="tablist" style="flex-wrap: inherit;">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#systemControl" type="button"
-      role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg"
-        width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
-        <path fill-rule="evenodd"
-          d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z" />
-      </svg>System Control</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
-      role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
-        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
-        viewBox="0 0 16 16">
-        <path
-          d="M1 0 0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.27 3.27a.997.997 0 0 0 1.414 0l1.586-1.586a.997.997 0 0 0 0-1.414l-3.27-3.27a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3c0-.269-.035-.53-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814L1 0Zm9.646 10.646a.5.5 0 0 1 .708 0l2.914 2.915a.5.5 0 0 1-.707.707l-2.915-2.914a.5.5 0 0 1 0-.708ZM3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026L3 11Z" />
-      </svg>System Tools</button>
-  </li>
-</ul>
-
 <div id='main'>
+  <ul class="nav nav-tabs nav-fill mb-3" role="tablist" style="flex-wrap: inherit;">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#systemControl" type="button"
+        role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg"
+          width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+          <use xlink:href="icons.svg#systemControl"/>
+        </svg>System Control</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
+        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
+          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
+          viewBox="0 0 16 16">
+          <use xlink:href="icons.svg#systemTools"/>
+        </svg>System Tools</button>
+    </li>
+  </ul>
+
   <div class="tab-content">
     <div class="tab-pane fade show active" id="systemControl" role="tabpanel" aria-labelledby="home-tab">
       <div class="row masonry" data-masonry='{"percentPosition": true }'>
@@ -52,11 +50,13 @@
             <div class='card-header'>Modules control</div>
             <div class='card-body'>
               <div class="row">
-                <button type='button' onclick="cmd('ZigRST');"
+                <button type='button' data-cmd="1"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Restart</button>
-                <button type='button' onclick="cmd('ZigBSL');"
+                <button type='button' data-cmd="2"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Flash Mode</button>
-                <button type='button' onclick="cmd('EspReboot');"
+                <button type='button' data-cmd="0" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Router
+                  Reconnect</button>
+                <button type='button' data-cmd="3"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>ESP32 Restart</button>
               </div>
             </div>
@@ -67,14 +67,14 @@
             <div class='card-header'>Current session control</div>
             <div class='card-body'>
               <div class="row">
-                <button type='button' onclick="cmd('AdapterModeLAN');"
+                <button type='button' data-cmd="4"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>LAN Mode ON</button>
-                <button type='button' onclick="cmd('AdapterModeUSB');"
+                <button type='button' data-cmd="5"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>USB Mode ON</button>
-                <button type='button' onclick="cmd('LedYellowToggle');"
+                <button type='button' data-cmd="6"
                   class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Yellow LED
                   Toggle</button>
-                <button type="button" onclick="cmd('LedBlueToggle');"
+                <button type="button" data-cmd="7"
                   class="btn btn-outline-primary col-sm-12 col-md-auto mb-1">Blue LED Toggle</button>
               </div>
             </div>
@@ -132,8 +132,15 @@
                 <div class="col">
                   <div class="col-sm-12">Raw data :</div>
                   <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
-                  <button type="button" onclick="cmd('ClearConsole');document.getElementById('console').value=''"
-                    class="btn btn-outline-primary col-sm-12 col-md-6">Clear Console</button>
+                  <button type="button" data-cmd="8" onclick="$('console').val('')"
+                    class="btn btn-outline-primary col-sm-3">Clear Console</button>
+                  <!-- send hex to zigbee ONLY FOR DEVELOP!!! -->
+                  <div style="display: none;">
+                    <input class="form-control col-sm-6" id="sendHex" type="text" name="sendHex" value="" maxlength="50"
+                      placeholder="Send hex to zigbee module">
+                    <button type="button" onclick="sendHex()" class="btn btn-outline-primary col-sm-3">Send</button>
+                  </div>
+                  <!-- --------- -->
                 </div>
               </div>
             </div>
@@ -143,50 +150,50 @@
 
     </div>
   </div>
-</div>
 
-<script src="/js/masonry.min.js"></script>
-<script>
-  function sub(obj) {
-    let fileName = obj.value.split('\\\\');
-    if (fileName != "") {
-      if (!(localStorage.getItem('flash_warning') == 1)) {
-        modalConstructor("flashWarning");
-      } else {
-        $("#updButton").removeAttr("disabled");
+  <script src="/js/masonry.min.js"></script>
+  <script>
+    function sub(obj) {
+      let fileName = obj.value.split('\\\\');
+      if (fileName != "") {
+        if (!(localStorage.getItem('flash_warning') == 1)) {
+          modalConstructor("flashWarning");
+        } else {
+          $("#updButton").removeAttr("disabled");
+        }
       }
-    }
-    document.getElementById('file-input').innerHTML = '   ' + fileName[fileName.length - 1];
-  };
-  $('form#upload_form').submit(function (e) {
-    e.preventDefault();
-    var form = $('#upload_form')[0];
-    var data = new FormData(form);
-    $.ajax({
-      url: '/update',
-      type: 'POST',
-      data: data,
-      contentType: false,
-      processData: false,
-      xhr: function () {
-        var xhr = new window.XMLHttpRequest();
-        xhr.upload.addEventListener('progress', function (evt) {
-          if (evt.lengthComputable) {
-            var per = evt.loaded / evt.total;
-            $('#prg').html('progress: ' + Math.round(per * 100) + '%');
-            $('#bar').css('width', Math.round(per * 100) + '%');
-          }
-        }, false);
-        return xhr;
-      },
-      success: function (d, s) {
-        console.log('success!');
-        $('#prg').html('Update completed!<br>Rebooting!');
-        //window.location.href = '/';
-        rebootWait();
-      },
-      error: function (a, b, c) {
-      }
+      document.getElementById('file-input').innerHTML = '   ' + fileName[fileName.length - 1];
+    };
+    $('form#upload_form').submit(function (e) {
+      e.preventDefault();
+      var form = $('#upload_form')[0];
+      var data = new FormData(form);
+      $.ajax({
+        url: '/update',
+        type: 'POST',
+        data: data,
+        contentType: false,
+        processData: false,
+        xhr: function () {
+          var xhr = new window.XMLHttpRequest();
+          xhr.upload.addEventListener('progress', function (evt) {
+            if (evt.lengthComputable) {
+              var per = evt.loaded / evt.total;
+              $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+              $('#bar').css('width', Math.round(per * 100) + '%');
+            }
+          }, false);
+          return xhr;
+        },
+        success: function (d, s) {
+          console.log('success!');
+          $('#prg').html('Update completed!<br>Rebooting!');
+          //window.location.href = '/';
+          rebootWait();
+        },
+        error: function (a, b, c) {
+        }
+      });
     });
-  });
-</script>
+  </script>
+</div>

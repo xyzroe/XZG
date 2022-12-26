@@ -1,3 +1,7 @@
+nav h2, #pagenamePC{
+  color: lightcoral;
+}
+
 #smPreloader{
   position: absolute;
   left: calc(50% - 50px);
@@ -7,13 +11,21 @@
   height: 100px;
 }
 
+.card-disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-disabled > *{
+  pointer-events: none;
+}
+
 .smCircle {
   position: relative;
   width: 100px;
   height: 100px;
   border-radius: 50%;
 }
-
 #circle-1 {
   background: #ff000052;
   position: absolute;
