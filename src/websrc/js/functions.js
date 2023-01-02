@@ -210,6 +210,10 @@ function loadPage(url) {
 	}
 }
 
+function espReboot() {
+	$.get(apiLink + api.actions.API_CMD + "&cmd=3");
+}
+
 function apiGetPage(page, doneCall) {
 	const animDuration = 200;
 	const locCall = doneCall;
@@ -460,7 +464,7 @@ function modalConstructor(type, params) {
 					if(counter <= 15){
 						$.get(apiLink + api.actions.API_WIFICONNECTSTAT, function(data) {
 							if(data.connected){
-								cmd('EspReboot');
+								espReboot();
 								clearInterval(getWifiIp);
 								setTimeout(()=>{//5sec for reboot
 									$(".modal-body").html(`<span style="color: green">Connected!</span><br>New IP address is ${data.ip}<br>Device will now reboot for the new settings to take effect.`);
@@ -522,7 +526,7 @@ function modalConstructor(type, params) {
 						text: "Restart now",
 						click: function() {
 							closeModal();
-							cmd('EspReboot');
+							espReboot();
 							rebootWait();
 						}
 					}).appendTo(modalBtns);
