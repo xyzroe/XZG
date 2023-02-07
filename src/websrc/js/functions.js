@@ -68,6 +68,48 @@ $(document).ready(function () { //handle active nav
 	});
 });
 
+function name(params) {
+	
+}
+
+function zbOta() {
+	let file = $("#zbFirmware")[0].files[0];
+	let reader = new FileReader();
+	let text;
+	let hex;
+	reader.onload = function(e) {
+		if(isHex(reader.result)){
+			console.log("Starting parse .hex file");
+			text = reader.result;
+			
+			text.split("\n").forEach(function(line, index, arr) {
+				if (index === arr.length - 1 && line === "")  return;
+				console.log("index:" + index);
+				hex += text.slice(-(text.length - 9), -2).toUpperCase();
+				// let hexSize = hex.split(" ").length;
+    			// $.get(apiLink + api.actions.API_SEND_HEX + "&hex=" + hex + "&size=" + hexSize, function (data) {
+				// });
+			});
+			console.log("hex len: " + hex.length);
+			const hmax = 248;
+			let pos = hmax;
+			for (let index = 0; index < (hex.length / hmax); index++) {
+				console.log(hex.slice(pos, hmax));
+				pos+=hmax;
+			}
+		}else{
+			alert("This file format not suported!");
+		}
+	}
+	reader.readAsText(file);
+
+}
+
+function isHex(txt){
+	var regex = /[0-9A-Fa-f]{21}/g;
+	return regex.test(txt);
+}
+
 function copyCode() {
 	let textArea = $("#generatedFile");
 	if (!navigator.clipboard) {

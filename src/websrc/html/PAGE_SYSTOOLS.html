@@ -124,6 +124,22 @@
             </div>
           </div>
         </div>
+
+        <!-- <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>Zigbee OTA update</div>
+            <div class='card-body'>
+              <div class="row">
+                <div class="col">
+                  <label for="zbFirmware" class="form-label">Select firmware file</label>
+                  <input class="form-control" type="file" id="zbFirmware" accept=".hex">
+                  <button type="button" class="btn btn-warning col-sm-12 col-md-6">Update Zigbee firmware</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
             <div class='card-header'>Debug console</div>
@@ -135,10 +151,10 @@
                   <button type="button" data-cmd="8" onclick="$('console').val('')"
                     class="btn btn-outline-primary col-sm-3">Clear Console</button>
                   <!-- send hex to zigbee ONLY FOR DEVELOP!!! -->
-                  <div style="display: none;">
+                  <div class="mt-2">
                     <input class="form-control col-sm-6" id="sendHex" type="text" name="sendHex" value="" maxlength="50"
                       placeholder="Send hex to zigbee module">
-                    <button type="button" onclick="sendHex()" class="btn btn-outline-primary col-sm-3">Send</button>
+                    <button type="button" onclick="sendHex()" class="btn btn-outline-primary col-sm-3 mt-2">Send</button>
                   </div>
                   <!-- --------- -->
                 </div>

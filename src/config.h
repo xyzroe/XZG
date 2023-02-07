@@ -66,7 +66,7 @@ struct ConfigSettingsStruct{
   char webPass[50];
   bool disableLedBlue;
   bool disableLedYellow;
-  bool disablePingCtrl;
+  //bool disablePingCtrl;
   bool disableLeds;
   COORDINATOR_MODE_t coordinator_mode;
   COORDINATOR_MODE_t prevCoordinator_mode;//for button

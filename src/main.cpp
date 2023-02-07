@@ -14,7 +14,6 @@
 #include <esp_wifi.h>
 #include <ETH.h>
 #include "ESPmDNS.h"
-#include <ESP32Ping.h>
 #include <DNSServer.h>
 
 #ifdef ETH_CLK_MODE
@@ -67,6 +66,7 @@ void initLan(){
       }
     }else{
       DEBUG_PRINTLN(F("LAN start err"));
+      //esp_eth_stop();
     }
 }
 
@@ -140,27 +140,6 @@ void handletmrNetworkOverseer(){
   }
 }
 
-bool checkPing()
-{ 
-  if (ConfigSettings.disablePingCtrl == 1)
-  {
-    DEBUG_PRINTLN(F("Ping control disabled"));
-    return true;
-  }
-  DEBUG_PRINT(F("Try to ping "));
-  DEBUG_PRINTLN(ETH.gatewayIP());
-  if (Ping.ping(ETH.gatewayIP()))
-  {
-    DEBUG_PRINTLN(F("okey ping"));
-    return true;
-  }
-  else
-  {
-    DEBUG_PRINTLN(F("error ping"));
-    return false;
-  }
-}
-
 void WiFiEvent(WiFiEvent_t event){ 
   DEBUG_PRINT(F("WiFiEvent "));
   DEBUG_PRINTLN(event);
@@ -184,12 +163,9 @@ void WiFiEvent(WiFiEvent_t event){
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(ETH.linkSpeed());
     DEBUG_PRINTLN(F("Mbps"));
-    if (checkPing())
-    {
       ConfigSettings.connectedEther = true;
       //ConfigSettings.disconnectEthTime = 0;
       //mDNS_start();
-    }
     break;
   case SYSTEM_EVENT_STA_GOT_IP:
     DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
@@ -349,8 +325,8 @@ bool loadConfigEther(){
     doc["ip"] = "";
     doc["mask"] = "";
     doc["gw"] = "";
-    doc["disablePingCtrl"] = 0;
-    String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
+    //doc["disablePingCtrl"] = 0;
+    //String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
     writeDefultConfig(configFileEther, doc);
   }
 
@@ -372,7 +348,7 @@ bool loadConfigEther(){
   strlcpy(ConfigSettings.ipAddress, doc["ip"] | "", sizeof(ConfigSettings.ipAddress));
   strlcpy(ConfigSettings.ipMask, doc["mask"] | "", sizeof(ConfigSettings.ipMask));
   strlcpy(ConfigSettings.ipGW, doc["gw"] | "", sizeof(ConfigSettings.ipGW));
-  ConfigSettings.disablePingCtrl = (int)doc["disablePingCtrl"];
+  //ConfigSettings.disablePingCtrl = (int)doc["disablePingCtrl"];
 
   configFile.close();
   return true;

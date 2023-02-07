@@ -101,9 +101,9 @@ void initWebServer() {
         serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
         ESP.restart(); },
         []() {
-            if (checkAuth()) {
                 HTTPUpload &upload = serverWeb.upload();
                 if (upload.status == UPLOAD_FILE_START) {
+                    if(!checkAuth()) return;
                     Serial.printf("Update: %s\n", upload.filename.c_str());
                     if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {  // start with max available size
                         Update.printError(Serial);
@@ -121,7 +121,7 @@ void initWebServer() {
                         Update.printError(Serial);
                     }
                 }
-            }
+
         });
     serverWeb.begin();
     DEBUG_PRINTLN(F("webserver setup done"));
@@ -478,12 +478,12 @@ void handleSaveParams(){
                 } else {
                     doc[dhcp] = zero;
                 }
-                const char* disablePingCtrl = "disablePingCtrl";
-                if (serverWeb.arg(disablePingCtrl) == on) {
-                    doc[disablePingCtrl] = one;
-                } else {
-                    doc[disablePingCtrl] = zero;
-                }
+                // const char* disablePingCtrl = "disablePingCtrl";
+                // if (serverWeb.arg(disablePingCtrl) == on) {
+                //     doc[disablePingCtrl] = one;
+                // } else {
+                //     doc[disablePingCtrl] = zero;
+                // }
                 configFile = LittleFS.open(configFileEther, FILE_WRITE);
                 serializeJson(doc, configFile);
                 configFile.close();
@@ -713,9 +713,9 @@ void handleEther() {
         doc["maskEther"] = ConfigSettings.ipMask;
         doc["GWEther"] = ConfigSettings.ipGW;
 
-        if (ConfigSettings.disablePingCtrl) {
-            doc["disablePingCtrl"] = checked;
-        }
+        // if (ConfigSettings.disablePingCtrl) {
+        //     doc["disablePingCtrl"] = checked;
+        // }
 
         serializeJson(doc, result);
         serverWeb.sendHeader(respHeaderName, result);
