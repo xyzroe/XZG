@@ -73,6 +73,8 @@ struct ConfigSettingsStruct{
   bool keepWeb;
   bool apStarted;
   bool wifiWebSetupInProgress;
+  bool fwEnabled;
+  IPAddress fwIp;
 };
 
 struct InfosStruct

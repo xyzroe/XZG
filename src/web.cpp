@@ -249,11 +249,12 @@ void handleApi() {  // http://192.168.0.116/api?action=0&page=0
             case API_WIFICONNECTSTAT:{
                 String result;
                 StaticJsonDocument<70> doc;
+                const char* connected = "connected";
                 if(WiFi.status() == WL_CONNECTED){
-                    doc["connected"] = true;
+                    doc[connected] = true;
                     doc["ip"] = WiFi.localIP().toString();
                 }else{
-                    doc["connected"] = false;
+                    doc[connected] = false;
                 }
                 serializeJson(doc, result);
                 serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
@@ -559,7 +560,16 @@ void handleSaveParams(){
                 } else {
                     doc[webUser] = "admin";
                 }
+                const char* fwEnabled = "fwEnabled";
+                if (serverWeb.arg(fwEnabled) == on) {
+                    doc[fwEnabled] = 1;
+                } else {
+                    doc[fwEnabled] = 0;
+                }
+                const char* fwIp = "fwIp";
+                doc[fwIp] = serverWeb.arg(fwIp);
                 doc["webPass"] = serverWeb.arg("webPass");
+
                 configFile = LittleFS.open(configFileSecurity, FILE_WRITE);
                 serializeJson(doc, configFile);
                 configFile.close();
@@ -643,8 +653,6 @@ void handleSecurity() {
         String result;
         DynamicJsonDocument doc(1024);
 
-        //doc["pageName"] = "Security";
-
         if (ConfigSettings.disableWeb) {
             doc["disableWeb"] = checked;
         }
@@ -654,6 +662,10 @@ void handleSecurity() {
         }
         doc["webUser"] = (String)ConfigSettings.webUser;
         doc["webPass"] = (String)ConfigSettings.webPass;
+        if (ConfigSettings.fwEnabled) {
+            doc["fwEnabled"] = checked;
+        }
+        doc["fwIp"] = ConfigSettings.fwIp.toString();
 
         serializeJson(doc, result);
         serverWeb.sendHeader(respHeaderName, result);

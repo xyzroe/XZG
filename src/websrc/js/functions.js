@@ -144,10 +144,23 @@ function generateConfig(params) {
 		case "z2m":
 			result = `# Serial settings
 serial:
-  #Location of SLZB-06
+  # Location of SLZB-06
   port: tcp://${ip}:${port}
   baudrate: ${$("#baud").val()}
   # Disable green led?
+  disable_led: false
+# Set output power to max 20
+advanced:
+  transmit_power: 20`;
+		break;
+		case "usb":
+			result = `# For homeassistant: Go to "Settings"→"System"→"Hardware"→Select the 3 dot menu in the upper right corner→"All Hardware"→Scroll to ttyUSB and find your adapter→Copy Device path like "/dev/ttyUSB0"
+# List USB devices on Linux: ls  /dev/ttyUSB*
+serial:
+# Location of SLZB-06
+  port: INSERT_DEVICE_PATCH_HERE
+  baudrate: ${$("#baud").val()}
+# Disable green led?
   disable_led: false
 # Set output power to max 20
 advanced:
@@ -228,6 +241,9 @@ function loadPage(url) {
 				if ($("#webAuth").prop("checked")) {
 					SeqInputDsbl(false);
 				}
+				if ($("#fwEnabled").prop("checked")) {
+					SeqInputDsblFw(false);
+				}
 			});
 		break;
 		case api.pages.API_PAGE_SYSTOOLS.str:
@@ -238,6 +254,8 @@ function loadPage(url) {
 				$.get(apiLink + api.actions.API_GET_PARAM + "&param=refreshLogs", function (data) {
 					if (parseInt(data) >= 1000) {
 						logRefresh(parseInt(data));
+					}else{
+						logRefresh(1000);
 					}
 				});
 			});
@@ -249,6 +267,11 @@ function loadPage(url) {
 		default:
 			apiGetPage(api.pages.API_PAGE_ROOT);
 		break;
+	}
+	if(url != api.pages.API_PAGE_WIFI.str && $('.toast').hasClass("show")){
+		if($('#toastBody').text().indexOf("Wi-Fi mode") > 0){
+			$('.toast').toast('hide');
+		}
 	}
 }
 
@@ -715,6 +738,10 @@ function EthInputDsbl(state) {
 function SeqInputDsbl(state) {
 	$("#webUser").prop(disbl, state);
 	$("#webPass").prop(disbl, state);
+}
+
+function SeqInputDsblFw(state) {
+	$("#fwIp").prop(disbl, state);
 }
 
 function readfile(file) {
