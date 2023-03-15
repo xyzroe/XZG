@@ -68,6 +68,48 @@ $(document).ready(function () { //handle active nav
 	});
 });
 
+function name(params) {
+	
+}
+
+function zbOta() {
+	let file = $("#zbFirmware")[0].files[0];
+	let reader = new FileReader();
+	let text;
+	let hex;
+	reader.onload = function(e) {
+		if(isHex(reader.result)){
+			console.log("Starting parse .hex file");
+			text = reader.result;
+			
+			text.split("\n").forEach(function(line, index, arr) {
+				if (index === arr.length - 1 && line === "")  return;
+				console.log("index:" + index);
+				hex += text.slice(-(text.length - 9), -2).toUpperCase();
+				// let hexSize = hex.split(" ").length;
+    			// $.get(apiLink + api.actions.API_SEND_HEX + "&hex=" + hex + "&size=" + hexSize, function (data) {
+				// });
+			});
+			console.log("hex len: " + hex.length);
+			const hmax = 248;
+			let pos = hmax;
+			for (let index = 0; index < (hex.length / hmax); index++) {
+				console.log(hex.slice(pos, hmax));
+				pos+=hmax;
+			}
+		}else{
+			alert("This file format not suported!");
+		}
+	}
+	reader.readAsText(file);
+
+}
+
+function isHex(txt){
+	var regex = /[0-9A-Fa-f]{21}/g;
+	return regex.test(txt);
+}
+
 function copyCode() {
 	let textArea = $("#generatedFile");
 	if (!navigator.clipboard) {
@@ -102,10 +144,23 @@ function generateConfig(params) {
 		case "z2m":
 			result = `# Serial settings
 serial:
-  #Location of SLZB-06
+  # Location of SLZB-06
   port: tcp://${ip}:${port}
   baudrate: ${$("#baud").val()}
   # Disable green led?
+  disable_led: false
+# Set output power to max 20
+advanced:
+  transmit_power: 20`;
+		break;
+		case "usb":
+			result = `# For homeassistant: Go to "Settings"→"System"→"Hardware"→Select the 3 dot menu in the upper right corner→"All Hardware"→Scroll to ttyUSB and find your adapter→Copy Device path like "/dev/ttyUSB0"
+# List USB devices on Linux: ls  /dev/ttyUSB*
+serial:
+# Location of SLZB-06
+  port: INSERT_DEVICE_PATCH_HERE
+  baudrate: ${$("#baud").val()}
+# Disable green led?
   disable_led: false
 # Set output power to max 20
 advanced:
@@ -186,6 +241,9 @@ function loadPage(url) {
 				if ($("#webAuth").prop("checked")) {
 					SeqInputDsbl(false);
 				}
+				if ($("#fwEnabled").prop("checked")) {
+					SeqInputDsblFw(false);
+				}
 			});
 		break;
 		case api.pages.API_PAGE_SYSTOOLS.str:
@@ -196,6 +254,8 @@ function loadPage(url) {
 				$.get(apiLink + api.actions.API_GET_PARAM + "&param=refreshLogs", function (data) {
 					if (parseInt(data) >= 1000) {
 						logRefresh(parseInt(data));
+					}else{
+						logRefresh(1000);
 					}
 				});
 			});
@@ -207,6 +267,11 @@ function loadPage(url) {
 		default:
 			apiGetPage(api.pages.API_PAGE_ROOT);
 		break;
+	}
+	if(url != api.pages.API_PAGE_WIFI.str && $('.toast').hasClass("show")){
+		if($('#toastBody').text().indexOf("Wi-Fi mode") > 0){
+			$('.toast').toast('hide');
+		}
 	}
 }
 
@@ -673,6 +738,10 @@ function EthInputDsbl(state) {
 function SeqInputDsbl(state) {
 	$("#webUser").prop(disbl, state);
 	$("#webPass").prop(disbl, state);
+}
+
+function SeqInputDsblFw(state) {
+	$("#fwIp").prop(disbl, state);
 }
 
 function readfile(file) {

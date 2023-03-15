@@ -26,6 +26,19 @@
                         <input data-replace="webPass" class='form-control' id='webPass' type='password' name='webPass'
                             disabled>
                     </div>
+
+                    <div class="col-sm-12 col-md-6 mb-4">
+                        <div class='form-check'>
+                            <input data-replace="fwEnabled" class='form-check-input' id='fwEnabled' type='checkbox'
+                                name='fwEnabled' onclick="SeqInputDsblFw(!this.checked)">
+                            <label class='form-check-label' for='fwEnabled'>Enable IP whitelist for socket</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 mb-2">
+                        <label for='fwIp'>Allowed IP</label>
+                        <input data-replace="fwIp" class='form-control' id='fwIp' type='text' name='fwIp'
+                            disabled placeholder="192.168.x.x">
+                    </div>
                     <div class="col-sm-12">
                         <div class="row justify-content-md-center">
                             <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'

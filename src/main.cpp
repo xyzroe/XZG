@@ -14,7 +14,6 @@
 #include <esp_wifi.h>
 #include <ETH.h>
 #include "ESPmDNS.h"
-#include <ESP32Ping.h>
 #include <DNSServer.h>
 
 #ifdef ETH_CLK_MODE
@@ -67,6 +66,7 @@ void initLan(){
       }
     }else{
       DEBUG_PRINTLN(F("LAN start err"));
+      //esp_eth_stop();
     }
 }
 
@@ -140,27 +140,6 @@ void handletmrNetworkOverseer(){
   }
 }
 
-bool checkPing()
-{ 
-  if (ConfigSettings.disablePingCtrl == 1)
-  {
-    DEBUG_PRINTLN(F("Ping control disabled"));
-    return true;
-  }
-  DEBUG_PRINT(F("Try to ping "));
-  DEBUG_PRINTLN(ETH.gatewayIP());
-  if (Ping.ping(ETH.gatewayIP()))
-  {
-    DEBUG_PRINTLN(F("okey ping"));
-    return true;
-  }
-  else
-  {
-    DEBUG_PRINTLN(F("error ping"));
-    return false;
-  }
-}
-
 void WiFiEvent(WiFiEvent_t event){ 
   DEBUG_PRINT(F("WiFiEvent "));
   DEBUG_PRINTLN(event);
@@ -184,12 +163,9 @@ void WiFiEvent(WiFiEvent_t event){
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(ETH.linkSpeed());
     DEBUG_PRINTLN(F("Mbps"));
-    if (checkPing())
-    {
       ConfigSettings.connectedEther = true;
       //ConfigSettings.disconnectEthTime = 0;
       //mDNS_start();
-    }
     break;
   case SYSTEM_EVENT_STA_GOT_IP:
     DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
@@ -246,7 +222,7 @@ IPAddress parse_ip_address(const char *str){
   return result;
 }
 
-bool loadSystemVar(){
+bool loadSystemVar(){//todo remove
   File configFile = LittleFS.open(configFileSystem, FILE_READ);
   if (!configFile)
   {
@@ -301,16 +277,23 @@ bool loadSystemVar(){
 
 bool loadConfigWifi(){
   File configFile = LittleFS.open(configFileWifi, FILE_READ);
+  const char* enableWiFi = "enableWiFi";
+  const char* ssid = "ssid";
+  const char* pass = "pass";
+  const char* dhcpWiFi = "dhcpWiFi";
+  const char* ip = "ip";
+  const char* mask = "mask";
+  const char* gw = "gw";
   if (!configFile){
     //String StringConfig = "{\"enableWiFi\":0,\"ssid\":\"\",\"pass\":\"\",\"dhcpWiFi\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disableEmerg\":1}";
     DynamicJsonDocument doc(1024);
-    doc["enableWiFi"] = 0;
-    doc["ssid"] = "";
-    doc["pass"] = "";
-    doc["dhcpWiFi"] = 1;
-    doc["ip"] = "";
-    doc["mask"] = "";
-    doc["gw"] = "";
+    doc[enableWiFi] = 0;
+    doc[ssid] = "";
+    doc[pass] = "";
+    doc[dhcpWiFi] = 1;
+    doc[ip] = "";
+    doc[mask] = "";
+    doc[gw] = "";
     writeDefultConfig(configFileWifi, doc);
   }
 
@@ -328,12 +311,12 @@ bool loadConfigWifi(){
     return false;
   }
 
-  ConfigSettings.dhcpWiFi = (int)doc["dhcpWiFi"];
-  strlcpy(ConfigSettings.ssid, doc["ssid"] | "", sizeof(ConfigSettings.ssid));
-  strlcpy(ConfigSettings.password, doc["pass"] | "", sizeof(ConfigSettings.password));
-  strlcpy(ConfigSettings.ipAddressWiFi, doc["ip"] | "", sizeof(ConfigSettings.ipAddressWiFi));
-  strlcpy(ConfigSettings.ipMaskWiFi, doc["mask"] | "", sizeof(ConfigSettings.ipMaskWiFi));
-  strlcpy(ConfigSettings.ipGWWiFi, doc["gw"] | "", sizeof(ConfigSettings.ipGWWiFi));
+  ConfigSettings.dhcpWiFi = (int)doc[dhcpWiFi];
+  strlcpy(ConfigSettings.ssid, doc[ssid] | "", sizeof(ConfigSettings.ssid));
+  strlcpy(ConfigSettings.password, doc[pass] | "", sizeof(ConfigSettings.password));
+  strlcpy(ConfigSettings.ipAddressWiFi, doc[ip] | "", sizeof(ConfigSettings.ipAddressWiFi));
+  strlcpy(ConfigSettings.ipMaskWiFi, doc[mask] | "", sizeof(ConfigSettings.ipMaskWiFi));
+  strlcpy(ConfigSettings.ipGWWiFi, doc[gw] | "", sizeof(ConfigSettings.ipGWWiFi));
   //ConfigSettings.enableWiFi = (int)doc["enableWiFi"];
   //ConfigSettings.disableEmerg = (int)doc["disableEmerg"];
 
@@ -342,15 +325,19 @@ bool loadConfigWifi(){
 }
 
 bool loadConfigEther(){
+  const char* dhcp = "dhcp";
+  const char* ip = "ip";
+  const char* mask = "mask";
+  const char* gw = "gw";
   File configFile = LittleFS.open(configFileEther, FILE_READ);
   if (!configFile){
     DynamicJsonDocument doc(1024);
-    doc["dhcp"] = 1;
-    doc["ip"] = "";
-    doc["mask"] = "";
-    doc["gw"] = "";
-    doc["disablePingCtrl"] = 0;
-    String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
+    doc[dhcp] = 1;
+    doc[ip] = "";
+    doc[mask] = "";
+    doc[gw] = "";
+    //doc["disablePingCtrl"] = 0;
+    //String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
     writeDefultConfig(configFileEther, doc);
   }
 
@@ -368,17 +355,24 @@ bool loadConfigEther(){
     return false;
   }
 
-  ConfigSettings.dhcp = (int)doc["dhcp"];
-  strlcpy(ConfigSettings.ipAddress, doc["ip"] | "", sizeof(ConfigSettings.ipAddress));
-  strlcpy(ConfigSettings.ipMask, doc["mask"] | "", sizeof(ConfigSettings.ipMask));
-  strlcpy(ConfigSettings.ipGW, doc["gw"] | "", sizeof(ConfigSettings.ipGW));
-  ConfigSettings.disablePingCtrl = (int)doc["disablePingCtrl"];
+  ConfigSettings.dhcp = (int)doc[dhcp];
+  strlcpy(ConfigSettings.ipAddress, doc[ip] | "", sizeof(ConfigSettings.ipAddress));
+  strlcpy(ConfigSettings.ipMask, doc[mask] | "", sizeof(ConfigSettings.ipMask));
+  strlcpy(ConfigSettings.ipGW, doc[gw] | "", sizeof(ConfigSettings.ipGW));
+  //ConfigSettings.disablePingCtrl = (int)doc["disablePingCtrl"];
 
   configFile.close();
   return true;
 }
 
 bool loadConfigGeneral(){
+  const char* hostname = "hostname";
+  const char* disableLeds = "disableLeds";
+  const char* refreshLogs = "refreshLogs";
+  const char* disableLedYellow = "disableLedYellow";
+  const char* disableLedBlue = "disableLedBlue";
+  const char* prevCoordMode = "prevCoordMode";
+  const char* keepWeb = "keepWeb";
   File configFile = LittleFS.open(configFileGeneral, FILE_READ);
   DEBUG_PRINTLN(configFile.readString());
   if (!configFile){
@@ -387,15 +381,14 @@ bool loadConfigGeneral(){
     DEBUG_PRINTLN("RESET ConfigGeneral");
     //String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedYellow\":0,\"disableLedBlue\":0,\""+ coordMode +"\":0}\""+ prevCoordMode +"\":0, \"keepWeb\": 0}";
     DynamicJsonDocument doc(1024);
-    doc["hostname"] = deviceModel;
-    doc["disableLeds"] = 0;
-    doc["refreshLogs"] = 1000;
-    doc["disableLedYellow"] = 0;
-    doc["disableLedBlue"] = 0;
-    doc["disableLedBlue"] = 0;
+    doc[hostname] = deviceModel;
+    doc[disableLeds] = 0;
+    doc[refreshLogs] = 1000;
+    doc[disableLedYellow] = 0;
+    doc[disableLedBlue] = 0;
     doc[coordMode] = 0;
-    doc["prevCoordMode"] = 0;
-    doc["keepWeb"] = 0;
+    doc[prevCoordMode] = 0;
+    doc[keepWeb] = 0;
     writeDefultConfig(configFileGeneral, doc);
   }
 
@@ -413,42 +406,50 @@ bool loadConfigGeneral(){
     return false;
   }
 
-  if ((double)doc["refreshLogs"] < 1000)
+  if ((double)doc[refreshLogs] < 1000)
   {
     ConfigSettings.refreshLogs = 1000;
   }
   else
   {
-    ConfigSettings.refreshLogs = (int)doc["refreshLogs"];
+    ConfigSettings.refreshLogs = (int)doc[refreshLogs];
   }
   DEBUG_PRINTLN(F("[loadConfigGeneral] 'doc[coordMode]' res is:"));
   DEBUG_PRINTLN(String((uint8_t)doc[coordMode]));
-  strlcpy(ConfigSettings.hostname, doc["hostname"] | "", sizeof(ConfigSettings.hostname));
+  strlcpy(ConfigSettings.hostname, doc[hostname] | "", sizeof(ConfigSettings.hostname));
   ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>((uint8_t)doc[coordMode]);
   ConfigSettings.prevCoordinator_mode = static_cast<COORDINATOR_MODE_t>((uint8_t)doc[prevCoordMode]);
   DEBUG_PRINTLN(F("[loadConfigGeneral] 'static_cast' res is:"));
   DEBUG_PRINTLN(String(ConfigSettings.coordinator_mode));
-  ConfigSettings.disableLedYellow = (uint8_t)doc["disableLedYellow"];
+  ConfigSettings.disableLedYellow = (uint8_t)doc[disableLedYellow];
   DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedYellow"));
-  ConfigSettings.disableLedBlue = (uint8_t)doc["disableLedBlue"];
+  ConfigSettings.disableLedBlue = (uint8_t)doc[disableLedBlue];
   DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedBlue"));
-  ConfigSettings.disableLeds = (uint8_t)doc["disableLeds"];
+  ConfigSettings.disableLeds = (uint8_t)doc[disableLeds];
   DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
-  ConfigSettings.keepWeb = (uint8_t)doc["keepWeb"];
+  ConfigSettings.keepWeb = (uint8_t)doc[keepWeb];
   configFile.close();
   DEBUG_PRINTLN(F("[loadConfigGeneral] config load done"));
   return true;
 }
 
 bool loadConfigSecurity(){
+  const char* disableWeb = "disableWeb";
+  const char* webAuth = "webAuth";
+  const char* webUser = "webUser";
+  const char* webPass = "webPass";
+  const char* fwEnabled = "fwEnabled";
+  const char* fwIp = "fwIp";
   File configFile = LittleFS.open(configFileSecurity, FILE_READ);
   if (!configFile){
     //String StringConfig = "{\"disableWeb\":0,\"webAuth\":0,\"webUser\":"",\"webPass\":""}";
     DynamicJsonDocument doc(1024);
-    doc["disableWeb"] = 0;
-    doc["webAuth"] = 0;
-    doc["webUser"] = "admin";
-    doc["webPass"] = "";
+    doc[disableWeb] = 0;
+    doc[webAuth] = 0;
+    doc[webUser] = "admin";
+    doc[webPass] = "";
+    doc[fwEnabled] = 0;
+    doc[fwIp] = "";
     writeDefultConfig(configFileSecurity, doc);
   }
 
@@ -466,22 +467,26 @@ bool loadConfigSecurity(){
     return false;
   }
 
-  ConfigSettings.disableWeb = (uint8_t)doc["disableWeb"];
-  ConfigSettings.webAuth = (uint8_t)doc["webAuth"];
-  strlcpy(ConfigSettings.webUser, doc["webUser"] | "", sizeof(ConfigSettings.webUser));
-  strlcpy(ConfigSettings.webPass, doc["webPass"] | "", sizeof(ConfigSettings.webPass));
+  ConfigSettings.disableWeb = (uint8_t)doc[disableWeb];
+  ConfigSettings.webAuth = (uint8_t)doc[webAuth];
+  strlcpy(ConfigSettings.webUser, doc[webUser] | "", sizeof(ConfigSettings.webUser));
+  strlcpy(ConfigSettings.webPass, doc[webPass] | "", sizeof(ConfigSettings.webPass));
+  ConfigSettings.fwEnabled = (uint8_t)doc[fwEnabled];
+  ConfigSettings.fwIp = parse_ip_address(doc[fwIp] | "0.0.0.0");
 
   configFile.close();
   return true;
 }
 
 bool loadConfigSerial(){
+  const char* baud = "baud";
+  const char* port = "port";
   File configFile = LittleFS.open(configFileSerial, FILE_READ);
   if (!configFile){
     //String StringConfig = "{\"baud\":115200,\"port\":6638}";
     DynamicJsonDocument doc(1024);
-    doc["baud"] = 115200;
-    doc["port"] = 6638;
+    doc[baud] = 115200;
+    doc[port] = 6638;
     writeDefultConfig(configFileSerial, doc);
   }
 
@@ -499,8 +504,8 @@ bool loadConfigSerial(){
     return false;
   }
 
-  ConfigSettings.serialSpeed = (int)doc["baud"];
-  ConfigSettings.socketPort = (int)doc["port"];
+  ConfigSettings.serialSpeed = (int)doc[baud];
+  ConfigSettings.socketPort = (int)doc[port];
   if (ConfigSettings.socketPort == 0)
   {
     ConfigSettings.socketPort = TCP_LISTEN_PORT;
@@ -1048,8 +1053,19 @@ void loop(void){
         {
           client[i].stop();
         }
-        client[i] = server.available();
-        continue;
+        if(ConfigSettings.fwEnabled){
+          WiFiClient TempClient2 = server.available();
+          if(TempClient2.remoteIP() == ConfigSettings.fwIp){
+            printLogMsg(String("[SOCK IP WHITELIST] Accepted connection from IP: ") + TempClient2.remoteIP().toString());
+            client[i] = TempClient2;
+            continue;
+          }else{
+            printLogMsg(String("[SOCK IP WHITELIST] Rejected connection from unknown IP: ") + TempClient2.remoteIP().toString());
+          }
+        }else{
+          client[i] = server.available();
+          continue;
+        }
       }
     }
     WiFiClient TempClient = server.available();

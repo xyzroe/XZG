@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
+## [0.9.9] 20230303
+### Added
+- Added whitelist for socket IP in "Security". You can choose the IP address that will have access to the TCP socket;
+- Added USB mode option for Config generator;
+- (c) sign
+
+### Changed
+- Minor code improvements and optimizations;
+
+### Fixed
+- WiFi mode toast visibility fix; 
+
+### Removed
+- Removed gateway ping check;
+
+------------
+
 ## [0.9.8] 20221226
 ### Added
 - NEW WIFI COORDINATOR MODE ARRIVED!;
