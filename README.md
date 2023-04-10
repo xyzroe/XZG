@@ -1,5 +1,6 @@
 # SMLIGHT SLZB-06 Zigbee 3.0 PoE Ethernet USB Adapter's FIRMWARE
-## Latest stable release: [v0.9.8](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.8)
+## Latest stable release: [v0.9.9](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.9)
+## Latest dev release: [v1.0.0](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v1.0.0-dev)
 <hr></hr>
 
 This repository contains latest firmware for ESP32 peripheral module of [SLZB-06 Zigbee Ethernet PoE USB Adapter](https://smlight.tech/product/slzb-06). Firmware is opensource, so feel free to improve it by making commit to this repository. 
@@ -24,19 +25,21 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 - Zigbee2MQTT and ZHA config helper;
 - Control behaviour of LED (you can disable Mode LED, Power LED through firmware, or toggle both by the button long press);
 - DHCP or static IP address for Ethernet connection;
-- ESP32 OTA update, ESP32 (peripheral) and CC2652P (Zigbee) restart;
+- ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
 - Switch CC2652P (Zigbee) to flash mode;
 - Pairing mode for adapter in router mode;
 - Fully responsive web-interface based on the latest Bootstrap 5.2.
 
 ### 5 minutes video review on Youtube (click):
-[![Video review firmware v0.9.8 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/v0.9.8-fw-review-youtube-screen.png)](https://www.youtube.com/watch?v=BNA-ghy3Niw)
+
+[![Video review firmware v1.0.0 for SLZB-06](https://user-images.githubusercontent.com/31830530/230925871-f27d2e7e-2161-44c1-a147-eb70ed8ef269.png)](https://www.youtube.com/watch?v=TWRPQ_KgOhE)
 
 ### SLZB-06 firmware screenshots
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_2.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_3.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_4.png)
+![image](https://user-images.githubusercontent.com/31830530/230929441-cbba10c7-0f5f-4b3c-aec1-0d66dd088d49.png)
 
 ## Installation and Configuration
 
