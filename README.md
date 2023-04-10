@@ -32,7 +32,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 
 ### 5 minutes video review on Youtube (click):
 
-[![Video review firmware v1.0.0 for SLZB-06](https://user-images.githubusercontent.com/31830530/230925871-f27d2e7e-2161-44c1-a147-eb70ed8ef269.png)](https://www.youtube.com/watch?v=ps-x_-CQXp0)
+[![Video review firmware v1.0.0 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/title.jpg)](https://www.youtube.com/watch?v=ps-x_-CQXp0)
 
 ### SLZB-06 firmware screenshots
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
