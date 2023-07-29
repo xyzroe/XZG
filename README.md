@@ -21,7 +21,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 ## KEY FIRMWARE FEATURES
 - **Update Zigbee firmware chip right from the web-interface** in once click;
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Blue led On = USB mode, Blue led Off = Ethernet mode);
-- Adapter mode selector throug web-interface: Zigbee-to-Ethernet, Zigbee-to-USB and Zigbee-to-WiFI;
+- Adapter mode selector throug web-interface: `Zigbee-to-Ethernet`, `Zigbee-to-USB` and `Zigbee-to-WiFI`;
 - support mDNS autodiscovery in your network (go in the borwser to `slzb-06.local`), in Zigbee2MQTT (set `port: mdns://slzb-06`) and in ZHA;
 - Secure login through username and password;
 - Zigbee2MQTT and ZHA config helper;
@@ -29,6 +29,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 - DHCP or static IP address for Ethernet connection;
 - ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
 - Switch CC2652P (Zigbee) to flash mode;
+- Flashing router firmware from the web-interface;
 - Pairing mode for adapter in router mode;
 - Firewall for incoming connections to secure your network;
 - Fully responsive web-interface based on the latest Bootstrap 5.2.
