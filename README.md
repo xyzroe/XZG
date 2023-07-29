@@ -1,6 +1,6 @@
 # SMLIGHT SLZB-06 Zigbee 3.0 PoE Ethernet USB Adapter's FIRMWARE
 ## Latest stable release: [v0.9.9](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.9)
-## Latest dev release: [v1.0.0](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v1.0.0-dev)
+## Latest dev release: [v1.0.1](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v1.0.1-dev)
 <hr></hr>
 
 This repository contains latest firmware for ESP32 peripheral module of [SLZB-06 Zigbee Ethernet PoE USB Adapter](https://smlight.tech/product/slzb-06). Firmware is opensource, so feel free to improve it by making commit to this repository. 
@@ -19,8 +19,10 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 
 
 ## KEY FIRMWARE FEATURES
+- **Update Zigbee firmware chip right from the web-interface** in once click;
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Blue led On = USB mode, Blue led Off = Ethernet mode);
-- Adapter mode selector throug web-interface: Zigbee-to-Ethernet, Zigbee-to-USB and Zigbee-to-WiFI);
+- Adapter mode selector throug web-interface: Zigbee-to-Ethernet, Zigbee-to-USB and Zigbee-to-WiFI;
+- support mDNS autodiscovery in your network (go in the borwser to `slzb-06.local`), in Zigbee2MQTT (set `port: mdns://slzb-06`) and in ZHA;
 - Secure login through username and password;
 - Zigbee2MQTT and ZHA config helper;
 - Control behaviour of LED (you can disable Mode LED, Power LED through firmware, or toggle both by the button long press);
@@ -28,6 +30,7 @@ This repository contains latest firmware for ESP32 peripheral module of [SLZB-06
 - ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
 - Switch CC2652P (Zigbee) to flash mode;
 - Pairing mode for adapter in router mode;
+- Firewall for incoming connections to secure your network;
 - Fully responsive web-interface based on the latest Bootstrap 5.2.
 
 ### 5 minutes video review on Youtube (click):
@@ -76,17 +79,15 @@ You can contribute to SLZB-06 Firmware by
 
 ## Credits
 
-People helping to keep the show on the road - developers and contributors:
-- [@Tarik2142](https://github.com/Tarik2142) providing initial issue resolution and code optimizations.  
+People helping to keep the show on the road - **developers and contributors**:
+- [@Tarik2142](https://github.com/Tarik2142) for providing initial code, issues resolution and code optimizations.  
 
-slzb-06-firmware was based initially on a fork of [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW) by xyzroe. Special thanks goes to xyzroe and contributors of ZigStarGW-FW.  
-Special thanks goes also to the authors of 3rd party libraries which are used in this project.  
+Special thanks goes also to all authors of 3rd party libraries which are used in this project.  
 
 
 ## License and attribution
 
-SLZB-06-Firmware is licensed under GNU General Public License v3. slzb-06-firmware utilized ZigStarGW-FW by xyzroe as a base template.  
-ZigStarGW-FW is licensed under GNU General Public license v3.  
+SLZB-06-Firmware is licensed under GNU General Public License v3.
 3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  
-Copyright (c) 2022 SMLIGHT-DEV.  
+Copyright (c) 2023 SMLIGHT-DEV.  
 The GNU General Public License v3 ensures that if you use any part of this software in any way, your software must be released under the same license.  
