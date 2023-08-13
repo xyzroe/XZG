@@ -2,8 +2,6 @@
 ## Latest stable release: [v0.9.9](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.9)
 ## Latest dev release: [v1.0.1](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v1.0.1-dev)
 
-## Flashing
-<hr></hr>
 
 This repository contains the latest firmware for the ESP32 peripheral module of [SLZB-06 Zigbee Ethernet PoE USB Adapter](https://smlight.tech/product/slzb-06). Firmware is opensource, so feel free to improve it by making a commit to this repository. 
 
