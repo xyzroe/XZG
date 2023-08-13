@@ -46,7 +46,7 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 ![image](https://user-images.githubusercontent.com/31830530/230929441-cbba10c7-0f5f-4b3c-aec1-0d66dd088d49.png)
 
 ## Installation and Configuration
-Please refer to the installation and configuration articles in our [documentation](https://smlight.tech/manual/slzb-06/).
+Please refer to the installation and configuration articles in our [documentation](https://smlight.tech/manual/slzb-06/).  
 Please follow this link for web-flasher - just plug-and-flash: [SMLIGHT Uniflasher](https://smlight.tech/manual/slzb-06/flasher/).
 
 ## Compiling from source
