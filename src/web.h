@@ -19,4 +19,4 @@ void handleSaveParams();
 bool checkAuth();
 void handleZigbeeBSL();
 
-#define UPD_FILE "https://github.com/mercenaruss/uzg-01-firmware/releases/latest/download/UZG-01.bin"
+#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/UZG-01.bin"

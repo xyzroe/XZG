@@ -42,10 +42,10 @@ A Pull Request (PR) is the process where code modifications are managed in GitHu
 The process is straight-forward.
 
  - Read [How to get faster PR reviews](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md#best-practices-for-faster-reviews) by Kubernetes (but skip step 0)
- - Fork the [Git repository](https://github.com/mercenaruss/uzg-01-firmware).
+ - Fork the [Git repository](https://github.com/mercenaruss/uzg-firmware).
  - Write/Change the code in your Fork for a new feature, bug fix, new sensor, optimization, etc.
  - Ensure tests work.
- - Create a Pull Request against the [**development**](https://github.com/mercenaruss/uzg-01-firmware/tree/dev) branch of uzg-01-firmware.
+ - Create a Pull Request against the [**development**](https://github.com/mercenaruss/uzg-firmware/tree/dev) branch of uzg-firmware.
 
 1. All pull requests must be done against the development branch.
 2. Only relevant files should be touched (Also beware if your editor has auto-formatting feature enabled).

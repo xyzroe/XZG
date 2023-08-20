@@ -3,10 +3,10 @@
 
 This repository contains the latest firmware for the ESP32 peripheral module of [UZG-01 Zigbee Ethernet PoE USB Adapter](https://uzg.zig-star.com/product). Firmware is opensource, so feel free to improve it by making a commit to this repository. 
 
-[![GitHub version](https://img.shields.io/github/release/mercenaruss/uzg-01-firmware.svg)](https://github.com/mercenaruss/uzg-01-firmware/releases)
-[![GitHub download](https://img.shields.io/github/downloads/mercenaruss/uzg-01-firmware/total.svg)](https://github.com/mercenaruss/uzg-01-firmware/releases/latest)
-[![License](https://img.shields.io/github/license/mercenaruss/uzg-01-firmware.svg)](LICENSE.txt)
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://github.com/mercenaruss/uzg-01-firmware)
+[![GitHub version](https://img.shields.io/github/release/mercenaruss/uzg-firmware.svg)](https://github.com/mercenaruss/uzg-firmware/releases)
+[![GitHub download](https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg)](https://github.com/mercenaruss/uzg-firmware/releases/latest)
+[![License](https://img.shields.io/github/license/mercenaruss/uzg-firmware.svg)](LICENSE.txt)
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://github.com/mercenaruss/uzg-firmware)
 
 
 ## KEY FIRMWARE FEATURES
@@ -56,7 +56,7 @@ You can contribute to UZG-01 Firmware by
 
 People helping to keep the show on the road - **developers and contributors**:
 - [@smlight-dev](https://github.com/smlight-dev/) - for improvement and refactoring of [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
-- [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/mercenaruss/uzg-01-firmware)
+- [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/mercenaruss/uzg-firmware)
 - [@xynroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices
 
 Special thanks goes also to all authors of 3rd party libraries which are used in this project.  
@@ -64,7 +64,7 @@ Special thanks goes also to all authors of 3rd party libraries which are used in
 
 ## License and attribution
 
-UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-01-firmware),what was refactored from original [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
+UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-firmware),what was refactored from original [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
 
 UZG-01-Firmware is licensed under GNU General Public License v3.
 3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  
