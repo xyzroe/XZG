@@ -65,6 +65,7 @@ Special thanks goes also to all authors of 3rd party libraries which are used in
 ## License and attribution
 
 UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-01-firmware),what was refactored from original [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
+
 UZG-01-Firmware is licensed under GNU General Public License v3.
 3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  
 Copyright (c) 2023 ZigStar.  

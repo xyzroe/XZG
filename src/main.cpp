@@ -601,7 +601,7 @@ void connectWifi(){
 
 void mDNS_start()
 {
-  const char* host = "_zigstar_gw";
+  const char* host = "_uzg-01";
   const char* http = "_http";
   const char* tcp = "_tcp";
   if (!MDNS.begin(ConfigSettings.hostname))
