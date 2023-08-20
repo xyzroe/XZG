@@ -1,8 +1,8 @@
 # Contributing
 
-**Any contribution helps our team and makes Tasmota better for the entire community!**
+**Any contribution helps our team and makes ZigStar UZG better for the entire community!**
 
-Everybody is welcome and invited to contribute to Tasmota Project by:
+Everybody is welcome and invited to contribute to UZG Project by:
 
 * Testing newly released features and reporting issues.
 * Providing Pull Requests (Features, Proof of Concepts, Language files or Fixes)
@@ -15,7 +15,7 @@ This document describes rules that are in effect for this repository, meant for 
 **Issue tracker is NOT a general discussion forum!**
 1. Opening an issue means that a problem exists in the code and should be addressed by the project contributors.
 2. When opening an issue, it is required to fill out the presented template. The requested information is important! If the template is ignored or insufficient info about the issue is provided, the issue may be closed.
-3. Questions of type "How do I..." or "Can you please help me with..." or "Can Tasmota do..." WILL NOT be handled here. Such questions should be directed at a discussion forum or to the Tasmota Support Chat. All issues of this type will be closed with a simple reference to this contributing policy.
+3. Questions of type "How do I..." or "Can you please help me with..." or "Can ZigStar UZG do..." WILL NOT be handled here. Such questions should be directed at a discussion forum or to the ZigStar Support Chat. All issues of this type will be closed with a simple reference to this contributing policy.
 4. Issues about topics already handled in the documentation will be closed in a similar manner.
 5. Issues for unmerged PRs will be closed. If there is an issue with a PR, the explanation should be added to the PR itself.
 6. Issues with accompanied investigation that shows the root of the problem should be given priority.

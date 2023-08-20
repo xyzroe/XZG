@@ -12,7 +12,7 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 ## KEY FIRMWARE FEATURES
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Red LED On = USB mode, RED LED Off = Ethernet mode);
 - Adapter mode selector through web-interface: `Zigbee-to-Ethernet`, `Zigbee-to-USB` and `Zigbee-to-WiFI`;
-- Support mDNS autodiscovery in your network (go in the browser to `uzg-01.local`), in Zigbee2MQTT (set `port: mdns://zigstar_gw`), and in ZHA;
+- Support mDNS autodiscovery in your network (go in the browser to `uzg-01.local`), in Zigbee2MQTT (set `port: mdns://uzg-01`), and in ZHA;
 - Secure login through username and password;
 - Zigbee2MQTT and ZHA config helper;
 - Control behavior of LED (you can disable Mode LED, Power LED through firmware, or toggle both by the button long press);
@@ -59,12 +59,20 @@ People helping to keep the show on the road - **developers and contributors**:
 - [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/mercenaruss/uzg-firmware)
 - [@xynroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices
 
-Special thanks goes also to all authors of 3rd party libraries which are used in this project.  
+Special thanks goes also to all authors of 3rd party libraries which are used in this project:
 
+- [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), 
+- [esp8266 / arduino](https://github.com/esp8266/Arduino), 
+- [espressif / arduino-esp32](https://github.com/espressif/arduino-esp32), 
+- [esprfid / esp-rfid](https://github.com/esprfid/esp-rfid), 
+- [fairecasoimeme / zigate-ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet), 
+- [rlogiacco / circularbuffer](https://github.com/rlogiacco/CircularBuffer), 
+- [sstaub / ticker](https://github.com/sstaub/Ticker), 
+- [vurtun / lib](https://github.com/vurtun/lib) 
 
 ## License and attribution
 
-UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-firmware),what was refactored from original [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
+UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-firmware),what was refactored from our original firmware[ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
 
 UZG-01-Firmware is licensed under GNU General Public License v3.
 3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  
