@@ -82,7 +82,8 @@ You can contribute to SLZB-06 Firmware by
 People helping to keep the show on the road - **developers and contributors**:
 - [@Tarik2142](https://github.com/Tarik2142) for providing initial code, issues resolution and code optimizations.  
 
-Special thanks goes also to all authors of 3rd party libraries which are used in this project.  
+Libraries, code snippets, ideas of the following repos were used in this project: [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), [esp8266 / arduino](https://github.com/esp8266/Arduino), [espressif / arduino-esp32](https://github.com/espressif/arduino-esp32), [esprfid / esp-rfid](https://github.com/esprfid/esp-rfid), [fairecasoimeme / zigate-ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet), [rlogiacco / circularbuffer](https://github.com/rlogiacco/CircularBuffer), [sstaub / ticker](https://github.com/sstaub/Ticker), [xyzroe  / zigstargw-fw](https://github.com/xyzroe/ZigStarGW-FW),  [vurtun / lib](https://github.com/vurtun/lib).  
+If some authors are missed unintentionally, thanks to them as well. 
 
 
 ## License and attribution
