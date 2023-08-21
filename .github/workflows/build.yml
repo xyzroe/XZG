@@ -27,11 +27,15 @@ jobs:
         run: pip install --upgrade platformio
       - name: Build PlatformIO Project
         run: pio run
-      - name: Get version
-        run: VERSION=$( cat tools/version )
+      - name: Get Release Version
+        id: get_release_info
+        shell: bash
+        run: |
+          value=`cat tools/version`
+          echo ::set-output name=version::$value
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             bin/UZG-01.bin
-            bin/UZG-01_v${{ env.VERSION }}.full.bin
+            bin/UZG-01_v${{ steps.get_release_info.outputs.version }}.full.bin
