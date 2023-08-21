@@ -25,7 +25,8 @@
 ConfigSettingsStruct ConfigSettings;
 InfosStruct Infos;
 
-volatile bool btnFlag = false;
+//volatile bool btnFlag = false;
+int btnFlag = false;
 bool updWeb = false;
 
 const char* coordMode = "coordMode"; //coordMode node name
@@ -670,11 +671,21 @@ void setLedsDisable(bool mode, bool setup){
 
 void handlelongBtn() {
     if (!digitalRead(BTN)) {//long press
-        printLogMsg("Long press");
+      DEBUG_PRINT(F("Long press "));
+      DEBUG_PRINT(btnFlag);
+      DEBUG_PRINTLN(F("s"));
+      if (btnFlag >= 4) {
+        printLogMsg("Long press 4sec - zigbeeEnableBSL");
+        zigbeeEnableBSL();
         tmrBtnLongPress.stop();
         btnFlag = false;
-        setLedsDisable(!ConfigSettings.disableLeds, false);
+      }
+      else btnFlag++;
     } else { //stop long press
+        if (btnFlag >= 2) {
+          printLogMsg("Long press 2sec - setLedsDisable");
+          setLedsDisable(!ConfigSettings.disableLeds, false);
+        }
         tmrBtnLongPress.stop();
         btnFlag = false;
         printLogMsg("Stop long press");

@@ -1,0 +1,12 @@
+{
+    "name": "UZG-FW",
+    "builds": [
+      {
+        "chipFamily": "ESP32",
+        "improv": false,
+        "parts": [
+          { "path": "https://github.com/mercenaruss/uzg-firmware/releases/download/v0.1.1/UZG-01_v0.1.1.full.bin", "offset": 0 }
+        ]
+      }
+    ]
+  }
