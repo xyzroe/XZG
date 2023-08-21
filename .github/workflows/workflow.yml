@@ -1,0 +1,81 @@
+name: Build, release, update
+
+permissions:
+  contents: write
+  
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build_firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Install Node JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build PlatformIO Project
+        run: pio run
+      - name: Get Release Version
+        id: get_version
+        shell: bash
+        run: |
+          value=`cat tools/version`
+          echo "version=$value" >> $GITHUB_OUTPUT
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/UZG-01.bin
+            bin/UZG-01_v${{ steps.get_version.outputs.version }}.full.bin
+
+  update_manifest:
+    needs: build_firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      - name: Get Release Version
+        id: get_version
+        shell: bash
+        run: |
+          value=`cat tools/version`
+          echo "version=$value" >> $GITHUB_OUTPUT
+      - name: Updare version in manifest.json
+        run: |
+          sed -r 's/v[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}/v${{ steps.get_version.outputs.version }}/g' manifest.json > new.manifest.json
+      - name: Move file
+        shell: bash
+        run: |
+          echo "old"
+          cat manifest.json
+          mv -f new.manifest.json manifest.json 
+          echo "new"
+          cat manifest.json
+          
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: 'update manifest.json'
