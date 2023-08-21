@@ -5,7 +5,11 @@ import os
 
 print("Try to build HMTL gzip files")
 
-os.mkdir('./src/webh')
+try:
+    os.mkdir('./src/webh')
+except OSError as error:
+    print(error)    
+    
 os.chdir('./tools/webfilesbuilder/')
 
 

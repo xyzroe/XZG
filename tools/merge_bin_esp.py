@@ -36,8 +36,8 @@ class multiple_bin():
 
     def add_bin_to_other_bin(self, previous, binary):
         with open(self.output_path, "ab") as output_file:
-            output_file.write( '\xff' * (binary.addr-previous))
-        print "Add %s from 0x%x to 0x%x (0x%x)"%(binary.file_name, binary.addr, binary.addr+binary.size, binary.size)
+            output_file.write( b'\xff' * (binary.addr-previous))
+        print ("Add %s from 0x%x to 0x%x (0x%x)"%(binary.file_name, binary.addr, binary.addr+binary.size, binary.size))
         with open(self.output_path, "ab") as output_file, open(binary.file_path, "rb") as bin_file:
             output_file.write(bin_file.read())
         return binary.addr+binary.size
@@ -50,8 +50,8 @@ class multiple_bin():
 
     def check_if_possible(self):
         for i in range(1, len(self.bin_array)):
-                if(self.bin_array[i].addr <= (self.bin_array[i-1].addr+self.bin_array[i-1].size)):
-                    print self.bin_array[i].addr, (self.bin_array[i-1].addr+self.bin_array[i-1].size)
+                if(self.bin_array[i].addr < (self.bin_array[i-1].addr+self.bin_array[i-1].size)):
+                    print (self.bin_array[i].addr, (self.bin_array[i-1].addr+self.bin_array[i-1].size))
                     raise Exception("Not possible to create this bin, overlapping between %s and %s"%(self.bin_array[i].file_name, self.bin_array[i-1].file_name))
 
 def main():
@@ -79,7 +79,7 @@ def main():
     mb.sort_bin()
     mb.check_if_possible()
     mb.create_bin()
-    print "%s generated with success ! (size %u)"%(args.output_name, int(os.path.getsize(mb.output_path)))
+    print ("%s generated with success ! (size %u)"%(args.output_name, int(os.path.getsize(mb.output_path))))
 
 if __name__ == "__main__":
     exit(main())
