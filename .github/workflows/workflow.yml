@@ -44,6 +44,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          generate_release_notes: true
           files: |
             bin/UZG-01.bin
             bin/UZG-01_v${{ steps.get_version.outputs.version }}.full.bin
