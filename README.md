@@ -20,7 +20,7 @@ This firmware delevoped to use with [ZigStar LAN Gateway](https://github.com/mer
 
 <br>
 
-## [Web installer 🚀](https://install.zig-star.com)
+## [Web installer 🚀](https://xyzroe.cc/ZigStarGW-FW/)  
   
 <br>
   
