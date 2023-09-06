@@ -57,7 +57,7 @@ You can contribute to UZG-01 Firmware by
 People helping to keep the show on the road - **developers and contributors**:
 - [@smlight-dev](https://github.com/smlight-dev/) - for improvement and refactoring of [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
 - [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/mercenaruss/uzg-firmware)
-- [@xynroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices
+- [@xyzroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices
 
 Special thanks goes also to all authors of 3rd party libraries which are used in this project:
 
