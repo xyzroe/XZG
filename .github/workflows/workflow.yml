@@ -53,20 +53,6 @@ jobs:
             bin/UZG-01.bin
             bin/UZG-01_v${{ steps.get_version.outputs.version }}.full.bin
 
-  update_manifest:
-    needs: build_firmware
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-        with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-      - name: Get Release Version
-        id: get_version
-        shell: bash
-        run: |
-          value=`cat tools/version`
-          echo "version=$value" >> $GITHUB_OUTPUT
       - name: Updare version in manifest.json
         run: |
           sed -r 's/v[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}/v${{ steps.get_version.outputs.version }}/g' manifest.json > new.manifest.json
@@ -83,4 +69,4 @@ jobs:
         uses: actions-js/push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: 'update manifest.json'
+          message: 'Release v${{ steps.get_version.outputs.version }}'

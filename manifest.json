@@ -1,5 +1,6 @@
 {
     "name": "UZG-FW",
+    "version": "v0.1.1",
     "builds": [
       {
         "chipFamily": "ESP32",
