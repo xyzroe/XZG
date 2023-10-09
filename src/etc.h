@@ -22,6 +22,7 @@ void ledYellowToggle();
 void ledBlueToggle();
 
 void getDeviceID(char * arr);
+void getDeviceID_old(String &devID);
 void writeDefultConfig(const char *path, JsonDocument& doc);
 
 void resetSettings();

@@ -4,7 +4,7 @@
 #include <WiFi.h>
 #include "FS.h"
 #include <LittleFS.h>
-
+#include <ETH.h>
 #include "config.h"
 #include "log.h"
 #include "web.h"
@@ -158,6 +158,36 @@ void getDeviceID(char * arr){
   b ^= mac >> 8*6;
   b ^= mac >> 8*7;
   sprintf(arr, "%s--%3d%3d", deviceModel, a, b);
+}
+
+void getDeviceID_old(String &devID)
+{
+  String mac;
+  mac = ETH.macAddress();
+  if (strcmp(mac.c_str(), "00:00:00:00:00:00") != 0)
+  {
+    DEBUG_PRINTLN(F("Using ETH mac to ID"));
+    DEBUG_PRINTLN(mac);
+  }
+  else
+  {
+    mac = WiFi.softAPmacAddress();
+    if (strcmp(mac.c_str(), "") != 0)
+    {
+      DEBUG_PRINTLN(F("Using WIFI mac to ID"));
+      DEBUG_PRINTLN(mac);
+    }
+    else
+    {
+      mac = "00:00:00:12:34:56";
+      DEBUG_PRINTLN(F("Using zero mac to ID"));
+      DEBUG_PRINTLN(mac);
+    }
+  }
+  mac = mac.substring(9);
+  mac = mac.substring(0, 2) + mac.substring(3, 5);
+  devID = "ZigStarGW-" + String(mac);
+  DEBUG_PRINTLN(devID);
 }
 
 // void writeDefultConfig(const char *path, String StringConfig)

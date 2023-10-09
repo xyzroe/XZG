@@ -17,7 +17,8 @@ const pages = {
 	API_PAGE_SERIAL: {num: 4, str: "/zha-z2m", title: "Config ZHA and Z2M params"},
 	API_PAGE_SECURITY: {num: 5, str: "/security", title: "Security"},
 	API_PAGE_SYSTOOLS: {num: 6, str: "/sys-tools", title: "System and Tools"},
-	API_PAGE_ABOUT: {num: 7, str: "/about", title: "About"}
+	API_PAGE_ABOUT: {num: 7, str: "/about", title: "About"},
+	API_PAGE_MQTT: {num: 8, str: "/mqtt", title: "Config MQTT"}
 }
 
 const api = {
@@ -211,6 +212,13 @@ function loadPage(url) {
 				}
 			});
 		break;
+		case api.pages.API_PAGE_MQTT.str:
+			apiGetPage(api.pages.API_PAGE_MQTT, ()=>{
+				if ($("#MqttEnable").prop("checked") == false) {
+					MqttInputDsbl(true);
+				}
+			});
+		break;
 		case api.pages.API_PAGE_WIFI.str:
 			apiGetPage(api.pages.API_PAGE_WIFI, ()=>{
 				if($("#WIFIssid").val().length > 1){
@@ -263,7 +271,6 @@ function loadPage(url) {
 		case api.pages.API_PAGE_ABOUT.str:
 			apiGetPage(api.pages.API_PAGE_ABOUT);
 		break;
-		
 		default:
 			apiGetPage(api.pages.API_PAGE_ROOT);
 		break;
@@ -734,6 +741,17 @@ function EthInputDsbl(state) {
 	$("#EthMask").prop(disbl, state);
 	$("#EthGateway").prop(disbl, state);
 	$('#div_show3').toggle(this.checked);
+}
+
+function MqttInputDsbl(state) {
+	$("#MqttServer").prop(disbl, state);
+	$("#MqttPort").prop(disbl, state);
+	$("#MqttUser").prop(disbl, state);
+	$("#MqttPass").prop(disbl, state);
+	$("#MqttTopic").prop(disbl, state);
+	$("#MqttInterval").prop(disbl, state);
+	$("#MqttDiscovery").prop(disbl, state);
+	$('#div_show4').toggle(this.checked);
 }
 
 function SeqInputDsbl(state) {

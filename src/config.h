@@ -76,6 +76,18 @@ struct ConfigSettingsStruct{
   bool wifiWebSetupInProgress;
   bool fwEnabled;
   IPAddress fwIp;
+  bool mqttEnable;
+  char mqttServer[50];
+  IPAddress mqttServerIP;
+  int mqttPort;
+  char mqttUser[50];
+  char mqttPass[50];
+  char mqttTopic[50];
+  //bool mqttRetain;
+  int mqttInterval;
+  bool mqttDiscovery;
+  unsigned long mqttReconnectTime;
+  unsigned long mqttHeartbeatTime;
 };
 
 struct InfosStruct

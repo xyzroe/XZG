@@ -8,6 +8,7 @@
 #include "web.h"
 #include "log.h"
 #include "etc.h"
+#include "mqtt.h"
 #include <Update.h>
 #include "version.h"
 #include "Ticker.h"
@@ -37,6 +38,7 @@ const char* configFileEther = "/config/configEther.json";
 const char* configFileGeneral = "/config/configGeneral.json";
 const char* configFileSecurity = "/config/configSecurity.json";
 const char* configFileSerial = "/config/configSerial.json";
+const char* configFileMqtt = "/config/configMqtt.json";
 const char* deviceModel = "UZG-01";
 
 void mDNS_start();
@@ -515,6 +517,64 @@ bool loadConfigSerial(){
   return true;
 }
 
+bool loadConfigMqtt()
+{
+  const char* enable = "enable";
+  const char* server = "server";
+  const char* port = "port";
+  const char* user = "user";
+  const char* pass = "pass";
+  const char* topic = "topic";
+  const char* interval = "interval";
+  const char* discovery = "discovery";
+
+  File configFile = LittleFS.open(configFileMqtt, FILE_READ);
+  if (!configFile)
+  {
+    String deviceID;
+    getDeviceID_old(deviceID);
+
+    DynamicJsonDocument doc(1024);
+    doc[enable] = 0;
+    doc[server] = "";
+    doc[port] = 1883;
+    doc[user] = "mqttuser";
+    doc[pass] = "";
+    doc[topic] = deviceID;
+    doc[interval] = 60;
+    doc[discovery] = 0;
+    writeDefultConfig(configFileMqtt, doc);
+  }
+
+  configFile = LittleFS.open(configFileMqtt, FILE_READ);
+  DynamicJsonDocument doc(1024);
+  DeserializationError error = deserializeJson(doc, configFile);
+
+   if (error)
+  {
+    DEBUG_PRINTLN(F("deserializeJson() failed: "));
+    DEBUG_PRINTLN(error.f_str());
+
+    configFile.close();
+    LittleFS.remove(configFileMqtt);
+    return false;
+  }
+
+  ConfigSettings.mqttEnable = (int)doc[enable];
+  strlcpy(ConfigSettings.mqttServer, doc[server] | "", sizeof(ConfigSettings.mqttServer));
+  ConfigSettings.mqttServerIP = parse_ip_address(ConfigSettings.mqttServer);
+  ConfigSettings.mqttPort = (int)doc[port];
+  strlcpy(ConfigSettings.mqttUser, doc[user] | "", sizeof(ConfigSettings.mqttUser));
+  strlcpy(ConfigSettings.mqttPass, doc[pass] | "", sizeof(ConfigSettings.mqttPass));
+  strlcpy(ConfigSettings.mqttTopic, doc[topic] | "", sizeof(ConfigSettings.mqttTopic));
+  ConfigSettings.mqttInterval = (int)doc[interval];
+  ConfigSettings.mqttDiscovery = (int)doc[discovery];
+
+  configFile.close();
+  return true;
+
+}
+
 void startAP(const bool start){
   if (ConfigSettings.apStarted){
     if (!start){
@@ -905,7 +965,7 @@ void setup(){
     DEBUG_PRINTLN(F("Config serial load OK"));
   }
 
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigSecurity()))
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigSecurity()) || (!loadConfigMqtt()))
   {
     DEBUG_PRINTLN(F("Error load config files"));
     ESP.restart();
@@ -919,6 +979,13 @@ void setup(){
   setLedsDisable(ConfigSettings.disableLeds, true);
   setupCoordinatorMode();
   ConfigSettings.connectedClients = 0;
+
+  if (ConfigSettings.mqttEnable)
+  {
+    mqttConnectSetup();
+  }
+  
+  DEBUG_PRINTLN(millis());
 
   Serial2.updateBaudRate(ConfigSettings.serialSpeed);//set actual speed
   printLogMsg("Setup done");
@@ -937,6 +1004,7 @@ void socketClientConnected(int client)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "ON");
     }
     ConfigSettings.connectedSocket[client] = true;
     ConfigSettings.connectedClients++;
@@ -956,6 +1024,7 @@ void socketClientDisconnected(int client)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
+      mqttPublishIo("socket", "OFF");
     }
   }
 }
@@ -1123,7 +1192,15 @@ void loop(void){
     printSendSocket(serial_bytes_read, serial_buf);
     serial_bytes_read = 0;
   }
+  
+
+  if (ConfigSettings.mqttEnable)
+  {
+    mqttLoop();
   }
+
+  }
+  
 
   if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA)
   {

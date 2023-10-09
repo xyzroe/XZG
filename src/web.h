@@ -6,6 +6,7 @@ void handleSecurity();
 void handleRoot();
 void handleWifi();
 void handleEther();
+void handleMqtt();
 void handleZigbeeBSL();
 void handleZigbeeRestart();
 void handleSerial();

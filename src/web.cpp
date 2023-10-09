@@ -11,6 +11,7 @@
 #include "config.h"
 #include "etc.h"
 #include "log.h"
+#include "webh/PAGE_MQTT.html.gz.h"
 #include "webh/PAGE_ABOUT.html.gz.h"
 #include "webh/PAGE_ETHERNET.html.gz.h"
 #include "webh/PAGE_GENERAL.html.gz.h"
@@ -37,6 +38,7 @@ extern const char *coordMode;
 extern const char* configFileSystem;
 extern const char* configFileWifi;
 extern const char* configFileEther;
+extern const char* configFileMqtt;
 extern const char* configFileGeneral;
 extern const char* configFileSecurity;
 extern const char* configFileSerial;
@@ -49,6 +51,8 @@ const char *respHeaderName = "respValuesArr";
 const char *contTypeJson = "application/json";
 const char *contTypeText = "text/plain";
 
+extern bool loadConfigMqtt();
+
 enum API_PAGE_t : uint8_t { API_PAGE_ROOT,
                                 API_PAGE_GENERAL,
                                 API_PAGE_ETHERNET,
@@ -56,7 +60,8 @@ enum API_PAGE_t : uint8_t { API_PAGE_ROOT,
                                 API_PAGE_ZHA_Z2M,
                                 API_PAGE_SECURITY,
                                 API_PAGE_SYSTOOLS,
-                                API_PAGE_ABOUT };
+                                API_PAGE_ABOUT,
+                                API_PAGE_MQTT };
 
 WebServer serverWeb(80);
 
@@ -84,6 +89,7 @@ void initWebServer() {
     serverWeb.on("/zha-z2m", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/about", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/sys-tools", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/mqtt", []() { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/saveParams", HTTP_POST, handleSaveParams);
     serverWeb.on("/cmdZigRST", handleZigbeeRestart);
     serverWeb.on("/cmdZigBSL", handleZigbeeBSL);
@@ -393,7 +399,10 @@ void handleApi() {  // http://192.168.0.116/api?action=0&page=0
                         //handleAbout();
                         sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
                         break;
-
+                    case API_PAGE_MQTT:
+                        handleMqtt();
+                        sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
+                        break;
                     default:
                         break;
                 }
@@ -490,6 +499,42 @@ void handleSaveParams(){
                 configFile = LittleFS.open(configFileEther, FILE_WRITE);
                 serializeJson(doc, configFile);
                 configFile.close();
+            }
+            case API_PAGE_MQTT:{
+                configFile = LittleFS.open(configFileMqtt, FILE_READ);
+                deserializeJson(doc, configFile);
+                configFile.close();
+                doc["server"] = serverWeb.arg("MqttServer");
+                doc["port"] = serverWeb.arg("MqttPort");
+                doc["user"] = serverWeb.arg("MqttUser");
+                doc["pass"] = serverWeb.arg("MqttPass");
+                doc["topic"] = serverWeb.arg("MqttTopic");
+                doc["interval"] = serverWeb.arg("MqttInterval");
+
+                const char* enable = "enable";
+                if (serverWeb.arg("MqttEnable") == "on") {
+                    doc[enable] = one;
+                } else {
+                    doc[enable] = zero;
+                }
+
+                const char* discovery = "discovery";
+                if (serverWeb.arg("MqttDiscovery") == "on") {
+                    doc[discovery] = one;
+                } else {
+                    doc[discovery] = zero;
+                }
+                
+                // const char* disablePingCtrl = "disablePingCtrl";
+                // if (serverWeb.arg(disablePingCtrl) == on) {
+                //     doc[disablePingCtrl] = one;
+                // } else {
+                //     doc[disablePingCtrl] = zero;
+                // }
+                configFile = LittleFS.open(configFileMqtt, FILE_WRITE);
+                serializeJson(doc, configFile);
+                configFile.close();
+                loadConfigMqtt();
             }
             break;
             case API_PAGE_WIFI:{
@@ -734,6 +779,30 @@ void handleEther() {
         serializeJson(doc, result);
         serverWeb.sendHeader(respHeaderName, result);
 }
+
+void handleMqtt() {
+        String result;
+        DynamicJsonDocument doc(1024);
+
+        
+        if (ConfigSettings.mqttEnable) {
+            doc["enableMqtt"] = checked;
+        }
+        doc["serverMqtt"] = ConfigSettings.mqttServer;
+        doc["portMqtt"] = ConfigSettings.mqttPort;
+        doc["userMqtt"] = ConfigSettings.mqttUser;
+        doc["passMqtt"] = ConfigSettings.mqttPass;
+        doc["topicMqtt"] = ConfigSettings.mqttTopic;
+        doc["intervalMqtt"] = ConfigSettings.mqttInterval;
+
+        if (ConfigSettings.mqttDiscovery) {
+            doc["discoveryMqtt"] = checked;
+        }
+
+        serializeJson(doc, result);
+        serverWeb.sendHeader(respHeaderName, result);
+}
+
 
 void handleRoot() {
         String result;
