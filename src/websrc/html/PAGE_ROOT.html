@@ -54,15 +54,15 @@
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Model:</td>
+                                <td>Zig-Star model:</td>
                                 <td data-replace="hwRev"></td>
                             </tr>
                             <tr>
-                                <td>ESP32 Firmware ver:</td>
+                                <td>ESP32 fw ver:</td>
                                 <td data-replace="VERSION"></td>
                             </tr>
                             <tr>
-                                <td>ESP32 version:</td>
+                                <td>ESP32 hw version:</td>
                                 <td data-replace="espModel"></td>
                             </tr>
                             <tr>
@@ -78,16 +78,20 @@
                                 <td><span data-replace="espFlashSize"></span> Mb, <span data-replace="espFlashType"></span></td>
                             </tr>
                             <tr>
-                                <td>ESP32 Free heap:</td>
+                                <td>ESP32 heap (free / total):</td>
                                 <td><span data-replace="espHeapFree"></span> / <span data-replace="espHeapSize"></span> KiB </td>
                             </tr>
                             <tr>
-                                <td>CC2652P version:</td>
+                                <td>CC2652P hw version:</td>
                                 <td>CC2652PP1FRGZR</td>
                             </tr>
-                            <tr>
+                            <!--<tr>
                                 <td>CC2652P flash size:</td>
                                 <td>352 Kb</td>
+                            </tr>-->
+                            <tr>
+                                <td>CC2652P fw rev:</td>
+                                <td data-replace="zigbeeFwRev"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -109,15 +113,15 @@
                                 <td data-replace="ethDhcp"></td>
                             </tr>
                             <tr>
-                                <td>IP Address:</td>
+                                <td>IP address:</td>
                                 <td data-replace="ethIp"></td>
                             </tr>
                             <tr>
-                                <td>Subnet Mask:</td>
+                                <td>Subnet mask:</td>
                                 <td data-replace="etchMask"></td>
                             </tr>
                             <tr>
-                                <td>Default Gateway:</td>
+                                <td>Default gateway:</td>
                                 <td data-replace="ethGate"></td>
                             </tr>
                             <tr>
@@ -148,24 +152,24 @@
                                 <td data-replace="wifiSsid"></td>
                             </tr>
                             <tr>
-                                <td>MAC Address:</td>
-                                <td data-replace="wifiMac"></td>
-                            </tr>
-                            <tr>
-                                <td>IP Address:</td>
+                                <td>IP address:</td>
                                 <td data-replace="wifiIp"></td>
                             </tr>
                             <tr>
-                                <td>Subnet Mask:</td>
+                                <td>Subnet mask:</td>
                                 <td data-replace="wifiSubnet"></td>
                             </tr>
                             <tr>
-                                <td>Default Gateway:</td>
+                                <td>Default gateway:</td>
                                 <td data-replace="wifiGate"></td>
                             </tr>
                             <tr>
                                 <td>RSSI:</td>
                                 <td data-replace="wifiRssi"></td>
+                            </tr>
+                            <tr>
+                                <td>MAC address:</td>
+                                <td data-replace="wifiMac"></td>
                             </tr>
                         </tbody>
                     </table>

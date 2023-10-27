@@ -24,6 +24,7 @@
 #define BUFFER_SIZE 256
 
 ConfigSettingsStruct ConfigSettings;
+zbVerStruct zbVer;
 InfosStruct Infos;
 
 //volatile bool btnFlag = false;
@@ -531,8 +532,8 @@ bool loadConfigMqtt()
   File configFile = LittleFS.open(configFileMqtt, FILE_READ);
   if (!configFile)
   {
-    String deviceID;
-    getDeviceID_old(deviceID);
+    char deviceIdArr[20];
+    getDeviceID(deviceIdArr);
 
     DynamicJsonDocument doc(1024);
     doc[enable] = 0;
@@ -540,7 +541,7 @@ bool loadConfigMqtt()
     doc[port] = 1883;
     doc[user] = "mqttuser";
     doc[pass] = "";
-    doc[topic] = deviceID;
+    doc[topic] = String(deviceIdArr);
     doc[interval] = 60;
     doc[discovery] = 0;
     writeDefultConfig(configFileMqtt, doc);
@@ -827,11 +828,11 @@ void setupCoordinatorMode(){
 //   serial.write(cmd, size);
 // }
 
-void clearS2Buffer(){
-  while (Serial2.available()){//clear buffer
-    Serial2.read();
-  }
-}
+//void clearS2Buffer(){
+//  while (Serial2.available()){//clear buffer
+//    Serial2.read();
+//  }
+//}
 
 void setup(){
   Serial.begin(115200);//todo ifdef DEBUG
@@ -912,10 +913,14 @@ void setup(){
           delay(1000);
         }
     printLogMsg("[ZBCHK] Wrong answer");
+    printLogMsg("[ZBVER] Unknown");
+    zbVer.zbRev = 0;
   }else{
     Serial2.write(zigLed1Off, sizeof(zigLed1Off));
     Serial2.flush();
-    printLogMsg("[ZBCHK] connection established");
+    clearS2Buffer();
+    printLogMsg("[ZBCHK] Connection OK");
+    getZbVer();
   }
   digitalWrite(LED_BLUE, 0);
   digitalWrite(LED_RED, 0);
@@ -989,6 +994,12 @@ void setup(){
 
   Serial2.updateBaudRate(ConfigSettings.serialSpeed);//set actual speed
   printLogMsg("Setup done");
+
+  char deviceIdArr[20];
+  getDeviceID(deviceIdArr);
+  
+  DEBUG_PRINTLN(String(deviceIdArr));
+  printLogMsg(String(deviceIdArr));
 }
 
 WiFiClient client[10];

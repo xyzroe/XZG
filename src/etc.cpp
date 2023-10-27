@@ -9,6 +9,7 @@
 #include "log.h"
 #include "web.h"
 
+
 extern struct ConfigSettingsStruct ConfigSettings;
 extern const char* deviceModel;
 
@@ -111,8 +112,8 @@ void zigbeeRestart()
   DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
   digitalWrite(CC2652P_RST, 1);
   delay(2000);
-  printLogMsg("Zigbee Reset is done");
-  DEBUG_PRINTLN(F("Zigbee Reset is done"));
+  printLogMsg("Zigbee restart was done");
+  DEBUG_PRINTLN(F("Zigbee restart was done"));
 }
 
 void adapterModeUSB()
@@ -157,37 +158,30 @@ void getDeviceID(char * arr){
   b ^= mac >> 8*5;
   b ^= mac >> 8*6;
   b ^= mac >> 8*7;
-  sprintf(arr, "%s--%3d%3d", deviceModel, a, b);
-}
 
-void getDeviceID_old(String &devID)
-{
-  String mac;
-  mac = ETH.macAddress();
-  if (strcmp(mac.c_str(), "00:00:00:00:00:00") != 0)
-  {
-    DEBUG_PRINTLN(F("Using ETH mac to ID"));
-    DEBUG_PRINTLN(mac);
+  char buf[20];
+
+  if (a < 16) {
+    sprintf(buf, "0%x", a);
+  } else {
+    sprintf(buf, "%x", a);
   }
-  else
-  {
-    mac = WiFi.softAPmacAddress();
-    if (strcmp(mac.c_str(), "") != 0)
-    {
-      DEBUG_PRINTLN(F("Using WIFI mac to ID"));
-      DEBUG_PRINTLN(mac);
-    }
-    else
-    {
-      mac = "00:00:00:12:34:56";
-      DEBUG_PRINTLN(F("Using zero mac to ID"));
-      DEBUG_PRINTLN(mac);
-    }
+
+  if (b < 16) {
+    sprintf(buf, "%s0%x", buf, b);
+  } else {
+    sprintf(buf, "%s%x", buf, b);
   }
-  mac = mac.substring(9);
-  mac = mac.substring(0, 2) + mac.substring(3, 5);
-  devID = "ZigStarGW-" + String(mac);
-  DEBUG_PRINTLN(devID);
+  
+  for (uint8_t cnt = 0; cnt < strlen(buf); cnt++) 
+  {
+    buf[cnt] = toupper(buf[cnt]);
+  }
+  
+  //char buf[20];
+  sprintf(arr, "%s-%s", deviceModel, buf);
+  //arr = buf;
+
 }
 
 // void writeDefultConfig(const char *path, String StringConfig)

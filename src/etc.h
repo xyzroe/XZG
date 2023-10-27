@@ -9,6 +9,12 @@ uint8_t temprature_sens_read();
 #endif
 uint8_t temprature_sens_read();
 
+
+#define STRINGIFY(s) STRINGIFY1(s) // Don’t ask why. It has to do with the inner workings of the preprocessor.
+#define STRINGIFY1(s) #s // https://community.platformio.org/t/how-to-put-a-string-in-a-define-in-build-flag-into-a-libary-json-file/13480/6
+
+
+
 float getCPUtemp(bool clear = false);
 
 
@@ -22,7 +28,6 @@ void ledYellowToggle();
 void ledBlueToggle();
 
 void getDeviceID(char * arr);
-void getDeviceID_old(String &devID);
 void writeDefultConfig(const char *path, JsonDocument& doc);
 
 void resetSettings();

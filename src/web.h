@@ -19,5 +19,12 @@ void printLogMsg(String msg);
 void handleSaveParams();
 bool checkAuth();
 void handleZigbeeBSL();
+void clearS2Buffer();
+void getZbVer();
+void getZbChip();
+
+void progressFunc(unsigned int progress, unsigned int total);
+void checkUpdateFirmware();
+void runUpdateFirmware(uint8_t *data, size_t len);
 
 #define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/UZG-01.bin"

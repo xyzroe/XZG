@@ -33,6 +33,8 @@
 #include "Ticker.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
+extern struct zbVerStruct zbVer;
+
 bool wifiWebSetupInProgress = false;
 extern const char *coordMode;
 extern const char* configFileSystem;
@@ -66,6 +68,7 @@ enum API_PAGE_t : uint8_t { API_PAGE_ROOT,
 WebServer serverWeb(80);
 
 HTTPClient clientWeb;
+
 
 void webServerHandleClient() {
     serverWeb.handleClient();
@@ -183,12 +186,12 @@ void handleApi() {  // http://192.168.0.116/api?action=0&page=0
         }
     }
     if (serverWeb.argName(0) != action) {
-        DEBUG_PRINTLN(F("[handleApi] wrong arg 'action'"));
+        DEBUG_PRINT(F("[handleApi] wrong arg 'action' "));
         DEBUG_PRINTLN(serverWeb.argName(0));
         serverWeb.send(500, contTypeText, wrongArgs);
     } else {
         const uint8_t action = serverWeb.arg(action).toInt();
-        DEBUG_PRINTLN(F("[handleApi] arg 0 is:"));
+        DEBUG_PRINT(F("[handleApi] arg 0 is: "));
         DEBUG_PRINTLN(action);
         switch (action) {
             case API_GET_LOG:{
@@ -207,7 +210,8 @@ void handleApi() {  // http://192.168.0.116/api?action=0&page=0
                     CMD_ADAP_USB,
                     CMD_LEDY_TOG,
                     CMD_LEDB_TOG,
-                    CMD_CLEAR_LOG
+                    CMD_CLEAR_LOG,
+                    CMD_ESP_UPD_GIT
                 };
                 String result = wrongArgs;
                 const char* argCmd = "cmd";
@@ -246,7 +250,9 @@ void handleApi() {  // http://192.168.0.116/api?action=0&page=0
                         case CMD_LEDB_TOG:
                             ledBlueToggle();
                         break;
-                    
+                        case CMD_ESP_UPD_GIT:
+                            checkUpdateFirmware();
+                        break;
                     default:
                         break;
                     }
@@ -809,8 +815,11 @@ void handleRoot() {
         DynamicJsonDocument doc(1024);
 
         char verArr[25];
-        sprintf(verArr, "%s (%s)", VERSION, BUILD_TIMESTAMP);
-        doc["VERSION"] = verArr;
+        const char * env = STRINGIFY(BUILD_ENV_NAME); 
+
+        sprintf(verArr, "%s (%s)", VERSION, env);
+
+        doc["VERSION"] = String(verArr);
 
         String readableTime;
         getReadableTime(readableTime, ConfigSettings.socketTime);
@@ -894,6 +903,12 @@ void handleRoot() {
         doc["espFreq"] = String(ESP.getCpuFreqMHz());
         doc["espHeapFree"] = String(ESP.getFreeHeap() / 1024);
         doc["espHeapSize"] = String(ESP.getHeapSize() / 1024);
+        if (zbVer.zbRev > 0) {
+            doc["zigbeeFwRev"] = String(zbVer.zbRev);
+        } else {
+            doc["zigbeeFwRev"] = "unknown";
+        }
+        
 
         esp_chip_info_t chip_info;
         esp_chip_info(&chip_info);
@@ -1054,69 +1069,144 @@ void printLogMsg(String msg) {
     logPush('\n');
 }
 
-// int totalLength;        // total size of firmware
-// int currentLength = 0;  // current size of written firmware
+void clearS2Buffer(){
+  while (Serial2.available()){//clear buffer
+    Serial2.read();
+  }
+}
 
-// void progressFunc(unsigned int progress, unsigned int total) {
-//     Serial.printf("Progress: %u of %u\r", progress, total);
-// };
+void getZbVer(){
+    zbVer.zbRev = 0;
+    const byte cmdFrameStart = 0xFE;
+    const byte zero = 0x00;
+    const byte cmd1 = 0x21;
+    const byte cmd2 = 0x02;
+    const byte cmdSysVersion[] = {cmdFrameStart, zero, cmd1, cmd2, 0x23};
+    for (uint8_t i = 0; i < 6; i++){
+      if (Serial2.read() != cmdFrameStart || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != cmd2){//check for packet start
+        clearS2Buffer();//skip
+        Serial2.write(cmdSysVersion, sizeof(cmdSysVersion));
+        Serial2.flush();
+        delay(100);
+      }else{
+        const uint8_t zbVerLen = 11;
+        byte zbVerBuf[zbVerLen];
+        for (uint8_t i = 0; i < zbVerLen; i++){
+          zbVerBuf[i] = Serial2.read();
+        }
+        zbVer.zbRev =  zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
+        zbVer.maintrel = zbVerBuf[4];
+        zbVer.minorrel = zbVerBuf[3];
+        zbVer.majorrel = zbVerBuf[2];
+        zbVer.product = zbVerBuf[1];
+        zbVer.transportrev = zbVerBuf[0];
+        printLogMsg(String("[ZBVER]") + " Rev: " + zbVer.zbRev + " Maintrel: " + zbVer.maintrel + " Minorrel: " + zbVer.minorrel + " Majorrel: " + zbVer.majorrel + " Transportrev: " + zbVer.transportrev + " Product: " + zbVer.product);
+        clearS2Buffer();
+        break;
+      }
+    }
+}
 
-// void checkUpdateFirmware() {//todo del
-//     clientWeb.begin(UPD_FILE);
-//     clientWeb.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-//     // Get file, just to check if each reachable
-//     int resp = clientWeb.GET();
-//     Serial.print("Response: ");
-//     Serial.println(resp);
-//     // If file is reachable, start downloading
-//     if (resp == HTTP_CODE_OK) {
-//         // get length of document (is -1 when Server sends no Content-Length header)
-//         totalLength = clientWeb.getSize();
-//         // transfer to local variable
-//         int len = totalLength;
-//         // this is required to start firmware update process
-//         Update.begin(UPDATE_SIZE_UNKNOWN);
-//         Update.onProgress(progressFunc);
-//         DEBUG_PRINT("FW Size: ");
+void getZbChip(){
+    zigbeeEnableBSL();
+    const byte cmdChipID[] = {0x03, 0x28, 0x28};
+    for (uint8_t i = 0; i < 6; i++){
+      //if (Serial2.read() != cmdFrameStart || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != cmd2){//check for packet start
+        clearS2Buffer();//skip
+        Serial2.write(cmdChipID, sizeof(cmdChipID));
+        Serial2.flush();
+        delay(300);
+      //}else{
+        const uint8_t zbChipLen = 20;
+        byte zbChipBuf[zbChipLen];
+        for (uint8_t i = 0; i < zbChipLen; i++){
+          zbChipBuf[i] = Serial2.read();
+          printLogMsg(String("[zbChipBuf]") + zbChipBuf[i]);
+        }
+        uint32_t zbChipID = (zbChipBuf[2] << 8) | zbChipBuf[3];
+        //zbVer.zbRev =  zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
+        
+        printLogMsg(String("[ZB_Chip_ID]") + zbChipID);
+        
+        
+        clearS2Buffer();
+       // break;
+      //}
+    }
+}
+int totalLength;        // total size of firmware
+int currentLength = 0;  // current size of written firmware
 
-//         DEBUG_PRINTLN(totalLength);
-//         // create buffer for read
-//         uint8_t buff[128] = {0};
-//         // get tcp stream
-//         WiFiClient *stream = clientWeb.getStreamPtr();
-//         // read all data from server
-//         DEBUG_PRINTLN("Updating firmware...");
-//         while (clientWeb.connected() && (len > 0 || len == -1)) {
-//             // get available data size
-//             size_t size = stream->available();
-//             if (size) {
-//                 // read up to 128 byte
-//                 int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-//                 // pass to function
-//                 runUpdateFirmware(buff, c);
-//                 if (len > 0) {
-//                     len -= c;
-//                 }
-//             }
-//             // DEBUG_PRINT("Bytes left to flash ");
-//             // DEBUG_PRINTLN(len);
-//             // delay(1);
-//         }
-//     } else {
-//         Serial.println("Cannot download firmware file. Only HTTP response 200: OK is supported. Double check firmware location #defined in UPD_FILE.");
-//     }
-//     clientWeb.end();
-// }
+void progressFunc(unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u of %u\r", progress, total);
+};
 
-// void runUpdateFirmware(uint8_t *data, size_t len) {//todo del
-//     Update.write(data, len);
-//     currentLength += len;
-//     // Print dots while waiting for update to finish
-//     Serial.print('.');
-//     // if current length of written firmware is not equal to total firmware size, repeat
-//     if (currentLength != totalLength) return;
-//     Update.end(true);
-//     Serial.printf("\nUpdate Success, Total Size: %u\nRebooting...\n", currentLength);
-//     // Restart ESP32 to see changes
-//     ESP.restart();
-// }
+void checkUpdateFirmware() {//todo del
+
+    WiFiClientSecure clientSSL;
+
+    const char * git_url = "https://github.com/";
+
+    clientSSL.setInsecure(); //the magic line, use with caution
+    clientSSL.connect(git_url, 443);
+
+    //clientWeb.begin(UPD_FILE);
+    clientWeb.begin(clientSSL, UPD_FILE);
+
+    clientWeb.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    // Get file, just to check if each reachable
+    int resp = clientWeb.GET();
+    Serial.print("Response: ");
+    Serial.println(resp);
+    // If file is reachable, start downloading
+    if (resp == HTTP_CODE_OK) {
+        // get length of document (is -1 when Server sends no Content-Length header)
+        totalLength = clientWeb.getSize();
+        // transfer to local variable
+        int len = totalLength;
+        // this is required to start firmware update process
+        Update.begin(UPDATE_SIZE_UNKNOWN);
+        Update.onProgress(progressFunc);
+        DEBUG_PRINT("FW Size: ");
+
+        DEBUG_PRINTLN(totalLength);
+        // create buffer for read
+        uint8_t buff[128] = {0};
+        // get tcp stream
+        WiFiClient *stream = clientWeb.getStreamPtr();
+        // read all data from server
+        DEBUG_PRINTLN("Updating firmware...");
+        while (clientWeb.connected() && (len > 0 || len == -1)) {
+            // get available data size
+            size_t size = stream->available();
+            if (size) {
+                // read up to 128 byte
+                int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+                // pass to function
+                runUpdateFirmware(buff, c);
+                if (len > 0) {
+                    len -= c;
+                }
+            }
+            // DEBUG_PRINT("Bytes left to flash ");
+            // DEBUG_PRINTLN(len);
+            // delay(1);
+        }
+    } else {
+        Serial.println("Cannot download firmware file. Only HTTP response 200: OK is supported. Double check firmware location #defined in UPD_FILE.");
+    }
+    clientWeb.end();
+}
+
+void runUpdateFirmware(uint8_t *data, size_t len) {//todo del
+    Update.write(data, len);
+    currentLength += len;
+    // Print dots while waiting for update to finish
+    Serial.print('.');
+    // if current length of written firmware is not equal to total firmware size, repeat
+    if (currentLength != totalLength) return;
+    Update.end(true);
+    Serial.printf("\nUpdate Success, Total Size: %u\nRebooting...\n", currentLength);
+    // Restart ESP32 to see changes
+    ESP.restart();
+}

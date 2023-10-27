@@ -5,7 +5,7 @@
 #include <CircularBuffer.h>
 #include "version.h"
 
-#define DEBUG
+//#define DEBUG
 //ESP32 PINS TO CONTROL LAN8720
 #define ETH_CLK_MODE_1 ETH_CLOCK_GPIO17_OUT
 #define ETH_POWER_PIN_ALTERNATIVE_1 5
@@ -95,6 +95,15 @@ struct InfosStruct
   char device[8];
   char mac[8];
   char flash[8];
+};
+
+struct zbVerStruct{
+  uint32_t zbRev;
+  uint8_t maintrel;
+  uint8_t minorrel;
+  uint8_t majorrel;
+  uint8_t product;
+  uint8_t transportrev;
 };
 
 typedef CircularBuffer<char, 8024> LogConsoleType;
