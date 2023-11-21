@@ -1,6 +1,6 @@
 # SMLIGHT SLZB-06 Zigbee 3.0 PoE Ethernet USB Adapter's FIRMWARE
-## Latest stable release: [v0.9.9](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.9)
-## Latest dev release: [v1.0.1](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v1.0.1-dev)
+## Latest stable release: [v0.9.9](https://github.com/smlight-dev/slzb-06-firmware/releases/tag/v0.9.9) - this version is deprecated. Please use brand new version 2.x
+## Latest FW: [v2.x](https://youtu.be/q3cWHQ8CdcA)
 
 
 This repository contains the latest firmware for the ESP32 peripheral module of [SLZB-06 Zigbee Ethernet PoE USB Adapter](https://smlight.tech/product/slzb-06). Firmware is opensource, so feel free to improve it by making a commit to this repository. 
@@ -16,7 +16,7 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 
 <hr></hr>
 
-
+# WE RECOMMEND TO UPDATE FIRMWARE TO VERSION 2.X - [VIDEO REVIEW](https://youtu.be/q3cWHQ8CdcA), FLASH 2.X [ONLINE](https://smlight.tech/flasher/)
 
 ## KEY FIRMWARE FEATURES
 - **Update Zigbee firmware chip right from the web interface** in one click;
@@ -36,9 +36,9 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 
 ### 5 minutes video review on Youtube (click):
 
-[![Video review firmware v1.0.0 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/title.jpg)](https://www.youtube.com/watch?v=ps-x_-CQXp0)
+[![Video review firmware v2.0.0 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/title.jpg)](https://youtu.be/q3cWHQ8CdcA)
 
-### SLZB-06 firmware screenshots
+### SLZB-06 firmware screenshots (v0.9.9, from this repository, deprecated)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_2.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_3.png)
