@@ -42,7 +42,6 @@ This repository contains the firmware for the ESP32 peripheral module of [SLZB-0
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_2.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_3.png)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_4.png)
-![image](https://user-images.githubusercontent.com/31830530/230929441-cbba10c7-0f5f-4b3c-aec1-0d66dd088d49.png)
 
 ## Installation and Configuration
 Please refer to the installation and configuration articles in our [documentation](https://smlight.tech/manual/slzb-06/).  
