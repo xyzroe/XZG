@@ -17,15 +17,15 @@ uint8_t temprature_sens_read();
 
 float getCPUtemp(bool clear = false);
 
-
+void zigbeeRouterRejoin();
 void zigbeeEnableBSL();
 void zigbeeRestart();
 
 void adapterModeUSB();
 void adapterModeLAN();
 
-void ledYellowToggle();
-void ledBlueToggle();
+void ledPowerToggle();
+void ledUSBToggle();
 
 void getDeviceID(char * arr);
 void writeDefultConfig(const char *path, JsonDocument& doc);
