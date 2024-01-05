@@ -16,7 +16,11 @@ This repository contains the firmware for the ESP32 peripheral module of [SLZB-0
 
 <hr></hr>
 
-# FLASH THIS FIRMWARE 0.9.9 or FLASH FIRMWARE 2.X [ONLINE](https://smlight.tech/flasher/)
+# FLASH THIS FIRMWARE 0.9.9 or FLASH FIRMWARE 2.X [ONLINE](https://smlight.tech/flasher/#SLZB-06)
+
+# SLZB-06/06M MANUAL [smlight.tech/manual/slzb-06/](https://smlight.tech/manual/slzb-06/guide/getting-started/)
+
+# SLZB-06/06M SUPPORT TICKETS [support.smlight.tech](https://support.smlight.tech/supportcenter/public/en/customer/create-ticket/)
 
 ## KEY FIRMWARE FEATURES
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Blue led On = USB mode, Blue led Off = Ethernet mode);
@@ -35,7 +39,7 @@ This repository contains the firmware for the ESP32 peripheral module of [SLZB-0
 
 ### 5 minutes video review on Youtube (click):
 
-[![Video review firmware v2.0.0 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/title.jpg)](https://youtu.be/q3cWHQ8CdcA)
+[![Video review firmware v2.0.0 for SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/slzb-06-fw2x.png)](https://youtu.be/q3cWHQ8CdcA)
 
 ### SLZB-06 firmware screenshots (v0.9.9, from this repository)
 ![](https://github.com/smlight-dev/slzb-06-firmware/blob/main/img/0.9.8_1.png)
