@@ -13,6 +13,7 @@ void handleZigbeeRestart();
 void handleSerial();
 void handleSavefile();
 void handleApi();
+void handleStatus();
 void sendGzip(const char* contentType, const uint8_t content[], uint16_t contentLen);
 void handleSysTools();
 void printLogTime();
