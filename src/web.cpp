@@ -140,6 +140,7 @@ void initWebServer()
     serverWeb.on("/saveFile", handleSavefile);
     serverWeb.on("/switch/firmware_update/toggle", handleZigbeeBSL); // for cc-2538.py ESPHome edition back compatibility | will be disabled someday
     serverWeb.on("/api", handleApi);
+    serverWeb.on("/status", handleStatus);
     serverWeb.on("/logout", []()
                  { 
         serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
@@ -1224,9 +1225,7 @@ void handleMqtt()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleRoot()
-{
-    String result;
+DynamicJsonDocument getRootData() {
     DynamicJsonDocument doc(1024);
 
     char verArr[25];
@@ -1435,8 +1434,37 @@ void handleRoot()
         doc[wifiModeAPStatus] = "Not started";
         // doc[wifiMode] = "Client";
     }
+    return doc;
+}
+
+
+void handleRoot()
+{
+    String result;
+    DynamicJsonDocument doc(1024);
+    doc = getRootData();
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
+}
+
+void handleStatus() {
+    String result;
+    DynamicJsonDocument doc(1024);
+
+    // Authentication is needed for status page as well (if enabled)
+    if(ConfigSettings.webAuth) {
+        if(!checkAuth()) {
+            serverWeb.sendHeader("Authentication", "fail");
+            serverWeb.send(HTTP_CODE_UNAUTHORIZED, contTypeText, F("wrong login or password"));
+            return;
+        } else {
+            serverWeb.sendHeader("Authentication", "ok");
+        }
+    }
+
+    doc = getRootData();
+    serializeJsonPretty(doc, result);
+    serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
 }
 
 void handleSysTools()
