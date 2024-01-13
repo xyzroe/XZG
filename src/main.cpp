@@ -1,6 +1,5 @@
 #include <WiFi.h>
-//#include <WiFiClient.h>
-//#include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include "FS.h"
@@ -9,8 +8,6 @@
 #include "web.h"
 #include "log.h"
 #include "etc.h"
-#include "mqtt.h"
-#include "zb.h"
 #include <Update.h>
 #include "version.h"
 #include "Ticker.h"
@@ -26,7 +23,6 @@
 #define BUFFER_SIZE 256
 
 ConfigSettingsStruct ConfigSettings;
-zbVerStruct zbVer;
 InfosStruct Infos;
 
 //volatile bool btnFlag = false;
@@ -41,7 +37,6 @@ const char* configFileEther = "/config/configEther.json";
 const char* configFileGeneral = "/config/configGeneral.json";
 const char* configFileSecurity = "/config/configSecurity.json";
 const char* configFileSerial = "/config/configSerial.json";
-const char* configFileMqtt = "/config/configMqtt.json";
 const char* deviceModel = "UZG-01";
 
 void mDNS_start();
@@ -375,8 +370,8 @@ bool loadConfigGeneral(){
   const char* hostname = "hostname";
   const char* disableLeds = "disableLeds";
   const char* refreshLogs = "refreshLogs";
-  const char* disableLedPwr = "disableLedPwr";
-  const char* disableLedUSB = "disableLedUSB";
+  const char* disableLedYellow = "disableLedYellow";
+  const char* disableLedBlue = "disableLedBlue";
   const char* prevCoordMode = "prevCoordMode";
   const char* keepWeb = "keepWeb";
   File configFile = LittleFS.open(configFileGeneral, FILE_READ);
@@ -385,13 +380,13 @@ bool loadConfigGeneral(){
     //String deviceID = deviceModel;
     //getDeviceID(deviceID);
     DEBUG_PRINTLN("RESET ConfigGeneral");
-    //String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedPwr\":0,\"disableLedUSB\":0,\""+ coordMode +"\":0}\""+ prevCoordMode +"\":0, \"keepWeb\": 0}";
+    //String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedYellow\":0,\"disableLedBlue\":0,\""+ coordMode +"\":0}\""+ prevCoordMode +"\":0, \"keepWeb\": 0}";
     DynamicJsonDocument doc(1024);
     doc[hostname] = deviceModel;
     doc[disableLeds] = 0;
     doc[refreshLogs] = 1000;
-    doc[disableLedPwr] = 0;
-    doc[disableLedUSB] = 0;
+    doc[disableLedYellow] = 0;
+    doc[disableLedBlue] = 0;
     doc[coordMode] = 0;
     doc[prevCoordMode] = 0;
     doc[keepWeb] = 0;
@@ -427,10 +422,10 @@ bool loadConfigGeneral(){
   ConfigSettings.prevCoordinator_mode = static_cast<COORDINATOR_MODE_t>((uint8_t)doc[prevCoordMode]);
   DEBUG_PRINTLN(F("[loadConfigGeneral] 'static_cast' res is:"));
   DEBUG_PRINTLN(String(ConfigSettings.coordinator_mode));
-  ConfigSettings.disableLedPwr = (uint8_t)doc[disableLedPwr];
-  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
-  ConfigSettings.disableLedUSB = (uint8_t)doc[disableLedUSB];
-  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedUSB"));
+  ConfigSettings.disableLedYellow = (uint8_t)doc[disableLedYellow];
+  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedYellow"));
+  ConfigSettings.disableLedBlue = (uint8_t)doc[disableLedBlue];
+  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedBlue"));
   ConfigSettings.disableLeds = (uint8_t)doc[disableLeds];
   DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
   ConfigSettings.keepWeb = (uint8_t)doc[keepWeb];
@@ -518,64 +513,6 @@ bool loadConfigSerial(){
   }
   configFile.close();
   return true;
-}
-
-bool loadConfigMqtt()
-{
-  const char* enable = "enable";
-  const char* server = "server";
-  const char* port = "port";
-  const char* user = "user";
-  const char* pass = "pass";
-  const char* topic = "topic";
-  const char* interval = "interval";
-  const char* discovery = "discovery";
-
-  File configFile = LittleFS.open(configFileMqtt, FILE_READ);
-  if (!configFile)
-  {
-    char deviceIdArr[20];
-    getDeviceID(deviceIdArr);
-
-    DynamicJsonDocument doc(1024);
-    doc[enable] = 0;
-    doc[server] = "";
-    doc[port] = 1883;
-    doc[user] = "mqttuser";
-    doc[pass] = "";
-    doc[topic] = String(deviceIdArr);
-    doc[interval] = 60;
-    doc[discovery] = 0;
-    writeDefultConfig(configFileMqtt, doc);
-  }
-
-  configFile = LittleFS.open(configFileMqtt, FILE_READ);
-  DynamicJsonDocument doc(1024);
-  DeserializationError error = deserializeJson(doc, configFile);
-
-   if (error)
-  {
-    DEBUG_PRINTLN(F("deserializeJson() failed: "));
-    DEBUG_PRINTLN(error.f_str());
-
-    configFile.close();
-    LittleFS.remove(configFileMqtt);
-    return false;
-  }
-
-  ConfigSettings.mqttEnable = (int)doc[enable];
-  strlcpy(ConfigSettings.mqttServer, doc[server] | "", sizeof(ConfigSettings.mqttServer));
-  ConfigSettings.mqttServerIP = parse_ip_address(ConfigSettings.mqttServer);
-  ConfigSettings.mqttPort = (int)doc[port];
-  strlcpy(ConfigSettings.mqttUser, doc[user] | "", sizeof(ConfigSettings.mqttUser));
-  strlcpy(ConfigSettings.mqttPass, doc[pass] | "", sizeof(ConfigSettings.mqttPass));
-  strlcpy(ConfigSettings.mqttTopic, doc[topic] | "", sizeof(ConfigSettings.mqttTopic));
-  ConfigSettings.mqttInterval = (int)doc[interval];
-  ConfigSettings.mqttDiscovery = (int)doc[discovery];
-
-  configFile.close();
-  return true;
-
 }
 
 void startAP(const bool start){
@@ -705,28 +642,28 @@ void setLedsDisable(bool mode, bool setup){
     deserializeJson(doc, configFile);
     configFile.close();
     doc["disableLeds"] = mode;
-    doc["disableLedPwr"] = mode;
-    doc["disableLedUSB"] = mode;
+    doc["disableLedYellow"] = mode;
+    doc["disableLedBlue"] = mode;
     configFile = LittleFS.open(path, FILE_WRITE);
     serializeJson(doc, configFile);
     configFile.close();
     ConfigSettings.disableLeds = mode;
-    ConfigSettings.disableLedPwr = mode;
-    ConfigSettings.disableLedUSB = mode;
+    ConfigSettings.disableLedYellow = mode;
+    ConfigSettings.disableLedBlue = mode;
   }
   if(mode){
-    digitalWrite(LED_USB, !mode);
-    digitalWrite(LED_PWR, !mode);
+    digitalWrite(LED_RED, !mode);
+    digitalWrite(LED_BLUE, !mode);
   }else{
-    if(!ConfigSettings.disableLedPwr){
-      digitalWrite(LED_PWR, !mode);
+    if(!ConfigSettings.disableLedYellow){
+      digitalWrite(LED_BLUE, !mode);
     }else{
-      digitalWrite(LED_PWR, 0);
+      digitalWrite(LED_BLUE, 0);
     }
-    if(ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB && !ConfigSettings.disableLedUSB){
-      digitalWrite(LED_USB, !mode);
+    if(ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB && !ConfigSettings.disableLedBlue){
+      digitalWrite(LED_RED, !mode);
     }else{
-      digitalWrite(LED_USB, 0);
+      digitalWrite(LED_RED, 0);
     }
   }
   DEBUG_PRINTLN(F("[setLedsDisable] done"));
@@ -779,7 +716,7 @@ void toggleUsbMode(){
   configFile = LittleFS.open(path, FILE_WRITE);
   serializeJson(doc, configFile);
   configFile.close();
-  digitalWrite(LED_USB, ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB ? 1 : 0);
+  digitalWrite(LED_RED, ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB ? 1 : 0);
   ESP.restart();
 }
 
@@ -830,11 +767,11 @@ void setupCoordinatorMode(){
 //   serial.write(cmd, size);
 // }
 
-//void clearS2Buffer(){
-//  while (Serial2.available()){//clear buffer
-//    Serial2.read();
-//  }
-//}
+void clearS2Buffer(){
+  while (Serial2.available()){//clear buffer
+    Serial2.read();
+  }
+}
 
 void setup(){
   Serial.begin(115200);//todo ifdef DEBUG
@@ -845,16 +782,15 @@ void setup(){
   pinMode(CC2652P_FLSH, OUTPUT);
   digitalWrite(CC2652P_RST, 1);
   digitalWrite(CC2652P_FLSH, 1);
-  pinMode(LED_PWR, OUTPUT);
-  pinMode(LED_USB, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
   pinMode(BTN, INPUT);
   pinMode(MODE_SWITCH, OUTPUT);
   digitalWrite(MODE_SWITCH, 0);//enable zigbee serial
-  digitalWrite(LED_PWR, 1);
-  digitalWrite(LED_USB, 1);
+  digitalWrite(LED_BLUE, 1);
+  digitalWrite(LED_RED, 1);
 
   //hard reset
-  #if BUILD_ENV_NAME != debug
   if(!digitalRead(BTN)){
     DEBUG_PRINTLN(F("[hard reset] Entering hard reset mode"));
     uint8_t counter = 0;
@@ -869,13 +805,60 @@ void setup(){
     }
     DEBUG_PRINTLN(F("[hard reset] Btn up, exit"));
   }
-  #endif
   //--------------------
 
   //zig connection & leds testing 
+  const byte cmdLed0 = 0x27;
+  const byte cmdLed1 = 0x0A;
+  const byte cmdLedIndex = 0x01;//for led 1
+  const byte cmdLedStateOff = 0x00;
+  const byte cmdLedStateOn = 0x01;
+  const byte cmdFrameStart = 0xFE;
+  const byte cmdLedLen = 0x02;
+  const byte zigLed1Off[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedIndex, cmdLedStateOff, 0x2E}; //resp FE 01 67 0A 00 6C
+  const byte zigLed1On[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedIndex, cmdLedStateOn, 0x2F};
+  const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
   Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
-  zbCheck();
-  getZbVer();
+  bool respOk = false;
+  for (uint8_t i = 0; i < 12; i++){//wait for zigbee start
+    if(respOk) break;
+    clearS2Buffer();
+    Serial2.write(zigLed1On, sizeof(zigLed1On));
+    Serial2.flush();
+    delay(400);
+    for (uint8_t i = 0; i < 5; i++){
+      if (Serial2.read() != 0xFE){//check for packet start
+        Serial2.read();//skip
+      }else{
+        for (uint8_t i = 1; i < 4; i++){
+          if(Serial2.read() != cmdLedResp[i]){//check if resp ok
+            respOk = false;
+            break;
+          }else{
+            respOk = true;
+          }
+        }
+      }
+    }
+    digitalWrite(LED_RED, !digitalRead(LED_RED));//blue led flashing mean wait for zigbee resp
+  }
+  delay(500);
+  if(!respOk){
+    digitalWrite(LED_BLUE, 1);
+    digitalWrite(LED_RED, 1);
+    for (uint8_t i = 0; i < 5; i++){//indicate wrong resp
+          digitalWrite(LED_BLUE, !digitalRead(LED_BLUE));
+          digitalWrite(LED_RED, !digitalRead(LED_RED));
+          delay(1000);
+        }
+    printLogMsg("[ZBCHK] Wrong answer");
+  }else{
+    Serial2.write(zigLed1Off, sizeof(zigLed1Off));
+    Serial2.flush();
+    printLogMsg("[ZBCHK] connection established");
+  }
+  digitalWrite(LED_BLUE, 0);
+  digitalWrite(LED_RED, 0);
   //-----------------
 
   attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
@@ -922,7 +905,7 @@ void setup(){
     DEBUG_PRINTLN(F("Config serial load OK"));
   }
 
-  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigSecurity()) || (!loadConfigMqtt()))
+  if ((!loadConfigWifi()) || (!loadConfigEther()) || (!loadConfigGeneral()) || (!loadConfigSecurity()))
   {
     DEBUG_PRINTLN(F("Error load config files"));
     ESP.restart();
@@ -937,22 +920,8 @@ void setup(){
   setupCoordinatorMode();
   ConfigSettings.connectedClients = 0;
 
-  if (ConfigSettings.mqttEnable)
-  {
-    mqttConnectSetup();
-  }
-  
-  DEBUG_PRINTLN(millis());
-
   Serial2.updateBaudRate(ConfigSettings.serialSpeed);//set actual speed
   printLogMsg("Setup done");
-
-  char deviceIdArr[20];
-  getDeviceID(deviceIdArr);
-  
-  DEBUG_PRINTLN(String(deviceIdArr));
-  printLogMsg(String(deviceIdArr));
-
 }
 
 WiFiClient client[10];
@@ -968,7 +937,6 @@ void socketClientConnected(int client)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
-      mqttPublishIo("socket", "ON");
     }
     ConfigSettings.connectedSocket[client] = true;
     ConfigSettings.connectedClients++;
@@ -988,7 +956,6 @@ void socketClientDisconnected(int client)
       ConfigSettings.socketTime = millis();
       DEBUG_PRINT(F("Socket time "));
       DEBUG_PRINTLN(ConfigSettings.socketTime);
-      mqttPublishIo("socket", "OFF");
     }
   }
 }
@@ -1156,15 +1123,7 @@ void loop(void){
     printSendSocket(serial_bytes_read, serial_buf);
     serial_bytes_read = 0;
   }
-  
-
-  if (ConfigSettings.mqttEnable)
-  {
-    mqttLoop();
   }
-
-  }
-  
 
   if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA)
   {

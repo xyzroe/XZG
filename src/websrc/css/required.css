@@ -137,21 +137,7 @@ label.swFx{
   padding: 0;
   border: 1px solid #ddd;
   line-height: 44px;
-  text-align: center;
-  display: block;
-  cursor: pointer;
-  width: 100%;
-  height: 44px;
-  border-radius: 4px;
-  margin: 10px auto;
-  font-size: 15px
-}
-
-#file-input_zb {
-  padding: 0;
-  border: 1px solid #ddd;
-  line-height: 44px;
-  text-align: center;
+  text-align: left;
   display: block;
   cursor: pointer;
   width: 100%;
@@ -167,32 +153,13 @@ label.swFx{
   border-radius: 10px
 }
 
-#bar_zb,
-#prgbar_zb {
-  background-color: #f1f1f1;
-  border-radius: 10px
-}
-
 #bar {
   background-color: #17a2b8;
   width: 0%;
   height: 10px
 }
 
-#bar_zb {
-  background-color: #17a2b8;
-  width: 0%;
-  height: 10px
-}
-
 form#upload_form {
-  background: #fff;
-  max-width: 408px;
-  border-radius: 5px;
-  text-align: center
-}
-
-form#upload_form_zb {
   background: #fff;
   max-width: 408px;
   border-radius: 5px;
@@ -8491,11 +8458,6 @@ textarea.form-control-lg {
 .bg-dark {
   --bs-bg-opacity: 1;
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
-}
-
-.bg-dark-grey {
-  --bs-bg-opacity: 1;
-  background-color: #404040;
 }
 
 .bg-primary {

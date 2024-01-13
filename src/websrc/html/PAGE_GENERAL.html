@@ -53,13 +53,11 @@
                                             session (not saved on reboot):</span>
                                     </div>
                                     <div class="col-sm-12">
-                                        <button type='button' data-cmd="6"
-                                            class='btn btn-info col-sm-12 col-md-auto mb-1 me-1'>BLUE 💡 Toggle</button>
-                                        <button type="button" data-cmd="7"
-                                            class="btn btn-danger col-sm-12 col-md-auto mb-1 me-1">RED 💡
+                                        <button type="button" data-cmd="6"
+                                            class="btn btn-outline-primary col col-md-auto mb-1">Power LED (BLUE)
                                             Toggle</button>
-                                        <button type="button" data-cmd="12"
-                                            class="btn btn-warning col-sm-12 col-md-auto mb-1 me-1">YELLOW 💡
+                                        <button type="button" data-cmd="7"
+                                            class="btn btn-outline-primary col col-md-auto mb-1">Mode LED (RED)
                                             Toggle</button>
                                         <br>
                                     </div>
@@ -71,16 +69,17 @@
                                             switches
                                             below:</span>
                                         <div class='form-check form-switch'>
-                                            <input data-replace="checkedDisableLedPwr" class='form-check-input'
-                                                id='disableLedPwr' type='checkbox' role="switch" name='disableLedPwr'>
-                                            <label class='form-check-label' for='disableLedPwr'>Disable Power LED
-                                                <span style="color: #047cc3">(BLUE)</span></spa< /label>
+                                            <input data-replace="checkedDisableLedYellow" class='form-check-input'
+                                                id='disableLedYellow' type='checkbox' role="switch"
+                                                name='disableLedYellow'>
+                                            <label class='form-check-label' for='disableLedYellow'>Disable Power LED
+                                                (BLUE)</label>
                                         </div>
                                         <div class='form-check form-switch'>
-                                            <input data-replace="checkedDisableLedUSB" class='form-check-input'
-                                                id='disableLedUSB' type='checkbox' role="switch" name='disableLedUSB'>
-                                            <label class='form-check-label' for='disableLedUSB'>Disable USB mode LED
-                                                <span style="color: #fc0500">(RED)</span></label>
+                                            <input data-replace="checkedDisableLedBlue" class='form-check-input'
+                                                id='disableLedBlue' type='checkbox' role="switch" name='disableLedBlue'>
+                                            <label class='form-check-label' for='disableLedBlue'>Disable USB mode LED
+                                                (RED)</label>
                                         </div>
                                     </div>
                                 </div>

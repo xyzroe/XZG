@@ -1,12 +1,12 @@
 {
     "name": "UZG-FW",
-    "version": "v0.1.9",
+    "version": "v0.1.5",
     "builds": [
       {
         "chipFamily": "ESP32",
         "improv": false,
         "parts": [
-          { "path": "bin/UZG-01_v0.1.9.full.bin", "offset": 0 }
+          { "path": "bin/UZG-01_v0.1.5.full.bin", "offset": 0 }
         ]
       }
     ]
