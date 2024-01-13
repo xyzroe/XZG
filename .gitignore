@@ -7,3 +7,6 @@ commit
 test.html
 gzipped
 webh
+*.code-workspace
+logs
+todo
