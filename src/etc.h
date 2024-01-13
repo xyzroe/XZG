@@ -28,7 +28,7 @@ void ledPowerToggle();
 void ledUSBToggle();
 
 void getDeviceID(char * arr);
-void writeDefultConfig(const char *path, JsonDocument& doc);
+void writeDefultConfig(const char *path, DynamicJsonDocument& doc);
 
 void resetSettings();
 

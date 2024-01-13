@@ -232,7 +232,7 @@ void getDeviceID(char *arr)
 //   configFile.close();
 // }
 
-void writeDefultConfig(const char *path, JsonDocument &doc)
+void writeDefultConfig(const char *path, DynamicJsonDocument &doc)
 {
   DEBUG_PRINTLN(path);
   DEBUG_PRINTLN(F("Write defaults"));
