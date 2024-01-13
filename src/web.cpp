@@ -545,7 +545,7 @@ void handleApi()
         case API_WIFICONNECTSTAT:
         {
             String result;
-            StaticDynamicJsonDocument<70> doc;
+            StaticJsonDocument<70> doc;
             const char *connected = "connected";
             if (WiFi.status() == WL_CONNECTED)
             {
