@@ -156,7 +156,7 @@ serial:
   # Location of UZG-01
   port: tcp://${ip}:${port}
   baudrate: ${$("#baud").val()}
-  # Disable green led?
+  # Disable Zigbee (Y or W) led?
   disable_led: false
 # Set output power to max 20
 advanced:
@@ -721,6 +721,7 @@ function modalConstructor(type, params) {
 				"class": "btn btn-warning",
 				text: "Later",
 				click: function () {
+					localStorage.setItem('update_notify', 1);
 					closeModal();
 				}
 			}).appendTo(modalBtns);
@@ -730,8 +731,22 @@ function modalConstructor(type, params) {
 				text: "Update now",
 				click: function () {
 					closeModal();
-					$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) {});
+					$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
+					localStorage.setItem('update_notify', 0);
 					espFlashGitWait();
+				}
+			}).appendTo(modalBtns);
+			break;
+		case "espBetaFeedback":
+			$(headerText).text("FW beta feedback").css("color", "blue");
+			$(modalBody).text(params);
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-primary",
+				text: "OK",
+				click: function () {
+					localStorage.setItem('beta_feedback', 1);
+					closeModal();
 				}
 			}).appendTo(modalBtns);
 			break;
@@ -1036,31 +1051,27 @@ function logRefresh(ms) {
 }
 
 async function fetchData(url, isJson = true) {
-    if (isJson) {
-        return await $.getJSON(url);
-    } else {
-        return await $.get(url);
-    }
+	if (isJson) {
+		return await $.getJSON(url);
+	} else {
+		return await $.get(url);
+	}
 }
 
 async function processResponses() {
-    try {
-        let jsonUrl = 'https://api.github.com/repos/xyzroe/uzg-firmware/releases/latest';
-        let textUrl = '/api?action=1&param=espVer';
+	try {
+		let jsonUrl = 'https://api.github.com/repos/mercenaruss/uzg-firmware/releases/latest';
+		let textUrl = '/api?action=1&param=espVer';
 
-        let [jsonData, textData] = await Promise.all([
-            fetchData(jsonUrl, true),
-            fetchData(textUrl, false)
-        ]);
+		let [jsonData, textData] = await Promise.all([
+			fetchData(jsonUrl, true),
+			fetchData(textUrl, false)
+		]);
 
-        // Обработка jsonData и textData
-        // jsonData - это объект, полученный из JSON ответа
-        // textData - это строка, полученная из текстового ответа
-
-        return { jsonData, textData };
-    } catch (error) {
-        console.error('Ошибка при получении данных:', error);
-    }
+		return { jsonData, textData };
+	} catch (error) {
+		console.error('Error while getting versions:', error);
+	}
 }
 
 
@@ -1068,17 +1079,6 @@ function checkLatestESPrelease() {
 
 
 	processResponses().then(combinedData => {
-		//console.log('Обработанные данные:', combinedData);
-		// Дальнейшие действия с combinedData
-	
-	
-	//console.log(combinedData);
-	
-
-	//console.log(localVer);
-	//var div1 = document.getElementById('ver');
-
-	//const exampleAttr= div1.getAttribute('v');
 
 		var gitVer = Number(combinedData.jsonData.tag_name.replace(/[^0-9.]/g, '').split('.').join(""));
 		var localVer = Number(combinedData.textData.replace(/[^0-9.]/g, '').split('.').join(""));
@@ -1099,15 +1099,21 @@ function checkLatestESPrelease() {
 
 
 		if (gitVer > localVer) {
-			
+
 			setTimeout(function () {
-				modalConstructor("espGitUpdate", releaseInfo);
+
+				if (!(localStorage.getItem('update_notify') == 1)) {
+					modalConstructor("espGitUpdate", releaseInfo);
+				}
 				console.log(releaseInfo)
 			}, 500);
 		}
 		else if (gitVer < localVer) {
+			if (!(localStorage.getItem('beta_feedback') == 1)) {
+				modalConstructor("espBetaFeedback", betaInfo);
+			}
 			console.log(betaInfo)
 		}
 	});
-	
+
 }

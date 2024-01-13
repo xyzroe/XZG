@@ -1143,7 +1143,7 @@ void handleWifi()
 }
 
 void handleSerial()
-{
+{   
     String result;
     DynamicJsonDocument doc(1024);
 

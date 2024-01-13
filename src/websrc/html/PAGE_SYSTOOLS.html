@@ -254,6 +254,7 @@
         let fileName = obj.value.split('\\\\');
         if (fileName != "") {
           $("#updButton").removeAttr("disabled");
+          localStorage.setItem('beta_feedback', 0);
           /* if (!(localStorage.getItem('flash_warning') == 1)) {
             modalConstructor("flashWarning");
           } else {
@@ -342,8 +343,9 @@
 
       $('button#upd_esp_git').click(function () {
 
-        console.log('Update from Git started...<br>Just be patient!');
+        console.log('Update from Git started... Just be patient!');
         //$('#prg').html('Update from Git started...<br>Just be patient!');
+        localStorage.setItem('update_notify', 0);
         espFlashGitWait();
         //ESPfwStartEvents();
 
