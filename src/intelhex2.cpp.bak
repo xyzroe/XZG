@@ -1,0 +1,91 @@
+#include "intelhex.h"
+
+#ifdef DEBUG
+#define DEBUG_PRINT(x) Serial.print(x)
+#define DEBUG_PRINTLN(x) Serial.println(x)
+#else
+#define DEBUG_PRINT(x)
+#define DEBUG_PRINTLN(x)
+#endif
+
+IntelHex::IntelHex(const char* filename) : _filename(filename) {}
+
+IntelHex::~IntelHex() {
+    if (_file) {
+        _file.close();
+    }
+}
+
+bool IntelHex::open() {
+    if (!LittleFS.begin()) {
+        DEBUG_PRINTLN("Could not mount file system");
+        return false;
+    }
+    _file = LittleFS.open(_filename, "r");
+    return _file;
+}
+
+void IntelHex::close() {
+    DEBUG_PRINT("Try to close file...");
+    _file.close();
+    //LittleFS.end();
+    DEBUG_PRINTLN("   OK");
+}
+
+bool IntelHex::parse(void (*preCallback)(), void (*parseCallback)(uint32_t address, uint8_t len, uint8_t* data), void (*postCallback)()) {
+    if (!open()) {
+        return false;
+    }
+    
+    preCallback();
+    
+    bool status = true;
+    while (status && _file.available()) {
+        status = _munchLine(parseCallback);
+    }
+    
+    postCallback();
+
+    file_parsed = true; // Set file_parsed to true after parsing
+    close();
+    return status;
+}
+
+bool IntelHex::_munchLine(void (*parseCallback)(uint32_t address, uint8_t len, uint8_t* data)) {
+    String line = _file.readStringUntil('\n');
+    line.trim();
+
+    //DEBUG_PRINT("Parsing line: " + line);
+
+    if (line.length() == 0 || line[0] != ':') {
+        return true; // Continue parsing
+    }
+
+    uint8_t sum = 0;
+    for (int i = 1; i < line.length(); i += 2) {
+        sum += strtol(line.substring(i, i + 2).c_str(), nullptr, 16);
+    }
+
+    if (sum != 0) {
+        DEBUG_PRINTLN("Checksum error");
+        file_validated = false;  // Set file_validated to false on checksum error
+        return false;
+    }
+
+    //file_validated = true;  // Set file_validated to true if checksum passes
+
+    uint8_t len = strtol(line.substring(1, 3).c_str(), nullptr, 16);
+    uint16_t address = strtol(line.substring(3, 7).c_str(), nullptr, 16);
+    uint8_t recordType = strtol(line.substring(7, 9).c_str(), nullptr, 16);
+
+    //DEBUG_PRINTLN("Record Type: " + String(recordType, HEX) + ", Address: " + String(address, HEX) + ", Length: " + String(len, HEX));
+
+    uint8_t data[255];
+    for (uint8_t i = 0; i < len; i++) {
+        data[i] = strtol(line.substring(9 + i * 2, 11 + i * 2).c_str(), nullptr, 16);
+    }
+
+    parseCallback(address, len, data);
+
+    return true;
+}
