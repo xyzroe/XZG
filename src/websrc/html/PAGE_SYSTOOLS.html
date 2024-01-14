@@ -114,9 +114,11 @@
                   <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
                   <button type="button" data-cmd="8" onclick="$('console').val('')"
                     class="btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1">Clear Console</button>
-                  <button type="button" data-cmd="11" class="btn btn-outline-accent2 col-sm-12 col-md-auto mb-1 me-1">Check
+                  <button type="button" data-cmd="11"
+                    class="btn btn-outline-accent2 col-sm-12 col-md-auto mb-1 me-1">Check
                     Zigbee connection</button>
-                  <button type="button" data-cmd="10" class="btn btn-outline-success col-sm-12 col-md-auto mb-1 me-1">Check
+                  <button type="button" data-cmd="10"
+                    class="btn btn-outline-success col-sm-12 col-md-auto mb-1 me-1">Check
                     Zigbee revision</button>
                 </div>
               </div>
@@ -183,9 +185,22 @@
                 <label id='file-input' for='file'> Choose file...</label>
                 <input id="updButton" type='submit' class='btn btn-warning mb-2' value='ESP32 file update' disabled>
                 <br>
-                <div id='prg'></div>
-                <div id='prgbar'>
-                  <div id='bar'></div>
+                <div class="container" style="max-width: 300px; margin-top: 30px;">
+                  <div id='prg'></div>
+                  <div id='prgbar'>
+                    <div id='bar'></div>
+                  </div>
+                </div>
+                <br>
+                <div class="container" style="max-width: 300px; margin-top: 15px;">
+                  <div class="row">
+                    <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from
+                      Github</button>
+                  </div>
+                  <div class="row">
+                    <button type="button" id="info_esp_git" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show
+                      verison info</button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -209,15 +224,15 @@
               </form>
             </div>
           </div>
-        </div>-->
+        </div>  data-cmd="9"  -->
 
-        <div class="col-sm-12 col-md-6 mb-4">
+        <!-- <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
             <div class='card-header'>ESP32 OTA online update</div>
             <div class='card-body'>
               <div class="container" style="max-width: 400px;">
                 <div class="row">
-                  <button type="button" data-cmd="9" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from Github</button>
+                  <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from Github</button>
                 </div>
                 <div class="row">
                   <button type="button" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show changelog</button>
@@ -225,7 +240,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
@@ -280,6 +295,15 @@
         e.preventDefault();
         var form = $('#upload_form')[0];
         var data = new FormData(form);
+
+        ESPfwStartEvents();
+
+        //setTimeout(function () {
+        //	$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
+        //	console.log("[flash] start");
+        //	$('#prg').html('Github download starting...');
+        //}, 500);
+
         $.ajax({
           url: '/update',
           type: 'POST',
@@ -288,20 +312,21 @@
           processData: false,
           xhr: function () {
             var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener('progress', function (evt) {
-              if (evt.lengthComputable) {
-                var per = evt.loaded / evt.total;
-                $('#prg').html('progress: ' + Math.round(per * 100) + '%');
-                $('#bar').css('width', Math.round(per * 100) + '%');
-              }
-            }, false);
+            //xhr.upload.addEventListener('progress', function (evt) {
+            //  if (evt.lengthComputable) {
+            //    var per = evt.loaded / evt.total;
+            //    $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+            //    $('#bar').css('width', Math.round(per * 100) + '%');
+            //  }
+            //}, false);
+
             return xhr;
           },
           success: function (d, s) {
             console.log('success!');
-            $('#prg').html('Update completed!<br>Rebooting!');
+            //$('#prg').html('Update completed!<br>Rebooting!');
             //window.location.href = '/';
-            rebootWait();
+            //rebootWait();
           },
           error: function (a, b, c) {
           }
@@ -339,17 +364,39 @@
           }
         });
       });
-      
+
 
       $('button#upd_esp_git').click(function () {
 
         console.log('Update from Git started... Just be patient!');
-        //$('#prg').html('Update from Git started...<br>Just be patient!');
         localStorage.setItem('update_notify', 0);
         espFlashGitWait();
-        //ESPfwStartEvents();
 
-			});
+      });
+    </script>
+    <script src="https://unpkg.com/commonmark@0.29.3/dist/commonmark.js"></script>
+    <script>
+
+      $('button#info_esp_git').click(function () {
+        
+
+        processResponses().then(combinedData => {
+
+          var asset = combinedData.jsonData.assets[0];
+          var downloadCount = 0;
+          for (var i = 0; i < combinedData.jsonData.assets.length; i++) {
+            downloadCount += combinedData.jsonData.assets[i].download_count;
+          }
+          var text = "Local version is v" + combinedData.textData + ". GitHub version is " + combinedData.jsonData.tag_name + " and it was downloaded " + downloadCount.toLocaleString() + " times. It's your turn now 🚀";
+          
+          var reader = new commonmark.Parser();
+          var writer = new commonmark.HtmlRenderer();
+          var parsed = reader.parse(combinedData.jsonData.body);
+          var chglog = writer.render(parsed); 
+          
+          modalConstructor("espFlashGitInfo", { text, chglog });
+        });
+      });
 
 
     </script>

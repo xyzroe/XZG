@@ -462,15 +462,22 @@ function rebootWait() {
 }
 
 function espFlashGitWait() {
+	ESPfwStartEvents();
+	//setTimeout(function () {
+	//	modalConstructor("espFlashGitWait");
+	//	console.log("[espFlashGitWait] start");
+	//}, 500);
 	setTimeout(function () {
-		modalConstructor("espFlashGitWait");
-		console.log("[espFlashGitWait] start");
+		$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
+		console.log("[flash] start");
+		$('#prg').html('Github download starting...');
 	}, 500);
 }
 
 function ESPfwStartEvents() {
 	var source = new EventSource('/events');
 	console.log("Events try");
+
 	source.addEventListener('open', function (e) {
 		console.log("Events Connected");
 	}, false);
@@ -480,11 +487,30 @@ function ESPfwStartEvents() {
 			console.log("Events Err");
 		}
 	}, false);
+
 	source.addEventListener('ESP_FW_prgs', function (e) {
-		const val = e.data + "%";
-		console.log(val);
-		$('#prg').html('progress: ' + val);
-		$('#bar').css('width', val);
+
+		//const val = e.data + "%";
+		//console.log(val);
+
+		$('#prg').html('progress: ' + Math.round(e.data) + '%');
+		$('#bar').css('width', Math.round(e.data) + '%');
+
+		if (Math.round(e.data) > 99.5) {
+			setTimeout(function () {
+				$('#prg').html('Update completed!<br>Rebooting!');
+				//window.location.href = '/';
+				rebootWait();
+			}, 250);
+		}
+		//const data = e.data.replaceAll("`", "<br>");
+		//$(modalBtns).html("");
+		//$("#zbFlshPgsTxt").html(data);
+		//$(".progress").addClass(classHide);
+		//$(modalBody).html(e.data).css("color", "red");
+		//modalAddClose();
+
+
 	}, false);
 }
 
@@ -680,6 +706,29 @@ function modalConstructor(type, params) {
 				}
 			}).appendTo(modalBtns);
 			break;
+		case "espFlashGitInfo":
+			$(headerText).text("Latest ESP32 firmware");
+			$(modalBody).text(params.text);
+			$(params.chglog).appendTo(modalBody);
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-primary",
+				text: "Close",
+				click: function () {
+					closeModal();
+				}
+			}).appendTo(modalBtns);
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-warning",
+				text: "Update now",
+				click: function () {
+					closeModal();
+					localStorage.setItem('update_notify', 0);
+					espFlashGitWait();
+				}
+			}).appendTo(modalBtns);
+			break;
 		case "espFlashGitWait":
 			$(headerText).text("ESP32 GIT UPDATE");
 			$(modalBody).text("Downloading and flashing latest release from Github.  🚀  This window will automatically close when the device reboots.");
@@ -718,22 +767,21 @@ function modalConstructor(type, params) {
 			$(modalBody).text(params);
 			$('<button>', {
 				type: "button",
-				"class": "btn btn-warning",
+				"class": "btn btn-primary",
 				text: "Later",
 				click: function () {
-					localStorage.setItem('update_notify', 1);
 					closeModal();
+					localStorage.setItem('update_notify', 0);
 				}
 			}).appendTo(modalBtns);
 			$('<button>', {
 				type: "button",
-				"class": "btn btn-success",
-				text: "Update now",
+				"class": "btn btn-danger",
+				text: "Don't remind",
 				click: function () {
 					closeModal();
-					$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
-					localStorage.setItem('update_notify', 0);
-					espFlashGitWait();
+					localStorage.setItem('update_notify', 1);
+					//espFlashGitWait();
 				}
 			}).appendTo(modalBtns);
 			break;

@@ -32,7 +32,7 @@
 #define BSL_LEVEL 0 //0-LOW 1-HIGH
 
 
-const int16_t overseerInterval = 10 * 1000; // check lan or wifi connection every 5sec
+const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 3;         // 5x12 = 60sec delay for AP start
 const uint8_t LED_USB = 12;                 // RED
 const uint8_t LED_PWR = 14;                 // BLUE

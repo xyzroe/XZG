@@ -1569,6 +1569,7 @@ void progressFunc(unsigned int progress, unsigned int total)
     float percent = ((float)progress / total) * 100.0;
 
     sendEvent(tagESP_FW_progress, eventLen, String(percent));
+    printLogMsg(String(percent));
 
     if (int(percent) % 5 == 0)
     {
