@@ -9,6 +9,8 @@
 #include "log.h"
 #include "web.h"
 #include "intelhex.h"
+#include "zb.h"
+
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
@@ -75,7 +77,7 @@ void getZbVer()
 
 void zbCheck()
 {
-
+    //getZbChip();
     // Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
     bool respOk = false;
     for (uint8_t i = 0; i < 12; i++)
@@ -188,29 +190,36 @@ void getZbChip()
     const byte cmdChipID[] = {0x03, 0x28, 0x28};
     for (uint8_t i = 0; i < 6; i++)
     {
-        // if (Serial2.read() != cmdFrameStart || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != cmd2){//check for packet start
-        clearS2Buffer(); // skip
-        Serial2.write(cmdChipID, sizeof(cmdChipID));
-        Serial2.flush();
-        delay(300);
-        //}else{
-        const uint8_t zbChipLen = 20;
-        byte zbChipBuf[zbChipLen];
-        for (uint8_t i = 0; i < zbChipLen; i++)
-        {
-            zbChipBuf[i] = Serial2.read();
-            printLogMsg(String("[zbChipBuf]") + zbChipBuf[i]);
+        if (Serial2.read() != 0x03 || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != 0x28)
+        {                    // check for packet start
+            clearS2Buffer(); // skip
+            Serial2.write(cmdChipID, sizeof(cmdChipID));
+            Serial2.flush();
+            delay(400);
         }
-        uint32_t zbChipID = (zbChipBuf[2] << 8) | zbChipBuf[3];
-        // zbVer.zbRev =  zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
+        else
+        {
+            const uint8_t zbChipLen = 20;
+            byte zbChipBuf[zbChipLen];
+            for (uint8_t i = 0; i < zbChipLen; i++)
+            {
 
-        printLogMsg(String("[ZB_Chip_ID]") + zbChipID);
+                zbChipBuf[i] = Serial2.read();
+                printLogMsg(String("[zbChipBuf]") + zbChipBuf[i]);
+            }
+            // uint32_t zbChipID = (zbChipBuf[2] << 8) | zbChipBuf[3];
 
-        clearS2Buffer();
-        // break;
-        //}
+            // zbVer.zbRev =  zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
+
+            // printLogMsg(String("[ZB_Chip_ID]") + zbChipID);
+
+            clearS2Buffer();
+            break;
+            }
+        }
+        zigbeeRestart();
     }
-}
+
 
 void preParse()
 {

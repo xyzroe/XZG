@@ -119,6 +119,7 @@ struct zbVerStruct
   uint8_t majorrel;
   uint8_t product;
   uint8_t transportrev;
+  String chipID;
 };
 
 typedef CircularBuffer<char, 8024> LogConsoleType;

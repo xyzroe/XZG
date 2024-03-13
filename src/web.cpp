@@ -251,20 +251,20 @@ void initWebServer()
             else if (upload.status == UPLOAD_FILE_WRITE)
             {
                 // DEBUG_PRINT(".");
-/*                 //String temp;
-                size_t size = upload.totalSize
-            if (size)
-            {
-                // read up to 128 byte
-                int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
- */
+                /*                 //String temp;
+                                size_t size = upload.totalSize
+                            if (size)
+                            {
+                                // read up to 128 byte
+                                int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+                 */
 
-                //for (int i = 0; i < sizeof(upload.buf); i++)
+                // for (int i = 0; i < sizeof(upload.buf); i++)
                 //{
-                //    char a = upload.buf[i];
-                //    Serial.write(a);
-                //}
-                //DEBUG_PRINTLN(temp);
+                //     char a = upload.buf[i];
+                //     Serial.write(a);
+                // }
+                // DEBUG_PRINTLN(temp);
 
                 fwFile.write(upload.buf, sizeof(upload.buf));
             }
@@ -277,7 +277,7 @@ void initWebServer()
                 DEBUG_PRINTLN(F("UPLOAD_FILE_END"));
                 printLogMsg("[ZB_FW] upload finish!");
                 opened = false;
-                
+
                 DEBUG_PRINTLN("Total file size: " + String(upload.totalSize));
 
                 checkFwHex(tempFile);
@@ -393,8 +393,8 @@ void handleApi()
     else
     {
         const uint8_t action = serverWeb.arg(action).toInt();
-        //DEBUG_PRINT(F("[handleApi] arg 0 is: "));
-        //DEBUG_PRINTLN(action);
+        // DEBUG_PRINT(F("[handleApi] arg 0 is: "));
+        // DEBUG_PRINTLN(action);
         switch (action)
         {
         case API_FLASH_ZB:
@@ -1143,7 +1143,7 @@ void handleWifi()
 }
 
 void handleSerial()
-{   
+{
     String result;
     DynamicJsonDocument doc(1024);
 
@@ -1225,7 +1225,8 @@ void handleMqtt()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-DynamicJsonDocument getRootData() {
+DynamicJsonDocument getRootData()
+{
     DynamicJsonDocument doc(1024);
 
     char verArr[25];
@@ -1338,6 +1339,14 @@ DynamicJsonDocument getRootData() {
     {
         doc["zigbeeFwRev"] = "unknown";
     }
+    if (zbVer.chipID)
+    {
+        doc["zigbeeHwRev"] = String(zbVer.chipID);
+    }
+    else
+    {
+        doc["zigbeeHwRev"] = "unknown";
+    }
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
@@ -1437,7 +1446,6 @@ DynamicJsonDocument getRootData() {
     return doc;
 }
 
-
 void handleRoot()
 {
     String result;
@@ -1447,17 +1455,22 @@ void handleRoot()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleStatus() {
+void handleStatus()
+{
     String result;
     DynamicJsonDocument doc(1024);
 
     // Authentication is needed for status page as well (if enabled)
-    if(ConfigSettings.webAuth) {
-        if(!checkAuth()) {
+    if (ConfigSettings.webAuth)
+    {
+        if (!checkAuth())
+        {
             serverWeb.sendHeader("Authentication", "fail");
             serverWeb.send(HTTP_CODE_UNAUTHORIZED, contTypeText, F("wrong login or password"));
             return;
-        } else {
+        }
+        else
+        {
             serverWeb.sendHeader("Authentication", "ok");
         }
     }
@@ -1561,7 +1574,7 @@ void printLogMsg(String msg)
 }
 
 void progressFunc(unsigned int progress, unsigned int total)
-{   
+{
 
     const char *tagESP_FW_progress = "ESP_FW_prgs";
     const uint8_t eventLen = 11;

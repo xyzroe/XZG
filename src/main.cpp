@@ -18,6 +18,7 @@
 #include <ETH.h>
 #include "ESPmDNS.h"
 #include <DNSServer.h>
+#include "CC26XX_detect.h"
 
 #ifdef ETH_CLK_MODE
 #undef ETH_CLK_MODE
@@ -874,8 +875,29 @@ void setup(){
 
   //zig connection & leds testing 
   Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
-  zbCheck();
-  getZbVer();
+
+  CC26XX_detect chipDetector(Serial2);
+
+  //zbCheck();
+  //getZbVer();
+  if (chipDetector.begin(CC2652P_RST, CC2652P_FLSH))
+  {
+
+    // chipDetector.cmdGetChipId();
+    String zb_chip = chipDetector.detectChipInfo();
+    Serial.println(zb_chip);
+    printLogMsg(String("[ZBCHIP] ") + zb_chip);
+    zbVer.chipID = zb_chip;          
+    zigbeeRestart();
+    delay(2000);
+    getZbVer();
+  }
+  else
+  {
+    String msg = "No connection with Zigbee";
+    printLogMsg(String("[ZBCHIP] ") + msg);
+    Serial.println(msg);
+  }
   //-----------------
 
   attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
