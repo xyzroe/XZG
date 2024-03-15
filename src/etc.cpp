@@ -1,13 +1,14 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <etc.h>
 #include <WiFi.h>
-#include "FS.h"
+#include <FS.h>
 #include <LittleFS.h>
 #include <ETH.h>
+
 #include "config.h"
-#include "log.h"
 #include "web.h"
+#include "log.h"
+#include "etc.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern const char *deviceModel;

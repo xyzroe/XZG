@@ -1,7 +1,7 @@
 #ifndef INTELHEX_H
 #define INTELHEX_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "LittleFS.h"
 
 #define ELEMENTCOUNT(x) (sizeof(x) / sizeof(x[0]))

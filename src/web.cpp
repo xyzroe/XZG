@@ -1,4 +1,3 @@
-#include "web.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ETH.h>
@@ -7,12 +6,17 @@
 #include <LittleFS.h>
 #include <Update.h>
 #include <WebServer.h>
-#include "FS.h"
-#include "WiFi.h"
+#include <FS.h>
+#include <WiFi.h>
+#include <Ticker.h>
+
 #include "config.h"
-#include "etc.h"
+#include "web.h"
 #include "log.h"
+#include "etc.h"
 #include "zb.h"
+
+#include "webh/PAGE_WG.html.gz.h"
 #include "webh/PAGE_MQTT.html.gz.h"
 #include "webh/PAGE_ABOUT.html.gz.h"
 #include "webh/PAGE_ETHERNET.html.gz.h"
@@ -32,7 +36,7 @@
 #include "webh/PAGE_LOGOUT.html.gz.h"
 #include "webh/icons.svg.gz.h"
 #include "webh/logo.png.gz.h"
-#include "Ticker.h"
+
 // #include "git_ca_cert.h"
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
@@ -53,6 +57,7 @@ extern const char *configFileSystem;
 extern const char *configFileWifi;
 extern const char *configFileEther;
 extern const char *configFileMqtt;
+extern const char *configFileWg;
 extern const char *configFileGeneral;
 extern const char *configFileSecurity;
 extern const char *configFileSerial;
@@ -71,6 +76,7 @@ bool opened = false;
 File fwFile;
 
 extern bool loadConfigMqtt();
+extern bool loadConfigWg();
 
 enum API_PAGE_t : uint8_t
 {
@@ -82,7 +88,8 @@ enum API_PAGE_t : uint8_t
     API_PAGE_SECURITY,
     API_PAGE_SYSTOOLS,
     API_PAGE_ABOUT,
-    API_PAGE_MQTT
+    API_PAGE_MQTT,
+    API_PAGE_WG
 };
 
 WebServer serverWeb(80);
@@ -133,6 +140,8 @@ void initWebServer()
     serverWeb.on("/sys-tools", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/mqtt", []()
+                 { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
+    serverWeb.on("/wg", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/saveParams", HTTP_POST, handleSaveParams);
     serverWeb.on("/cmdZigRST", handleZigbeeRestart);
@@ -732,6 +741,10 @@ void handleApi()
                 handleMqtt();
                 sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
                 break;
+            case API_PAGE_WG:
+                handleWg();
+                sendGzip(contTypeTextHtml, PAGE_WG_html_gz, PAGE_WG_html_gz_len);
+                break;
             default:
                 break;
             }
@@ -893,6 +906,33 @@ void handleSaveParams()
             serializeJson(doc, configFile);
             configFile.close();
             loadConfigMqtt();
+        }
+        break;
+        case API_PAGE_WG:
+        {
+            configFile = LittleFS.open(configFileWg, FILE_READ);
+            deserializeJson(doc, configFile);
+            configFile.close();
+            doc["localAddr"] = serverWeb.arg("WgLocalAddr");
+            doc["localPrivKey"] = serverWeb.arg("WgLocalPrivKey");
+            doc["endAddr"] = serverWeb.arg("WgEndAddr");
+            doc["endPubKey"] = serverWeb.arg("WgEndPubKey");
+            doc["endPort"] = serverWeb.arg("WgEndPort");
+
+            const char *enable = "enable";
+            if (serverWeb.arg("WgEnable") == "on")
+            {
+                doc[enable] = one;
+            }
+            else
+            {
+                doc[enable] = zero;
+            }
+
+            configFile = LittleFS.open(configFileWg, FILE_WRITE);
+            serializeJson(doc, configFile);
+            configFile.close();
+            loadConfigWg();
         }
         break;
         case API_PAGE_WIFI:
@@ -1225,6 +1265,25 @@ void handleMqtt()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
+void handleWg()
+{
+    String result;
+    DynamicJsonDocument doc(1024);
+
+    if (ConfigSettings.wgEnable)
+    {
+        doc["enableWg"] = checked;
+    }
+    doc["localAddrWg"] = ConfigSettings.wgLocalAddr;
+    doc["localPrivKeyWg"] = ConfigSettings.wgLocalPrivKey;
+    doc["endAddrWg"] = ConfigSettings.wgEndAddr;
+    doc["endPubKeyWg"] = ConfigSettings.wgEndPubKey;
+    doc["endPortWg"] = ConfigSettings.wgEndPort;
+
+    serializeJson(doc, result);
+    serverWeb.sendHeader(respHeaderName, result);
+}
+
 DynamicJsonDocument getRootData()
 {
     DynamicJsonDocument doc(1024);
@@ -1442,6 +1501,23 @@ DynamicJsonDocument getRootData()
         doc[wifiModeAP] = no;
         doc[wifiModeAPStatus] = "Not started";
         // doc[wifiMode] = "Client";
+    }
+
+    //VPN
+    const char *wgInit = "wgInit";
+    const char *wgDeviceAddr = "wgDeviceAddr";
+    const char *wgRemoteAddr = "wgRemoteAddr";
+
+    doc[wgDeviceAddr] = ConfigSettings.wgLocalAddr;
+    doc[wgRemoteAddr] = ConfigSettings.wgEndAddr;
+
+    if (ConfigSettings.wgInit)
+    {
+        doc[wgInit] = yes;
+    }
+    else
+    {
+        doc[wgInit] = no;
     }
     return doc;
 }

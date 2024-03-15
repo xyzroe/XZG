@@ -25,7 +25,8 @@ const pages = {
 	API_PAGE_SECURITY: { num: 5, str: "/security", title: "Security" },
 	API_PAGE_SYSTOOLS: { num: 6, str: "/sys-tools", title: "System and Tools" },
 	API_PAGE_ABOUT: { num: 7, str: "/about", title: "About" },
-	API_PAGE_MQTT: { num: 8, str: "/mqtt", title: "Config MQTT" }
+	API_PAGE_MQTT: { num: 8, str: "/mqtt", title: "Config MQTT" },
+	API_PAGE_WG: { num: 9, str: "/wg", title: "Config WireGuard" }
 }
 
 const api = {
@@ -224,6 +225,13 @@ function loadPage(url) {
 			apiGetPage(api.pages.API_PAGE_MQTT, () => {
 				if ($("#MqttEnable").prop("checked") == false) {
 					MqttInputDsbl(true);
+				}
+			});
+			break;
+		case api.pages.API_PAGE_WG.str:
+			apiGetPage(api.pages.API_PAGE_WG, () => {
+				if ($("#WgEnable").prop("checked") == false) {
+					WgInputDsbl(true);
 				}
 			});
 			break;
@@ -1064,6 +1072,15 @@ function MqttInputDsbl(state) {
 	$("#MqttInterval").prop(disbl, state);
 	$("#MqttDiscovery").prop(disbl, state);
 	$('#div_show4').toggle(this.checked);
+}
+
+function WgInputDsbl(state) {
+	$("#WgLocalAddr").prop(disbl, state);
+	$("#WgLocalPrivKey").prop(disbl, state);
+	$("#WgEndAddr").prop(disbl, state);
+	$("#WgEndPubKey").prop(disbl, state);
+	$("#WgEndPort").prop(disbl, state);
+	$('#div_show5').toggle(this.checked);
 }
 
 function SeqInputDsbl(state) {

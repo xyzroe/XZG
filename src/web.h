@@ -1,4 +1,4 @@
-#include "Arduino.h"
+#include <Arduino.h>
 void handleEvents();
 void initWebServer();
 void webServerHandleClient();
@@ -8,6 +8,7 @@ void handleRoot();
 void handleWifi();
 void handleEther();
 void handleMqtt();
+void handleWg();
 void handleZigbeeBSL();
 void handleZigbeeRestart();
 void handleSerial();
