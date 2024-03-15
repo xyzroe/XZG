@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "CC26XX_detect.h"
+#include "CC26XX.h"
 
 CommandInterface::CommandInterface(Stream &serial) : _stream(serial) {}
 

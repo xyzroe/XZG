@@ -26,16 +26,14 @@
 #define TCP_LISTEN_PORT 9999
 #define FORMAT_LITTLEFS_IF_FAILED true
 
-
 // CC2652 settings
-#define BSL_PIN 15 // CC2652 pin number
-#define BSL_LEVEL 0 //0-LOW 1-HIGH
-
+#define BSL_PIN 15  // CC2652 pin number
+#define BSL_LEVEL 0 // 0-LOW 1-HIGH
 
 const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
-const uint8_t overseerMaxRetry = 3;         // 5x12 = 60sec delay for AP start
-const uint8_t LED_USB = 12;                 // RED
-const uint8_t LED_PWR = 14;                 // BLUE
+const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
+const uint8_t LED_USB = 12;                // RED
+const uint8_t LED_PWR = 14;                // BLUE
 const uint8_t MAX_SOCKET_CLIENTS = 5;
 
 enum COORDINATOR_MODE_t : uint8_t
@@ -102,6 +100,15 @@ struct ConfigSettingsStruct
   unsigned long mqttHeartbeatTime;
   bool zbLedState;
   bool zbFlashing;
+
+  bool wgEnable;
+  char wgLocalAddr[20];
+  IPAddress wgLocalIP;
+  char wgLocalPrivKey[45];
+  char wgEndAddr[45];
+  char wgEndPubKey[45];
+  int wgEndPort;
+  bool wgInit = 0;
 };
 
 struct InfosStruct

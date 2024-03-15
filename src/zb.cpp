@@ -1,16 +1,17 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <etc.h>
 #include <WiFi.h>
-#include "FS.h"
+#include <FS.h>
 #include <LittleFS.h>
 #include <ETH.h>
-#include "config.h"
-#include "log.h"
-#include "web.h"
-#include "intelhex.h"
-#include "zb.h"
 
+#include "intelhex.h"
+
+#include "config.h"
+#include "web.h"
+#include "log.h"
+#include "etc.h"
+#include "zb.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
@@ -38,7 +39,7 @@ void clearS2Buffer()
 }
 
 void getZbVer()
-{
+{   
     zbVer.zbRev = 0;
     const byte cmdFrameStart = 0xFE;
     const byte zero = 0x00;
