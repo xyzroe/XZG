@@ -379,8 +379,20 @@ function apiGetPage(page, doneCall) {
 			for (const property in values) {
 				$("[data-replace='" + property + "']").map(function () {
 					const elemType = $(this).prop('nodeName').toLowerCase();
+					let valueToSet = values[property];
+
+					// Проверка на содержание IP-адреса в значении и отсутствие слова "mask" в названии свойства
+					const isIpValue = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(valueToSet);
+					const isMaskInPropertyName = property.toLowerCase().includes('mask');
+
+					if (isIpValue && !isMaskInPropertyName) {
+						valueToSet = '<a href="http://' + valueToSet + '">' + valueToSet + '</a>';
+					}
+
 					switch (elemType) {
-						case "input" || "select" || "textarea":
+						case "input":
+						case "select":
+						case "textarea":
 							const type = $(this).prop('type').toLowerCase();
 							if (elemType == "input" && (type == "checkbox" || type == "radio")) {
 								$(this).prop("checked", values[property]);
@@ -391,9 +403,12 @@ function apiGetPage(page, doneCall) {
 						case "option":
 							$(this).prop("selected", true);
 							break;
-
 						default:
-							$(this).text(values[property]);
+							if (isIpValue && !isMaskInPropertyName) {
+								$(this).html(valueToSet); // Использование .html() для вставки гиперссылки
+							} else {
+								$(this).text(valueToSet); // Использование .text() для обычного текста
+							}
 							break;
 					}
 				});

@@ -185,6 +185,7 @@ void zbLedToggle()
     }
 }
 
+/*
 void getZbChip()
 {
     zigbeeEnableBSL();
@@ -220,7 +221,7 @@ void getZbChip()
         }
         zigbeeRestart();
     }
-
+*/
 
 void preParse()
 {

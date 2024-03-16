@@ -1,4 +1,4 @@
-.DS_Store
+**/.DS_Store
 .pio
 .vscode
 .gcc-flags.json
@@ -10,3 +10,5 @@ webh
 *.code-workspace
 logs
 todo
+!lib
+!platformio.ini

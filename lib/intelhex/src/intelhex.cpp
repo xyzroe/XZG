@@ -1,6 +1,4 @@
 #include "intelhex.h"
-#include "config.h"
-
 /*
  * IntelHex Arduino Library
  *
@@ -24,6 +22,20 @@ TO-DO List
 2. Error if not IntelHEX line after start till end
 
 */
+
+
+#ifndef DEBUG_PRINT
+#ifdef DEBUG
+#define DEBUG_PRINT(x) Serial.print(String(x))
+#define DEBUG_PRINTLN(x) Serial.println(String(x))
+#else
+#define DEBUG_PRINT(x)
+#define DEBUG_PRINTLN(x)
+#endif
+#endif
+
+
+
 
 IntelHex::IntelHex(const char *filename) : _filename(filename) {}
 
