@@ -22,14 +22,10 @@ void printLogMsg(String msg);
 void handleSaveParams();
 bool checkAuth();
 
-
+void sendEvent(const char *event, const uint8_t evsz, const String data);
 void progressFunc(unsigned int progress, unsigned int total);
-//void getEspUpdate();
-//void runESPUpdateFirmware(uint8_t *data, size_t len);
-//void downloadURLAndUpdateESP(String esp_fw_url);
+
 void getEspUpdate(String esp_fw_url);
 void runEspUpdateFirmware(uint8_t *data, size_t len);
-
-void setClock();
 
 #define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/UZG-01.bin"

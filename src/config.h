@@ -22,12 +22,12 @@
 #define BTN 35
 #define MODE_SWITCH 33
 #define DEBOUNCE_TIME 70
-#define PRODUCTION 1
+
 #define TCP_LISTEN_PORT 9999
 #define FORMAT_LITTLEFS_IF_FAILED true
 
-// CC2652 settings
-#define BSL_PIN 15  // CC2652 pin number
+// CC2652 settings (FOR BSL VALIDATION!)
+#define BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
 #define BSL_LEVEL 0 // 0-LOW 1-HIGH
 
 const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
@@ -42,6 +42,18 @@ enum COORDINATOR_MODE_t : uint8_t
   COORDINATOR_MODE_WIFI,
   COORDINATOR_MODE_USB
 };
+
+extern const char *coordMode;// coordMode node name
+extern const char *prevCoordMode;// prevCoordMode node name
+extern const char *configFileSystem;
+extern const char *configFileWifi;
+extern const char *configFileEther;
+extern const char *configFileGeneral;
+extern const char *configFileSecurity;
+extern const char *configFileSerial;
+extern const char *configFileMqtt;
+extern const char *configFileWg;
+extern const char *deviceModel;
 
 // struct JsonConsts_t{
 //   char* str;
@@ -86,37 +98,48 @@ struct ConfigSettingsStruct
   bool wifiWebSetupInProgress;
   bool fwEnabled;
   IPAddress fwIp;
-  bool mqttEnable;
-  char mqttServer[50];
-  IPAddress mqttServerIP;
-  int mqttPort;
-  char mqttUser[50];
-  char mqttPass[50];
-  char mqttTopic[50];
-  // bool mqttRetain;
-  int mqttInterval;
-  bool mqttDiscovery;
-  unsigned long mqttReconnectTime;
-  unsigned long mqttHeartbeatTime;
+
   bool zbLedState;
   bool zbFlashing;
-
-  bool wgEnable;
-  char wgLocalAddr[20];
-  IPAddress wgLocalIP;
-  char wgLocalPrivKey[45];
-  char wgEndAddr[45];
-  char wgEndPubKey[45];
-  int wgEndPort;
-  bool wgInit = 0;
+  char timeZone[50];
 };
 
+struct MqttSettingsStruct
+{
+  bool enable;
+  char server[50];
+  IPAddress serverIP;
+  int port;
+  char user[50];
+  char pass[50];
+  char topic[50];
+  // bool retain;
+  int interval;
+  bool discovery;
+  unsigned long reconnectTime;
+  unsigned long heartbeatTime;
+};
+
+struct WgSettingsStruct
+{
+  bool enable;
+  bool init = 0;
+  char localAddr[20];
+  IPAddress localIP;
+  char localPrivKey[45];
+  char endAddr[45];
+  char endPubKey[45];
+  int endPort;
+};
+
+/*
 struct InfosStruct
 {
   char device[8];
   char mac[8];
   char flash[8];
 };
+*/
 
 struct zbVerStruct
 {

@@ -94,6 +94,8 @@ protected:
     bool _checkLastCmd();
     void _sendAck();
     void _sendNAck();
+    void _eraseFlash();
+    bool _ping();
     void _encodeAddr(unsigned long addr, byte encodedAddr[4]);
     unsigned long _decodeAddr(byte byte0, byte byte1, byte byte2, byte byte3);
     byte _calcChecks(byte cmd, unsigned long addr, unsigned long size);
@@ -110,6 +112,8 @@ private:
 public:
     CC26XX_detect(Stream &serial);
     bool begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
+    bool eraseFlash();
+    bool ping();
     String detectChipInfo();
 };
 

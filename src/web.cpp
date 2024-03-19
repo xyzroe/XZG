@@ -15,6 +15,7 @@
 #include "log.h"
 #include "etc.h"
 #include "zb.h"
+#include "zones.h"
 
 #include "webh/PAGE_WG.html.gz.h"
 #include "webh/PAGE_MQTT.html.gz.h"
@@ -50,6 +51,8 @@
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
+extern struct MqttSettingsStruct MqttSettings;
+extern struct WgSettingsStruct WgSettings;
 
 bool wifiWebSetupInProgress = false;
 extern const char *coordMode;
@@ -67,6 +70,7 @@ const char *contTypeTextJs = "text/javascript";
 const char *contTypeTextCss = "text/css";
 const char *checked = "true";
 const char *respHeaderName = "respValuesArr";
+const char *respTimeZonesName = "respTimeZones";
 const char *contTypeJson = "application/json";
 const char *contTypeText = "text/plain";
 
@@ -100,6 +104,15 @@ WiFiClient eventsClient;
 void webServerHandleClient()
 {
     serverWeb.handleClient();
+}
+
+void checkFwHexTask(void *param)
+{
+    const char *tempFile = static_cast<const char *>(param);
+    checkFwHex(tempFile);
+
+    // Завершаем задачу, чтобы освободить выделенные для неё ресурсы
+    vTaskDelete(NULL);
 }
 
 void initWebServer()
@@ -171,10 +184,10 @@ void initWebServer()
                 if (!checkAuth())
                     return;
 
-                Serial.println("hostHeader: " + serverWeb.hostHeader());
-                // Serial.println("header Content-Length: " + serverWeb.header("Content-Length"));
+                DEBUG_PRINTLN("hostHeader: " + serverWeb.hostHeader());
+                // DEBUG_PRINTLN("header Content-Length: " + serverWeb.header("Content-Length"));
                 contentLength = serverWeb.header("Content-Length").toInt();
-                Serial.println("contentLength: " + String(contentLength));
+                DEBUG_PRINTLN("contentLength: " + String(contentLength));
 
                 DEBUG_PRINTLN("Update ESP from file " + String(upload.filename.c_str()) + " size: " + String(upload.totalSize));
                 DEBUG_PRINTLN("upload.currentSize " + String(upload.currentSize));
@@ -252,8 +265,8 @@ void initWebServer()
             {
                 if (!checkAuth())
                     return;
-                DEBUG_PRINTLN("Upload zigbee fw file: " + String(upload.filename.c_str()));
-                printLogMsg("[ZB_FW] upload:" + String(upload.filename.c_str()));
+                DEBUG_PRINTLN(String(millis()) + " Upload zigbee fw file: " + String(upload.filename.c_str()));
+                printLogMsg("[ZB_FW] upload: " + String(upload.filename.c_str()));
                 // DEBUG_PRINTLN("size: " + String(String(upload.totalSize).c_str()));
                 // printLogMsg("size:" + String(String(upload.totalSize).c_str()));
             }
@@ -283,13 +296,19 @@ void initWebServer()
                 delay(500);
                 fwFile.close();
                 delay(500);
-                DEBUG_PRINTLN(F("UPLOAD_FILE_END"));
+                DEBUG_PRINTLN(String(millis()) + "UPLOAD_FILE_END");
                 printLogMsg("[ZB_FW] upload finish!");
                 opened = false;
 
                 DEBUG_PRINTLN("Total file size: " + String(upload.totalSize));
 
-                checkFwHex(tempFile);
+                // checkFwHex(tempFile);
+                xTaskCreate(checkFwHexTask,   // Функция задачи
+                            "CheckFWHex",     // Имя задачи для удобства отладки
+                            8192,             // Размер стека задачи (в байтах)
+                            (void *)tempFile, // Параметр, передаваемый в задачу
+                            3,                // Приоритет задачи
+                            NULL);            // Указатель на задачу (не используется)
             }
         });
 
@@ -491,13 +510,14 @@ void handleApi()
                 CMD_LED_PWR_TOG,
                 CMD_LED_USB_TOG,
                 CMD_CLEAR_LOG,
-                CMD_ESP_UPD_GIT,
+                CMD_ESP_UPD_URL,
                 CMD_ZB_CHK_REV,
                 CMD_ZB_CHK_CON,
                 CMD_ZB_LED_TOG
             };
             String result = wrongArgs;
             const char *argCmd = "cmd";
+            const char *argUrl = "url";
             if (serverWeb.hasArg(argCmd))
             {
                 result = "ok";
@@ -531,9 +551,11 @@ void handleApi()
                 case CMD_LED_USB_TOG:
                     ledUSBToggle();
                     break;
-                case CMD_ESP_UPD_GIT:
-                    getEspUpdate(UPD_FILE);
-                    // downloadURLAndUpdateESP(UPD_FILE);
+                case CMD_ESP_UPD_URL:
+                    if (serverWeb.hasArg(argUrl))
+                        getEspUpdate(serverWeb.arg(argUrl));
+                    else
+                        getEspUpdate(UPD_FILE);
                     break;
                 case CMD_ZB_CHK_REV:
                     getZbVer();
@@ -832,7 +854,6 @@ void handleSaveParams()
             {
                 doc[disableLedUSB] = zero;
             }
-            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
             serializeJson(doc, configFile);
             configFile.close();
         }
@@ -914,7 +935,7 @@ void handleSaveParams()
             deserializeJson(doc, configFile);
             configFile.close();
             doc["localAddr"] = serverWeb.arg("WgLocalAddr");
-            doc["localPrivKey"] = serverWeb.arg("WgLocalPrivKey");
+            doc["localIP"] = serverWeb.arg("WgLocalPrivKey");
             doc["endAddr"] = serverWeb.arg("WgEndAddr");
             doc["endPubKey"] = serverWeb.arg("WgEndPubKey");
             doc["endPort"] = serverWeb.arg("WgEndPort");
@@ -1064,6 +1085,12 @@ void handleSaveParams()
                 doc[hostname] = serverWeb.arg(hostname);
                 strlcpy(ConfigSettings.hostname, serverWeb.arg(hostname).c_str(), sizeof(ConfigSettings.hostname));
             }
+            const char *timeZoneName = "timeZoneName";
+            if (serverWeb.hasArg(timeZoneName))
+            {
+                doc[timeZoneName] = serverWeb.arg(timeZoneName);
+            }
+            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
             configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
             serializeJson(doc, configFile);
             configFile.close();
@@ -1245,18 +1272,18 @@ void handleMqtt()
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (ConfigSettings.mqttEnable)
+    if (MqttSettings.enable)
     {
         doc["enableMqtt"] = checked;
     }
-    doc["serverMqtt"] = ConfigSettings.mqttServer;
-    doc["portMqtt"] = ConfigSettings.mqttPort;
-    doc["userMqtt"] = ConfigSettings.mqttUser;
-    doc["passMqtt"] = ConfigSettings.mqttPass;
-    doc["topicMqtt"] = ConfigSettings.mqttTopic;
-    doc["intervalMqtt"] = ConfigSettings.mqttInterval;
+    doc["serverMqtt"] = MqttSettings.server;
+    doc["portMqtt"] = MqttSettings.port;
+    doc["userMqtt"] = MqttSettings.user;
+    doc["passMqtt"] = MqttSettings.pass;
+    doc["topicMqtt"] = MqttSettings.topic;
+    doc["intervalMqtt"] = MqttSettings.interval;
 
-    if (ConfigSettings.mqttDiscovery)
+    if (MqttSettings.discovery)
     {
         doc["discoveryMqtt"] = checked;
     }
@@ -1270,15 +1297,15 @@ void handleWg()
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (ConfigSettings.wgEnable)
+    if (WgSettings.enable)
     {
         doc["enableWg"] = checked;
     }
-    doc["localAddrWg"] = ConfigSettings.wgLocalAddr;
-    doc["localPrivKeyWg"] = ConfigSettings.wgLocalPrivKey;
-    doc["endAddrWg"] = ConfigSettings.wgEndAddr;
-    doc["endPubKeyWg"] = ConfigSettings.wgEndPubKey;
-    doc["endPortWg"] = ConfigSettings.wgEndPort;
+    doc["localAddrWg"] = WgSettings.localAddr;
+    doc["localPrivKeyWg"] = WgSettings.localPrivKey;
+    doc["endAddrWg"] = WgSettings.endAddr;
+    doc["endPubKeyWg"] = WgSettings.endPubKey;
+    doc["endPortWg"] = WgSettings.endPort;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1426,7 +1453,7 @@ DynamicJsonDocument getRootData()
     const char *wifiRssi = "wifiRssi";
     const char *wifiIp = "wifiIp";
     const char *wifiConnected = "wifiConnected";
-    const char *wifiSubnet = "wifiSubnet";
+    const char *wifiMask = "wifiMask";
     const char *wifiGate = "wifiGate";
     const char *wifiEnabled = "wifiEnabled";
     const char *wifiMode = "wifiMode";
@@ -1445,7 +1472,7 @@ DynamicJsonDocument getRootData()
             doc[wifiRssi] = rssiWifi;
             doc[wifiConnected] = "Connected to " + WiFi.SSID();
             doc[wifiIp] = WiFi.localIP().toString();
-            doc[wifiSubnet] = WiFi.subnetMask().toString();
+            doc[wifiMask] = WiFi.subnetMask().toString();
             doc[wifiGate] = WiFi.gatewayIP().toString();
         }
         else
@@ -1455,7 +1482,7 @@ DynamicJsonDocument getRootData()
             doc[wifiRssi] = connecting;
             doc[wifiConnected] = connecting;
             doc[wifiIp] = ConfigSettings.dhcpWiFi ? WiFi.localIP().toString() : connecting;
-            doc[wifiSubnet] = ConfigSettings.dhcpWiFi ? WiFi.subnetMask().toString() : connecting;
+            doc[wifiMask] = ConfigSettings.dhcpWiFi ? WiFi.subnetMask().toString() : connecting;
             doc[wifiGate] = ConfigSettings.dhcpWiFi ? WiFi.gatewayIP().toString() : connecting;
         }
         if (ConfigSettings.dhcpWiFi)
@@ -1474,7 +1501,7 @@ DynamicJsonDocument getRootData()
         doc[wifiMode] = off;
         doc[wifiSsid] = off;
         doc[wifiIp] = off;
-        doc[wifiSubnet] = off;
+        doc[wifiMask] = off;
         doc[wifiGate] = off;
         doc[wifiRssi] = off;
         doc[wifiDhcp] = off;
@@ -1488,7 +1515,7 @@ DynamicJsonDocument getRootData()
         sprintf(wifiSsidBuf, "%s (no password)", apSsid);
         doc[wifiSsid] = wifiSsidBuf;
         doc[wifiIp] = "192.168.1.1 (UZG-01 web interface)";
-        doc[wifiSubnet] = "255.255.255.0 (Access point)";
+        doc[wifiMask] = "255.255.255.0 (Access point)";
         doc[wifiGate] = "192.168.1.1 (this device)";
         doc[wifiDhcp] = "On (Access point)";
         doc[wifiModeAPStatus] = "AP started";
@@ -1503,15 +1530,15 @@ DynamicJsonDocument getRootData()
         // doc[wifiMode] = "Client";
     }
 
-    //VPN
+    // VPN
     const char *wgInit = "wgInit";
     const char *wgDeviceAddr = "wgDeviceAddr";
     const char *wgRemoteAddr = "wgRemoteAddr";
 
-    doc[wgDeviceAddr] = ConfigSettings.wgLocalAddr;
-    doc[wgRemoteAddr] = ConfigSettings.wgEndAddr;
+    doc[wgDeviceAddr] = WgSettings.localAddr;
+    doc[wgRemoteAddr] = WgSettings.endAddr;
 
-    if (ConfigSettings.wgInit)
+    if (WgSettings.init)
     {
         doc[wgInit] = yes;
     }
@@ -1560,11 +1587,27 @@ void handleSysTools()
 {
     String result;
     DynamicJsonDocument doc(512);
-    // doc["pageName"] = "System and Tools";
+
     doc["hostname"] = ConfigSettings.hostname;
     doc["refreshLogs"] = ConfigSettings.refreshLogs;
+    if (ConfigSettings.timeZone)
+    {
+        doc["timeZoneName"] = ConfigSettings.timeZone;
+    }
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
+
+    DynamicJsonDocument zones(10240);
+    String results;
+
+    JsonArray zonesArray = zones.to<JsonArray>();
+    for (int i = 0; i < timeZoneCount; i++)
+    {
+        zonesArray.add(timeZones[i].zone); 
+    }
+
+    serializeJson(zones, results);
+    serverWeb.sendHeader(respTimeZonesName, results);
 }
 
 void handleSavefile()
@@ -1658,12 +1701,14 @@ void progressFunc(unsigned int progress, unsigned int total)
     float percent = ((float)progress / total) * 100.0;
 
     sendEvent(tagESP_FW_progress, eventLen, String(percent));
-    printLogMsg(String(percent));
+    // printLogMsg(String(percent));
 
+#ifdef DEBUG
     if (int(percent) % 5 == 0)
     {
         DEBUG_PRINTLN("Update ESP32 progress: " + String(progress) + " of " + String(total) + " | " + String(percent) + "%");
     }
+#endif
 };
 
 int totalLength;       // total size of firmware
@@ -1743,216 +1788,4 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     DEBUG_PRINTLN("Update success. Rebooting...");
     // Restart ESP32 to see changes
     ESP.restart();
-}
-
-/*void runESPUpdateFirmware(uint8_t *data, size_t len)
-{ // todo del
-    // DEBUG_PRINT("-");
-    // DEBUG_PRINT(len);
-    // size_t cur =
-    // DEBUG_PRINT("!");
-    // DEBUG_PRINTLN(cur);
-    if (Update.write(data, len) != len)
-    {
-        DEBUG_PRINT(F("Write error: "));
-        Update.printError(Serial);
-    }
-}
-
-void downloadURLAndUpdateESP(String esp_fw_url)
-{
-    int totalLength;       // total size of firmware
-    //int currentLength = 0; // current size of written firmware
-    setClock();
-    HTTPClient https;
-    WiFiClientSecure client;
-    client.setInsecure(); // the magic line, use with caution
-    https.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-    https.begin(client, esp_fw_url);
-    https.addHeader("Content-Type", "application/octet-stream");
-
-    // Get file, just to check if each reachable
-    int resp = https.GET();
-
-    DEBUG_PRINTLN(F("Response: "));
-    DEBUG_PRINTLN(resp);
-    // If file is reachable, start downloading
-    if (resp == HTTP_CODE_OK)
-    {
-        // get length of document (is -1 when Server sends no Content-Length header)
-        totalLength = https.getSize();
-        // transfer to local variable
-        int len = totalLength;
-        // this is required to start firmware update process
-        // Update.begin(UPDATE_SIZE_UNKNOWN);
-        Update.begin(totalLength);
-        Update.onProgress(progressFunc);
-
-        DEBUG_PRINT("FW Size: ");
-        DEBUG_PRINTLN(totalLength);
-
-        DEBUG_PRINTLN("Updating firmware...");
-
-        uint8_t buff[128];
-        uint32_t downloaded = 0;
-        while (client.readBytes(buff, sizeof(buff)))
-        {
-            size_t size = client.available();
-
-            if (size)
-            {
-                runESPUpdateFirmware(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-            }
-        }
-        if (Update.end(true))
-        { // true to set the size to the current progress
-            DEBUG_PRINTLN("Update Success");
-            // Restart ESP32 to see changes
-            DEBUG_PRINTLN("Rebooting...");
-            ESP.restart();
-            // serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
-        }
-        else
-        {
-            DEBUG_PRINT(F("Update error: "));
-            Update.printError(Serial);
-        }
-
-    }
-    else
-    {
-        DEBUG_PRINTLN(F("Cannot download firmware file. Only HTTP response 200: OK is supported. Double check firmware location #defined in UPD_FILE."));
-    }
-    https.end();
-}*/
-
-/* // debug - clean - delete
-void getEspUpdate()
-{ // todo del
-
-    WiFiClientSecure *client0 = new WiFiClientSecure;
-    if (client0)
-    {
-        // set secure client without certificate
-        client0->setInsecure();
-        // create an HTTPClient instance
-        setClock();
-        HTTPClient https0;
-
-        // Initializing an HTTPS communication using the secure client
-        DEBUG_PRINTLN(F("[HTTPS] begin..."));
-        if (https0.begin(*client0, "https://www.howsmyssl.com/a/check"))
-        { // HTTPS
-            DEBUG_PRINTLN(F("[HTTPS] GET..."));
-            // start connection and send HTTP header
-            int httpCode0 = https0.GET();
-            // httpCode will be negative on error
-            if (httpCode0 > 0)
-            {
-                // HTTP header has been send and Server response header has been handled
-                DEBUG_PRINTLN("[HTTPS] GET... code: " + httpCode0);
-                // file found at server
-                if (httpCode0 == HTTP_CODE_OK || httpCode0 == HTTP_CODE_MOVED_PERMANENTLY)
-                {
-                    // print server response payload
-                    String payload = https0.getString();
-                    DEBUG_PRINTLN(payload);
-                }
-            }
-            else
-            {
-                DEBUG_PRINTLN("[HTTPS] GET... failed, error: " + String(https0.errorToString(httpCode0).c_str()));
-            }
-            https0.end();
-        }
-    }
-    else
-    {
-        DEBUG_PRINTLN(F("[HTTPS] Unable to connect"));
-    }
-
-    DEBUG_PRINTLN(F("Waiting 2s before the next round..."));
-    delay(2000);
-    setClock();
-    HTTPClient https;
-    WiFiClientSecure client;
-    client.setInsecure();
-    https.begin(client, "https://raw.githubusercontent.com/Tarik2142/devHost/main/router_20221102.bin"); // https://raw.githubusercontent.com/Tarik2142/devHost/main/coordinator_20211217.bin
-    https.addHeader("Content-Type", "application/octet-stream");
-    const int16_t httpsCode = https.GET();
-    // sendEvent(tag, eventLen, String("REQ result: ") + httpsCode);
-    DEBUG_PRINTLN(String("REQ result: " + String(httpsCode)));
-    if (httpsCode == HTTP_CODE_OK)
-    {
-        const uint32_t fwSize = https.getSize();
-        // sendEvent(tagZB_FW_info, eventLen, "[start]");
-        DEBUG_PRINTLN(F("[start]"));
-        // sendEvent(tagZB_FW_info, eventLen, "Downloading firmware...");
-        DEBUG_PRINTLN(F("Downloading firmware..."));
-        const char *tempFile3 = "/config/router.bin";
-        LittleFS.remove(tempFile3);
-        File fwFile = LittleFS.open(tempFile3, "w", 1);
-        uint8_t buff[4];
-        uint32_t downloaded = 0;
-        while (client.readBytes(buff, sizeof(buff)))
-        {
-            downloaded += fwFile.write(buff, sizeof(buff));
-            if (!(downloaded % 8192))
-            {
-                const uint8_t d = ((float)downloaded / fwSize) * 100;
-                // sendEvent(tagZB_FW_progress, eventLen, String(d));
-            }
-        }
-        fwFile.close();
-        // in development
-    }
-    else
-    {
-        // serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, String(httpsCode));
-        DEBUG_PRINTLN(F(httpsCode));
-    }
-
-    /* DEBUG_PRINTLN(F());
-    DEBUG_PRINTLN(F("Waiting 2min before the next round..."));
-    delay(120000);
-
-
-
-    //WiFiClientSecure clientSSL;
-
-    //const char * git_url = "https://github.com/";
-
-    //clientSSL.setInsecure(); //the magic line, use with caution
-    //clientSSL.connect(git_url, 443);
-
-    //clientWeb.begin(UPD_FILE);
-    //clientWeb.begin(clientSSL, UPD_FILE);
-
-    //clientWeb.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-    //client.setCACert(test_root_ca);
-
-    //clientWeb.begin(url);
-
-
-} */
-
-void setClock()
-{
-    configTime(0, 0, "pool.ntp.org");
-
-    Serial.print(F("Waiting for NTP time sync: "));
-    time_t nowSecs = time(nullptr);
-    while ((nowSecs < 8 * 3600 * 2))
-    {
-        delay(500);
-        Serial.print(F("."));
-        yield();
-        nowSecs = time(nullptr);
-    }
-
-    Serial.println();
-    struct tm timeinfo;
-    gmtime_r(&nowSecs, &timeinfo);
-    Serial.print(F("Current time: "));
-    Serial.print(asctime(&timeinfo));
 }

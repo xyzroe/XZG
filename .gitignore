@@ -3,7 +3,7 @@
 .vscode
 .gcc-flags.json
 .clang_complete
-commit
+commit*
 test.html
 gzipped
 webh

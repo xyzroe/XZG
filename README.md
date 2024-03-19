@@ -20,8 +20,10 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 - ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
 - Switch CC2652P (Zigbee) to flash mode;
 - Pairing mode for the adapter in router mode;
-- Firewall for incoming connections to secure your network;
+- Filter IP addresses for incoming connections to secure your network;
 - Fully responsive web interface based on the latest Bootstrap 5.3.
+- WireGuard VPN
+- MQTT client for gateway monitoring and control
 
 ## Installation and Configuration
 Please refer to the installation and configuration articles in our [documentation](https://uzg.zig-star.com).  
@@ -31,19 +33,10 @@ Please follow this link for web-flasher - just plug-and-flash: [ZigStar WebFlash
 
 If you made changes to the code and want to compile you own firmware, please do the following:
 
-### You did not change web-interface appearance
 - Download repository;
 - Install Microsoft Visual Code (MVC);
 - Install PlatformIO extension to MVC;
 - Press "PlatformIO: Build" and wait until firmware.bin is generated;
-
-### You made changes to web-interface
-
-In such case - you have to rebuild web-interface fisrt before building the firmware.
-- Go to the folder tools/webfilesbuilder;
-- Run: npm install
-- Run: npx gulp
-
 
 ## Contribute
 
@@ -55,24 +48,23 @@ You can contribute to UZG-01 Firmware by
 ## Credits
 
 People helping to keep the show on the road - **developers and contributors**:
-- [@smlight-dev](https://github.com/smlight-dev/) - for improvement and refactoring of [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
-- [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/mercenaruss/uzg-firmware)
-- [@xyzroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices
+
+- [@xyzroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices and all work being doing till now  
+- [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/smlight-dev/)
+
 
 Special thanks goes also to all authors of 3rd party libraries which are used in this project:
 
 - [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), 
-- [esp8266 / arduino](https://github.com/esp8266/Arduino), 
 - [espressif / arduino-esp32](https://github.com/espressif/arduino-esp32), 
 - [esprfid / esp-rfid](https://github.com/esprfid/esp-rfid), 
 - [fairecasoimeme / zigate-ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet), 
 - [rlogiacco / circularbuffer](https://github.com/rlogiacco/CircularBuffer), 
 - [sstaub / ticker](https://github.com/sstaub/Ticker), 
-- [vurtun / lib](https://github.com/vurtun/lib) 
+- [vurtun / lib](https://github.com/vurtun/lib),
+- [ciniml / WireGuard-ESP32-Arduino] (https://github.com/ciniml/WireGuard-ESP32-Arduino)  
 
 ## License and attribution
-
-UZG-01-Firmware is a fork of [smlight-dev](https://github.com/mercenaruss/uzg-firmware),what was refactored from our original firmware[ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW)
 
 UZG-01-Firmware is licensed under GNU General Public License v3.
 3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  

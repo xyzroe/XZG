@@ -44,6 +44,9 @@
                     <label for='refreshLogs'>Console log refresh interval</label>
                     <input data-replace="refreshLogs" class='form-control' id='refreshLogs' type="number" min="1000"
                       max="10000" step="1" name='refreshLogs' value='' placeholder="in milliseconds" required>
+                    <label for='timezone'>Timezone</label>
+                    <select data-replace="timeZones" id="timeZoneId" class='form-control' name="timeZoneName">
+                    </select>
                     <div class="col">
                       <div class="row justify-content-md-center mt-2">
                         <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Set</button>
@@ -207,7 +210,7 @@
           </div>
         </div>
 
-        <!--<div class="col-sm-12 col-md-6 mb-4">
+        <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
             <div class='card-header'>Zigbee update</div>
             <div class='card-body'>
@@ -217,16 +220,18 @@
                 <label id='file-input_zb' for='file_zb'> Choose file...</label>
                 <input id="updButton_zb" type='submit' class='btn btn-primary mb-2' value='Zigbee file update' disabled>
                 <br>
-                <div id='prg_zb'></div>
-                <div id='prgbar_zb'>
-                  <div id='bar_zb'></div>
+                <div class="container" style="max-width: 300px; margin-top: 30px;">
+                  <div id='prg_zb'></div>
+                  <div id='prgbar_zb'>
+                    <div id='bar_zb'></div>
+                  </div>
                 </div>
               </form>
             </div>
           </div>
-        </div>  data-cmd="9"  -->
+        </div>
 
-        <!-- <div class="col-sm-12 col-md-6 mb-4">
+        <!--data-cmd="9"  <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
             <div class='card-header'>ESP32 OTA online update</div>
             <div class='card-body'>
@@ -336,6 +341,9 @@
         e.preventDefault();
         var form = $('#upload_form_zb')[0];
         var data = new FormData(form);
+
+        ZBfwStartEvents();
+
         $.ajax({
           url: '/updateZB',
           type: 'POST',
@@ -355,7 +363,7 @@
           },
           success: function (d, s) {
             console.log('success!');
-            $('#prg_zb').html('Upload completed! Start flashing...');
+            $('#prg_zb').html('Upload and validate completed! <br>Start flashing...');
             $('#bar_zb').css('width', '0%');
             //window.location.href = '/';
             //rebootWait();
@@ -378,7 +386,7 @@
     <script>
 
       $('button#info_esp_git').click(function () {
-        
+
 
         processResponses().then(combinedData => {
 
@@ -388,12 +396,12 @@
             downloadCount += combinedData.jsonData.assets[i].download_count;
           }
           var text = "Local version is v" + combinedData.textData + ". GitHub version is " + combinedData.jsonData.tag_name + " and it was downloaded " + downloadCount.toLocaleString() + " times. It's your turn now 🚀";
-          
+
           var reader = new commonmark.Parser();
           var writer = new commonmark.HtmlRenderer();
           var parsed = reader.parse(combinedData.jsonData.body);
-          var chglog = writer.render(parsed); 
-          
+          var chglog = writer.render(parsed);
+
           modalConstructor("espFlashGitInfo", { text, chglog });
         });
       });

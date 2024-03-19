@@ -376,12 +376,18 @@ function apiGetPage(page, doneCall) {
 			if (xhr.getResponseHeader("respValuesArr") === null) return;
 			console.log("[apiGetPage] starting parse values");
 			const values = JSON.parse(xhr.getResponseHeader("respValuesArr"));
+			let selectedTimeZone = null;
 			for (const property in values) {
+				if (property === "timeZoneName") {
+					selectedTimeZone = values[property];
+					console.error(selectedTimeZone);
+					console.error("timeZoneName");
+					continue;
+				}
 				$("[data-replace='" + property + "']").map(function () {
 					const elemType = $(this).prop('nodeName').toLowerCase();
 					let valueToSet = values[property];
 
-					// Проверка на содержание IP-адреса в значении и отсутствие слова "mask" в названии свойства
 					const isIpValue = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(valueToSet);
 					const isMaskInPropertyName = property.toLowerCase().includes('mask');
 
@@ -405,14 +411,33 @@ function apiGetPage(page, doneCall) {
 							break;
 						default:
 							if (isIpValue && !isMaskInPropertyName) {
-								$(this).html(valueToSet); // Использование .html() для вставки гиперссылки
+								$(this).html(valueToSet);
 							} else {
-								$(this).text(valueToSet); // Использование .text() для обычного текста
+								$(this).text(valueToSet);
 							}
 							break;
 					}
 				});
 			}
+
+			if (xhr.getResponseHeader("respTimeZones") !== null) {
+				const zones = JSON.parse(xhr.getResponseHeader("respTimeZones"));
+				const $dropdown = $("#timeZoneId");
+				$dropdown.empty();
+
+				if (Array.isArray(zones)) {
+					zones.forEach(item => {
+						let option = new Option(item, item);
+						if (item === selectedTimeZone) {
+							option.selected = true;
+						}
+						$dropdown.append(option);
+					});
+				} else {
+					console.error("zones is not an array");
+				}
+			}
+
 			if (typeof (locCall) == "function") locCall();//callback
 		}
 	});
@@ -524,6 +549,46 @@ function ESPfwStartEvents() {
 				$('#prg').html('Update completed!<br>Rebooting!');
 				//window.location.href = '/';
 				rebootWait();
+			}, 250);
+		}
+		//const data = e.data.replaceAll("`", "<br>");
+		//$(modalBtns).html("");
+		//$("#zbFlshPgsTxt").html(data);
+		//$(".progress").addClass(classHide);
+		//$(modalBody).html(e.data).css("color", "red");
+		//modalAddClose();
+
+
+	}, false);
+}
+
+function ZBfwStartEvents() {
+	var source = new EventSource('/events');
+	console.log("Events try");
+
+	source.addEventListener('open', function (e) {
+		console.log("Events Connected");
+	}, false);
+
+	source.addEventListener('error', function (e) {
+		if (e.target.readyState != EventSource.OPEN) {
+			console.log("Events Err");
+		}
+	}, false);
+
+	source.addEventListener('ZB_FW_prgs', function (e) {
+
+		const val = e.data + "%";
+		console.log(val);
+
+		$('#prg_zb').html('validate: ' + Math.round(e.data) + '%');
+		$('#bar_zb').css('width', Math.round(e.data) + '%');
+
+		if (Math.round(e.data) > 99.5) {
+			setTimeout(function () {
+				$('#prg_zb').html('Validate complete!');
+				//window.location.href = '/';
+				//rebootWait();
 			}, 250);
 		}
 		//const data = e.data.replaceAll("`", "<br>");

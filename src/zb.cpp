@@ -5,7 +5,8 @@
 #include <LittleFS.h>
 #include <ETH.h>
 
-#include "intelhex.h"
+#include <intelhex.h>
+#include <CC26XX.h>
 
 #include "config.h"
 #include "web.h"
@@ -30,6 +31,8 @@ const byte zigLed1Off[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedInd
 const byte zigLed1On[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedIndex, cmdLedStateOn, 0x2F};
 const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
 
+size_t lastSize = 0;
+
 void clearS2Buffer()
 {
     while (Serial2.available())
@@ -39,7 +42,7 @@ void clearS2Buffer()
 }
 
 void getZbVer()
-{   
+{
     zbVer.zbRev = 0;
     const byte cmdFrameStart = 0xFE;
     const byte zero = 0x00;
@@ -78,8 +81,8 @@ void getZbVer()
 
 void zbCheck()
 {
-    //getZbChip();
-    // Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
+    // getZbChip();
+    //  Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
     bool respOk = false;
     for (uint8_t i = 0; i < 12; i++)
     { // wait for zigbee start
@@ -225,15 +228,15 @@ void getZbChip()
 
 void preParse()
 {
-    DEBUG_PRINTLN("Starting the parsing process");
+    DEBUG_PRINTLN(String(millis()) + " Starting the parsing process");
 }
 
 void postParse()
 {
-    DEBUG_PRINTLN("Parsing complete");
+    DEBUG_PRINTLN(String(millis()) + " Parsing complete");
 }
 
-void parseCallback(uint32_t address, uint8_t len, uint8_t *data)
+void parseCallback(uint32_t address, uint8_t len, uint8_t *data, size_t currentPosition, size_t _totalSize)
 {
     // DEBUG_PRINT(".");
 
@@ -250,38 +253,102 @@ void parseCallback(uint32_t address, uint8_t len, uint8_t *data)
         DEBUG_PRINT(" ");
     }
     DEBUG_PRINTLN(""); */
+
+    if (currentPosition - lastSize > 12500)
+    {
+        lastSize = currentPosition;
+        const char *tagZB_FW_progress = "ZB_FW_prgs";
+        const uint8_t eventLen = 11;
+
+        float percent = ((float)currentPosition / _totalSize) * 100.0;
+
+        sendEvent(tagZB_FW_progress, eventLen, String(percent));
+        DEBUG_PRINTLN(String(tagZB_FW_progress) + String(" | ") + String(percent) + String("%"));
+    }
+    // sendEvent(tagESP_FW_progress, eventLen, String(percent));
+}
+
+void runFlash()
+{
+    CC26XX_detect chipDetector(Serial2);
+
+    if (chipDetector.begin(CC2652P_RST, CC2652P_FLSH))
+    {
+        chipDetector.eraseFlash();
+        printLogMsg(String("[ZB_FLASH] | Chip erased"));
+        //zigbeeRestart();
+    }
+    else
+    {
+        String msg = "No connection with Zigbee";
+        printLogMsg(String("[ZBCHIP] ") + msg);
+        DEBUG_PRINTLN(msg);
+    }
 }
 
 void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, than check BSL pin.
 {
     IntelHex zb_hex(tempFile);
 
+    // zb_hex.validateChecksum();
+    // zb_hex.checkBSLConfiguration();
+
     if (!zb_hex.parse(preParse, parseCallback, postParse))
     {
-        DEBUG_PRINTLN("Failed to parse the zb_hex HEX file. Corrupted file");
+        String msg = ("Failed to parse the zb_hex HEX file. Corrupted file");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
     }
 
     if (!zb_hex.fileParsed())
     {
-        DEBUG_PRINTLN("File not good");
+        String msg = ("File not good");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
     }
+
+    u_int8_t local_chip_id = ALL_CHIP_ID;
+    if (zbVer.chipID == "CC2652P7")
+        local_chip_id = P7_CHIP_ID;
 
     if (zb_hex.bslActive())
     {
-        DEBUG_PRINTLN("BSL (" + String(zb_hex.bslAddr() ? "P7 and R7 chips" : "All chips") + ") pin " + String(zb_hex.bslPin()) + " level " + String(zb_hex.bslLevel() ? "HIGH" : "LOW"));
-        if (zb_hex.bslAddr() == ALL_CHIP_ID && zb_hex.bslPin() == BSL_PIN && zb_hex.bslLevel() == BSL_LEVEL) // All series DIO 15 LOW
+        String msg = "BSL (" + String(zb_hex.bslAddr() ? "P7 and R7 chips" : "All chips") + ") pin " + String(zb_hex.bslPin()) + " level " + String(zb_hex.bslLevel() ? "HIGH" : "LOW");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
+
+        if (zb_hex.bslAddr() == local_chip_id && zb_hex.bslPin() == BSL_PIN && zb_hex.bslLevel() == BSL_LEVEL) // All series DIO 15 LOW
         {
             zb_hex.setFileValidated(true);
-            DEBUG_PRINTLN("BSL config is right!");
+            String msg = ("BSL config OK");
+            DEBUG_PRINTLN(msg);
+            printLogMsg(msg);
+        }
+        else
+        {
+            String msg = ("BSL config incorect. Wrong chip, pin or level.");
+            DEBUG_PRINTLN(msg);
+            printLogMsg(msg);
         }
     }
     else
     {
-        DEBUG_PRINTLN("BSL config error. Range not found or CCFG incorrect.");
+        String msg = ("BSL config error. Range not found or CCFG incorrect.");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
     }
 
     if (!zb_hex.fileValidated())
     {
-        DEBUG_PRINTLN("BSL config incorect. Wrong chip, pin or level.");
+        String msg = ("Zigbee FW file INVALID - ERROR");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
+    }
+    else
+    {
+        String msg = ("Zigbee FW file VALID - OK");
+        DEBUG_PRINTLN(msg);
+        printLogMsg(msg);
+        runFlash();
     }
 }

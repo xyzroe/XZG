@@ -30,41 +30,31 @@
 
 ConfigSettingsStruct ConfigSettings;
 zbVerStruct zbVer;
-InfosStruct Infos;
+// InfosStruct Infos;
+MqttSettingsStruct MqttSettings;
+WgSettingsStruct WgSettings;
 
 // volatile bool btnFlag = false;
 int btnFlag = false;
 bool updWeb = false;
 
-const char *coordMode = "coordMode";         // coordMode node name
-const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name
-const char *configFileSystem = "/config/system.json";
-const char *configFileWifi = "/config/configWifi.json";
-const char *configFileEther = "/config/configEther.json";
-const char *configFileGeneral = "/config/configGeneral.json";
-const char *configFileSecurity = "/config/configSecurity.json";
-const char *configFileSerial = "/config/configSerial.json";
-const char *configFileMqtt = "/config/configMqtt.json";
-const char *configFileWg = "/config/configWg.json";
-const char *deviceModel = "UZG-01";
-
 void mDNS_start();
 void connectWifi();
-void handlelongBtn();
-void handletmrNetworkOverseer();
+void handleLongBtn();
+void handleTmrNetworkOverseer();
 void setupCoordinatorMode();
 void startAP(const bool start);
 IPAddress parse_ip_address(const char *str);
 
-Ticker tmrBtnLongPress(handlelongBtn, 1000, 0, MILLIS);
-Ticker tmrNetworkOverseer(handletmrNetworkOverseer, overseerInterval, 0, MILLIS);
+Ticker tmrBtnLongPress(handleLongBtn, 1000, 0, MILLIS);
+Ticker tmrNetworkOverseer(handleTmrNetworkOverseer, overseerInterval, 0, MILLIS);
 
 IPAddress apIP(192, 168, 1, 1);
 DNSServer dnsServer;
 WiFiServer server(TCP_LISTEN_PORT, MAX_SOCKET_CLIENTS);
 
 static WireGuard wg;
-// MDNSResponder MDNS;
+// MDNSResponder MDNS; don't need?
 
 void initLan()
 {
@@ -89,7 +79,7 @@ void initLan()
   }
 }
 
-void startSoketServer()
+void startSocketServer()
 {
   server.begin(ConfigSettings.socketPort);
   server.setNoDelay(true);
@@ -98,26 +88,27 @@ void startSoketServer()
 void wgBegin()
 {
   printLogMsg(String("Adjusting system time..."));
-  configTime(9 * 60 * 60, 0, "0.pool.ntp.org", "time.google.com");
+  // configTime(2 * 60 * 60, 0, "0.pool.ntp.org", "time.google.com");
+  setClock();
 
   if (!wg.is_initialized())
   {
     printLogMsg(String("Initializing WireGuard interface..."));
     if (!wg.begin(
-            ConfigSettings.wgLocalIP,         // IP address of the local interface
-            ConfigSettings.wgLocalPrivKey,      // Private key of the local interface
-            ConfigSettings.wgEndAddr, // Address of the endpoint peer.
-            ConfigSettings.wgEndPubKey,       // Public key of the endpoint peer.
-            ConfigSettings.wgEndPort))   // Port pf the endpoint peer. )
+            WgSettings.localIP,      // IP address of the local interface
+            WgSettings.localPrivKey, // Private key of the local interface
+            WgSettings.endAddr,      // Address of the endpoint peer.
+            WgSettings.endPubKey,    // Public key of the endpoint peer.
+            WgSettings.endPort))     // Port pf the endpoint peer. )
     {
       printLogMsg(String("Failed to initialize WG interface."));
-      ConfigSettings.wgInit = false;
-      //printLogMsg(String(ConfigSettings.wgLocalIP) + " " + String(ConfigSettings.wgLocalPrivKey) + " " + String(ConfigSettings.wgEndAddr) + " " + String(ConfigSettings.wgEndPubKey) + " " + String(ConfigSettings.wgEndPort));
+      WgSettings.init = false;
+      // printLogMsg(String(WgSettings.localIP) + " " + String(WgSettings.localPrivKey) + " " + String(WgSettings.endAddr) + " " + String(WgSettings.endPubKey) + " " + String(WgSettings.endPort));
     }
     else
     {
       printLogMsg(String("WireGuard interface initialized."));
-      ConfigSettings.wgInit = true;
+      WgSettings.init = true;
     }
   }
 }
@@ -126,30 +117,26 @@ void startServers(bool usb = false)
 {
   initWebServer();
   if (!usb)
-    startSoketServer();
+    startSocketServer();
   startAP(false);
   mDNS_start();
   getZbVer();
-  if (ConfigSettings.wgEnable)
+  if (WgSettings.enable)
   {
     wgBegin();
   }
 }
 
-void handletmrNetworkOverseer()
+void handleTmrNetworkOverseer()
 {
   switch (ConfigSettings.coordinator_mode)
   {
   case COORDINATOR_MODE_WIFI:
-    DEBUG_PRINTLN(F("WiFi.status()"));
+    DEBUG_PRINT(F("WiFi.status = "));
     DEBUG_PRINTLN(WiFi.status());
     if (WiFi.isConnected())
     {
       DEBUG_PRINTLN(F("WIFI CONNECTED"));
-      DEBUG_PRINTLN(F(" "));
-      DEBUG_PRINTLN(WiFi.localIP());
-      DEBUG_PRINTLN(WiFi.subnetMask());
-      DEBUG_PRINTLN(WiFi.gatewayIP());
       startServers();
       tmrNetworkOverseer.stop();
     }
@@ -212,9 +199,9 @@ void handletmrNetworkOverseer()
   }
 }
 
-void WiFiEvent(WiFiEvent_t event)
+void NetworkEvent(WiFiEvent_t event)
 {
-  DEBUG_PRINT(F("WiFiEvent "));
+  DEBUG_PRINT(F("NetworkEvent "));
   DEBUG_PRINTLN(event);
   switch (event)
   {
@@ -242,9 +229,7 @@ void WiFiEvent(WiFiEvent_t event)
     // ConfigSettings.disconnectEthTime = 0;
     // mDNS_start();
     break;
-  case SYSTEM_EVENT_STA_GOT_IP:
-    DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
-  case 21: // SYSTEM_EVENT_ETH_DISCONNECTED:
+  case 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
     ConfigSettings.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
@@ -262,6 +247,14 @@ void WiFiEvent(WiFiEvent_t event)
       tmrNetworkOverseer.start();
     }
     break;
+  case SYSTEM_EVENT_STA_GOT_IP:
+    DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
+    DEBUG_PRINT(F("IPv4: "));
+    DEBUG_PRINT(WiFi.localIP().toString());
+    DEBUG_PRINT(F(", "));
+    DEBUG_PRINT(WiFi.subnetMask().toString());
+    DEBUG_PRINT(F(", "));
+    DEBUG_PRINTLN(WiFi.gatewayIP().toString());
   case SYSTEM_EVENT_STA_DISCONNECTED:
     DEBUG_PRINTLN(F("WIFI STA DISCONNECTED"));
     if (tmrNetworkOverseer.state() == STOPPED)
@@ -350,7 +343,6 @@ bool loadSystemVar()
     DEBUG_PRINTLN(F("saved tempOffset in system.json"));
     ConfigSettings.tempOffset = int(tempOffset.toInt());
   }
-  // ConfigSettings.restarts = (int)doc["restarts"];
   configFile.close();
   return true;
 }
@@ -376,7 +368,7 @@ bool loadConfigWifi()
     doc[ip] = "";
     doc[mask] = "";
     doc[gw] = "";
-    writeDefultConfig(configFileWifi, doc);
+    writeDefaultConfig(configFileWifi, doc);
   }
 
   configFile = LittleFS.open(configFileWifi, FILE_READ);
@@ -422,7 +414,7 @@ bool loadConfigEther()
     doc[gw] = "";
     // doc["disablePingCtrl"] = 0;
     // String StringConfig = "{\"dhcp\":1,\"ip\":\"\",\"mask\":\"\",\"gw\":\"\",\"disablePingCtrl\":0}";
-    writeDefultConfig(configFileEther, doc);
+    writeDefaultConfig(configFileEther, doc);
   }
 
   configFile = LittleFS.open(configFileEther, FILE_READ);
@@ -458,6 +450,7 @@ bool loadConfigGeneral()
   const char *disableLedUSB = "disableLedUSB";
   const char *prevCoordMode = "prevCoordMode";
   const char *keepWeb = "keepWeb";
+  const char *timeZoneName = "timeZoneName";
   File configFile = LittleFS.open(configFileGeneral, FILE_READ);
   DEBUG_PRINTLN(configFile.readString());
   if (!configFile)
@@ -475,7 +468,7 @@ bool loadConfigGeneral()
     doc[coordMode] = 0;
     doc[prevCoordMode] = 0;
     doc[keepWeb] = 0;
-    writeDefultConfig(configFileGeneral, doc);
+    writeDefaultConfig(configFileGeneral, doc);
   }
 
   configFile = LittleFS.open(configFileGeneral, FILE_READ);
@@ -508,12 +501,14 @@ bool loadConfigGeneral()
   DEBUG_PRINTLN(F("[loadConfigGeneral] 'static_cast' res is:"));
   DEBUG_PRINTLN(String(ConfigSettings.coordinator_mode));
   ConfigSettings.disableLedPwr = (uint8_t)doc[disableLedPwr];
-  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
+  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
   ConfigSettings.disableLedUSB = (uint8_t)doc[disableLedUSB];
-  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedUSB"));
+  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedUSB"));
   ConfigSettings.disableLeds = (uint8_t)doc[disableLeds];
-  DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
+  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
   ConfigSettings.keepWeb = (uint8_t)doc[keepWeb];
+  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
+  strlcpy(ConfigSettings.timeZone, doc[timeZoneName] | "", sizeof(ConfigSettings.timeZone));
   configFile.close();
   DEBUG_PRINTLN(F("[loadConfigGeneral] config load done"));
   return true;
@@ -538,7 +533,7 @@ bool loadConfigSecurity()
     doc[webPass] = "";
     doc[fwEnabled] = 0;
     doc[fwIp] = "";
-    writeDefultConfig(configFileSecurity, doc);
+    writeDefaultConfig(configFileSecurity, doc);
   }
 
   configFile = LittleFS.open(configFileSecurity, FILE_READ);
@@ -577,7 +572,7 @@ bool loadConfigSerial()
     DynamicJsonDocument doc(1024);
     doc[baud] = 115200;
     doc[port] = 6638;
-    writeDefultConfig(configFileSerial, doc);
+    writeDefaultConfig(configFileSerial, doc);
   }
 
   configFile = LittleFS.open(configFileSerial, FILE_READ);
@@ -630,7 +625,7 @@ bool loadConfigMqtt()
     doc[topic] = String(deviceIdArr);
     doc[interval] = 60;
     doc[discovery] = 0;
-    writeDefultConfig(configFileMqtt, doc);
+    writeDefaultConfig(configFileMqtt, doc);
   }
 
   configFile = LittleFS.open(configFileMqtt, FILE_READ);
@@ -646,15 +641,15 @@ bool loadConfigMqtt()
     return false;
   }
 
-  ConfigSettings.mqttEnable = (int)doc[enable];
-  strlcpy(ConfigSettings.mqttServer, doc[server] | "", sizeof(ConfigSettings.mqttServer));
-  ConfigSettings.mqttServerIP = parse_ip_address(ConfigSettings.mqttServer);
-  ConfigSettings.mqttPort = (int)doc[port];
-  strlcpy(ConfigSettings.mqttUser, doc[user] | "", sizeof(ConfigSettings.mqttUser));
-  strlcpy(ConfigSettings.mqttPass, doc[pass] | "", sizeof(ConfigSettings.mqttPass));
-  strlcpy(ConfigSettings.mqttTopic, doc[topic] | "", sizeof(ConfigSettings.mqttTopic));
-  ConfigSettings.mqttInterval = (int)doc[interval];
-  ConfigSettings.mqttDiscovery = (int)doc[discovery];
+  MqttSettings.enable = (int)doc[enable];
+  strlcpy(MqttSettings.server, doc[server] | "", sizeof(MqttSettings.server));
+  MqttSettings.serverIP = parse_ip_address(MqttSettings.server);
+  MqttSettings.port = (int)doc[port];
+  strlcpy(MqttSettings.user, doc[user] | "", sizeof(MqttSettings.user));
+  strlcpy(MqttSettings.pass, doc[pass] | "", sizeof(MqttSettings.pass));
+  strlcpy(MqttSettings.topic, doc[topic] | "", sizeof(MqttSettings.topic));
+  MqttSettings.interval = (int)doc[interval];
+  MqttSettings.discovery = (int)doc[discovery];
 
   configFile.close();
   return true;
@@ -664,7 +659,7 @@ bool loadConfigWg()
 {
   const char *enable = "enable";
   const char *localAddr = "localAddr";
-  const char *localPrivKey = "localPrivKey";
+  const char *localIP = "localIP";
   const char *endAddr = "endAddr";
   const char *endPubKey = "endPubKey";
   const char *endPort = "endPort";
@@ -675,11 +670,11 @@ bool loadConfigWg()
     DynamicJsonDocument doc(1024);
     doc[enable] = 0;
     doc[localAddr] = "";
-    doc[localPrivKey] = "";
+    doc[localIP] = "";
     doc[endAddr] = "";
     doc[endPubKey] = "";
     doc[endPort] = "";
-    writeDefultConfig(configFileWg, doc);
+    writeDefaultConfig(configFileWg, doc);
   }
 
   configFile = LittleFS.open(configFileWg, FILE_READ);
@@ -695,15 +690,15 @@ bool loadConfigWg()
     return false;
   }
 
-  ConfigSettings.wgEnable = (int)doc[enable];
+  WgSettings.enable = (int)doc[enable];
 
-  strlcpy(ConfigSettings.wgLocalAddr, doc[localAddr] | "", sizeof(ConfigSettings.wgLocalAddr));
-  ConfigSettings.wgLocalIP = parse_ip_address(ConfigSettings.wgLocalAddr);
+  strlcpy(WgSettings.localAddr, doc[localAddr] | "", sizeof(WgSettings.localAddr));
+  WgSettings.localIP = parse_ip_address(WgSettings.localAddr);
 
-  strlcpy(ConfigSettings.wgLocalPrivKey, doc[localPrivKey] | "", sizeof(ConfigSettings.wgLocalPrivKey));
-  strlcpy(ConfigSettings.wgEndAddr, doc[endAddr] | "", sizeof(ConfigSettings.wgEndAddr));
-  strlcpy(ConfigSettings.wgEndPubKey, doc[endPubKey] | "", sizeof(ConfigSettings.wgEndPubKey));
-  ConfigSettings.wgEndPort = (int)doc[endPort];
+  strlcpy(WgSettings.localPrivKey, doc[localIP] | "", sizeof(WgSettings.localPrivKey));
+  strlcpy(WgSettings.endAddr, doc[endAddr] | "", sizeof(WgSettings.endAddr));
+  strlcpy(WgSettings.endPubKey, doc[endPubKey] | "", sizeof(WgSettings.endPubKey));
+  WgSettings.endPort = (int)doc[endPort];
 
   configFile.close();
   return true;
@@ -903,7 +898,7 @@ void setLedsDisable(bool mode, bool setup)
   DEBUG_PRINTLN(F("[setLedsDisable] done"));
 }
 
-void handlelongBtn()
+void handleLongBtn()
 {
   if (!digitalRead(BTN))
   { // long press
@@ -982,7 +977,7 @@ void setupCoordinatorMode()
     {
       tmrNetworkOverseer.start();
     }
-    WiFi.onEvent(WiFiEvent);
+    WiFi.onEvent(NetworkEvent);
   }
   switch (ConfigSettings.coordinator_mode)
   {
@@ -1079,7 +1074,7 @@ void setup()
 
     // chipDetector.cmdGetChipId();
     String zb_chip = chipDetector.detectChipInfo();
-    Serial.println(zb_chip);
+    DEBUG_PRINTLN(zb_chip);
     printLogMsg(String("[ZBCHIP] ") + zb_chip);
     zbVer.chipID = zb_chip;
     zigbeeRestart();
@@ -1091,7 +1086,7 @@ void setup()
   {
     String msg = "No connection with Zigbee";
     printLogMsg(String("[ZBCHIP] ") + msg);
-    Serial.println(msg);
+    DEBUG_PRINTLN(msg);
   }
   //-----------------
 
@@ -1123,10 +1118,6 @@ void setup()
   else
   {
     DEBUG_PRINTLN(F("System vars load OK"));
-    // ConfigSettings.restarts++;
-    // DEBUG_PRINT(F("Restarts count "));
-    // DEBUG_PRINTLN(ConfigSettings.restarts);
-    // saveRestartCount(ConfigSettings.restarts);
   }
 
   if (!loadConfigSerial())
@@ -1154,7 +1145,7 @@ void setup()
   setupCoordinatorMode();
   ConfigSettings.connectedClients = 0;
 
-  if (ConfigSettings.mqttEnable)
+  if (MqttSettings.enable)
   {
     mqttConnectSetup();
   }
@@ -1391,7 +1382,7 @@ void loop(void)
       serial_bytes_read = 0;
     }
 
-    if (ConfigSettings.mqttEnable)
+    if (MqttSettings.enable)
     {
       mqttLoop();
     }

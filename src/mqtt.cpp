@@ -15,14 +15,21 @@
 
 extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
+extern struct MqttSettingsStruct MqttSettings;
 
 WiFiClient clientMqtt;
 
 PubSubClient clientPubSub(clientMqtt);
 
+
+const char *homeAssistant = "homeassistant";
+const char *haSensor = "sensor";
+const char *haButton = "button";
+const char *haBinarySensor = "binary_sensor";
+
 void mqttConnectSetup()
 {
-    clientPubSub.setServer(ConfigSettings.mqttServerIP, ConfigSettings.mqttPort);
+    clientPubSub.setServer(MqttSettings.serverIP, MqttSettings.port);
     clientPubSub.setCallback(mqttCallback);
 }
 
@@ -31,15 +38,15 @@ void mqttReconnect()
     DEBUG_PRINT(F("Attempting MQTT connection..."));
 
     byte willQoS = 0;
-    String willTopic = String(ConfigSettings.mqttTopic) + "/avty";
+    String willTopic = String(MqttSettings.topic) + "/avty";
     const char *willMessage = "offline";
     boolean willRetain = false;
     char deviceIdArr[20];
     getDeviceID(deviceIdArr);
 
-    if (clientPubSub.connect(String(deviceIdArr).c_str(), ConfigSettings.mqttUser, ConfigSettings.mqttPass, willTopic.c_str(), willQoS, willRetain, willMessage))
+    if (clientPubSub.connect(String(deviceIdArr).c_str(), MqttSettings.user, MqttSettings.pass, willTopic.c_str(), willQoS, willRetain, willMessage))
     {
-        ConfigSettings.mqttReconnectTime = 0;
+        MqttSettings.reconnectTime = 0;
         mqttOnConnect();
     }
     else
@@ -47,10 +54,10 @@ void mqttReconnect()
         DEBUG_PRINT(F("failed, rc="));
         DEBUG_PRINT(clientPubSub.state());
         DEBUG_PRINT(F(" try again in "));
-        DEBUG_PRINT(ConfigSettings.mqttInterval);
+        DEBUG_PRINT(MqttSettings.interval);
         DEBUG_PRINTLN(F(" seconds"));
 
-        ConfigSettings.mqttReconnectTime = millis() + ConfigSettings.mqttInterval * 1000;
+        MqttSettings.reconnectTime = millis() + MqttSettings.interval * 1000;
     }
 }
 
@@ -59,7 +66,7 @@ void mqttOnConnect()
     DEBUG_PRINTLN(F("connected"));
     mqttSubscribe("cmd");
     DEBUG_PRINTLN(F("mqtt Subscribed"));
-    if (ConfigSettings.mqttDiscovery)
+    if (MqttSettings.discovery)
     {
         mqttPublishDiscovery();
         DEBUG_PRINTLN(F("mqtt Published Discovery"));
@@ -70,9 +77,9 @@ void mqttOnConnect()
     mqttPublishIo("enbl_bsl", "OFF");
     mqttPublishIo("socket", "OFF");
     DEBUG_PRINTLN(F("mqtt Published IOs"));
-    mqttPublishAvty();
+    mqttPublishAvail();
     DEBUG_PRINTLN(F("mqtt Published Avty"));
-    if (ConfigSettings.mqttInterval > 0)
+    if (MqttSettings.interval > 0)
     {
         mqttPublishState();
         DEBUG_PRINTLN(F("mqtt Published State"));
@@ -86,9 +93,9 @@ void mqttPublishMsg(String topic, String msg, bool retain)
     clientPubSub.endPublish();
 }
 
-void mqttPublishAvty()
+void mqttPublishAvail()
 {
-    String topic(ConfigSettings.mqttTopic);
+    String topic(MqttSettings.topic);
     topic = topic + "/avty";
     String mqttBuffer = "online";
     clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
@@ -96,7 +103,7 @@ void mqttPublishAvty()
 
 void mqttPublishState()
 {
-    String topic(ConfigSettings.mqttTopic);
+    String topic(MqttSettings.topic);
     topic = topic + "/state";
     DynamicJsonDocument root(1024);
     String readableTime;
@@ -158,14 +165,14 @@ void mqttPublishState()
     serializeJson(root, mqttBuffer);
     DEBUG_PRINTLN(mqttBuffer);
     clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
-    ConfigSettings.mqttHeartbeatTime = millis() + (ConfigSettings.mqttInterval * 1000);
+    MqttSettings.heartbeatTime = millis() + (MqttSettings.interval * 1000);
 }
 
 void mqttPublishIo(String const &io, String const &state)
 {
     if (clientPubSub.connected())
     {
-        String topic(ConfigSettings.mqttTopic);
+        String topic(MqttSettings.topic);
         topic = topic + "/io/" + io;
         clientPubSub.publish(topic.c_str(), state.c_str(), true);
     }
@@ -212,7 +219,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
 void mqttSubscribe(String topic)
 {
-    String mtopic(ConfigSettings.mqttTopic);
+    String mtopic(MqttSettings.topic);
     mtopic = mtopic + "/" + topic;
     clientPubSub.subscribe(mtopic.c_str());
 }
@@ -221,15 +228,15 @@ void mqttLoop()
 {
     if (!clientPubSub.connected())
     {
-        if (ConfigSettings.mqttReconnectTime == 0)
+        if (MqttSettings.reconnectTime == 0)
         {
             //mqttReconnect();
             DEBUG_PRINTLN(F("mqttReconnect in 5 seconds"));
-            ConfigSettings.mqttReconnectTime = millis() + 5000;
+            MqttSettings.reconnectTime = millis() + 5000;
         }
         else
         {
-            if (ConfigSettings.mqttReconnectTime <= millis())
+            if (MqttSettings.reconnectTime <= millis())
             {
                 mqttReconnect();
             }
@@ -238,9 +245,9 @@ void mqttLoop()
     else
     {
         clientPubSub.loop();
-        if (ConfigSettings.mqttInterval > 0)
+        if (MqttSettings.interval > 0)
         {
-            if (ConfigSettings.mqttHeartbeatTime <= millis())
+            if (MqttSettings.heartbeatTime <= millis())
             {
                 mqttPublishState();
             }
@@ -250,7 +257,7 @@ void mqttLoop()
 
 void mqttPublishDiscovery()
 {
-    String mtopic(ConfigSettings.mqttTopic);
+    String mtopic(MqttSettings.topic);
     String deviceName = mtopic; //ConfigSettings.hostname;
 
     String topic;
@@ -262,6 +269,9 @@ void mqttPublishDiscovery()
     getDeviceID(deviceIdArr);
     via["ids"] = String(deviceIdArr);
 
+    String sensor_topic = String(homeAssistant) + "/" + String(haSensor) + "/";
+    String button_topic = String(homeAssistant) + "/" + String(haButton) + "/";
+    String binary_sensor_topic = String(homeAssistant) + "/" + String(haBinarySensor) + "/";
     //int lastAutoMsg = 9;
     //if (ConfigSettings.board == 2) lastAutoMsg--;
 
@@ -285,7 +295,7 @@ void mqttPublishDiscovery()
                 sprintf(verArr, "%s (%s)", VERSION, env);
                 dev["sw"] = String(verArr);
 
-                topic = "homeassistant/button/" + deviceName + "/rst_esp/config";
+                topic = button_topic + deviceName + "/rst_esp/config";
                 buffJson["name"] = "Restart ESP";
                 buffJson["uniq_id"] = deviceName + "/rst_esp";
                 buffJson["stat_t"] = mtopic + "/io/rst_esp";
@@ -298,7 +308,7 @@ void mqttPublishDiscovery()
             }
             case 1:
             {
-                topic = "homeassistant/button/" + deviceName + "/rst_zig/config";
+                topic = button_topic + deviceName + "/rst_zig/config";
                 buffJson["name"] = "Restart Zigbee";
                 buffJson["uniq_id"] = deviceName + "/rst_zig";
                 buffJson["stat_t"] = mtopic + "/io/rst_zig";
@@ -311,7 +321,7 @@ void mqttPublishDiscovery()
             }
             case 2:
             {
-                topic = "homeassistant/button/" + deviceName + "/enbl_bsl/config";
+                topic = button_topic + deviceName + "/enbl_bsl/config";
                 buffJson["name"] = "Enable BSL";
                 buffJson["uniq_id"] = deviceName + "/enbl_bsl";
                 buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
@@ -324,7 +334,7 @@ void mqttPublishDiscovery()
             }
             case 3:
             {
-                topic = "homeassistant/binary_sensor/" + deviceName + "/socket/config";
+                topic = binary_sensor_topic + deviceName + "/socket/config";
                 buffJson["name"] = "Socket";
                 buffJson["uniq_id"] = deviceName + "/socket";
                 buffJson["stat_t"] = mtopic + "/io/socket";
@@ -335,7 +345,7 @@ void mqttPublishDiscovery()
             }
             //case 4:
             //{   
-            //    topic = "homeassistant/binary_sensor/" + deviceName + "/emrgncMd/config";
+            //    topic = binary_sensor_topic + deviceName + "/emrgncMd/config";
             //    buffJson["name"] = "Emergency mode";
             //    buffJson["uniq_id"] = deviceName + "/emrgncMd";
             //    buffJson["stat_t"] = mtopic + "/state";
@@ -349,7 +359,7 @@ void mqttPublishDiscovery()
             //}
             case 4:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/uptime/config";
+                topic = sensor_topic + deviceName + "/uptime/config";
                 buffJson["name"] = "Uptime";
                 buffJson["uniq_id"] = deviceName + "/uptime";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -362,7 +372,7 @@ void mqttPublishDiscovery()
             }
             case 5:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/ip/config";
+                topic = sensor_topic + deviceName + "/ip/config";
                 buffJson["name"] = "IP";
                 buffJson["uniq_id"] = deviceName + "/ip";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -375,7 +385,7 @@ void mqttPublishDiscovery()
             }
             case 6:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/temperature/config";
+                topic = sensor_topic + deviceName + "/temperature/config";
                 buffJson["name"] = "ESP temperature";
                 buffJson["uniq_id"] = deviceName + "/temperature";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -391,7 +401,7 @@ void mqttPublishDiscovery()
             }
             case 7:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/hostname/config";
+                topic = sensor_topic + deviceName + "/hostname/config";
                 buffJson["name"] = "Hostname";
                 buffJson["uniq_id"] = deviceName + "/hostname";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -404,7 +414,7 @@ void mqttPublishDiscovery()
             }
             case 8:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/connections/config";
+                topic = sensor_topic + deviceName + "/connections/config";
                 buffJson["name"] = "Socket connections";
                 buffJson["uniq_id"] = deviceName + "/connections";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -417,7 +427,7 @@ void mqttPublishDiscovery()
             }
             case 9:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/mode/config";
+                topic = sensor_topic + deviceName + "/mode/config";
                 buffJson["name"] = "Mode";
                 buffJson["uniq_id"] = deviceName + "/mode";
                 buffJson["stat_t"] = mtopic + "/state";
@@ -430,7 +440,7 @@ void mqttPublishDiscovery()
             }
             case 10:
             {
-                topic = "homeassistant/sensor/" + deviceName + "/zbfw/config";
+                topic = sensor_topic + deviceName + "/zbfw/config";
                 buffJson["name"] = "Zigbee fw rev";
                 buffJson["uniq_id"] = deviceName + "/zbfw";
                 buffJson["stat_t"] = mtopic + "/state";

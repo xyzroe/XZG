@@ -3,19 +3,21 @@
 Import("env")
 import os
 
-print("Try to build HMTL gzip files")
+if not os.path.exists("tools/webfilesbuilder/.no_web_update"):
 
-try:
-    os.mkdir('./src/webh')
-except OSError as error:
-    print(error)    
-    
-os.chdir('./tools/webfilesbuilder/')
+    print("Try to build HMTL gzip files")
+
+    try:
+        os.mkdir('./src/webh')
+    except OSError as error:
+        print(error)    
+        
+    os.chdir('./tools/webfilesbuilder/')
 
 
-cwd = os.getcwd()
-print("{0}".format(cwd))         
+    cwd = os.getcwd()
+    print("{0}".format(cwd))         
 
-env.Execute("npm install")
+    env.Execute("npm install")
 
-env.Execute("npx gulp")
+    env.Execute("npx gulp")

@@ -146,6 +146,17 @@ void CommandInterface::_sendNAck()
     _stream.write(cmd2);
 }
 
+void CommandInterface::_eraseFlash() {
+    const u_int32_t cmd1 = 0x2C; 
+    _stream.write(cmd1);
+}
+
+bool CommandInterface::_ping() {
+    const u_int32_t cmd1 = 0x20; 
+    _stream.write(cmd1);
+    return _wait_for_ack(1);
+}
+
 byte *CommandInterface::_cmdMemRead(uint32_t address)
 {
     const u_int32_t cmd = 0x2A;
@@ -355,3 +366,11 @@ String CC26XX_detect::detectChipInfo()
     return chip_str;
 }
 
+
+bool CC26XX_detect::eraseFlash()
+{
+    _ping();
+    _eraseFlash();
+    
+    return true;
+}

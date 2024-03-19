@@ -9,9 +9,21 @@
 #include "web.h"
 #include "log.h"
 #include "etc.h"
+#include "zones.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
-extern const char *deviceModel;
+
+const char *coordMode = "coordMode";         // coordMode node name
+const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name
+const char *configFileSystem = "/config/system.json";
+const char *configFileWifi = "/config/configWifi.json";
+const char *configFileEther = "/config/configEther.json";
+const char *configFileGeneral = "/config/configGeneral.json";
+const char *configFileSecurity = "/config/configSecurity.json";
+const char *configFileSerial = "/config/configSerial.json";
+const char *configFileMqtt = "/config/configMqtt.json";
+const char *configFileWg = "/config/configWg.json";
+const char *deviceModel = "UZG-01";
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
@@ -211,7 +223,7 @@ void getDeviceID(char *arr)
   // arr = buf;
 }
 
-// void writeDefultConfig(const char *path, String StringConfig)
+// void writeDefaultConfig(const char *path, String StringConfig)
 // {
 //   DEBUG_PRINTLN(path);
 //   DEBUG_PRINTLN(F("failed open. try to write defaults"));
@@ -233,7 +245,7 @@ void getDeviceID(char *arr)
 //   configFile.close();
 // }
 
-void writeDefultConfig(const char *path, DynamicJsonDocument &doc)
+void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
   DEBUG_PRINTLN(path);
   DEBUG_PRINTLN(F("Write defaults"));
@@ -291,12 +303,86 @@ void resetSettings()
   {
     DEBUG_PRINTLN(F("Error with LITTLEFS"));
   }
-  LittleFS.remove("/config/configSerial.json");   // todo move 2 define or global const
-  LittleFS.remove("/config/configSecurity.json"); // todo move 2 define or global const
-  LittleFS.remove("/config/configGeneral.json");  // todo move 2 define or global const
-  LittleFS.remove("/config/configEther.json");    // todo move 2 define or global const
-  LittleFS.remove("/config/configWifi.json");     // todo move 2 define or global const
-  LittleFS.remove("/config/system.json");         // todo move 2 define or global const
+  LittleFS.remove(configFileSerial);
+  LittleFS.remove(configFileSecurity);
+  LittleFS.remove(configFileGeneral);
+  LittleFS.remove(configFileEther);
+  LittleFS.remove(configFileWifi);
+  LittleFS.remove(configFileSystem);
+  LittleFS.remove(configFileWg);
   DEBUG_PRINTLN(F("[resetSettings] Config del done"));
   ESP.restart();
+}
+
+void setClock()
+{
+  configTime(0, 0, "pool.ntp.org", "time.google.com");
+
+  DEBUG_PRINT(F("Waiting for NTP time sync: "));
+  time_t nowSecs = time(nullptr);
+  while ((nowSecs < 60))
+  {
+    delay(500);
+    DEBUG_PRINT(F("."));
+    yield();
+    nowSecs = time(nullptr);
+    DEBUG_PRINT(nowSecs);
+  }
+
+  DEBUG_PRINTLN();
+  struct tm timeinfo;
+  localtime_r(&nowSecs, &timeinfo);
+  DEBUG_PRINT(F("Current GMT time: "));
+  DEBUG_PRINT(asctime(&timeinfo));
+
+  char *zoneToFind = "Europe/Kiev";
+  if (ConfigSettings.timeZone)
+  {
+    zoneToFind = ConfigSettings.timeZone;
+  }
+  const char *gmtOffset = getGmtOffsetForZone(zoneToFind);
+
+  String timezone = "EET-2EEST,M3.5.0/3,M10.5.0/4";
+
+  if (gmtOffset != nullptr)
+  {
+    DEBUG_PRINT("GMT Offset for ");
+    DEBUG_PRINT(zoneToFind);
+    DEBUG_PRINT(" is ");
+    DEBUG_PRINTLN(gmtOffset);
+    timezone = gmtOffset;
+    setTimezone(timezone);
+  }
+  else
+  {
+    DEBUG_PRINT("GMT Offset for ");
+    DEBUG_PRINT(zoneToFind);
+    DEBUG_PRINTLN(" not found.");
+  }
+}
+
+void setTimezone(String timezone)
+{
+  DEBUG_PRINTLN(F("Setting Timezone"));
+  setenv("TZ", timezone.c_str(), 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
+  tzset();
+  time_t nowSecs = time(nullptr);
+  struct tm timeinfo;
+  localtime_r(&nowSecs, &timeinfo);
+  DEBUG_PRINT(F("Local time: "));
+  DEBUG_PRINTLN(asctime(&timeinfo));
+}
+
+const char *getGmtOffsetForZone(const char *zone)
+{
+  for (int i = 0; i < timeZoneCount; i++)
+  {
+    if (strcmp(zone, timeZones[i].zone) == 0)
+    {
+      // Зона найдена, возвращаем GMT Offset
+      return timeZones[i].gmtOffset;
+    }
+  }
+  // Зона не найдена
+  return nullptr;
 }
