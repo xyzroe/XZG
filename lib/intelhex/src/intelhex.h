@@ -60,12 +60,12 @@ private:
     Parsing line: :02000002A0005C but in 2652R7 so maybe 0x0AFFD8
     */
 
-    const uint32_t BOOTLOADER_ENABLE = 0xC5; //(Bootloader enable. SET_CCFG_BL_CONFIG_BOOTLOADER_ENABLE in CC13xx/CC26xxware)
+    const uint32_t BOOTLOADER_ENABLE = 0xC5; //(Bootloader enable. SET_CCFG_BL_CONFIG_BOOTLOADER_ENABLE in CC13xx/CCToolsware)
 
-    const uint32_t BL_LEVEL_LOW = 0xFE;  //(Active low. SET_CCFG_BL_CONFIG_BL_LEVEL in CC13xx/CC26xxware)
+    const uint32_t BL_LEVEL_LOW = 0xFE;  //(Active low. SET_CCFG_BL_CONFIG_BL_LEVEL in CC13xx/CCToolsware)
     const uint32_t BL_LEVEL_HIGH = 0xFF; // ? NEED to check!
 
-    const uint32_t BL_ENABLE = 0xC5; // (Enable "failure analysis". SET_CCFG_BL_CONFIG_BL_ENABLE in CC13xx/CC26xxware)
+    const uint32_t BL_ENABLE = 0xC5; // (Enable "failure analysis". SET_CCFG_BL_CONFIG_BL_ENABLE in CC13xx/CCToolsware)
 
     bool open();
     void close();

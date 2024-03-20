@@ -1,5 +1,5 @@
-#ifndef CC26XX_DETECT_H
-#define CC26XX_DETECT_H
+#ifndef CCTools_DETECT_H
+#define CCTools_DETECT_H
 
 #include <Arduino.h>
 
@@ -102,7 +102,7 @@ protected:
     byte *_cmdMemRead(uint32_t address);
 };
 
-class CC26XX_detect : public CommandInterface
+class CCTools_detect : public CommandInterface
 {
 private:
     int _CC_RST_PIN, _CC_BSL_PIN, _BSL_MODE;
@@ -110,11 +110,11 @@ private:
     void _enterBSLMode();
 
 public:
-    CC26XX_detect(Stream &serial);
+    CCTools_detect(Stream &serial);
     bool begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
     bool eraseFlash();
     bool ping();
     String detectChipInfo();
 };
 
-#endif // CC26XX_DETECT_H
+#endif // CCTools_DETECT_H

@@ -5,8 +5,8 @@
 #include <LittleFS.h>
 #include <ETH.h>
 
-#include <intelhex.h>
-#include <CC26XX.h>
+#include <IntelHex.h>
+#include <CCTools.h>
 
 #include "config.h"
 #include "web.h"
@@ -270,7 +270,7 @@ void parseCallback(uint32_t address, uint8_t len, uint8_t *data, size_t currentP
 
 void runFlash()
 {
-    CC26XX_detect chipDetector(Serial2);
+    CCTools_detect chipDetector(Serial2);
 
     if (chipDetector.begin(CC2652P_RST, CC2652P_FLSH))
     {

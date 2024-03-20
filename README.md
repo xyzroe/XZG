@@ -55,14 +55,20 @@ People helping to keep the show on the road - **developers and contributors**:
 
 Special thanks goes also to all authors of 3rd party libraries which are used in this project:
 
-- [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), 
 - [espressif / arduino-esp32](https://github.com/espressif/arduino-esp32), 
 - [esprfid / esp-rfid](https://github.com/esprfid/esp-rfid), 
 - [fairecasoimeme / zigate-ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet), 
+- [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), 
 - [rlogiacco / circularbuffer](https://github.com/rlogiacco/CircularBuffer), 
 - [sstaub / ticker](https://github.com/sstaub/Ticker), 
 - [vurtun / lib](https://github.com/vurtun/lib),
-- [ciniml / WireGuard-ESP32-Arduino] (https://github.com/ciniml/WireGuard-ESP32-Arduino)  
+- [ciniml / WireGuard-ESP32-Arduino](https://github.com/ciniml/WireGuard-ESP32-Arduino),  
+- [plerup / EspSoftwareSerial](https://github.com/plerup/espsoftwareserial),
+- [marian-craciunescu / ESP32Ping](https://github.com/marian-craciunescu/ESP32Ping),
+- [sstaub / Ticker](https://github.com/sstaub/Ticker),
+- [knolleary / PubSubClient](https://github.com/knolleary/pubsubclient);
+- [ESP Async WebServer](https://github.com/me-no-dev/ESPAsyncWebServer),
+- [Martin-Laclaustra / CronAlarms](https://github.com/Martin-Laclaustra/CronAlarms)
 
 ## License and attribution
 

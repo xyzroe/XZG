@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "CC26XX.h"
+#include "CCTools.h"
 
 CommandInterface::CommandInterface(Stream &serial) : _stream(serial) {}
 
@@ -268,9 +268,9 @@ byte CommandInterface::_calcChecks(byte cmd, unsigned long addr, unsigned long s
     return (byte)(sum & 0xFF);
 }
 
-CC26XX_detect::CC26XX_detect(Stream &serial) : CommandInterface(serial) {}
+CCTools_detect::CCTools_detect(Stream &serial) : CommandInterface(serial) {}
 
-bool CC26XX_detect::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
+bool CCTools_detect::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
 {
     _CC_RST_PIN = CC_RST_PIN;
     _CC_BSL_PIN = CC_BSL_PIN;
@@ -290,7 +290,7 @@ bool CC26XX_detect::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
     return true;
 }
 
-void CC26XX_detect::_enterBSLMode()
+void CCTools_detect::_enterBSLMode()
 {
     if (_BSL_MODE == 0)
     {
@@ -307,7 +307,7 @@ void CC26XX_detect::_enterBSLMode()
     // Другие режимы BSL_MODE могут быть добавлены здесь в будущем
 }
 
-String CC26XX_detect::detectChipInfo()
+String CCTools_detect::detectChipInfo()
 {
     uint32_t chip_id = _cmdGetChipId();
 
@@ -367,7 +367,7 @@ String CC26XX_detect::detectChipInfo()
 }
 
 
-bool CC26XX_detect::eraseFlash()
+bool CCTools_detect::eraseFlash()
 {
     _ping();
     _eraseFlash();

@@ -11,8 +11,9 @@
 #include <ETH.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
-#include <CC26XX.h>
+#include <CCTools.h>
 #include <WireGuard-ESP32.h>
+#include <CronAlarms.h>
 
 #include "config.h"
 #include "web.h"
@@ -89,7 +90,7 @@ void wgBegin()
 {
   printLogMsg(String("Adjusting system time..."));
   // configTime(2 * 60 * 60, 0, "0.pool.ntp.org", "time.google.com");
-  setClock();
+  // setClock();
 
   if (!wg.is_initialized())
   {
@@ -205,15 +206,15 @@ void NetworkEvent(WiFiEvent_t event)
   DEBUG_PRINTLN(event);
   switch (event)
   {
-  case 18: // SYSTEM_EVENT_ETH_START:
+  case ARDUINO_EVENT_ETH_START: // 18: // SYSTEM_EVENT_ETH_START:
     DEBUG_PRINTLN(F("ETH Started"));
     // ConfigSettings.disconnectEthTime = millis();
     ETH.setHostname(ConfigSettings.hostname);
     break;
-  case 20: // SYSTEM_EVENT_ETH_CONNECTED:
+  case ARDUINO_EVENT_ETH_CONNECTED: // 20: // SYSTEM_EVENT_ETH_CONNECTED:
     DEBUG_PRINTLN(F("ETH Connected"));
     break;
-  case 22: // SYSTEM_EVENT_ETH_GOT_IP:
+  case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
     DEBUG_PRINTLN(F("ETH MAC: "));
     DEBUG_PRINT(ETH.macAddress());
     DEBUG_PRINT(F(", IPv4: "));
@@ -228,8 +229,9 @@ void NetworkEvent(WiFiEvent_t event)
     ConfigSettings.connectedEther = true;
     // ConfigSettings.disconnectEthTime = 0;
     // mDNS_start();
+    setClock();
     break;
-  case 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
+  case ARDUINO_EVENT_ETH_DISCONNECTED: // 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
     DEBUG_PRINTLN(F("ETH Disconnected"));
     ConfigSettings.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
@@ -238,7 +240,8 @@ void NetworkEvent(WiFiEvent_t event)
       tmrNetworkOverseer.start();
     }
     break;
-  case SYSTEM_EVENT_ETH_STOP:
+  case SYSTEM_EVENT_ETH_STOP: // 27:
+  case ARDUINO_EVENT_ETH_STOP:
     DEBUG_PRINTLN(F("ETH Stopped"));
     ConfigSettings.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
@@ -247,15 +250,17 @@ void NetworkEvent(WiFiEvent_t event)
       tmrNetworkOverseer.start();
     }
     break;
-  case SYSTEM_EVENT_STA_GOT_IP:
-    DEBUG_PRINTLN(F("SYSTEM_EVENT_STA_GOT_IP"));
+  case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
+    DEBUG_PRINTLN(F("WiFi"));
     DEBUG_PRINT(F("IPv4: "));
     DEBUG_PRINT(WiFi.localIP().toString());
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(WiFi.subnetMask().toString());
     DEBUG_PRINT(F(", "));
     DEBUG_PRINTLN(WiFi.gatewayIP().toString());
-  case SYSTEM_EVENT_STA_DISCONNECTED:
+    setClock();
+    break;
+  case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     DEBUG_PRINTLN(F("WIFI STA DISCONNECTED"));
     if (tmrNetworkOverseer.state() == STOPPED)
     {
@@ -501,13 +506,13 @@ bool loadConfigGeneral()
   DEBUG_PRINTLN(F("[loadConfigGeneral] 'static_cast' res is:"));
   DEBUG_PRINTLN(String(ConfigSettings.coordinator_mode));
   ConfigSettings.disableLedPwr = (uint8_t)doc[disableLedPwr];
-  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
+  // DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
   ConfigSettings.disableLedUSB = (uint8_t)doc[disableLedUSB];
-  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedUSB"));
+  // DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedUSB"));
   ConfigSettings.disableLeds = (uint8_t)doc[disableLeds];
-  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
+  // DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
   ConfigSettings.keepWeb = (uint8_t)doc[keepWeb];
-  //DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
+  // DEBUG_PRINTLN(F("[loadConfigGeneral] disableLeds"));
   strlcpy(ConfigSettings.timeZone, doc[timeZoneName] | "", sizeof(ConfigSettings.timeZone));
   configFile.close();
   DEBUG_PRINTLN(F("[loadConfigGeneral] config load done"));
@@ -1065,7 +1070,7 @@ void setup()
   // zig connection & leds testing
   Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); // start zigbee serial
 
-  CC26XX_detect chipDetector(Serial2);
+  CCTools_detect chipDetector(Serial2);
 
   // zbCheck();
   // getZbVer();
@@ -1160,6 +1165,16 @@ void setup()
 
   DEBUG_PRINTLN(String(deviceIdArr));
   printLogMsg(String(deviceIdArr));
+
+  //Cron.create(const_cast<char *>("0 */1 * * * *"), ledsScheduler, false);
+
+  /*
+  cron_parse_expr(cronstring, &(Alarm[id].expr), &err);
+  if (err) {
+    memset(&(Alarm[id].expr), 0, sizeof(Alarm[id].expr));
+    return dtINVALID_ALARM_ID;
+  }
+  */
 }
 
 WiFiClient client[10];
@@ -1392,4 +1407,5 @@ void loop(void)
   {
     dnsServer.processNextRequest();
   }
+  Cron.delay();
 }

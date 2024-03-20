@@ -1,0 +1,15 @@
+{
+    "name": "CCTools",
+    "frameworks": "Arduino",
+    "keywords": "cc2652, zigbee, flash",
+    "description": "Work with TI CC(2538/1352/2652) series chips: read, write, verify firmware, get chip ID, etc.",
+    "url": "https://github.com/xyzroe/CCTools",
+    "authors": {
+        "name": "xyzroe"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xyzroe/CCTools"
+    },
+    "version": "0.0.1"
+}

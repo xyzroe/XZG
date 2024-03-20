@@ -319,14 +319,14 @@ void setClock()
   configTime(0, 0, "pool.ntp.org", "time.google.com");
 
   DEBUG_PRINT(F("Waiting for NTP time sync: "));
+  int startTryingTime = millis()/1000;
   time_t nowSecs = time(nullptr);
-  while ((nowSecs < 60))
+  while ((nowSecs-startTryingTime) < 60)
   {
     delay(500);
     DEBUG_PRINT(F("."));
     yield();
     nowSecs = time(nullptr);
-    DEBUG_PRINT(nowSecs);
   }
 
   DEBUG_PRINTLN();
@@ -335,7 +335,7 @@ void setClock()
   DEBUG_PRINT(F("Current GMT time: "));
   DEBUG_PRINT(asctime(&timeinfo));
 
-  char *zoneToFind = "Europe/Kiev";
+  char *zoneToFind = const_cast<char *>("Europe/Kiev");
   if (ConfigSettings.timeZone)
   {
     zoneToFind = ConfigSettings.timeZone;
@@ -385,4 +385,9 @@ const char *getGmtOffsetForZone(const char *zone)
   }
   // Зона не найдена
   return nullptr;
+}
+
+void ledsScheduler()
+{
+  DEBUG_PRINTLN("LEDS Scheduler");
 }

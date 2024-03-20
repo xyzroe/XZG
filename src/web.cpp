@@ -445,7 +445,7 @@ void handleApi()
                     evWaitCount++;
                 }
                 // sendEvent(tag, eventLen, String("FW Url: ") + fwUrl);
-                setClock();
+                //setClock();
                 HTTPClient https;
                 WiFiClientSecure client;
                 client.setInsecure();
@@ -1717,7 +1717,7 @@ int currentLength = 0; // current size of written firmware
 void getEspUpdate(String esp_fw_url)
 {
     DEBUG_PRINTLN("getEspUpdate: " + esp_fw_url);
-    setClock();
+    //setClock();
     HTTPClient clientWeb;
     WiFiClientSecure client;
     client.setInsecure(); // the magic line, use with caution

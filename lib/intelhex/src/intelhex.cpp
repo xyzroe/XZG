@@ -1,4 +1,4 @@
-#include "intelhex.h"
+#include "IntelHex.h"
 #include <esp_task_wdt.h>
 
 /*
@@ -238,7 +238,7 @@ bool IntelHex::_munchLine(void (*parseCallback)(uint32_t address, uint8_t len, u
 
     uint8_t data[255];
     uint32_t address = offset_low;
-    // https://jimmywongiot.com/2021/04/20/format-of-intelhex/
+    // https://jimmywongiot.com/2021/04/20/format-of-IntelHex/
     if (recordType == 4)
     {
         _offset_high = ((uint32_t)strtol(line.substring(9, 13).c_str(), nullptr, 16)) << 16; // because 4

@@ -1,0 +1,15 @@
+{
+    "name": "IntelHex",
+    "frameworks": "Arduino",
+    "keywords": "IntelHex, cc2652, zigbee, flash",
+    "description": "Read and parse Intel Hex format files from the LittleFS file system.",
+    "url": "https://github.com/xyzroe/IntelHex",
+    "authors": {
+        "name": "OpenAI's ChatGPT with contributions from xyzroe"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xyzroe/IntelHex"
+    },
+    "version": "0.0.3"
+}
