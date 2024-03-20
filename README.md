@@ -66,7 +66,7 @@ Special thanks goes also to all authors of 3rd party libraries which are used in
 - [plerup / EspSoftwareSerial](https://github.com/plerup/espsoftwareserial),
 - [marian-craciunescu / ESP32Ping](https://github.com/marian-craciunescu/ESP32Ping),
 - [sstaub / Ticker](https://github.com/sstaub/Ticker),
-- [knolleary / PubSubClient](https://github.com/knolleary/pubsubclient);
+- [knolleary / PubSubClient](https://github.com/knolleary/pubsubclient),
 - [ESP Async WebServer](https://github.com/me-no-dev/ESPAsyncWebServer),
 - [Martin-Laclaustra / CronAlarms](https://github.com/Martin-Laclaustra/CronAlarms)
 

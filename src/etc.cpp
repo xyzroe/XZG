@@ -4,6 +4,7 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <ETH.h>
+#include <CCTools.h>
 
 #include "config.h"
 #include "web.h"
@@ -12,6 +13,8 @@
 #include "zones.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
+
+extern CCTools CCTool;
 
 const char *coordMode = "coordMode";         // coordMode node name
 const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name
@@ -96,57 +99,29 @@ float getCPUtemp(bool clear)
 
 void zigbeeRouterRejoin()
 {
-  printLogMsg("Zigbee RST pin ON");
-  DEBUG_PRINTLN(F("Zigbee RST pin ON"));
-  digitalWrite(CC2652P_FLSH, 0);
-  delay(250);
-
-  printLogMsg("Zigbee RST pin OFF");
-  DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
-  digitalWrite(CC2652P_FLSH, 1);
-  delay(500);
-
-  printLogMsg("Router reconnect");
-  DEBUG_PRINTLN(F("Router Reconnect"));
+  printLogMsg("Router rejoin begin");
+  DEBUG_PRINTLN(F("Router rejoin begin"));
+  CCTool.routerRejoin();
+  printLogMsg("Router in join mode!");
+  DEBUG_PRINTLN(F("Router in join mode!"));
 }
 
 void zigbeeEnableBSL()
 {
-  printLogMsg("Zigbee BSL pin ON");
-  DEBUG_PRINTLN(F("Zigbee BSL pin ON"));
-  digitalWrite(CC2652P_FLSH, 0);
-  delay(100);
-
-  printLogMsg("Zigbee RST pin ON");
-  DEBUG_PRINTLN(F("Zigbee RST pin ON"));
-  digitalWrite(CC2652P_RST, 0);
-  delay(250);
-
-  printLogMsg("Zigbee RST pin OFF");
-  DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
-  digitalWrite(CC2652P_RST, 1);
-  delay(2000);
-
-  printLogMsg("Zigbee BSL pin OFF");
-  DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
-  digitalWrite(CC2652P_FLSH, 1);
-  delay(4000);
+  printLogMsg("ZB enable BSL");
+  DEBUG_PRINTLN(F("ZB enable BSL"));
+  CCTool.enterBSL();
   printLogMsg("Now you can flash CC2652!");
   DEBUG_PRINTLN(F("Now you can flash CC2652!"));
 }
 
 void zigbeeRestart()
 {
-  printLogMsg("Zigbee RST pin ON");
-  DEBUG_PRINTLN(F("Zigbee RST pin ON"));
-  digitalWrite(CC2652P_RST, 0);
-  delay(250);
-  printLogMsg("Zigbee RST pin OFF");
-  DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
-  digitalWrite(CC2652P_RST, 1);
-  delay(2000);
-  printLogMsg("Zigbee restart was done");
-  DEBUG_PRINTLN(F("Zigbee restart was done"));
+  printLogMsg("ZB RST begin");
+  DEBUG_PRINTLN(F("ZB RST begin"));
+  CCTool.restart();
+  printLogMsg("ZB restart was done");
+  DEBUG_PRINTLN(F("ZB restart was done"));
 }
 
 void adapterModeUSB()
@@ -319,9 +294,12 @@ void setClock()
   configTime(0, 0, "pool.ntp.org", "time.google.com");
 
   DEBUG_PRINT(F("Waiting for NTP time sync: "));
-  int startTryingTime = millis()/1000;
+  int startTryingTime = millis();
+  DEBUG_PRINTLN(startTryingTime);
+  startTryingTime = startTryingTime / 1000;
   time_t nowSecs = time(nullptr);
-  while ((nowSecs-startTryingTime) < 60)
+  DEBUG_PRINTLN(nowSecs);
+  while ((nowSecs - startTryingTime) < 60)
   {
     delay(500);
     DEBUG_PRINT(F("."));
@@ -346,18 +324,18 @@ void setClock()
 
   if (gmtOffset != nullptr)
   {
-    DEBUG_PRINT("GMT Offset for ");
+    DEBUG_PRINT(F("GMT Offset for "));
     DEBUG_PRINT(zoneToFind);
-    DEBUG_PRINT(" is ");
+    DEBUG_PRINT(F(" is "));
     DEBUG_PRINTLN(gmtOffset);
     timezone = gmtOffset;
     setTimezone(timezone);
   }
   else
   {
-    DEBUG_PRINT("GMT Offset for ");
+    DEBUG_PRINT(F("GMT Offset for "));
     DEBUG_PRINT(zoneToFind);
-    DEBUG_PRINTLN(" not found.");
+    DEBUG_PRINTLN(F(" not found."));
   }
 }
 
@@ -369,8 +347,12 @@ void setTimezone(String timezone)
   time_t nowSecs = time(nullptr);
   struct tm timeinfo;
   localtime_r(&nowSecs, &timeinfo);
+
+  String timeNow = asctime(&timeinfo);
+  timeNow.remove(timeNow.length() - 1);
   DEBUG_PRINT(F("Local time: "));
-  DEBUG_PRINTLN(asctime(&timeinfo));
+  DEBUG_PRINTLN(timeNow);
+  printLogMsg("Local time: " + timeNow);
 }
 
 const char *getGmtOffsetForZone(const char *zone)
@@ -389,5 +371,5 @@ const char *getGmtOffsetForZone(const char *zone)
 
 void ledsScheduler()
 {
-  DEBUG_PRINTLN("LEDS Scheduler");
+  DEBUG_PRINTLN(F("LEDS Scheduler"));
 }

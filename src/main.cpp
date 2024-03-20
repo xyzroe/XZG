@@ -55,6 +55,8 @@ DNSServer dnsServer;
 WiFiServer server(TCP_LISTEN_PORT, MAX_SOCKET_CLIENTS);
 
 static WireGuard wg;
+
+extern CCTools CCTool;
 // MDNSResponder MDNS; don't need?
 
 void initLan()
@@ -88,27 +90,22 @@ void startSocketServer()
 
 void wgBegin()
 {
-  printLogMsg(String("Adjusting system time..."));
-  // configTime(2 * 60 * 60, 0, "0.pool.ntp.org", "time.google.com");
-  // setClock();
-
   if (!wg.is_initialized())
   {
-    printLogMsg(String("Initializing WireGuard interface..."));
+    //printLogMsg(String("Initializing WireGuard interface..."));
     if (!wg.begin(
-            WgSettings.localIP,      // IP address of the local interface
-            WgSettings.localPrivKey, // Private key of the local interface
-            WgSettings.endAddr,      // Address of the endpoint peer.
-            WgSettings.endPubKey,    // Public key of the endpoint peer.
-            WgSettings.endPort))     // Port pf the endpoint peer. )
+            WgSettings.localIP,
+            WgSettings.localPrivKey,
+            WgSettings.endAddr,
+            WgSettings.endPubKey,
+            WgSettings.endPort))
     {
-      printLogMsg(String("Failed to initialize WG interface."));
+      printLogMsg(String("Failed to initialize WG"));
       WgSettings.init = false;
-      // printLogMsg(String(WgSettings.localIP) + " " + String(WgSettings.localPrivKey) + " " + String(WgSettings.endAddr) + " " + String(WgSettings.endPubKey) + " " + String(WgSettings.endPort));
     }
     else
     {
-      printLogMsg(String("WireGuard interface initialized."));
+      printLogMsg(String("WG was initialized"));
       WgSettings.init = true;
     }
   }
@@ -1032,9 +1029,9 @@ void setup()
   ConfigSettings.serialSpeed = 115200;
   DEBUG_PRINTLN(F("Start"));
   pinMode(CC2652P_RST, OUTPUT);
-  pinMode(CC2652P_FLSH, OUTPUT);
+  pinMode(CC2652P_FLASH, OUTPUT);
   digitalWrite(CC2652P_RST, 1);
-  digitalWrite(CC2652P_FLSH, 1);
+  digitalWrite(CC2652P_FLASH, 1);
   pinMode(LED_PWR, OUTPUT);
   pinMode(LED_USB, OUTPUT);
   pinMode(BTN, INPUT);
@@ -1069,30 +1066,7 @@ void setup()
 
   // zig connection & leds testing
   Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); // start zigbee serial
-
-  CCTools_detect chipDetector(Serial2);
-
-  // zbCheck();
-  // getZbVer();
-  if (chipDetector.begin(CC2652P_RST, CC2652P_FLSH))
-  {
-
-    // chipDetector.cmdGetChipId();
-    String zb_chip = chipDetector.detectChipInfo();
-    DEBUG_PRINTLN(zb_chip);
-    printLogMsg(String("[ZBCHIP] ") + zb_chip);
-    zbVer.chipID = zb_chip;
-    zigbeeRestart();
-    // delay(5000);
-
-    // getZbVer();
-  }
-  else
-  {
-    String msg = "No connection with Zigbee";
-    printLogMsg(String("[ZBCHIP] ") + msg);
-    DEBUG_PRINTLN(msg);
-  }
+  zbInit();
   //-----------------
 
   attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
@@ -1166,7 +1140,7 @@ void setup()
   DEBUG_PRINTLN(String(deviceIdArr));
   printLogMsg(String(deviceIdArr));
 
-  //Cron.create(const_cast<char *>("0 */1 * * * *"), ledsScheduler, false);
+  // Cron.create(const_cast<char *>("0 */1 * * * *"), ledsScheduler, false);
 
   /*
   cron_parse_expr(cronstring, &(Alarm[id].expr), &err);

@@ -16,7 +16,7 @@
 #define ETH_MDIO_PIN_1 18
 // ESP32 PINS TO CONTROL CC2652P
 #define CC2652P_RST 16
-#define CC2652P_FLSH 32
+#define CC2652P_FLASH 32
 #define CC2652P_RXD 36
 #define CC2652P_TXD 4
 #define BTN 35
@@ -27,8 +27,8 @@
 #define FORMAT_LITTLEFS_IF_FAILED true
 
 // CC2652 settings (FOR BSL VALIDATION!)
-#define BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
-#define BSL_LEVEL 0 // 0-LOW 1-HIGH
+#define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
+#define NEED_BSL_LEVEL 0 // 0-LOW 1-HIGH
 
 const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
@@ -54,13 +54,6 @@ extern const char *configFileSerial;
 extern const char *configFileMqtt;
 extern const char *configFileWg;
 extern const char *deviceModel;
-
-// struct JsonConsts_t{
-//   char* str;
-// };
-// JsonConsts_t JsonConsts {
-//   "sadasd"
-// };
 
 struct ConfigSettingsStruct
 {

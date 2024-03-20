@@ -102,19 +102,23 @@ protected:
     byte *_cmdMemRead(uint32_t address);
 };
 
-class CCTools_detect : public CommandInterface
+class CCTools : public CommandInterface
 {
 private:
     int _CC_RST_PIN, _CC_BSL_PIN, _BSL_MODE;
-
-    void _enterBSLMode();
+    
 
 public:
-    CCTools_detect(Stream &serial);
-    bool begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
+    // Adjusted constructor declaration
+    CCTools(Stream &serial, int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
+
+    bool begin();
     bool eraseFlash();
     bool ping();
     String detectChipInfo();
+    void enterBSL();
+    void restart();
+    void routerRejoin();
 };
 
 #endif // CCTools_DETECT_H

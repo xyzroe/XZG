@@ -1,8 +1,17 @@
 #include <Arduino.h>
 #include "CCTools.h"
 
-CommandInterface::CommandInterface(Stream &serial) : _stream(serial) {}
+#ifndef DEBUG_PRINT
+#ifdef DEBUG
+#define DEBUG_PRINT(x) Serial.print(String(x))
+#define DEBUG_PRINTLN(x) Serial.println(String(x))
+#else
+#define DEBUG_PRINT(x)
+#define DEBUG_PRINTLN(x)
+#endif
+#endif
 
+CommandInterface::CommandInterface(Stream &serial) : _stream(serial) {}
 
 bool CommandInterface::_sendSynch()
 {
@@ -54,7 +63,7 @@ uint32_t CommandInterface::_cmdGetChipId()
         // Serial.println("size " + String(sizeof(version)));
         if (_checkLastCmd())
         {
-           
+
             uint32_t value = 0;
             value |= uint32_t(version[3]) << 0; // Least significant byte
             value |= uint32_t(version[2]) << 8;
@@ -146,13 +155,15 @@ void CommandInterface::_sendNAck()
     _stream.write(cmd2);
 }
 
-void CommandInterface::_eraseFlash() {
-    const u_int32_t cmd1 = 0x2C; 
+void CommandInterface::_eraseFlash()
+{
+    const u_int32_t cmd1 = 0x2C;
     _stream.write(cmd1);
 }
 
-bool CommandInterface::_ping() {
-    const u_int32_t cmd1 = 0x20; 
+bool CommandInterface::_ping()
+{
+    const u_int32_t cmd1 = 0x20;
     _stream.write(cmd1);
     return _wait_for_ack(1);
 }
@@ -268,46 +279,67 @@ byte CommandInterface::_calcChecks(byte cmd, unsigned long addr, unsigned long s
     return (byte)(sum & 0xFF);
 }
 
-CCTools_detect::CCTools_detect(Stream &serial) : CommandInterface(serial) {}
-
-bool CCTools_detect::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
+CCTools::CCTools(Stream &serial, int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
+    : CommandInterface(serial), _CC_RST_PIN(CC_RST_PIN), _CC_BSL_PIN(CC_BSL_PIN), _BSL_MODE(BSL_MODE)
 {
-    _CC_RST_PIN = CC_RST_PIN;
-    _CC_BSL_PIN = CC_BSL_PIN;
-    _BSL_MODE = BSL_MODE;
+}
 
+bool CCTools::begin()
+{
     pinMode(_CC_RST_PIN, OUTPUT);
+    digitalWrite(_CC_RST_PIN, HIGH);
     pinMode(_CC_BSL_PIN, OUTPUT);
+    digitalWrite(_CC_BSL_PIN, HIGH);
 
-    _enterBSLMode();
+    enterBSL();
+
     if (!_sendSynch())
     {
-        // Serial.print("begin NOT ok");
         return false;
     }
 
-    
     return true;
 }
 
-void CCTools_detect::_enterBSLMode()
+void CCTools::enterBSL()
 {
     if (_BSL_MODE == 0)
     {
         digitalWrite(_CC_RST_PIN, LOW);
         digitalWrite(_CC_BSL_PIN, LOW);
+        DEBUG_PRINTLN(F("Zigbee RST pin ON"));
+        DEBUG_PRINTLN(F("Zigbee BSL pin ON"));
         delay(250);
         digitalWrite(_CC_RST_PIN, HIGH);
-        delay(2000);
-        digitalWrite(_CC_BSL_PIN, HIGH);
+        DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
         delay(1000);
-        //Serial.println("enter bsl mode...");
+        digitalWrite(_CC_BSL_PIN, HIGH);
+        DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
+        delay(1000);
     }
-
-    // Другие режимы BSL_MODE могут быть добавлены здесь в будущем
+    // Other modes BSL_MODE can be added later
 }
 
-String CCTools_detect::detectChipInfo()
+void CCTools::restart()
+{
+    digitalWrite(_CC_RST_PIN, LOW);
+    DEBUG_PRINTLN(F("Zigbee RST pin ON"));
+    delay(250);
+    digitalWrite(_CC_RST_PIN, HIGH);
+    DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
+    delay(1000);
+}
+
+void CCTools::routerRejoin()
+{
+    digitalWrite(_CC_BSL_PIN, LOW);
+    DEBUG_PRINTLN(F("ZB BSL pin ON"));
+    delay(250);
+    digitalWrite(_CC_BSL_PIN, HIGH);
+    DEBUG_PRINTLN(F("ZB BSL pin OFF"));
+    delay(500);
+}
+String CCTools::detectChipInfo()
 {
     uint32_t chip_id = _cmdGetChipId();
 
@@ -366,11 +398,10 @@ String CCTools_detect::detectChipInfo()
     return chip_str;
 }
 
-
-bool CCTools_detect::eraseFlash()
+bool CCTools::eraseFlash()
 {
     _ping();
     _eraseFlash();
-    
+
     return true;
 }

@@ -33,6 +33,8 @@ const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
 
 size_t lastSize = 0;
 
+CCTools CCTool(Serial2, CC2652P_RST, CC2652P_FLASH);
+
 void clearS2Buffer()
 {
     while (Serial2.available())
@@ -270,13 +272,13 @@ void parseCallback(uint32_t address, uint8_t len, uint8_t *data, size_t currentP
 
 void runFlash()
 {
-    CCTools_detect chipDetector(Serial2);
+    CCTools CCTools(Serial2, CC2652P_RST, CC2652P_FLASH);
 
-    if (chipDetector.begin(CC2652P_RST, CC2652P_FLSH))
+    if (CCTool.begin())
     {
-        chipDetector.eraseFlash();
+        CCTool.eraseFlash();
         printLogMsg(String("[ZB_FLASH] | Chip erased"));
-        //zigbeeRestart();
+        // zigbeeRestart();
     }
     else
     {
@@ -317,7 +319,7 @@ void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, th
         DEBUG_PRINTLN(msg);
         printLogMsg(msg);
 
-        if (zb_hex.bslAddr() == local_chip_id && zb_hex.bslPin() == BSL_PIN && zb_hex.bslLevel() == BSL_LEVEL) // All series DIO 15 LOW
+        if (zb_hex.bslAddr() == local_chip_id && zb_hex.bslPin() == NEED_BSL_PIN && zb_hex.bslLevel() == NEED_BSL_LEVEL) // All series DIO 15 LOW
         {
             zb_hex.setFileValidated(true);
             String msg = ("BSL config OK");
@@ -350,5 +352,32 @@ void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, th
         DEBUG_PRINTLN(msg);
         printLogMsg(msg);
         runFlash();
+    }
+}
+
+void zbInit()
+{
+
+    // zbCheck();
+    // getZbVer();
+    if (CCTool.begin())
+    {
+
+        // CCTool.cmdGetChipId();
+        String zb_chip = CCTool.detectChipInfo();
+        DEBUG_PRINTLN(zb_chip);
+        printLogMsg(String("[ZBCHIP] ") + zb_chip);
+        zbVer.chipID = zb_chip;
+        // zigbeeRestart();
+        CCTool.restart();
+        // delay(5000);
+
+        // getZbVer();
+    }
+    else
+    {
+        String msg = "No connection with Zigbee";
+        printLogMsg(String("[ZBCHIP] ") + msg);
+        DEBUG_PRINTLN(msg);
     }
 }
