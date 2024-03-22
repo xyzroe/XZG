@@ -279,13 +279,16 @@ byte CommandInterface::_calcChecks(byte cmd, unsigned long addr, unsigned long s
     return (byte)(sum & 0xFF);
 }
 
-CCTools::CCTools(Stream &serial, int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
-    : CommandInterface(serial), _CC_RST_PIN(CC_RST_PIN), _CC_BSL_PIN(CC_BSL_PIN), _BSL_MODE(BSL_MODE)
+CCTools::CCTools(Stream &serial) : CommandInterface(serial)
 {
 }
 
-bool CCTools::begin()
+bool CCTools::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
 {
+    _CC_RST_PIN = CC_RST_PIN;
+    _CC_BSL_PIN = CC_BSL_PIN;
+    _BSL_MODE = BSL_MODE;
+
     pinMode(_CC_RST_PIN, OUTPUT);
     digitalWrite(_CC_RST_PIN, HIGH);
     pinMode(_CC_BSL_PIN, OUTPUT);

@@ -33,7 +33,7 @@ const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
 
 size_t lastSize = 0;
 
-CCTools CCTool(Serial2, CC2652P_RST, CC2652P_FLASH);
+CCTools CCTool(Serial2);
 
 void clearS2Buffer()
 {
@@ -272,20 +272,21 @@ void parseCallback(uint32_t address, uint8_t len, uint8_t *data, size_t currentP
 
 void runFlash()
 {
-    CCTools CCTools(Serial2, CC2652P_RST, CC2652P_FLASH);
-
-    if (CCTool.begin())
-    {
-        CCTool.eraseFlash();
-        printLogMsg(String("[ZB_FLASH] | Chip erased"));
-        // zigbeeRestart();
-    }
-    else
-    {
-        String msg = "No connection with Zigbee";
-        printLogMsg(String("[ZBCHIP] ") + msg);
-        DEBUG_PRINTLN(msg);
-    }
+    // CCTools CCTools(Serial2, CC2652P_RST, CC2652P_FLASH);
+    /*
+        if (CCTool.begin())
+        {
+            CCTool.eraseFlash();
+            printLogMsg(String("[ZB_FLASH] | Chip erased"));
+            // zigbeeRestart();
+        }
+        else
+        {
+            String msg = "No connection with Zigbee";
+            printLogMsg(String("[ZBCHIP] ") + msg);
+            DEBUG_PRINTLN(msg);
+        }
+        */
 }
 
 void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, than check BSL pin.
@@ -355,12 +356,12 @@ void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, th
     }
 }
 
-void zbInit()
+bool zbInit(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
 {
 
     // zbCheck();
     // getZbVer();
-    if (CCTool.begin())
+    if (CCTool.begin(CC_RST_PIN, CC_BSL_PIN, BSL_MODE))
     {
 
         // CCTool.cmdGetChipId();
@@ -373,11 +374,13 @@ void zbInit()
         // delay(5000);
 
         // getZbVer();
+        return true;
     }
     else
     {
         String msg = "No connection with Zigbee";
         printLogMsg(String("[ZBCHIP] ") + msg);
         DEBUG_PRINTLN(msg);
+        return false;
     }
 }

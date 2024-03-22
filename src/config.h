@@ -7,6 +7,7 @@
 
 // #define DEBUG
 // ESP32 PINS TO CONTROL LAN8720
+/*
 #define ETH_CLK_MODE_1 ETH_CLOCK_GPIO17_OUT
 #define ETH_POWER_PIN_ALTERNATIVE_1 5
 #define ETH_POWER_PIN_1 -1
@@ -14,6 +15,7 @@
 #define ETH_ADDR_1 0
 #define ETH_MDC_PIN_1 23
 #define ETH_MDIO_PIN_1 18
+*/
 // ESP32 PINS TO CONTROL CC2652P
 #define CC2652P_RST 16
 #define CC2652P_FLASH 32
@@ -53,6 +55,7 @@ extern const char *configFileSecurity;
 extern const char *configFileSerial;
 extern const char *configFileMqtt;
 extern const char *configFileWg;
+extern const char *configFileHw;
 extern const char *deviceModel;
 
 struct ConfigSettingsStruct

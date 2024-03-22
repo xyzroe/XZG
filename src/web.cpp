@@ -854,6 +854,7 @@ void handleSaveParams()
             {
                 doc[disableLedUSB] = zero;
             }
+            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
             serializeJson(doc, configFile);
             configFile.close();
         }

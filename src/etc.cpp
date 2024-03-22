@@ -11,6 +11,8 @@
 #include "log.h"
 #include "etc.h"
 #include "zones.h"
+#include "hw.h"
+#include "zb.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
 
@@ -26,6 +28,7 @@ const char *configFileSecurity = "/config/configSecurity.json";
 const char *configFileSerial = "/config/configSerial.json";
 const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
+const char *configFileHw = "/config/configHw.json";
 const char *deviceModel = "UZG-01";
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
@@ -224,7 +227,7 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
   DEBUG_PRINTLN(path);
   DEBUG_PRINTLN(F("Write defaults"));
-
+  serializeJson(doc, Serial);
   File configFile = LittleFS.open(path, FILE_WRITE);
   if (!configFile)
   {
@@ -285,6 +288,7 @@ void resetSettings()
   LittleFS.remove(configFileWifi);
   LittleFS.remove(configFileSystem);
   LittleFS.remove(configFileWg);
+  LittleFS.remove(configFileHw);
   DEBUG_PRINTLN(F("[resetSettings] Config del done"));
   ESP.restart();
 }
@@ -372,4 +376,76 @@ const char *getGmtOffsetForZone(const char *zone)
 void ledsScheduler()
 {
   DEBUG_PRINTLN(F("LEDS Scheduler"));
+}
+
+BrdConfig *findBrdConfig()
+{
+  int brdConfigsSize = sizeof(brdConfigs) / sizeof(brdConfigs[0]);
+
+  for (int i = 0; i < brdConfigsSize; i++)
+  {
+    if (ETH.begin(brdConfigs[i].addr, brdConfigs[i].pwrPin, brdConfigs[i].mdcPin, brdConfigs[i].mdiPin, brdConfigs[i].phyType, brdConfigs[i].clkMode, brdConfigs[i].pwrAltPin))
+    {
+      Serial.print("BrdConfig found: ");
+      Serial.println(brdConfigs[i].board);
+      return &brdConfigs[i];
+    }
+    else
+    {
+      Serial.print("BrdConfig error with: ");
+      Serial.println(brdConfigs[i].board);
+    }
+  }
+
+  return nullptr;
+}
+
+ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPin, int ethPwrAltPin)
+{
+  int zbConfigsSize = sizeof(zbConfigs) / sizeof(zbConfigs[0]);
+
+  for (int i = 0; i < zbConfigsSize; i++)
+  {
+    DEBUG_PRINT(F("Zigbee try "));
+    DEBUG_PRINT(zbConfigs[i].rxPin);
+    DEBUG_PRINT(F(" "));
+    DEBUG_PRINT(zbConfigs[i].txPin);
+    DEBUG_PRINT(F(" "));
+    DEBUG_PRINT(zbConfigs[i].rstPin);
+    DEBUG_PRINT(F(" "));
+    DEBUG_PRINTLN(zbConfigs[i].bslPin);
+
+    if (zbConfigs[i].rxPin == ethPwrPin || zbConfigs[i].rxPin == ethMdcPin || zbConfigs[i].rxPin == ethMdiPin || zbConfigs[i].rxPin == ethClkPin || zbConfigs[i].rxPin == ethPwrAltPin)
+      continue;
+    if (zbConfigs[i].txPin == ethPwrPin || zbConfigs[i].txPin == ethMdcPin || zbConfigs[i].txPin == ethMdiPin || zbConfigs[i].txPin == ethClkPin || zbConfigs[i].txPin == ethPwrAltPin)
+      continue;
+    if (zbConfigs[i].rstPin == ethPwrPin || zbConfigs[i].rstPin == ethMdcPin || zbConfigs[i].rstPin == ethMdiPin || zbConfigs[i].rstPin == ethClkPin || zbConfigs[i].rstPin == ethPwrAltPin)
+      continue;
+    if (zbConfigs[i].bslPin == ethPwrPin || zbConfigs[i].bslPin == ethMdcPin || zbConfigs[i].bslPin == ethMdiPin || zbConfigs[i].bslPin == ethClkPin || zbConfigs[i].bslPin == ethPwrAltPin)
+      continue;
+
+    DEBUG_PRINTLN(F("Zigbee no conflict with ETH"));
+
+    //Serial2.end();
+    //DEBUG_PRINTLN(F("Serial2.end"));
+
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, zbConfigs[i].rxPin, zbConfigs[i].txPin); // start zigbee serial
+    DEBUG_PRINTLN(F("Serial2.begin"));
+
+    CCTool.switchStream(Serial2);
+
+    int BSL_MODE = 0;
+    delay(500);
+    if (zbInit(zbConfigs[i].rstPin, zbConfigs[i].bslPin, BSL_MODE))
+    {
+      DEBUG_PRINTLN(F("Zigbee find - OK"));
+      return &zbConfigs[i];
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("Zigbee find - ERROR"));
+    }
+  }
+
+  return nullptr;
 }

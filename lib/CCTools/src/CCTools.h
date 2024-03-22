@@ -106,13 +106,17 @@ class CCTools : public CommandInterface
 {
 private:
     int _CC_RST_PIN, _CC_BSL_PIN, _BSL_MODE;
-    
 
 public:
     // Adjusted constructor declaration
-    CCTools(Stream &serial, int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
+    CCTools(Stream &serial);
 
-    bool begin();
+    void switchStream(Stream &newStream)
+    {
+        _stream = newStream;
+    }
+
+    bool begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE = 0);
     bool eraseFlash();
     bool ping();
     String detectChipInfo();

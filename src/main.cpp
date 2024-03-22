@@ -23,9 +23,11 @@
 #include "zb.h"
 #include "version.h"
 
+/*
 #ifdef ETH_CLK_MODE
 #undef ETH_CLK_MODE
 #endif
+*/
 
 #define BUFFER_SIZE 256
 
@@ -61,24 +63,187 @@ extern CCTools CCTool;
 
 void initLan()
 {
-  if (ETH.begin(ETH_ADDR_1, ETH_POWER_PIN_1, ETH_MDC_PIN_1, ETH_MDIO_PIN_1, ETH_TYPE_1, ETH_CLK_MODE_1, ETH_POWER_PIN_ALTERNATIVE_1))
+  const char *addr = "addr";
+  const char *pwrPin = "pwrPin";
+  const char *mdcPin = "mdcPin";
+  const char *mdiPin = "mdiPin";
+  const char *phyType = "phyType";
+  const char *clkMode = "clkMode";
+  const char *pwrAltPin = "pwrAltPin";
+  const char *board = "board";
+
+  File configFile = LittleFS.open(configFileHw, FILE_READ);
+
+  if (!configFile)
   {
-    DEBUG_PRINTLN(F("LAN start ok"));
-    if (!ConfigSettings.dhcp)
+    DynamicJsonDocument config(512);
+    config[addr] = 0;
+    config[pwrPin] = 0;
+    config[mdcPin] = 0;
+    config[mdiPin] = 0;
+    config[phyType] = 0;
+    config[clkMode] = 0;
+    config[pwrAltPin] = 0;
+    config[board] = "";
+    writeDefaultConfig(configFileHw, config);
+    configFile = LittleFS.open(configFileHw, FILE_READ);
+  }
+
+  DynamicJsonDocument config(1024);
+  deserializeJson(config, configFile);
+  configFile.close();
+
+  BrdConfig curConfig;
+  curConfig.addr = config[addr];
+  curConfig.pwrPin = config[pwrPin];
+  curConfig.mdcPin = config[mdcPin];
+  curConfig.mdiPin = config[mdiPin];
+  curConfig.phyType = config[phyType];
+  curConfig.clkMode = config[clkMode];
+  curConfig.pwrAltPin = config[pwrAltPin];
+  strlcpy(curConfig.board, config[board] | "", sizeof(curConfig.board));
+
+  if (strlen(curConfig.board) > 1)
+  {
+    DEBUG_PRINT(F("Some ETH config found. Try to use "));
+    DEBUG_PRINTLN(curConfig.board);
+    if (ETH.begin(curConfig.addr, curConfig.pwrPin, curConfig.mdcPin, curConfig.mdiPin, curConfig.phyType, curConfig.clkMode, curConfig.pwrAltPin))
     {
-      DEBUG_PRINTLN(F("ETH STATIC"));
-      ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
-      // ConfigSettings.disconnectEthTime = millis();
+      DEBUG_PRINTLN(F("LAN start ok"));
+      if (!ConfigSettings.dhcp)
+      {
+        DEBUG_PRINTLN(F("ETH STATIC"));
+        ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
+        // ConfigSettings.disconnectEthTime = millis();
+      }
+      else
+      {
+        DEBUG_PRINTLN(F("ETH DHCP"));
+      }
     }
     else
     {
-      DEBUG_PRINTLN(F("ETH DHCP"));
+      DEBUG_PRINTLN(F("LAN start err"));
+      // esp_eth_stop();
     }
   }
   else
   {
-    DEBUG_PRINTLN(F("LAN start err"));
-    // esp_eth_stop();
+    BrdConfig *newConfig = findBrdConfig();
+    if (newConfig)
+    {
+      DEBUG_PRINTLN(F("Saving eth HW config"));
+
+      DynamicJsonDocument config(512);
+      config[addr] = newConfig->addr;
+      config[pwrPin] = newConfig->pwrPin;
+      config[mdcPin] = newConfig->mdcPin;
+      config[mdiPin] = newConfig->mdiPin;
+      config[phyType] = newConfig->phyType;
+      config[clkMode] = newConfig->clkMode;
+      config[pwrAltPin] = newConfig->pwrAltPin;
+      config[board] = newConfig->board;
+
+      writeDefaultConfig(configFileHw, config);
+      // configFile = LittleFS.open(configFileHw, FILE_WRITE);
+      // serializeJson(config, configFile);
+
+      // serializeJson(config, Serial);
+      // configFile.close();
+
+      // delay(500);
+      DEBUG_PRINTLN(F("Restarting..."));
+      esp_restart();
+    }
+  }
+}
+
+void initZb()
+{
+
+  const char *txPin = "txPin";
+  const char *rxPin = "rxPin";
+  const char *rstPin = "rstPin";
+  const char *bslPin = "bslPin";
+
+  File configFile = LittleFS.open(configFileHw, FILE_READ);
+
+  DynamicJsonDocument config(1024);
+  deserializeJson(config, configFile);
+  configFile.close();
+
+  ZbConfig curConfig;
+  curConfig.txPin = config[txPin];
+  curConfig.rxPin = config[rxPin];
+  curConfig.rstPin = config[rstPin];
+  curConfig.bslPin = config[bslPin];
+
+  if (curConfig.txPin && curConfig.rxPin && curConfig.rstPin && curConfig.bslPin)
+  {
+    DEBUG_PRINTLN(F("Some ZB config found. Try to use"));
+
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, curConfig.rxPin, curConfig.txPin); // start zigbee serial
+
+    int BSL_MODE = 0;
+
+    if (zbInit(curConfig.rstPin, curConfig.bslPin, BSL_MODE))
+    {
+      DEBUG_PRINTLN(F("Zigbee init - OK"));
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("Zigbee init - ERROR"));
+    }
+  }
+  else
+  {
+    // DynamicJsonDocument doc(512);
+    // doc[txPin] = 0;
+    // doc[rxPin] = 0;
+    // doc[rstPin] = 0;
+    // doc[bslPin] = 0;
+    // writeDefaultConfig(configFileHw, doc);
+    const char *pwrPin = "pwrPin";
+  const char *mdcPin = "mdcPin";
+  const char *mdiPin = "mdiPin";
+  const char *clkMode = "clkMode";
+  const char *pwrAltPin = "pwrAltPin";
+  eth_clock_mode_t clkModeEth = config[clkMode];
+  
+  int clkPin;
+  if (clkModeEth == ETH_CLOCK_GPIO0_IN) clkPin = 0;
+  if (clkModeEth == ETH_CLOCK_GPIO0_OUT) clkPin = 0;
+  if (clkModeEth == ETH_CLOCK_GPIO16_OUT) clkPin = 16;
+  if (clkModeEth == ETH_CLOCK_GPIO17_OUT) clkPin = 17;
+
+
+    DEBUG_PRINTLN(F("NO ZB config in memory"));
+    ZbConfig *newConfig = findZbConfig(config[pwrPin], config[mdcPin], config[mdiPin], clkPin, config[pwrAltPin]);
+    if (newConfig)
+    {
+      DEBUG_PRINTLN(F("Saving ZB HW config"));
+
+      DynamicJsonDocument config(1024);
+      File configFile = LittleFS.open(configFileHw, FILE_READ);
+      deserializeJson(config, configFile);
+      configFile.close();
+
+      config[txPin] = newConfig->txPin;
+      config[rxPin] = newConfig->rxPin;
+      config[rstPin] = newConfig->rstPin;
+      config[bslPin] = newConfig->bslPin;
+
+      configFile = LittleFS.open(configFileHw, FILE_WRITE);
+      serializeJson(config, configFile);
+      configFile.close();
+      // delay(500);
+      DEBUG_PRINTLN(F("Restarting..."));
+      esp_restart();
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("findZbConfig - NO SUCCESS"));
+    }
   }
 }
 
@@ -92,7 +257,7 @@ void wgBegin()
 {
   if (!wg.is_initialized())
   {
-    //printLogMsg(String("Initializing WireGuard interface..."));
+    // printLogMsg(String("Initializing WireGuard interface..."));
     if (!wg.begin(
             WgSettings.localIP,
             WgSettings.localPrivKey,
@@ -990,6 +1155,7 @@ void setupCoordinatorMode()
 
   case COORDINATOR_MODE_WIFI:
     DEBUG_PRINTLN(F("Coordinator WIFI mode"));
+    initLan();
     connectWifi();
     break;
 
@@ -1064,9 +1230,6 @@ void setup()
 #endif
   //--------------------
 
-  // zig connection & leds testing
-  Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); // start zigbee serial
-  zbInit();
   //-----------------
 
   attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
@@ -1124,14 +1287,16 @@ void setup()
   setupCoordinatorMode();
   ConfigSettings.connectedClients = 0;
 
+  initZb();
+
   if (MqttSettings.enable)
   {
     mqttConnectSetup();
   }
 
-  DEBUG_PRINTLN(millis());
+  // DEBUG_PRINTLN(millis());
 
-  Serial2.updateBaudRate(ConfigSettings.serialSpeed); // set actual speed
+  // Serial2.updateBaudRate(ConfigSettings.serialSpeed); // set actual speed
   printLogMsg("Setup done");
 
   char deviceIdArr[20];
