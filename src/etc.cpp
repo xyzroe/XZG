@@ -5,6 +5,7 @@
 #include <LittleFS.h>
 #include <ETH.h>
 #include <CCTools.h>
+#include <esp_task_wdt.h>
 
 #include "config.h"
 #include "web.h"
@@ -15,6 +16,9 @@
 #include "zb.h"
 
 extern struct ConfigSettingsStruct ConfigSettings;
+
+extern struct BrdConfigStruct hwConfig;
+extern struct CurrentModesStruct modes;
 
 extern CCTools CCTool;
 
@@ -29,7 +33,7 @@ const char *configFileSerial = "/config/configSerial.json";
 const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
 const char *configFileHw = "/config/configHw.json";
-const char *deviceModel = "UZG-01";
+// const char *deviceModel = "UZG-01";
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
@@ -69,9 +73,9 @@ void getReadableTime(String &readableTime, unsigned long beginTime)
   readableTime += String(seconds) + "";
 }
 
-float readtemp(bool clear)
+float readTemperature(bool clear)
 {
-  if (clear == true)
+  if (clear)
   {
     return (temprature_sens_read() - 32) / 1.8;
   }
@@ -89,13 +93,13 @@ float getCPUtemp(bool clear)
   {
     DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
-    CPUtemp = readtemp(clear);
+    CPUtemp = readTemperature(clear);
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF); // disable wifi
   }
   else
   {
-    CPUtemp = readtemp(clear);
+    CPUtemp = readTemperature(clear);
   }
   return CPUtemp;
 }
@@ -129,34 +133,104 @@ void zigbeeRestart()
 
 void adapterModeUSB()
 {
-  printLogMsg("Switched UZG-01 to USB mode");
-  DEBUG_PRINTLN(F("Switched UZG-01 to USB mode"));
-  digitalWrite(MODE_SWITCH, 1);
-  digitalWrite(LED_USB, 1);
+  if (modes.uartChIs)
+  {
+    printLogMsg("Switched UZG-01 to USB mode");
+    DEBUG_PRINTLN(F("Switched UZG-01 to USB mode"));
+    if (modes.uartChIs)
+    {
+      digitalWrite(hwConfig.uartChPin, 1);
+      DEBUG_PRINTLN(F("digitalWrite(hwConfig.uartChPin, 1) - HIGH"));
+    }
+    if (modes.ledUsbIs)
+    {
+      digitalWrite(hwConfig.ledUsbPin, 1);
+    }
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("NO modes.uartChIs. NO mode USB"));
+  }
 }
 
 void adapterModeLAN()
 {
-  printLogMsg("Switched UZG-01 to LAN mode");
-  DEBUG_PRINTLN(F("Switched UZG-01 to LAN mode"));
-  digitalWrite(MODE_SWITCH, 0);
-  digitalWrite(LED_USB, 0);
+  if (modes.uartChIs)
+  {
+    printLogMsg("Switched UZG-01 to LAN mode");
+    DEBUG_PRINTLN(F("Switched UZG-01 to LAN mode"));
+    digitalWrite(hwConfig.uartChPin, 0);
+    DEBUG_PRINTLN(F("digitalWrite(hwConfig.uartChPin, 0) - LOW"));
+
+    if (modes.ledUsbIs)
+      digitalWrite(hwConfig.ledUsbPin, 0);
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("NO modes.uartChIs. NO mode LAN"));
+  }
 }
 
-void ledPowerToggle()
+void ledPwrToggle()
 {
-  printLogMsg("BLUE LED has been toggled");
-  DEBUG_PRINTLN(F("BLUE LED has been toggled"));
-  digitalWrite(LED_PWR, !digitalRead(LED_PWR));
+  if (modes.ledPwrIs)
+  {
+    printLogMsg("BLUE LED has been toggled");
+    DEBUG_PRINTLN(F("BLUE LED has been toggled"));
+    DEBUG_PRINT(F("pin - "));
+    DEBUG_PRINTLN(hwConfig.ledPwrPin);
+    digitalWrite(hwConfig.ledPwrPin, !digitalRead(hwConfig.ledPwrPin));
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("NO modes.ledPwrIs. NO BLUE LED"));
+  }
 }
 
-void ledUSBToggle()
+void ledUsbToggle()
 {
-  printLogMsg("RED LED has been toggled");
-  DEBUG_PRINTLN(F("RED LED has been toggled"));
-  digitalWrite(LED_USB, !digitalRead(LED_USB));
+  if (modes.ledUsbIs)
+  {
+    printLogMsg("RED LED has been toggled");
+    DEBUG_PRINTLN(F("RED LED has been toggled"));
+    digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin));
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("NO modes.ledUsbIs. NO RED LED"));
+  }
 }
 
+void getDeviceID(char *arr)
+{
+  uint64_t mac = ESP.getEfuseMac(); // Retrieve the MAC address
+  uint8_t a = 0;                    // Initialize variables to store the results
+  uint8_t b = 0;
+
+  // Apply XOR operation to each byte of the MAC address to obtain unique values for a and b
+  a ^= (mac >> (8 * 0)) & 0xFF;
+  a ^= (mac >> (8 * 1)) & 0xFF;
+  a ^= (mac >> (8 * 2)) & 0xFF;
+  a ^= (mac >> (8 * 3)) & 0xFF;
+  b ^= (mac >> (8 * 4)) & 0xFF;
+  b ^= (mac >> (8 * 5)) & 0xFF;
+
+  char buf[20];
+
+  // Format a and b into buf as hexadecimal values, ensuring two-digit representation for each
+  sprintf(buf, "%02x%02x", a, b);
+
+  // Convert each character in buf to upper case
+  for (uint8_t cnt = 0; buf[cnt] != '\0'; cnt++)
+  {
+    buf[cnt] = toupper(buf[cnt]);
+  }
+
+  // Form the final string including the board name and the processed MAC address
+  sprintf(arr, "%s-%s", hwConfig.board, buf);
+}
+
+/*
 void getDeviceID(char *arr)
 {
   uint64_t mac = ESP.getEfuseMac();
@@ -197,9 +271,9 @@ void getDeviceID(char *arr)
   }
 
   // char buf[20];
-  sprintf(arr, "%s-%s", deviceModel, buf);
+  sprintf(arr, "%s-%s", hwConfig.board, buf);
   // arr = buf;
-}
+} */
 
 // void writeDefaultConfig(const char *path, String StringConfig)
 // {
@@ -225,8 +299,8 @@ void getDeviceID(char *arr)
 
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
+  DEBUG_PRINT(F("Write defaults to "));
   DEBUG_PRINTLN(path);
-  DEBUG_PRINTLN(F("Write defaults"));
   serializeJson(doc, Serial);
   File configFile = LittleFS.open(path, FILE_WRITE);
   if (!configFile)
@@ -268,13 +342,25 @@ String hexToDec(String hexString)
 void resetSettings()
 {
   DEBUG_PRINTLN(F("[resetSettings] Start"));
-  digitalWrite(LED_USB, 1);
-  digitalWrite(LED_PWR, 0);
+  if (modes.ledPwrIs)
+  {
+    digitalWrite(hwConfig.ledPwrPin, 1);
+  }
+  if (modes.ledUsbIs)
+  {
+    digitalWrite(hwConfig.ledUsbPin, 0);
+  }
   for (uint8_t i = 0; i < 15; i++)
   {
     delay(200);
-    digitalWrite(LED_USB, !digitalRead(LED_USB));
-    digitalWrite(LED_PWR, !digitalRead(LED_PWR));
+    if (modes.ledUsbIs)
+    {
+      digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin));
+    }
+    if (modes.ledPwrIs)
+    {
+      digitalWrite(hwConfig.ledPwrPin, !digitalRead(hwConfig.ledPwrPin));
+    }
   }
   DEBUG_PRINTLN(F("[resetSettings] Led blinking done"));
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
@@ -365,11 +451,11 @@ const char *getGmtOffsetForZone(const char *zone)
   {
     if (strcmp(zone, timeZones[i].zone) == 0)
     {
-      // Зона найдена, возвращаем GMT Offset
+      // Zone found, return GMT Offset
       return timeZones[i].gmtOffset;
     }
   }
-  // Зона не найдена
+  // Zone not found
   return nullptr;
 }
 
@@ -378,28 +464,79 @@ void ledsScheduler()
   DEBUG_PRINTLN(F("LEDS Scheduler"));
 }
 
-BrdConfig *findBrdConfig()
+BrdConfigStruct customConfig;
+
+BrdConfigStruct *findBrdConfig(int searchId = 0)
 {
   int brdConfigsSize = sizeof(brdConfigs) / sizeof(brdConfigs[0]);
 
-  for (int i = 0; i < brdConfigsSize; i++)
+  bool brdOk = false;
+
+  if (searchId == brdConfigsSize)
   {
-    if (ETH.begin(brdConfigs[i].addr, brdConfigs[i].pwrPin, brdConfigs[i].mdcPin, brdConfigs[i].mdiPin, brdConfigs[i].phyType, brdConfigs[i].clkMode, brdConfigs[i].pwrAltPin))
-    {
-      Serial.print("BrdConfig found: ");
-      Serial.println(brdConfigs[i].board);
-      return &brdConfigs[i];
-    }
-    else
-    {
-      Serial.print("BrdConfig error with: ");
-      Serial.println(brdConfigs[i].board);
-    }
+    // last config was not successful. so use custom.
+
+    strlcpy(customConfig.board, "Custom", sizeof(customConfig.board));
+    return &customConfig;
   }
 
-  return nullptr;
-}
+  int i = searchId;
 
+  if (ETH.begin(brdConfigs[i].addr, brdConfigs[i].pwrPin, brdConfigs[i].mdcPin, brdConfigs[i].mdiPin, brdConfigs[i].phyType, brdConfigs[i].clkMode, brdConfigs[i].pwrAltPin))
+  {
+    Serial.print("BrdConfig found: ");
+    Serial.println(brdConfigs[i].board);
+    brdOk = true;
+    // zigbee check
+
+    if (brdConfigs[i].zbRxPin > 0 && brdConfigs[i].zbTxPin > 0 && brdConfigs[i].zbRstPin > 0 && brdConfigs[i].zbBslPin > 0)
+    {
+      DEBUG_PRINTLN(F("Zigbee pins OK. Try to connect..."));
+
+      esp_task_wdt_reset();
+
+      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, brdConfigs[i].zbRxPin, brdConfigs[i].zbTxPin); // start zigbee serial
+
+      // CCTool.switchStream(Serial2);
+
+      int BSL_MODE = 0;
+      // delay(500);
+      
+      if (zbInit(brdConfigs[i].zbRstPin, brdConfigs[i].zbBslPin, BSL_MODE))
+      {
+        DEBUG_PRINTLN(F("Zigbee find - OK"));
+        brdOk = true;
+      }
+      else
+      {
+        DEBUG_PRINTLN(F("Zigbee find - ERROR"));
+        brdOk = false;
+      }
+      
+    }
+  }
+  if (brdOk == true)
+  {
+    return &brdConfigs[i];
+  }
+  else
+  {
+    Serial.print("BrdConfig error with: ");
+    Serial.println(brdConfigs[i].board);
+    //delay(500);
+
+    DynamicJsonDocument config(300);
+    config["searchId"] = i + 1;
+    writeDefaultConfig(configFileHw, config);
+
+    delay(500);
+    DEBUG_PRINTLN(F("Restarting..."));
+    ESP.restart();
+
+    return nullptr;
+  }
+}
+/*
 ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPin, int ethPwrAltPin)
 {
   int zbConfigsSize = sizeof(zbConfigs) / sizeof(zbConfigs[0]);
@@ -449,3 +586,4 @@ ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPi
 
   return nullptr;
 }
+*/

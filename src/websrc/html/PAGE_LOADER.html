@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link href='css/required.css' rel='stylesheet' type='text/css' />
+    <link href='css/style.css' rel='stylesheet' type='text/css' />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg">
     <title data-replace="pageName"></title>
 </head>
 
@@ -48,7 +49,7 @@
             </div>
         </div>
     </div>
-    <nav class="navbar shadow sticky-top bg-light" style="display: none;">
+    <nav class="navbar shadow sticky-top bg-top" style="display: none;">
         <div class="container">
             <div class="navbar-brand">
                 <span class="navbar-toggler-icon"
@@ -70,8 +71,8 @@
                 <div class='d-flex flex-column align-items-center align-items-sm-start pt-2 text-white min-vh-100'>
                     <div class='logo-wrapper'>
                         <a>
-                        <img src="logo.png" class="d-inline-block align-text-middle">
-                        <span class='fs-5 d-none d-sm-inline'>UZG-01</span>
+                            <img src="logo.svg" width="32" height="32" class="d-inline-block align-text-middle" alt="XZG logo">
+                            <span class='fs-5 d-none d-sm-inline'>XZG</span>
                         </a>
                     </div>
                     <ul class='nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start'
@@ -174,6 +175,23 @@
                                 </svg>
                                 <span class='ms-1'>Logout</span>
                             </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <div class="switch-container">
+                                <input type="checkbox" class="checkbox" id="toggleBtn">
+                                <label class="switch" for="toggleBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+                                        class="bi bi-moon" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#moon" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+                                        class="bi bi-sun" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#sun" />
+                                    </svg>
+                                    <div class="ball"></div>
+                                </label>
+                            </div>
                         </li>
                     </ul>
                     <hr>

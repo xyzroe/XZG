@@ -1,3 +1,5 @@
+#include <ETH.h>
+
 void getReadableTime(String &readableTime, unsigned long beginTime);
 
 #ifdef __cplusplus
@@ -13,7 +15,16 @@ uint8_t temprature_sens_read();
 #define STRINGIFY(s) STRINGIFY1(s) // Don’t ask why. It has to do with the inner workings of the preprocessor.
 #define STRINGIFY1(s) #s           // https://community.platformio.org/t/how-to-put-a-string-in-a-define-in-build-flag-into-a-libary-json-file/13480/6
 
-struct BrdConfig
+struct CurrentModesStruct
+{
+    bool btnIs = false;
+    bool ledUsbIs = false;
+    bool ledPwrIs = false;
+    bool uartChIs = false;
+    bool zigbeeIs = false;
+};
+
+struct BrdConfigStruct
 {
     char board[50];
     int addr;
@@ -24,15 +35,16 @@ struct BrdConfig
     eth_clock_mode_t clkMode;
     int pwrAltPin;
     int btnPin;
-    int uartSelectPin;
+    int uartChPin;
+    int ledUsbPin;
+    int ledPwrPin;
     int zbTxPin;
     int zbRxPin;
     int zbRstPin;
     int zbBslPin;
 };
 
-
-BrdConfig *findBrdConfig();
+BrdConfigStruct*findBrdConfig(int searchId);
 
 float getCPUtemp(bool clear = false);
 
@@ -43,8 +55,8 @@ void zigbeeRestart();
 void adapterModeUSB();
 void adapterModeLAN();
 
-void ledPowerToggle();
-void ledUSBToggle();
+void ledPwrToggle();
+void ledUsbToggle();
 
 void getDeviceID(char *arr);
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);

@@ -17,15 +17,18 @@
 #define ETH_MDIO_PIN_1 18
 */
 // ESP32 PINS TO CONTROL CC2652P
-#define CC2652P_RST 16
-#define CC2652P_FLASH 32
-#define CC2652P_RXD 36
-#define CC2652P_TXD 4
-#define BTN 35
-#define MODE_SWITCH 33
+// #define CC2652P_RST 16
+// #define CC2652P_FLASH 32
+// #define CC2652P_RXD 36
+// #define CC2652P_TXD 4
+// #define BTN 35
+// #define MODE_SWITCH 33
+
 #define DEBOUNCE_TIME 70
 
-#define TCP_LISTEN_PORT 9999
+#define TCP_LISTEN_PORT 9999 // any port ever. later setup from config file
+#define MAX_SOCKET_CLIENTS 5
+
 #define FORMAT_LITTLEFS_IF_FAILED true
 
 // CC2652 settings (FOR BSL VALIDATION!)
@@ -34,9 +37,8 @@
 
 const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
-const uint8_t LED_USB = 12;                // RED
-const uint8_t LED_PWR = 14;                // BLUE
-const uint8_t MAX_SOCKET_CLIENTS = 5;
+// const uint8_t LED_USB = 12;                // RED
+// const uint8_t LED_PWR = 14;                // BLUE
 
 enum COORDINATOR_MODE_t : uint8_t
 {
@@ -45,8 +47,8 @@ enum COORDINATOR_MODE_t : uint8_t
   COORDINATOR_MODE_USB
 };
 
-extern const char *coordMode;// coordMode node name
-extern const char *prevCoordMode;// prevCoordMode node name
+extern const char *coordMode;     // coordMode node name
+extern const char *prevCoordMode; // prevCoordMode node name
 extern const char *configFileSystem;
 extern const char *configFileWifi;
 extern const char *configFileEther;
@@ -56,7 +58,7 @@ extern const char *configFileSerial;
 extern const char *configFileMqtt;
 extern const char *configFileWg;
 extern const char *configFileHw;
-extern const char *deviceModel;
+// extern const char *deviceModel;
 
 struct ConfigSettingsStruct
 {
@@ -103,6 +105,7 @@ struct ConfigSettingsStruct
 struct MqttSettingsStruct
 {
   bool enable;
+  bool connect = 0;
   char server[50];
   IPAddress serverIP;
   int port;
@@ -155,8 +158,28 @@ typedef CircularBuffer<char, 8024> LogConsoleType;
 #ifdef DEBUG
 #define DEBUG_PRINT(x) Serial.print(String(x))
 #define DEBUG_PRINTLN(x) Serial.println(String(x))
+
+
+#define LOGE(tag, format, ...) Serial.printf("[%s] " format " (%s:%d)\n", tag, ##__VA_ARGS__, __FILE__, __LINE__)
+#define LOGI(tag, format, ...) Serial.printf("[%s] " format "\n", tag, ##__VA_ARGS__)
+
+/*
+      LOGE("ZB", "%u - %s", 1, "test");
+      LOGI("ZB", "%u - %s", 1, "test");
+
+
+      [ZB] 1 - test (src/main.cpp:1374)
+      [ZB] 1 - test
+*/
+
 #else
 #define DEBUG_PRINT(x)
 #define DEBUG_PRINTLN(x)
+#define LOGE(f_, ...)
+#define LOGI(f_, ...)
 #endif
 #endif
+
+
+
+

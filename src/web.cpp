@@ -28,17 +28,14 @@
 #include "webh/PAGE_SERIAL.html.gz.h"
 #include "webh/PAGE_SYSTOOLS.html.gz.h"
 #include "webh/PAGE_WIFI.html.gz.h"
+#include "webh/PAGE_LOGOUT.html.gz.h"
 #include "webh/bootstrap.min.js.gz.h"
-#include "webh/favicon.ico.gz.h"
 #include "webh/functions.js.gz.h"
 #include "webh/jquery-min.js.gz.h"
 #include "webh/masonry.js.gz.h"
-#include "webh/required.css.gz.h"
-#include "webh/PAGE_LOGOUT.html.gz.h"
+#include "webh/style.css.gz.h"
 #include "webh/icons.svg.gz.h"
-#include "webh/logo.png.gz.h"
-
-// #include "git_ca_cert.h"
+#include "webh/logo.svg.gz.h"
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
 
@@ -53,6 +50,8 @@ extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
 extern struct MqttSettingsStruct MqttSettings;
 extern struct WgSettingsStruct WgSettings;
+extern struct BrdConfigStruct hwConfig;
+extern struct CurrentModesStruct modes;
 
 bool wifiWebSetupInProgress = false;
 extern const char *coordMode;
@@ -64,7 +63,7 @@ extern const char *configFileWg;
 extern const char *configFileGeneral;
 extern const char *configFileSecurity;
 extern const char *configFileSerial;
-extern const char *deviceModel;
+// extern const char *deviceModel;
 const char *contTypeTextHtml = "text/html";
 const char *contTypeTextJs = "text/javascript";
 const char *contTypeTextCss = "text/css";
@@ -111,7 +110,6 @@ void checkFwHexTask(void *param)
     const char *tempFile = static_cast<const char *>(param);
     checkFwHex(tempFile);
 
-    // Завершаем задачу, чтобы освободить выделенные для неё ресурсы
     vTaskDelete(NULL);
 }
 
@@ -125,12 +123,10 @@ void initWebServer()
                  { sendGzip(contTypeTextJs, functions_js_gz, functions_js_gz_len); });
     serverWeb.on("/js/jquery-min.js", []()
                  { sendGzip(contTypeTextJs, jquery_min_js_gz, jquery_min_js_gz_len); });
-    serverWeb.on("/css/required.css", []()
+    serverWeb.on("/css/style.css", []()
                  { sendGzip(contTypeTextJs, required_css_gz, required_css_gz_len); });
-    serverWeb.on("/favicon.ico", []()
-                 { sendGzip("img/png", favicon_ico_gz, favicon_ico_gz_len); });
-    serverWeb.on("/logo.png", []()
-                 { sendGzip("img/png", logo_png_gz, logo_png_gz_len); });
+    serverWeb.on("/logo.svg", []()
+                 { sendGzip("image/svg+xml", logo_svg_gz, logo_svg_gz_len); });
     serverWeb.on("/icons.svg", []()
                  { sendGzip("image/svg+xml", icons_svg_gz, icons_svg_gz_len); });
     serverWeb.onNotFound([]()
@@ -445,7 +441,7 @@ void handleApi()
                     evWaitCount++;
                 }
                 // sendEvent(tag, eventLen, String("FW Url: ") + fwUrl);
-                //setClock();
+                // setClock();
                 HTTPClient https;
                 WiFiClientSecure client;
                 client.setInsecure();
@@ -546,10 +542,10 @@ void handleApi()
                     adapterModeUSB();
                     break;
                 case CMD_LED_PWR_TOG:
-                    ledPowerToggle();
+                    ledPwrToggle();
                     break;
                 case CMD_LED_USB_TOG:
-                    ledUSBToggle();
+                    ledUsbToggle();
                     break;
                 case CMD_ESP_UPD_URL:
                     if (serverWeb.hasArg(argUrl))
@@ -875,6 +871,18 @@ void handleSaveParams()
             else
             {
                 doc[dhcp] = zero;
+                if (doc["mask"] == "")
+                {
+                    doc["mask"] = "255.255.255.0";
+                }
+                if (doc["ip"] == "")
+                {
+                    doc["ip"] = "192.168.0.1";
+                }
+                if (doc["gw"] == "")
+                {
+                    doc["gw"] = "192.168.0.1";
+                }
             }
             // const char* disablePingCtrl = "disablePingCtrl";
             // if (serverWeb.arg(disablePingCtrl) == on) {
@@ -1412,7 +1420,7 @@ DynamicJsonDocument getRootData()
 
     float CPUtemp = getCPUtemp();
     doc["deviceTemp"] = String(CPUtemp);
-    doc["hwRev"] = deviceModel;
+    doc["hwRev"] = hwConfig.board;
     doc["espModel"] = String(ESP.getChipModel());
     doc["espCores"] = String(ESP.getChipCores());
     doc["espFreq"] = String(ESP.getCpuFreqMHz());
@@ -1531,22 +1539,44 @@ DynamicJsonDocument getRootData()
         // doc[wifiMode] = "Client";
     }
 
+    // MQTT
+    if (MqttSettings.enable)
+    {
+        const char *mqConnect = "mqConnect";
+        const char *mqBroker = "mqBroker";
+
+        doc[mqBroker] = MqttSettings.server;
+
+        if (MqttSettings.connect)
+        {
+            doc[mqConnect] = yes;
+        }
+        else
+        {
+            doc[mqConnect] = no;
+        }
+    }
+
     // VPN
-    const char *wgInit = "wgInit";
-    const char *wgDeviceAddr = "wgDeviceAddr";
-    const char *wgRemoteAddr = "wgRemoteAddr";
-
-    doc[wgDeviceAddr] = WgSettings.localAddr;
-    doc[wgRemoteAddr] = WgSettings.endAddr;
-
-    if (WgSettings.init)
+    if (WgSettings.enable)
     {
-        doc[wgInit] = yes;
+        const char *wgInit = "wgInit";
+        const char *wgDeviceAddr = "wgDeviceAddr";
+        const char *wgRemoteAddr = "wgRemoteAddr";
+
+        doc[wgDeviceAddr] = WgSettings.localAddr;
+        doc[wgRemoteAddr] = WgSettings.endAddr;
+
+        if (WgSettings.init)
+        {
+            doc[wgInit] = yes;
+        }
+        else
+        {
+            doc[wgInit] = no;
+        }
     }
-    else
-    {
-        doc[wgInit] = no;
-    }
+
     return doc;
 }
 
@@ -1604,7 +1634,7 @@ void handleSysTools()
     JsonArray zonesArray = zones.to<JsonArray>();
     for (int i = 0; i < timeZoneCount; i++)
     {
-        zonesArray.add(timeZones[i].zone); 
+        zonesArray.add(timeZones[i].zone);
     }
 
     serializeJson(zones, results);
@@ -1718,7 +1748,7 @@ int currentLength = 0; // current size of written firmware
 void getEspUpdate(String esp_fw_url)
 {
     DEBUG_PRINTLN("getEspUpdate: " + esp_fw_url);
-    //setClock();
+    // setClock();
     HTTPClient clientWeb;
     WiFiClientSecure client;
     client.setInsecure(); // the magic line, use with caution

@@ -17,6 +17,9 @@
 extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
 
+extern struct BrdConfigStruct hwConfig;
+extern struct CurrentModesStruct modes;
+
 extern const char *tempFile;
 
 const byte cmdLed0 = 0x27;
@@ -33,7 +36,7 @@ const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
 
 size_t lastSize = 0;
 
-CCTools CCTool(Serial2);
+extern CCTools CCTool;
 
 void clearS2Buffer()
 {
@@ -116,35 +119,55 @@ void zbCheck()
                 }
             }
         }
-        digitalWrite(LED_USB, !digitalRead(LED_USB)); // blue led flashing mean wait for zigbee resp
-    }
-    delay(500);
-    if (!respOk)
-    {
-        digitalWrite(LED_PWR, 1);
-        digitalWrite(LED_USB, 1);
-        for (uint8_t i = 0; i < 5; i++)
-        { // indicate wrong resp
-            digitalWrite(LED_PWR, !digitalRead(LED_PWR));
-            digitalWrite(LED_USB, !digitalRead(LED_USB));
-            delay(1000);
-        }
-        printLogMsg("[ZBCHK] Wrong answer");
-        printLogMsg("[ZBVER] Unknown");
-        zbVer.zbRev = 0;
-    }
-    else
-    {
-        Serial2.write(zigLed1Off, sizeof(zigLed1Off));
-        Serial2.flush();
-        delay(250);
-        clearS2Buffer();
-        printLogMsg("[ZBCHK] Connection OK");
-    }
-    digitalWrite(LED_PWR, 0);
-    digitalWrite(LED_USB, 0);
-}
 
+        if (modes.ledUsbIs)
+        {
+            digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin)); // blue led flashing mean wait for zigbee resp}
+        }
+        delay(500);
+        if (!respOk)
+        {
+            if (modes.ledPwrIs)
+            {
+                digitalWrite(hwConfig.ledPwrPin, 1);
+            }
+            if (modes.ledUsbIs)
+            {
+                digitalWrite(hwConfig.ledUsbPin, 1);
+            }
+            for (uint8_t i = 0; i < 5; i++)
+            { // indicate wrong resp
+                if (modes.ledPwrIs)
+                {
+                    digitalWrite(hwConfig.ledPwrPin, !digitalRead(hwConfig.ledPwrPin));
+                }
+                if (modes.ledUsbIs)
+                {
+                    digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin));
+                }
+                delay(1000);
+            }
+            printLogMsg("[ZBCHK] Wrong answer");
+            zbVer.zbRev = 0;
+        }
+        else
+        {
+            Serial2.write(zigLed1Off, sizeof(zigLed1Off));
+            Serial2.flush();
+            delay(250);
+            clearS2Buffer();
+            printLogMsg("[ZBCHK] Connection OK");
+        }
+        if (modes.ledPwrIs)
+        {
+            digitalWrite(hwConfig.ledPwrPin, 0);
+        }
+        if (modes.ledUsbIs)
+        {
+            digitalWrite(hwConfig.ledUsbPin, 0);
+        }
+    }
+}
 void zbLedToggle()
 {
     bool respOk = false;

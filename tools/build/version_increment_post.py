@@ -1,8 +1,9 @@
 """ Remove version increment guard file if present """
+
 import os
 
-if os.path.exists("tools/.version_no_increment"):
-    os.remove("tools/.version_no_increment")
+if os.path.exists("tools/.no_version_increment"):
+    os.remove("tools/.no_version_increment")
 
 #  Copyright (C) 2020  Davide Perini
 #

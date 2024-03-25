@@ -44,14 +44,20 @@ jobs:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%d%m%y')"  >> $GITHUB_OUTPUT
+      - name: Get last commit message
+        id: get_commit_message
+        run: |
+          commitMessage=$(git log -1 --pretty=%B | tail -n +3)
+          echo "::set-output name=message::${commitMessage}"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          generate_release_notes: true
+          generate_release_notes: false
           name: "v${{ steps.get_version.outputs.version }} (${{ steps.date.outputs.date }})"
+          body: ${{ steps.get_commit_message.outputs.message }}
           files: |
-            bin/UZG-01.bin
-            bin/UZG-01_v${{ steps.get_version.outputs.version }}.full.bin
+            bin/XZG.bin
+            bin/XZG_v${{ steps.get_version.outputs.version }}.full.bin
 
       - name: Updare version in manifest.json
         run: |
@@ -64,7 +70,6 @@ jobs:
           mv -f new.manifest.json manifest.json 
           echo "new"
           cat manifest.json
-          
       - name: Commit & Push changes
         uses: actions-js/push@master
         with:

@@ -1,14 +1,26 @@
-# ZigStar UZG-01 Zigbee 3.0 PoE Ethernet USB Adapter's Firmware
+# XZG Firmware
+<div align="center"><img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo">
+  
+This repository contains the firmware for various, ESP32 based, Zigbee gateways.  
+ 
+Firmware is opensource, so feel free to improve it <br> by making a commit to this repository. 
+</div>
+
+[![GitHub version](https://img.shields.io/github/release/xyzroe/xzg.svg)](https://github.com/xyzroe/xzg/releases)
+[![GitHub download](https://img.shields.io/github/downloads/xyzroe/xzg/total.svg)](https://github.com/xyzroe/xzg/releases/latest)
+[![License](https://img.shields.io/github/license/xyzroe/xzg.svg)](LICENSE)
 
 
-This repository contains the latest firmware for the ESP32 peripheral module of [UZG-01 Zigbee Ethernet PoE USB Adapter](https://uzg.zig-star.com/product). Firmware is opensource, so feel free to improve it by making a commit to this repository. 
-
-[![GitHub version](https://img.shields.io/github/release/mercenaruss/uzg-firmware.svg)](https://github.com/mercenaruss/uzg-firmware/releases)
-[![GitHub download](https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg)](https://github.com/mercenaruss/uzg-firmware/releases/latest)
-[![License](https://img.shields.io/github/license/mercenaruss/uzg-firmware.svg)](LICENSE.txt)
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://github.com/mercenaruss/uzg-firmware)
 
 
+
+### Previous versions:
+| [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW/releases/latest)                                                                                      | [UZG-01](https://github.com/mercenaruss/uzg-firmware/releases/latest)                                                                                                    | [SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/releases/)                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![ZigStarGW-FW's download](https://img.shields.io/github/downloads/xyzroe/ZigStarGW-FW/total.svg)](https://github.com/xyzroe/ZigStarGW-FW/releases/latest) | [![UZG-01 Firmware's download](https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg)](https://github.com/mercenaruss/uzg-firmware/releases/latest) | [![UZG-01 Firmware's download](https://img.shields.io/github/downloads/smlight-dev/slzb-06-firmware/total.svg)](https://github.com/smlight-dev/slzb-06-firmware/releases/latest) |
+  
+  
+  
 ## KEY FIRMWARE FEATURES
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Red LED On = USB mode, RED LED Off = Ethernet mode);
 - Adapter mode selector through web-interface: `Zigbee-to-Ethernet`, `Zigbee-to-USB` and `Zigbee-to-WiFI`;
@@ -26,31 +38,48 @@ This repository contains the latest firmware for the ESP32 peripheral module of 
 - MQTT client for gateway monitoring and control
 
 ## Installation and Configuration
-Please refer to the installation and configuration articles in our [documentation](https://uzg.zig-star.com).  
-Please follow this link for web-flasher - just plug-and-flash: [ZigStar WebFlasher](https://uzg.zig-star.com/webinstall/).
+Please refer to the installation and configuration articles based on your hardware.  
+
+Please follow this link for web-flasher - just plug-and-flash: [XZG Web flasher 🚀](https://xzg.xyzroe.cc/) 
 
 ## Compiling from source
 
-If you made changes to the code and want to compile you own firmware, please do the following:
+### Local
 
-- Download repository;
-- Install Microsoft Visual Code (MVC);
-- Install PlatformIO extension to MVC;
-- Press "PlatformIO: Build" and wait until firmware.bin is generated;
+- You need npm and Python installed;
+- Download this repository;
+- Install Visual Studio Code (VSC);
+- Install PlatformIO extension to VSC;
+- Press "PlatformIO: Build" and wait until XZG*.bin is generated;
+
+### Github
+ - Fork this repository;
+ - Made your changes;
+ - Push a new tag in format "vX.X.X" to run workflow;
+ - Just wait and get new release;
+  
+### Gitpod
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://github.com/xyzroe/xzg)
+
+
+
 
 ## Contribute
 
-You can contribute to UZG-01 Firmware by
-- Providing Pull Requests (Features, Proof of Concepts or Fixes) - please read UZG-01 Firmware's contributing approach [here](CONTRIBUTING.md)
+You can contribute to XZG Firmware by
+- Providing Pull Requests - please read contributing approach [here](CONTRIBUTING.md)
 - Testing newly released features and reporting issues
-- Contributing missing [documentation](https://uzg.zig-star.com);
+- Contributing missing documentation
 
 ## Credits
 
 People helping to keep the show on the road - **developers and contributors**:
 
-- [@xyzroe](https://github.com/xyzroe/) for initial firmware released for ZigStar devices and all work being doing till now  
+- [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**, for initial firmware release of UZG-01 version and giving me motivation and energy to implement new functions.
+
 - [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/smlight-dev/)
+
+- **TO-DO** - add all contributors automatic **HERE**!
 
 
 Special thanks goes also to all authors of 3rd party libraries which are used in this project:
@@ -70,9 +99,13 @@ Special thanks goes also to all authors of 3rd party libraries which are used in
 - [ESP Async WebServer](https://github.com/me-no-dev/ESPAsyncWebServer),
 - [Martin-Laclaustra / CronAlarms](https://github.com/Martin-Laclaustra/CronAlarms)
 
+  
 ## License and attribution
 
-UZG-01-Firmware is licensed under GNU General Public License v3.
-3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well.  
-Copyright (c) 2023 ZigStar.  
+**XZG Firmware** is licensed under **GNU General Public License v3**.
+
+3rd party libraries that are used by this project are licensed under different license schemes, please check them out as well. 
+
+Copyright (c) 2024 xyzroe  
+
 The GNU General Public License v3 ensures that if you use any part of this software in any way, your software must be released under the same license.  

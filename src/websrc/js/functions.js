@@ -46,6 +46,23 @@ const api = {
 	pages: pages
 }
 
+function applyScale(scale) {
+    document.querySelectorAll('.switch').forEach(function(element) {
+        element.style.transform = `scale(${scale})`;
+    });
+}
+
+function handleResize() {
+    if (window.innerWidth <= 767) {
+        applyScale(0.9);
+    } else {
+        applyScale(1.2);
+    }
+}
+
+window.addEventListener('resize', handleResize);
+
+
 $(document).ready(function () { //handle active nav
 	$("a[href='" + document.location.pathname + "']").parent().addClass('nav-active'); //handle sidenav page selection on first load
 	loadPage(document.location.pathname);
@@ -63,6 +80,8 @@ $(document).ready(function () { //handle active nav
 		setupSwipeHandler();
 		$("#pageContent").removeClass("container");//no containers for mobile
 	}
+	
+	handleResize();
 
 	$("a.nav-link").click(function (e) { //handle navigation
 		e.preventDefault();
@@ -184,8 +203,8 @@ advanced:
 }
 
 function fillFileTable(files) {
-	const icon = "<i class='bi bi-filetype-json'></i>";
-	files.forEach((elem) => {
+	const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 28 28"><use xlink:href="icons.svg#file" /></svg>`;
+	files.slice(0, files.length - 1).forEach((elem) => {
 		let $row = $("<tr>").appendTo("#filelist");
 		$("<td>" + icon + "<a href='#config_file' onClick=\"readfile('" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
 		$("<td>" + elem.size + "B</td>").appendTo($row);
@@ -371,17 +390,26 @@ function apiGetPage(page, doneCall) {
 			});
 
 			$("[data-replace='pageName']").text(page.title);//update page name
-			$("title[data-replace='pageName']").text(page.title + " - UZG-01 Zigbee Ethernet POE USB Adapter");//update page title
+			$("title[data-replace='pageName']").text(page.title + " - XZG");//update page title
 
 			if (xhr.getResponseHeader("respValuesArr") === null) return;
 			console.log("[apiGetPage] starting parse values");
 			const values = JSON.parse(xhr.getResponseHeader("respValuesArr"));
 			let selectedTimeZone = null;
 			for (const property in values) {
+				if (property === "mqConnect") {
+					console.log("mqConnect +");
+					showSectionByTitle("MQTT");
+
+				}
+				if (property === "wgInit") {
+					console.log("wgInit +");
+					showSectionByTitle("VPN");
+				}
 				if (property === "timeZoneName") {
 					selectedTimeZone = values[property];
-					console.error(selectedTimeZone);
-					console.error("timeZoneName");
+					console.log(selectedTimeZone);
+					console.log("timeZoneName");
 					continue;
 				}
 				$("[data-replace='" + property + "']").map(function () {
@@ -439,6 +467,23 @@ function apiGetPage(page, doneCall) {
 			}
 
 			if (typeof (locCall) == "function") locCall();//callback
+		}
+	});
+}
+
+function showSectionByTitle(title) {
+	// Ищем все заголовки внутри карточек, которые совпадают с заданным заголовком
+	const headers = document.querySelectorAll('.card .card-header span');
+
+	// Перебираем найденные заголовки
+	headers.forEach(header => {
+		if (header.textContent.trim() === title) {
+			// Если текст заголовка совпадает, находим родительский элемент 'col-sm-12 col-md-6 mb-4'
+			// и удаляем у него атрибут 'hidden'
+			const section = header.closest('.col-sm-12.col-md-6.mb-4');
+			if (section) {
+				section.removeAttribute('hidden');
+			}
 		}
 	});
 }
@@ -1219,7 +1264,6 @@ async function processResponses() {
 	}
 }
 
-
 function checkLatestESPrelease() {
 
 
@@ -1262,3 +1306,34 @@ function checkLatestESPrelease() {
 	});
 
 }
+
+// CSS class name for dark theme
+const darkTheme = "dark-theme";
+
+// Add dark theme change here
+const darkThemeSetUp = () => {
+	if (getCurrentTheme() === "dark") {
+		document.getElementById("toggleBtn").checked = true;
+	} else {
+		document.getElementById("toggleBtn").checked = false;
+	}
+};
+
+const getCurrentTheme = () =>
+	document.body.classList.contains(darkTheme) ? "dark" : "light";
+
+//   Get user's theme preference from local storage
+const selectedTheme = localStorage.getItem("selected-theme");
+if (selectedTheme === "dark") {
+	document.body.classList[selectedTheme === "dark" ? "add" : "remove"](
+		darkTheme
+	);
+	darkThemeSetUp();
+}
+
+const themeButton = document.getElementById("toggleBtn");
+themeButton.addEventListener("change", () => {
+	document.body.classList.toggle(darkTheme);
+	localStorage.setItem("selected-theme", getCurrentTheme());
+	darkThemeSetUp();
+});

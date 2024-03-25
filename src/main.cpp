@@ -36,6 +36,8 @@ zbVerStruct zbVer;
 // InfosStruct Infos;
 MqttSettingsStruct MqttSettings;
 WgSettingsStruct WgSettings;
+BrdConfigStruct hwConfig;
+CurrentModesStruct modes;
 
 // volatile bool btnFlag = false;
 int btnFlag = false;
@@ -58,106 +60,37 @@ WiFiServer server(TCP_LISTEN_PORT, MAX_SOCKET_CLIENTS);
 
 static WireGuard wg;
 
-extern CCTools CCTool;
+CCTools CCTool(Serial2);
+
 // MDNSResponder MDNS; don't need?
 
 void initLan()
 {
-  const char *addr = "addr";
-  const char *pwrPin = "pwrPin";
-  const char *mdcPin = "mdcPin";
-  const char *mdiPin = "mdiPin";
-  const char *phyType = "phyType";
-  const char *clkMode = "clkMode";
-  const char *pwrAltPin = "pwrAltPin";
-  const char *board = "board";
 
-  File configFile = LittleFS.open(configFileHw, FILE_READ);
-
-  if (!configFile)
+  DEBUG_PRINT(F("Some ETH config found. Try to use "));
+  DEBUG_PRINTLN(hwConfig.board);
+  if (ETH.begin(hwConfig.addr, hwConfig.pwrPin, hwConfig.mdcPin, hwConfig.mdiPin, hwConfig.phyType, hwConfig.clkMode, hwConfig.pwrAltPin))
   {
-    DynamicJsonDocument config(512);
-    config[addr] = 0;
-    config[pwrPin] = 0;
-    config[mdcPin] = 0;
-    config[mdiPin] = 0;
-    config[phyType] = 0;
-    config[clkMode] = 0;
-    config[pwrAltPin] = 0;
-    config[board] = "";
-    writeDefaultConfig(configFileHw, config);
-    configFile = LittleFS.open(configFileHw, FILE_READ);
-  }
-
-  DynamicJsonDocument config(1024);
-  deserializeJson(config, configFile);
-  configFile.close();
-
-  BrdConfig curConfig;
-  curConfig.addr = config[addr];
-  curConfig.pwrPin = config[pwrPin];
-  curConfig.mdcPin = config[mdcPin];
-  curConfig.mdiPin = config[mdiPin];
-  curConfig.phyType = config[phyType];
-  curConfig.clkMode = config[clkMode];
-  curConfig.pwrAltPin = config[pwrAltPin];
-  strlcpy(curConfig.board, config[board] | "", sizeof(curConfig.board));
-
-  if (strlen(curConfig.board) > 1)
-  {
-    DEBUG_PRINT(F("Some ETH config found. Try to use "));
-    DEBUG_PRINTLN(curConfig.board);
-    if (ETH.begin(curConfig.addr, curConfig.pwrPin, curConfig.mdcPin, curConfig.mdiPin, curConfig.phyType, curConfig.clkMode, curConfig.pwrAltPin))
+    DEBUG_PRINTLN(F("LAN start ok"));
+    if (!ConfigSettings.dhcp)
     {
-      DEBUG_PRINTLN(F("LAN start ok"));
-      if (!ConfigSettings.dhcp)
-      {
-        DEBUG_PRINTLN(F("ETH STATIC"));
-        ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
-        // ConfigSettings.disconnectEthTime = millis();
-      }
-      else
-      {
-        DEBUG_PRINTLN(F("ETH DHCP"));
-      }
+      DEBUG_PRINTLN(F("ETH STATIC"));
+      ETH.config(parse_ip_address(ConfigSettings.ipAddress), parse_ip_address(ConfigSettings.ipGW), parse_ip_address(ConfigSettings.ipMask));
+      // ConfigSettings.disconnectEthTime = millis();
     }
     else
     {
-      DEBUG_PRINTLN(F("LAN start err"));
-      // esp_eth_stop();
+      DEBUG_PRINTLN(F("ETH DHCP"));
     }
   }
   else
   {
-    BrdConfig *newConfig = findBrdConfig();
-    if (newConfig)
-    {
-      DEBUG_PRINTLN(F("Saving eth HW config"));
-
-      DynamicJsonDocument config(512);
-      config[addr] = newConfig->addr;
-      config[pwrPin] = newConfig->pwrPin;
-      config[mdcPin] = newConfig->mdcPin;
-      config[mdiPin] = newConfig->mdiPin;
-      config[phyType] = newConfig->phyType;
-      config[clkMode] = newConfig->clkMode;
-      config[pwrAltPin] = newConfig->pwrAltPin;
-      config[board] = newConfig->board;
-
-      writeDefaultConfig(configFileHw, config);
-      // configFile = LittleFS.open(configFileHw, FILE_WRITE);
-      // serializeJson(config, configFile);
-
-      // serializeJson(config, Serial);
-      // configFile.close();
-
-      // delay(500);
-      DEBUG_PRINTLN(F("Restarting..."));
-      esp_restart();
-    }
+    DEBUG_PRINTLN(F("LAN start err"));
+    // esp_eth_stop();
   }
 }
 
+/*
 void initZb()
 {
 
@@ -172,21 +105,21 @@ void initZb()
   deserializeJson(config, configFile);
   configFile.close();
 
-  ZbConfig curConfig;
-  curConfig.txPin = config[txPin];
-  curConfig.rxPin = config[rxPin];
-  curConfig.rstPin = config[rstPin];
-  curConfig.bslPin = config[bslPin];
+  ZbConfig hwConfig;
+  hwConfig.txPin = config[txPin];
+  hwConfig.rxPin = config[rxPin];
+  hwConfig.rstPin = config[rstPin];
+  hwConfig.bslPin = config[bslPin];
 
-  if (curConfig.txPin && curConfig.rxPin && curConfig.rstPin && curConfig.bslPin)
+  if (hwConfig.txPin && hwConfig.rxPin && hwConfig.rstPin && hwConfig.bslPin)
   {
     DEBUG_PRINTLN(F("Some ZB config found. Try to use"));
 
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, curConfig.rxPin, curConfig.txPin); // start zigbee serial
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, hwConfig.rxPin, hwConfig.txPin); // start zigbee serial
 
     int BSL_MODE = 0;
 
-    if (zbInit(curConfig.rstPin, curConfig.bslPin, BSL_MODE))
+    if (zbInit(hwConfig.rstPin, hwConfig.bslPin, BSL_MODE))
     {
       DEBUG_PRINTLN(F("Zigbee init - OK"));
     }
@@ -204,18 +137,21 @@ void initZb()
     // doc[bslPin] = 0;
     // writeDefaultConfig(configFileHw, doc);
     const char *pwrPin = "pwrPin";
-  const char *mdcPin = "mdcPin";
-  const char *mdiPin = "mdiPin";
-  const char *clkMode = "clkMode";
-  const char *pwrAltPin = "pwrAltPin";
-  eth_clock_mode_t clkModeEth = config[clkMode];
-  
-  int clkPin;
-  if (clkModeEth == ETH_CLOCK_GPIO0_IN) clkPin = 0;
-  if (clkModeEth == ETH_CLOCK_GPIO0_OUT) clkPin = 0;
-  if (clkModeEth == ETH_CLOCK_GPIO16_OUT) clkPin = 16;
-  if (clkModeEth == ETH_CLOCK_GPIO17_OUT) clkPin = 17;
+    const char *mdcPin = "mdcPin";
+    const char *mdiPin = "mdiPin";
+    const char *clkMode = "clkMode";
+    const char *pwrAltPin = "pwrAltPin";
+    eth_clock_mode_t clkModeEth = config[clkMode];
 
+    int clkPin;
+    if (clkModeEth == ETH_CLOCK_GPIO0_IN)
+      clkPin = 0;
+    if (clkModeEth == ETH_CLOCK_GPIO0_OUT)
+      clkPin = 0;
+    if (clkModeEth == ETH_CLOCK_GPIO16_OUT)
+      clkPin = 16;
+    if (clkModeEth == ETH_CLOCK_GPIO17_OUT)
+      clkPin = 17;
 
     DEBUG_PRINTLN(F("NO ZB config in memory"));
     ZbConfig *newConfig = findZbConfig(config[pwrPin], config[mdcPin], config[mdiPin], clkPin, config[pwrAltPin]);
@@ -246,6 +182,7 @@ void initZb()
     }
   }
 }
+*/
 
 void startSocketServer()
 {
@@ -377,10 +314,14 @@ void NetworkEvent(WiFiEvent_t event)
     DEBUG_PRINTLN(F("ETH Connected"));
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
-    DEBUG_PRINTLN(F("ETH MAC: "));
+    DEBUG_PRINT(F("ETH. MAC: "));
     DEBUG_PRINT(ETH.macAddress());
     DEBUG_PRINT(F(", IPv4: "));
-    DEBUG_PRINT(ETH.localIP());
+    DEBUG_PRINT(ETH.localIP().toString());
+    DEBUG_PRINT(F(", "));
+    DEBUG_PRINT(ETH.subnetMask().toString());
+    DEBUG_PRINT(F(", "));
+    DEBUG_PRINT(ETH.gatewayIP().toString());
     if (ETH.fullDuplex())
     {
       DEBUG_PRINT(F(", FULL_DUPLEX"));
@@ -413,8 +354,9 @@ void NetworkEvent(WiFiEvent_t event)
     }
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
-    DEBUG_PRINTLN(F("WiFi"));
-    DEBUG_PRINT(F("IPv4: "));
+    DEBUG_PRINT(F("WiFi MAC: "));
+    DEBUG_PRINT(WiFi.macAddress());
+    DEBUG_PRINT(F(", IPv4: "));
     DEBUG_PRINT(WiFi.localIP().toString());
     DEBUG_PRINT(F(", "));
     DEBUG_PRINT(WiFi.subnetMask().toString());
@@ -608,6 +550,128 @@ bool loadConfigEther()
   return true;
 }
 
+bool loadConfigHW()
+{
+  const char *board = "board";
+  const char *addr = "addr";
+  const char *pwrPin = "pwrPin";
+  const char *mdcPin = "mdcPin";
+  const char *mdiPin = "mdiPin";
+  const char *phyType = "phyType";
+  const char *clkMode = "clkMode";
+  const char *pwrAltPin = "pwrAltPin";
+  const char *btnPin = "btnPin";
+  const char *uartChPin = "uartChPin";
+  const char *ledUsbPin = "ledUsbPin";
+  const char *ledPwrPin = "ledPwrPin";
+  const char *zbTxPin = "zbTxPin";
+  const char *zbRxPin = "zbRxPin";
+  const char *zbRstPin = "zbRstPin";
+  const char *zbBslPin = "zbBslPin";
+
+  File configFile = LittleFS.open(configFileHw, FILE_READ);
+
+  if (!configFile)
+  {
+    DynamicJsonDocument config(300);
+    config[board] = "";
+    /*
+    config[addr] = -1;
+    config[pwrPin] = -1;
+    config[mdcPin] = -1;
+    config[mdiPin] = -1;
+    config[phyType] = -1;
+    config[clkMode] = -1;
+    config[pwrAltPin] = -1;
+    config[btnPin] = -1;
+    config[uartChPin] = -1;
+    config[ledUsbPin] = -1;
+    config[ledPwrPin] = -1;
+    config[zbTxPin] = -1;
+    config[zbRxPin] = -1;
+    config[zbRstPin] = -1;
+    config[zbBslPin] = -1;
+    */
+    writeDefaultConfig(configFileHw, config);
+    configFile = LittleFS.open(configFileHw, FILE_READ);
+  }
+
+  DynamicJsonDocument config(1024);
+  deserializeJson(config, configFile);
+
+  DEBUG_PRINTLN(configFile.readString());
+  configFile.close();
+
+  strlcpy(hwConfig.board, config[board] | "", sizeof(hwConfig.board));
+  hwConfig.addr = config[addr];
+  hwConfig.pwrPin = config[pwrPin];
+  hwConfig.mdcPin = config[mdcPin];
+  hwConfig.mdiPin = config[mdiPin];
+  hwConfig.phyType = config[phyType];
+  hwConfig.clkMode = config[clkMode];
+  hwConfig.pwrAltPin = config[pwrAltPin];
+  hwConfig.btnPin = config[btnPin];
+  hwConfig.uartChPin = config[uartChPin];
+  hwConfig.ledUsbPin = config[ledUsbPin];
+  hwConfig.ledPwrPin = config[ledPwrPin];
+  hwConfig.zbTxPin = config[zbTxPin];
+  hwConfig.zbRxPin = config[zbRxPin];
+  hwConfig.zbRstPin = config[zbRstPin];
+  hwConfig.zbBslPin = config[zbBslPin];
+
+  if (hwConfig.board[0] != '\0' && strlen(hwConfig.board) > 0)
+  {
+    DEBUG_PRINTLN("hwConfig LOAD - OK");
+
+    delay(1000);
+    return true;
+  }
+  else
+  {
+    DEBUG_PRINTLN("hwConfig LOAD - ERROR");
+    delay(1000);
+    int searchId = 0;
+    if (config["searchId"])
+    {
+      searchId = config["searchId"];
+    }
+    BrdConfigStruct *newConfig = findBrdConfig(searchId);
+    if (newConfig)
+    {
+      DEBUG_PRINTLN(F("Saving HW config"));
+
+      DynamicJsonDocument config(512);
+      config[board] = newConfig->board;
+      config[addr] = newConfig->addr;
+      config[pwrPin] = newConfig->pwrPin;
+      config[mdcPin] = newConfig->mdcPin;
+      config[mdiPin] = newConfig->mdiPin;
+      config[phyType] = newConfig->phyType;
+      config[clkMode] = newConfig->clkMode;
+      config[pwrAltPin] = newConfig->pwrAltPin;
+      config[btnPin] = newConfig->btnPin;
+      config[uartChPin] = newConfig->uartChPin;
+      config[ledUsbPin] = newConfig->ledUsbPin;
+      config[ledPwrPin] = newConfig->ledPwrPin;
+      config[zbTxPin] = newConfig->zbTxPin;
+      config[zbRxPin] = newConfig->zbRxPin;
+      config[zbRstPin] = newConfig->zbRstPin;
+      config[zbBslPin] = newConfig->zbBslPin;
+      writeDefaultConfig(configFileHw, config);
+      // configFile = LittleFS.open(configFileHw, FILE_WRITE);
+      // serializeJson(config, configFile);
+
+      // serializeJson(config, Serial);
+      // configFile.close();
+
+      // delay(500);
+      DEBUG_PRINTLN(F("Restarting..."));
+      ESP.restart();
+    }
+  }
+  return false;
+}
+
 bool loadConfigGeneral()
 {
   const char *hostname = "hostname";
@@ -624,10 +688,10 @@ bool loadConfigGeneral()
   {
     // String deviceID = deviceModel;
     // getDeviceID(deviceID);
-    DEBUG_PRINTLN("RESET ConfigGeneral");
+    // DEBUG_PRINTLN("RESET ConfigGeneral");
     // String StringConfig = "{\"hostname\":\"" + deviceID + "\",\"disableLeds\": false,\"refreshLogs\":1000,\"usbMode\":0,\"disableLedPwr\":0,\"disableLedUSB\":0,\""+ coordMode +"\":0}\""+ prevCoordMode +"\":0, \"keepWeb\": 0}";
     DynamicJsonDocument doc(1024);
-    doc[hostname] = deviceModel;
+    doc[hostname] = hwConfig.board;
     doc[disableLeds] = 0;
     doc[refreshLogs] = 1000;
     doc[disableLedPwr] = 0;
@@ -635,6 +699,7 @@ bool loadConfigGeneral()
     doc[coordMode] = 0;
     doc[prevCoordMode] = 0;
     doc[keepWeb] = 0;
+    doc[timeZoneName] = "Europe/Kiev";
     writeDefaultConfig(configFileGeneral, doc);
   }
 
@@ -660,13 +725,16 @@ bool loadConfigGeneral()
   {
     ConfigSettings.refreshLogs = (int)doc[refreshLogs];
   }
-  DEBUG_PRINTLN(F("[loadConfigGeneral] 'doc[coordMode]' res is:"));
+  DEBUG_PRINT(F("[loadConfigGeneral] 'doc[coordMode]' res is: "));
   DEBUG_PRINTLN(String((uint8_t)doc[coordMode]));
+
   strlcpy(ConfigSettings.hostname, doc[hostname] | "", sizeof(ConfigSettings.hostname));
+
   ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>((uint8_t)doc[coordMode]);
   ConfigSettings.prevCoordinator_mode = static_cast<COORDINATOR_MODE_t>((uint8_t)doc[prevCoordMode]);
-  DEBUG_PRINTLN(F("[loadConfigGeneral] 'static_cast' res is:"));
+  DEBUG_PRINT(F("[loadConfigGeneral] 'ConfigSettings.coordinator_mode' res is: "));
   DEBUG_PRINTLN(String(ConfigSettings.coordinator_mode));
+
   ConfigSettings.disableLedPwr = (uint8_t)doc[disableLedPwr];
   // DEBUG_PRINTLN(F("[loadConfigGeneral] disableLedPwr"));
   ConfigSettings.disableLedUSB = (uint8_t)doc[disableLedUSB];
@@ -1015,59 +1083,76 @@ IRAM_ATTR bool debounce()
 IRAM_ATTR void btnInterrupt()
 {
   if (debounce())
+  {
     btnFlag = true;
+  }
 }
 
 void setLedsDisable(bool mode, bool setup)
 {
-  DEBUG_PRINTLN(F("[setLedsDisable] start"));
-  if (!setup)
+  if (modes.ledPwrIs || modes.ledUsbIs)
   {
-    const char *path = configFileGeneral;
-    DynamicJsonDocument doc(300);
-    File configFile = LittleFS.open(path, FILE_READ);
-    deserializeJson(doc, configFile);
-    configFile.close();
-    doc["disableLeds"] = mode;
-    doc["disableLedPwr"] = mode;
-    doc["disableLedUSB"] = mode;
-    configFile = LittleFS.open(path, FILE_WRITE);
-    serializeJson(doc, configFile);
-    configFile.close();
-    ConfigSettings.disableLeds = mode;
-    ConfigSettings.disableLedPwr = mode;
-    ConfigSettings.disableLedUSB = mode;
-  }
-  if (mode)
-  {
-    digitalWrite(LED_USB, !mode);
-    digitalWrite(LED_PWR, !mode);
-  }
-  else
-  {
-    if (!ConfigSettings.disableLedPwr)
+    DEBUG_PRINTLN(F("[setLedsDisable] start"));
+    if (!setup)
     {
-      digitalWrite(LED_PWR, !mode);
+      const char *path = configFileGeneral;
+      DynamicJsonDocument doc(300);
+      File configFile = LittleFS.open(path, FILE_READ);
+      deserializeJson(doc, configFile);
+      configFile.close();
+      doc["disableLeds"] = mode;
+      doc["disableLedPwr"] = mode;
+      doc["disableLedUSB"] = mode;
+      configFile = LittleFS.open(path, FILE_WRITE);
+      serializeJson(doc, configFile);
+      configFile.close();
+      ConfigSettings.disableLeds = mode;
+      ConfigSettings.disableLedPwr = mode;
+      ConfigSettings.disableLedUSB = mode;
+    }
+    if (mode)
+    {
+      if (modes.ledUsbIs)
+      {
+        digitalWrite(hwConfig.ledUsbPin, !mode);
+      }
+      if (modes.ledPwrIs)
+      {
+        digitalWrite(hwConfig.ledPwrPin, !mode);
+      }
     }
     else
     {
-      digitalWrite(LED_PWR, 0);
+      if (modes.ledPwrIs)
+      {
+        if (!ConfigSettings.disableLedPwr)
+        {
+          digitalWrite(hwConfig.ledPwrPin, !mode);
+        }
+        else
+        {
+          digitalWrite(hwConfig.ledPwrPin, 0);
+        }
+      }
+      if (modes.ledUsbIs)
+      {
+        if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB && !ConfigSettings.disableLedUSB)
+        {
+          digitalWrite(hwConfig.ledUsbPin, !mode);
+        }
+        else
+        {
+          digitalWrite(hwConfig.ledUsbPin, 0);
+        }
+      }
     }
-    if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB && !ConfigSettings.disableLedUSB)
-    {
-      digitalWrite(LED_USB, !mode);
-    }
-    else
-    {
-      digitalWrite(LED_USB, 0);
-    }
+    DEBUG_PRINTLN(F("[setLedsDisable] done"));
   }
-  DEBUG_PRINTLN(F("[setLedsDisable] done"));
 }
 
 void handleLongBtn()
 {
-  if (!digitalRead(BTN))
+  if (!digitalRead(hwConfig.btnPin))
   { // long press
     DEBUG_PRINT(F("Long press "));
     DEBUG_PRINT(btnFlag);
@@ -1101,6 +1186,7 @@ void toggleUsbMode()
   DEBUG_PRINTLN(prevCoordMode);
   DEBUG_PRINTLN(F("coordMode"));
   DEBUG_PRINTLN(coordMode);
+  delay(500);
   if (ConfigSettings.coordinator_mode != COORDINATOR_MODE_USB)
   {
     ConfigSettings.prevCoordinator_mode = ConfigSettings.coordinator_mode; // remember current state
@@ -1123,7 +1209,10 @@ void toggleUsbMode()
   configFile = LittleFS.open(path, FILE_WRITE);
   serializeJson(doc, configFile);
   configFile.close();
-  digitalWrite(LED_USB, ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB ? 1 : 0);
+  if (modes.ledUsbIs)
+  {
+    digitalWrite(hwConfig.ledUsbPin, ConfigSettings.coordinator_mode == COORDINATOR_MODE_USB ? 1 : 0);
+  }
   ESP.restart();
 }
 
@@ -1150,12 +1239,17 @@ void setupCoordinatorMode()
   {
   case COORDINATOR_MODE_USB:
     DEBUG_PRINTLN(F("Coordinator USB mode"));
-    digitalWrite(MODE_SWITCH, 1);
+    delay(500);
+    if (modes.uartChIs)
+    {
+      digitalWrite(hwConfig.uartChPin, 1);
+      DEBUG_PRINTLN(F("digitalWrite(hwConfig.uartChPin, 1) - HIGH"));
+    }
     break;
 
   case COORDINATOR_MODE_WIFI:
     DEBUG_PRINTLN(F("Coordinator WIFI mode"));
-    initLan();
+    // initLan();
     connectWifi();
     break;
 
@@ -1191,49 +1285,8 @@ void setupCoordinatorMode()
 void setup()
 {
   Serial.begin(115200); // todo ifdef DEBUG
-  ConfigSettings.apStarted = false;
-  ConfigSettings.serialSpeed = 115200;
-  DEBUG_PRINTLN(F("Start"));
-  pinMode(CC2652P_RST, OUTPUT);
-  pinMode(CC2652P_FLASH, OUTPUT);
-  digitalWrite(CC2652P_RST, 1);
-  digitalWrite(CC2652P_FLASH, 1);
-  pinMode(LED_PWR, OUTPUT);
-  pinMode(LED_USB, OUTPUT);
-  pinMode(BTN, INPUT);
-  pinMode(MODE_SWITCH, OUTPUT);
-  digitalWrite(MODE_SWITCH, 0); // enable zigbee serial
-  digitalWrite(LED_PWR, 1);
-  digitalWrite(LED_USB, 1);
 
-// hard reset
-#if BUILD_ENV_NAME != debug
-  if (!digitalRead(BTN))
-  {
-    DEBUG_PRINTLN(F("[hard reset] Entering hard reset mode"));
-    uint8_t counter = 0;
-    while (!digitalRead(BTN))
-    {
-      if (counter >= 10)
-      {
-        resetSettings();
-      }
-      else
-      {
-        counter++;
-        DEBUG_PRINTLN(counter);
-        delay(200);
-      }
-    }
-    DEBUG_PRINTLN(F("[hard reset] Btn up, exit"));
-  }
-#endif
-  //--------------------
-
-  //-----------------
-
-  attachInterrupt(digitalPinToInterrupt(BTN), btnInterrupt, FALLING);
-
+  // LOAD System vars and create FS / start
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
     DEBUG_PRINTLN(F("Error with LITTLEFS"));
@@ -1261,7 +1314,98 @@ void setup()
   {
     DEBUG_PRINTLN(F("System vars load OK"));
   }
+  // LOAD System vars and create FS / end
 
+  ConfigSettings.serialSpeed = 115200;
+
+  loadConfigHW();
+
+  ConfigSettings.apStarted = false;
+
+  // DEBUG_PRINTLN(F("Start"));
+
+  // AVOID USING PIN 0
+
+  if (hwConfig.btnPin > 0)
+  {
+    pinMode(hwConfig.btnPin, INPUT);
+    modes.btnIs = true;
+  }
+
+  if (hwConfig.ledUsbPin > 0)
+  {
+    pinMode(hwConfig.ledUsbPin, OUTPUT);
+    digitalWrite(hwConfig.ledUsbPin, 1); //  enable ledUsbPin
+    modes.ledUsbIs = true;
+  }
+
+  if (hwConfig.ledPwrPin > 0)
+  {
+    pinMode(hwConfig.ledPwrPin, OUTPUT);
+    digitalWrite(hwConfig.ledPwrPin, 1); // enable ledPwrPin
+    modes.ledPwrIs = true;
+  }
+
+  if (hwConfig.uartChPin > 0)
+  {
+    pinMode(hwConfig.uartChPin, OUTPUT);
+    DEBUG_PRINTLN(F("pinMode(hwConfig.uartChPin, OUTPUT)"));
+    digitalWrite(hwConfig.uartChPin, 0); // enable zigbee serial on LAN.so free USB
+    DEBUG_PRINTLN(F("enable zigbee serial 1 - LOW"));
+    modes.uartChIs = true;
+  }
+
+  if ((hwConfig.zbTxPin > 0) && (hwConfig.zbRxPin > 0) && (hwConfig.zbRstPin > 0) && (hwConfig.zbBslPin > 0))
+  {
+    if (modes.uartChIs == true)
+    {
+      digitalWrite(hwConfig.uartChPin, 0); // enable zigbee serial
+      DEBUG_PRINTLN(F("enable zigbee serial 2 - LOW"));
+    }
+
+    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, hwConfig.zbRxPin, hwConfig.zbTxPin); // start zigbee serial
+
+    int BSL_MODE = 0;
+
+    if (zbInit(hwConfig.zbRstPin, hwConfig.zbBslPin, BSL_MODE))
+    {
+      DEBUG_PRINTLN(F("Zigbee init - OK"));
+      modes.zigbeeIs = true;
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("Zigbee init - ERROR"));
+      modes.zigbeeIs = false;
+    }
+  }
+
+  if (modes.btnIs)
+  {
+// hard reset BTN
+#if BUILD_ENV_NAME != debug
+    if (!digitalRead(hwConfig.btnPin))
+    {
+      DEBUG_PRINTLN(F("[hard reset] Entering hard reset mode"));
+      uint8_t counter = 0;
+      while (!digitalRead(hwConfig.btnPin))
+      {
+        if (counter >= 10)
+        {
+          resetSettings();
+        }
+        else
+        {
+          counter++;
+          DEBUG_PRINTLN(counter);
+          delay(200);
+        }
+      }
+      DEBUG_PRINTLN(F("[hard reset] Btn up, exit"));
+    }
+#endif
+
+    attachInterrupt(digitalPinToInterrupt(hwConfig.btnPin), btnInterrupt, FALLING);
+  }
   if (!loadConfigSerial())
   {
     DEBUG_PRINTLN(F("Error load config serial"));
@@ -1283,11 +1427,11 @@ void setup()
   }
   DEBUG_PRINTLN("ConfigSettings.disableLeds: ");
   DEBUG_PRINTLN(ConfigSettings.disableLeds);
-  setLedsDisable(ConfigSettings.disableLeds, true);
+  setLedsDisable(ConfigSettings.disableLeds, true); // with setup ??
   setupCoordinatorMode();
   ConfigSettings.connectedClients = 0;
 
-  initZb();
+  // initZb();
 
   if (MqttSettings.enable)
   {
@@ -1299,7 +1443,7 @@ void setup()
   // Serial2.updateBaudRate(ConfigSettings.serialSpeed); // set actual speed
   printLogMsg("Setup done");
 
-  char deviceIdArr[20];
+  char deviceIdArr[100];
   getDeviceID(deviceIdArr);
 
   DEBUG_PRINTLN(String(deviceIdArr));
@@ -1419,9 +1563,9 @@ void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 
 void loop(void)
 {
-  if (btnFlag)
+  if (btnFlag && modes.btnIs)
   {
-    if (!digitalRead(BTN))
+    if (!digitalRead(hwConfig.btnPin))
     { // pressed
       if (tmrBtnLongPress.state() == STOPPED)
       {

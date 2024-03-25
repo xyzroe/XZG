@@ -72,15 +72,18 @@
                             </tr>
                             <tr>
                                 <td>ESP32 frequency:</td>
-                                <td><span data-replace="espCores"></span> cores @ <span data-replace="espFreq"></span> MHz </td>
+                                <td><span data-replace="espCores"></span> cores @ <span data-replace="espFreq"></span>
+                                    MHz </td>
                             </tr>
                             <tr>
                                 <td>ESP32 flash size:</td>
-                                <td><span data-replace="espFlashSize"></span> Mb, <span data-replace="espFlashType"></span></td>
+                                <td><span data-replace="espFlashSize"></span> Mb, <span
+                                        data-replace="espFlashType"></span></td>
                             </tr>
                             <tr>
                                 <td>ESP32 heap (free / total):</td>
-                                <td><span data-replace="espHeapFree"></span> / <span data-replace="espHeapSize"></span> KiB </td>
+                                <td><span data-replace="espHeapFree"></span> / <span data-replace="espHeapSize"></span>
+                                    KiB </td>
                             </tr>
                             <tr>
                                 <td>CC2652P hw version:</td>
@@ -177,7 +180,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4">
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
+            <div class="card">
+                <div class="card-header fw-bold text-start text-primary"><span>MQTT</span></div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Connected:</td>
+                                <td data-replace="mqConnect"></td>
+                            </tr>
+                            <tr>
+                                <td>Broker:</td>
+                                <td data-replace="mqBroker"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
             <div class="card">
                 <div class="card-header fw-bold text-start text-primary"><span>VPN</span></div>
                 <div class="card-body">

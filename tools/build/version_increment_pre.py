@@ -1,6 +1,8 @@
 """ Create version header and tracker file if missing """
+
 import datetime
 import os
+import sys
 
 Import("env")
 
@@ -24,25 +26,35 @@ Import("env")
 #  If not, see <https://opensource.org/licenses/MIT/>.
 #
 
-VERSION_FILE = 'tools/version'
-VERSION_HEADER = 'version.h'
-VERSION_PREFIX = '0.1.'
+VERSION_FILE = "tools/version"
+VERSION_HEADER = "version.h"
+VERSION_PREFIX = "0.1."
 VERSION_PATCH_NUMBER = 0
 
-if not os.path.exists("tools/.version_no_increment"):
+
+sys.path.append("./tools")
+from func import print_logo
+
+print_logo()
+
+if not os.path.exists("tools/.no_version_increment"):
     try:
         with open(VERSION_FILE) as FILE:
             VERSION_PATCH_NUMBER = FILE.readline()
-            VERSION_PREFIX = VERSION_PATCH_NUMBER[0:VERSION_PATCH_NUMBER.rindex('.')+1]
-            VERSION_PATCH_NUMBER = int(VERSION_PATCH_NUMBER[VERSION_PATCH_NUMBER.rindex('.')+1:])
-            if not os.path.exists("tools/.version_no_increment_update_date"):
+            VERSION_PREFIX = VERSION_PATCH_NUMBER[
+                0 : VERSION_PATCH_NUMBER.rindex(".") + 1
+            ]
+            VERSION_PATCH_NUMBER = int(
+                VERSION_PATCH_NUMBER[VERSION_PATCH_NUMBER.rindex(".") + 1 :]
+            )
+            if not os.path.exists("tools/.no_version_increment_update_date"):
                 VERSION_PATCH_NUMBER = VERSION_PATCH_NUMBER + 1
     except:
-        print('No version file found or incorrect data in it. Starting from 0.1.0')
+        print("No version file found or incorrect data in it. Starting from 0.1.0")
         VERSION_PATCH_NUMBER = 0
-    with open(VERSION_FILE, 'w+') as FILE:
+    with open(VERSION_FILE, "w+") as FILE:
         FILE.write(VERSION_PREFIX + str(VERSION_PATCH_NUMBER))
-        print('Build number: {}'.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER)))
+        print("Build number: {}".format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER)))
 
     HEADER_FILE = """
     // AUTO GENERATED FILE, DO NOT EDIT
@@ -52,10 +64,14 @@ if not os.path.exists("tools/.version_no_increment"):
     #ifndef BUILD_TIMESTAMP
         #define BUILD_TIMESTAMP "{}"
     #endif
-    """.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER), datetime.datetime.now())
+    """.format(
+        VERSION_PREFIX + str(VERSION_PATCH_NUMBER), datetime.datetime.now()
+    )
 
-    if os.environ.get('PLATFORMIO_INCLUDE_DIR') is not None:
-        VERSION_HEADER = os.environ.get('PLATFORMIO_INCLUDE_DIR') + os.sep + VERSION_HEADER
+    if os.environ.get("PLATFORMIO_INCLUDE_DIR") is not None:
+        VERSION_HEADER = (
+            os.environ.get("PLATFORMIO_INCLUDE_DIR") + os.sep + VERSION_HEADER
+        )
     elif os.path.exists("src"):
         VERSION_HEADER = "src" + os.sep + VERSION_HEADER
     else:
@@ -63,14 +79,14 @@ if not os.path.exists("tools/.version_no_increment"):
         os.mkdir(PROJECT_DIR + os.sep + "include")
         VERSION_HEADER = "include" + os.sep + VERSION_HEADER
 
-    with open(VERSION_HEADER, 'w+') as FILE:
+    with open(VERSION_HEADER, "w+") as FILE:
         FILE.write(HEADER_FILE)
 
-    open('tools/.version_no_increment', 'a').close()
+    open("tools/.no_version_increment", "a").close()
 else:
     if os.path.exists("tools/version"):
         FILE = open(VERSION_FILE)
         VERSION_NUMBER = FILE.readline()
-        print('Build number: {} (waiting for upload before next increment)'.format(str(VERSION_NUMBER)))
+        print("Build number: {}".format(str(VERSION_NUMBER)))
     else:
-        print('No version file found or incorrect data in it!!')
+        print("No version file found or incorrect data in it!!")

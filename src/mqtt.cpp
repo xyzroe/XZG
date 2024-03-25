@@ -64,6 +64,7 @@ void mqttReconnect()
 void mqttOnConnect()
 {
     DEBUG_PRINTLN(F("connected"));
+    MqttSettings.connect = true;
     mqttSubscribe("cmd");
     DEBUG_PRINTLN(F("mqtt Subscribed"));
     if (MqttSettings.discovery)
@@ -227,7 +228,8 @@ void mqttSubscribe(String topic)
 void mqttLoop()
 {
     if (!clientPubSub.connected())
-    {
+    {   
+        MqttSettings.connect = false;
         if (MqttSettings.reconnectTime == 0)
         {
             //mqttReconnect();

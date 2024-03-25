@@ -1,0 +1,327 @@
+input.swFx {
+  border: 1px solid rgba(0, 0, 0, .25) !important;
+}
+
+input.swFx:checked {
+  background-color: #303fa1 !important;
+  border-color: #303fa1 !important;
+}
+
+label.swFx {
+  color: black !important;
+}
+
+/* Preloader  */
+.uzg-loader {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 16px solid;
+  border-color: #047cc3 #0000;
+  animation: s1 0.5s infinite;
+}
+
+@keyframes s1 {
+  to {
+    transform: rotate(.5turn)
+  }
+}
+
+#uzPreloader {
+  position: absolute;
+  left: calc(50% - 50px);
+  top: calc(50% - 50px);
+  z-index: 1000;
+  width: 100px;
+  height: 100px;
+}
+
+.card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-disabled>* {
+  pointer-events: none;
+}
+
+@media (min-width: 576px) {
+  .nav {
+    padding-left: 8px;
+  }
+
+}
+
+@media (max-width: 767px) {
+  .nav-container {
+    position: fixed;
+    left: -250px;
+    transition: all 0.3s ease-out;
+    top: -1px !important;
+  }
+
+  nav.navbar {
+    display: flex !important;
+    z-index: 99;
+  }
+
+  #pagenamePC {
+    display: none;
+  }
+}
+
+.sidenav-active {
+  left: -1px !important;
+  transition: all 0.6s ease-out;
+}
+
+.toast {
+  z-index: 100;
+  margin-right: 20px;
+}
+
+.nav-container {
+  min-width: fit-content;
+  z-index: 100;
+}
+
+.nav-shadow {
+  -webkit-box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+  -moz-box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+  box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+}
+
+.nav {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.logo-wrapper {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 10px;
+}
+
+.logo-wrapper span {
+  padding-left: 6px;
+  vertical-align: middle;
+}
+
+.app-main-content {
+  padding-top: 0px;
+}
+
+.cardPadding {
+  padding-bottom: 20px;
+}
+
+.nav-active {
+  background-color: #0000003d;
+}
+
+.nav-item span {
+  vertical-align: inherit;
+}
+
+.nav-item {
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.nav-item a {
+  border-bottom: white 1px solid !important;
+  border-radius: 0 !important;
+}
+
+.nav-item:last-child a {
+  border-bottom: none !important;
+}
+
+#file-input {
+  padding: 0;
+  border: 1px solid #ddd;
+  line-height: 44px;
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  border-radius: 4px;
+  margin: 10px auto;
+  font-size: 15px
+}
+
+#file-input_zb {
+  padding: 0;
+  border: 1px solid #ddd;
+  line-height: 44px;
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  border-radius: 4px;
+  margin: 10px auto;
+  font-size: 15px
+}
+
+#bar,
+#prgbar {
+  background-color: #f1f1f1;
+  border-radius: 10px
+}
+
+#bar_zb,
+#prgbar_zb {
+  background-color: #f1f1f1;
+  border-radius: 10px
+}
+
+#bar {
+  background-color: #17a2b8;
+  width: 0%;
+  height: 10px
+}
+
+#bar_zb {
+  background-color: #17a2b8;
+  width: 0%;
+  height: 10px
+}
+
+form#upload_form {
+  background: #fff;
+  max-width: 408px;
+  border-radius: 5px;
+  text-align: center
+}
+
+form#upload_form_zb {
+  background: #fff;
+  max-width: 408px;
+  border-radius: 5px;
+  text-align: center
+}
+
+h2 {
+  text-align: center
+}
+
+div#update_info {
+  max-width: 55%;
+  margin: auto;
+  margin-bottom: 25px;
+}
+
+div#main {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bg-top {
+  background-color: var(--link-color) !important;
+}
+
+.nav {
+  --bs-nav-link-color: var(--link-color) !important;
+  --bs-nav-link-hover-color: var(--link-hover-color) !important;
+  white-space: normal !important;
+}
+
+.card {
+  background-color: var(--card-background-color) !important;
+}
+
+.modal-content {
+  background-color: var(--modal-background-color) !important;
+}
+
+body {
+  color: var(--text-color) !important;
+  background-color: var(--background-color) !important;
+}
+
+.table {
+  color: var(--table-text-color) !important;
+}
+
+.form-control:disabled {
+  background-color: var(--form-disabled-background-color) !important;
+}
+
+/*========== Variables Light theme (default) ==========*/
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --card-background-color: #f0f0f0;
+  --table-text-color: var(--bs-table-color);
+  --modal-background-color: var(--bs-modal-bg);
+  --form-disabled-background-color: #e9ecef;
+  --link-color: #047cc3;
+  --link-hover-color: #04d5ec;
+}
+
+/*========== Variables Dark theme ==========*/
+.dark-theme {
+  --background-color: #121212;
+  --text-color: #686868;
+  --card-background-color: #1e1e1e;
+  --table-text-color: #9c9c9c;
+  --modal-background-color: #212529;
+  --form-disabled-background-color: #303030;
+  --link-color: #ff9200;
+  --link-hover-color: #ffc33c;
+}
+
+/*==================== Dark Light Button Implementation ====================*/
+
+.checkbox {
+  display: none;
+}
+
+.switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+}
+
+.switch {
+  background-color: #111;
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  position: relative;
+  height: 26px;
+  width: 50px;
+  transform: scale(1.2);
+}
+
+.switch .ball {
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  height: 22px;
+  width: 22px;
+  transform: translateX(0px);
+  transition: transform 0.2s linear;
+}
+
+.checkbox:checked+.switch .ball {
+  transform: translateX(24px);
+}
+
+.bi-moon {
+  color: #f1c40f;
+}
+
+.bi-sun {
+  color: #f39c12;
+}
