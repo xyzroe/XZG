@@ -19,8 +19,7 @@ def get_formatted_date(dateTimeBuild):
 
 dateTimeBuild = datetime.datetime.now()
 
-HEADER_FILE = """
-// AUTO GENERATED FILE
+HEADER_FILE = """// AUTO GENERATED FILE
 #ifndef VERSION
     #define VERSION "{}"
 #endif

@@ -17,7 +17,6 @@ if [ ! -f "$VERSION_HEADER" ]; then
 fi
 
 # Read version from the version file
-
 version=$(grep '#define VERSION' "$VERSION_HEADER" | awk -F '"' '{print $2}')
 
 
@@ -38,8 +37,17 @@ $commitMessage"
 # Committing changes with the formatted commit message
 git commit -m "$formattedCommitMessage"
 
-# Tagging the commit with the version
-git tag "$version"
+# Find first free tag
+tag=$version
+suffix=0
+while git rev-parse "$tag" >/dev/null 2>&1; do
+    let "suffix+=1"
+    tag="${version}.${suffix}"
+done
+echo "Use tag: $tag"
+
+# Tagging the commit with the version 
+git tag "$tag"
 
 # Pushing changes and tags
 git push
