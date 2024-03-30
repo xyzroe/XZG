@@ -16,18 +16,18 @@
 #include "etc.h"
 #include "zb.h"
 #include "zones.h"
+// #include "hw.h"
 
-#include "webh/PAGE_WG.html.gz.h"
+#include "webh/PAGE_VPN.html.gz.h"
 #include "webh/PAGE_MQTT.html.gz.h"
 #include "webh/PAGE_ABOUT.html.gz.h"
-#include "webh/PAGE_ETHERNET.html.gz.h"
 #include "webh/PAGE_GENERAL.html.gz.h"
 #include "webh/PAGE_LOADER.html.gz.h"
 #include "webh/PAGE_ROOT.html.gz.h"
 #include "webh/PAGE_SECURITY.html.gz.h"
-#include "webh/PAGE_SERIAL.html.gz.h"
-#include "webh/PAGE_SYSTOOLS.html.gz.h"
-#include "webh/PAGE_WIFI.html.gz.h"
+#include "webh/PAGE_ZIGBEE.html.gz.h"
+#include "webh/PAGE_TOOLS.html.gz.h"
+#include "webh/PAGE_NETWORK.html.gz.h"
 #include "webh/PAGE_LOGOUT.html.gz.h"
 #include "webh/bootstrap.min.js.gz.h"
 #include "webh/functions.js.gz.h"
@@ -46,12 +46,21 @@
 // #define HTTP_MAX_SEND_WAIT 10000 // ms to wait for data chunk to be ACKed
 // #define HTTP_MAX_CLOSE_WAIT 4000 // ms to wait for the client to close the connection
 
-extern struct ConfigSettingsStruct ConfigSettings;
+// extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
-extern struct MqttSettingsStruct MqttSettings;
-extern struct WgSettingsStruct WgSettings;
+// extern struct MqttSettingsStruct MqttSettings;
+// extern struct WgSettingsStruct WgSettings;
 extern struct BrdConfigStruct hwConfig;
-extern struct CurrentModesStruct modes;
+extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
+
+// extern struct CurrentModesStruct modes;
+
+extern struct SystemConfigStruct systemCfg;
+extern struct NetworkConfigStruct networkCfg;
+extern struct VpnConfigStruct vpnCfg;
+extern struct MqttConfigStruct mqttCfg;
+
+extern struct SysVarsStruct vars;
 
 bool wifiWebSetupInProgress = false;
 extern const char *coordMode;
@@ -78,21 +87,21 @@ const char *tempFile = "/config/fw.hex";
 bool opened = false;
 File fwFile;
 
-extern bool loadConfigMqtt();
-extern bool loadConfigWg();
+extern bool loadFileConfigMqtt();
+extern bool loadFileConfigWg();
 
 enum API_PAGE_t : uint8_t
 {
     API_PAGE_ROOT,
     API_PAGE_GENERAL,
     API_PAGE_ETHERNET,
-    API_PAGE_WIFI,
-    API_PAGE_ZHA_Z2M,
+    API_PAGE_NETWORK,
+    API_PAGE_ZIGBEE,
     API_PAGE_SECURITY,
-    API_PAGE_SYSTOOLS,
+    API_PAGE_TOOLS,
     API_PAGE_ABOUT,
     API_PAGE_MQTT,
-    API_PAGE_WG
+    API_PAGE_VPN
 };
 
 WebServer serverWeb(80);
@@ -138,19 +147,19 @@ void initWebServer()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/security", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
-    serverWeb.on("/wifi", []()
+    serverWeb.on("/network", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/ethernet", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
-    serverWeb.on("/zha-z2m", []()
+    serverWeb.on("/zigbee", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/about", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
-    serverWeb.on("/sys-tools", []()
+    serverWeb.on("/tools", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/mqtt", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
-    serverWeb.on("/wg", []()
+    serverWeb.on("/vpn", []()
                  { sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len); });
     serverWeb.on("/saveParams", HTTP_POST, handleSaveParams);
     serverWeb.on("/cmdZigRST", handleZigbeeRestart);
@@ -395,7 +404,7 @@ void handleApi()
     const char *wrongArgs = "wrong args";
     const char *ok = "ok";
 
-    if (ConfigSettings.webAuth)
+    if (systemCfg.webAuth)
     {
         if (!checkAuth())
         { // Authentication
@@ -423,7 +432,7 @@ void handleApi()
         {
         case API_FLASH_ZB:
         {
-            ConfigSettings.zbFlashing = 1;
+            vars.zbFlashing = 1;
             const char *fwurlArg = "fwurl";
             const uint8_t eventLen = 11;
             const char *tagZB_FW_info = "ZB_FW_info";
@@ -483,7 +492,7 @@ void handleApi()
             {
                 serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, "missing arg 1");
             }
-            ConfigSettings.zbFlashing = 0;
+            vars.zbFlashing = 0;
         }
         break;
         case API_GET_LOG:
@@ -634,7 +643,7 @@ void handleApi()
             {
                 if (serverWeb.arg(param) == "refreshLogs")
                 {
-                    resp = (String)ConfigSettings.refreshLogs;
+                    resp = (String)systemCfg.refreshLogs;
                 }
                 else if (serverWeb.arg(param) == "coordMode")
                 {
@@ -644,7 +653,7 @@ void handleApi()
                     }
                     else
                     {
-                        resp = (String)ConfigSettings.coordinator_mode;
+                        resp = (String)vars.workMode;
                     }
                 }
                 else if (serverWeb.arg(param) == "zbRev")
@@ -654,6 +663,25 @@ void handleApi()
                 else if (serverWeb.arg(param) == "espVer")
                 {
                     resp = VERSION;
+                }
+                else if (serverWeb.arg(param) == "wifiEnable")
+                {
+                    resp = networkCfg.wifiEnable;
+                }
+                else if (serverWeb.arg(param) == "all")
+                {
+                    resp = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
+                }
+                else if (serverWeb.arg(param) == "vars")
+                {
+                    resp = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
+                }
+                else if (serverWeb.arg(param) == "root")
+                {
+                    resp = "";
+                    DynamicJsonDocument doc(1024);
+                    doc = getRootData();
+                    serializeJson(doc, resp);
                 }
             }
             serverWeb.send(HTTP_CODE_OK, contTypeText, resp);
@@ -695,7 +723,7 @@ void handleApi()
                     wifi_0["secure"] = WiFi.encryptionType(i);
                 }
                 WiFi.scanDelete();
-                // if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF); no more wifi scan in lan mode
+                // if (vars.workMode == WORK_MODE_NETWORK) WiFi.mode(WIFI_OFF); no more wifi scan in lan mode
             }
             if (timeout < 10)
             {
@@ -706,7 +734,7 @@ void handleApi()
                 doc[scanDone] = true;
                 WiFi.scanDelete();
                 timeout = 0;
-                // if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_LAN) WiFi.mode(WIFI_OFF);
+                // if (vars.workMode == WORK_MODE_NETWORK) WiFi.mode(WIFI_OFF);
             }
 
             serializeJson(doc, result);
@@ -731,25 +759,25 @@ void handleApi()
                 handleGeneral();
                 sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
                 break;
-            case API_PAGE_ETHERNET:
+            /*case API_PAGE_ETHERNET:
                 handleEther();
                 sendGzip(contTypeTextHtml, PAGE_ETHERNET_html_gz, PAGE_ETHERNET_html_gz_len);
+                break;*/
+            case API_PAGE_NETWORK:
+                handleNetwork();
+                sendGzip(contTypeTextHtml, PAGE_NETWORK_html_gz, PAGE_NETWORK_html_gz_len);
                 break;
-            case API_PAGE_WIFI:
-                handleWifi();
-                sendGzip(contTypeTextHtml, PAGE_WIFI_html_gz, PAGE_WIFI_html_gz_len);
-                break;
-            case API_PAGE_ZHA_Z2M:
+            case API_PAGE_ZIGBEE:
                 handleSerial();
-                sendGzip(contTypeTextHtml, PAGE_SERIAL_html_gz, PAGE_SERIAL_html_gz_len);
+                sendGzip(contTypeTextHtml, PAGE_ZIGBEE_html_gz, PAGE_ZIGBEE_html_gz_len);
                 break;
             case API_PAGE_SECURITY:
                 handleSecurity();
                 sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
                 break;
-            case API_PAGE_SYSTOOLS:
+            case API_PAGE_TOOLS:
                 handleSysTools();
-                sendGzip(contTypeTextHtml, PAGE_SYSTOOLS_html_gz, PAGE_SYSTOOLS_html_gz_len);
+                sendGzip(contTypeTextHtml, PAGE_TOOLS_html_gz, PAGE_TOOLS_html_gz_len);
                 break;
             case API_PAGE_ABOUT:
                 // handleAbout();
@@ -759,9 +787,9 @@ void handleApi()
                 handleMqtt();
                 sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
                 break;
-            case API_PAGE_WG:
-                handleWg();
-                sendGzip(contTypeTextHtml, PAGE_WG_html_gz, PAGE_WG_html_gz_len);
+            case API_PAGE_VPN:
+                handleVpn();
+                sendGzip(contTypeTextHtml, PAGE_VPN_html_gz, PAGE_VPN_html_gz_len);
                 break;
             default:
                 break;
@@ -795,334 +823,338 @@ void handleApi()
 
 void handleSaveParams()
 {
-    String result;
-    DynamicJsonDocument doc(512);
-    const char *pageId = "pageId";
-    const char *on = "on";
-    File configFile;
-    const uint8_t one = 1;
-    const uint8_t zero = 0;
-    if (serverWeb.hasArg(pageId))
-    {
-        switch (serverWeb.arg(pageId).toInt())
-        {
-        case API_PAGE_GENERAL:
-        {
-            configFile = LittleFS.open(configFileGeneral, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-
-            if (serverWeb.hasArg(coordMode))
-            {
-                const uint8_t mode = serverWeb.arg(coordMode).toInt();
-                if (mode <= 2 && mode >= zero)
-                {
-                    // ConfigSettings.coordinator_mode = static_cast<COORDINATOR_MODE_t>(mode);
-                    if (mode == 1)
-                        wifiWebSetupInProgress = true;
-                    doc[coordMode] = static_cast<COORDINATOR_MODE_t>(mode);
-                }
-            }
-            const char *keepWeb = "keepWeb";
-            if (serverWeb.arg(keepWeb) == on)
-            {
-                doc[keepWeb] = one;
-            }
-            else
-            {
-                doc[keepWeb] = zero;
-            }
-            const char *disableLedPwr = "disableLedPwr";
-            if (serverWeb.arg(disableLedPwr) == on)
-            {
-                doc[disableLedPwr] = one;
-            }
-            else
-            {
-                doc[disableLedPwr] = zero;
-            }
-            const char *disableLedUSB = "disableLedUSB";
-            if (serverWeb.arg(disableLedUSB) == on)
-            {
-                doc[disableLedUSB] = one;
-            }
-            else
-            {
-                doc[disableLedUSB] = zero;
-            }
-            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-        }
-        break;
-        case API_PAGE_ETHERNET:
-        {
-            configFile = LittleFS.open(configFileEther, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            doc["ip"] = serverWeb.arg("ipAddress");
-            doc["mask"] = serverWeb.arg("ipMask");
-            doc["gw"] = serverWeb.arg("ipGW");
-            const char *dhcp = "dhcp";
-            if (serverWeb.arg(dhcp) == "on")
-            {
-                doc[dhcp] = one;
-            }
-            else
-            {
-                doc[dhcp] = zero;
-                if (doc["mask"] == "")
-                {
-                    doc["mask"] = "255.255.255.0";
-                }
-                if (doc["ip"] == "")
-                {
-                    doc["ip"] = "192.168.0.1";
-                }
-                if (doc["gw"] == "")
-                {
-                    doc["gw"] = "192.168.0.1";
-                }
-            }
-            // const char* disablePingCtrl = "disablePingCtrl";
-            // if (serverWeb.arg(disablePingCtrl) == on) {
-            //     doc[disablePingCtrl] = one;
-            // } else {
-            //     doc[disablePingCtrl] = zero;
-            // }
-            configFile = LittleFS.open(configFileEther, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-        }
-        case API_PAGE_MQTT:
-        {
-            configFile = LittleFS.open(configFileMqtt, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            doc["server"] = serverWeb.arg("MqttServer");
-            doc["port"] = serverWeb.arg("MqttPort");
-            doc["user"] = serverWeb.arg("MqttUser");
-            doc["pass"] = serverWeb.arg("MqttPass");
-            doc["topic"] = serverWeb.arg("MqttTopic");
-            doc["interval"] = serverWeb.arg("MqttInterval");
-
-            const char *enable = "enable";
-            if (serverWeb.arg("MqttEnable") == "on")
-            {
-                doc[enable] = one;
-            }
-            else
-            {
-                doc[enable] = zero;
-            }
-
-            const char *discovery = "discovery";
-            if (serverWeb.arg("MqttDiscovery") == "on")
-            {
-                doc[discovery] = one;
-            }
-            else
-            {
-                doc[discovery] = zero;
-            }
-
-            // const char* disablePingCtrl = "disablePingCtrl";
-            // if (serverWeb.arg(disablePingCtrl) == on) {
-            //     doc[disablePingCtrl] = one;
-            // } else {
-            //     doc[disablePingCtrl] = zero;
-            // }
-            configFile = LittleFS.open(configFileMqtt, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-            loadConfigMqtt();
-        }
-        break;
-        case API_PAGE_WG:
-        {
-            configFile = LittleFS.open(configFileWg, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            doc["localAddr"] = serverWeb.arg("WgLocalAddr");
-            doc["localIP"] = serverWeb.arg("WgLocalPrivKey");
-            doc["endAddr"] = serverWeb.arg("WgEndAddr");
-            doc["endPubKey"] = serverWeb.arg("WgEndPubKey");
-            doc["endPort"] = serverWeb.arg("WgEndPort");
-
-            const char *enable = "enable";
-            if (serverWeb.arg("WgEnable") == "on")
-            {
-                doc[enable] = one;
-            }
-            else
-            {
-                doc[enable] = zero;
-            }
-
-            configFile = LittleFS.open(configFileWg, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-            loadConfigWg();
-        }
-        break;
-        case API_PAGE_WIFI:
-        {
-            configFile = LittleFS.open(configFileWifi, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            doc["ssid"] = serverWeb.arg("WIFISSID");
-            doc["pass"] = serverWeb.arg("WIFIpassword");
-            const char *dhcpWiFi = "dhcpWiFi";
-            if (serverWeb.arg(dhcpWiFi) == on)
-            {
-                doc[dhcpWiFi] = 1;
-            }
-            else
-            {
-                doc[dhcpWiFi] = 0;
-            }
-            doc["ip"] = serverWeb.arg("ipAddress");
-            doc["mask"] = serverWeb.arg("ipMask");
-            doc["gw"] = serverWeb.arg("ipGW");
-            configFile = LittleFS.open(configFileWifi, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-            WiFi.persistent(false);
-            if (ConfigSettings.apStarted)
-            {
-                WiFi.mode(WIFI_AP_STA);
-            }
-            else
-            {
-                WiFi.mode(WIFI_STA);
-            }
-            WiFi.begin(serverWeb.arg("WIFISSID").c_str(), serverWeb.arg("WIFIpassword").c_str());
-        }
-        break;
-        case API_PAGE_ZHA_Z2M:
-        {
-            configFile = LittleFS.open(configFileSerial, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            const char *baud = "baud";
-            if (serverWeb.hasArg(baud))
-            {
-                doc[baud] = serverWeb.arg(baud);
-            }
-            else
-            {
-                doc[baud] = 115200;
-            }
-            const char *port = "port";
-            if (serverWeb.hasArg(baud))
-            {
-                doc[port] = serverWeb.arg(port);
-            }
-            else
-            {
-                doc[port] = 6638;
-            }
-            configFile = LittleFS.open(configFileSerial, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-        }
-        break;
-        case API_PAGE_SECURITY:
-        {
-            configFile = LittleFS.open(configFileSecurity, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            const char *disableWeb = "disableWeb";
-            if (serverWeb.arg(disableWeb) == on)
-            {
-                doc[disableWeb] = 1;
-            }
-            else
-            {
-                doc[disableWeb] = 0;
-            }
-            const char *webAuth = "webAuth";
-            if (serverWeb.arg(webAuth) == on)
-            {
-                doc[webAuth] = 1;
-            }
-            else
-            {
-                doc[webAuth] = 0;
-            }
-            const char *webUser = "webUser";
-            if (serverWeb.arg(webUser) != "")
-            {
-                doc[webUser] = serverWeb.arg(webUser);
-            }
-            else
-            {
-                doc[webUser] = "admin";
-            }
-            const char *fwEnabled = "fwEnabled";
-            if (serverWeb.arg(fwEnabled) == on)
-            {
-                doc[fwEnabled] = 1;
-            }
-            else
-            {
-                doc[fwEnabled] = 0;
-            }
-            const char *fwIp = "fwIp";
-            doc[fwIp] = serverWeb.arg(fwIp);
-            doc["webPass"] = serverWeb.arg("webPass");
-
-            configFile = LittleFS.open(configFileSecurity, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-        }
-        break;
-        case API_PAGE_SYSTOOLS:
-        {
-            const char *refreshLogs = "refreshLogs";
-            const char *hostname = "hostname";
-            configFile = LittleFS.open(configFileGeneral, FILE_READ);
-            deserializeJson(doc, configFile);
-            configFile.close();
-            if (serverWeb.hasArg(refreshLogs))
-            {
-                ConfigSettings.refreshLogs = serverWeb.arg(refreshLogs).toInt();
-                doc[refreshLogs] = ConfigSettings.refreshLogs;
-            }
-            if (serverWeb.hasArg(hostname))
-            {
-                doc[hostname] = serverWeb.arg(hostname);
-                strlcpy(ConfigSettings.hostname, serverWeb.arg(hostname).c_str(), sizeof(ConfigSettings.hostname));
-            }
-            const char *timeZoneName = "timeZoneName";
-            if (serverWeb.hasArg(timeZoneName))
-            {
-                doc[timeZoneName] = serverWeb.arg(timeZoneName);
-            }
-            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-            configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-            serializeJson(doc, configFile);
-            configFile.close();
-        }
-        break;
-
-        default:
-            break;
-        }
-        serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
-    }
-    else
-    {
-        serverWeb.send(500, contTypeText, "bad args");
-    }
+    updateConfiguration(serverWeb, systemCfg, networkCfg, vpnCfg, mqttCfg);
 }
+/*
+String result;
+DynamicJsonDocument doc(512);
+const char *pageId = "pageId";
+const char *on = "on";
+File configFile;
+const uint8_t one = 1;
+const uint8_t zero = 0;
+if (serverWeb.hasArg(pageId))
+{
+    switch (serverWeb.arg(pageId).toInt())
+    {
+    case API_PAGE_GENERAL:
+    {
+
+        configFile = LittleFS.open(configFileGeneral, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+
+        if (serverWeb.hasArg(coordMode))
+        {
+            const uint8_t mode = serverWeb.arg(coordMode).toInt();
+            if (mode <= 2 && mode >= zero)
+            {
+                // vars.workMode = static_cast<WORK_MODE_t>(mode);
+                if (mode == 1)
+                    wifiWebSetupInProgress = true;
+                doc[coordMode] = static_cast<WORK_MODE_t>(mode);
+            }
+        }
+        const char *keepWeb = "keepWeb";
+        if (serverWeb.arg(keepWeb) == on)
+        {
+            doc[keepWeb] = one;
+        }
+        else
+        {
+            doc[keepWeb] = zero;
+        }
+        const char *disableLedPwr = "disableLedPwr";
+        if (serverWeb.arg(disableLedPwr) == on)
+        {
+            doc[disableLedPwr] = one;
+        }
+        else
+        {
+            doc[disableLedPwr] = zero;
+        }
+        const char *disableLedUSB = "disableLedUSB";
+        if (serverWeb.arg(disableLedUSB) == on)
+        {
+            doc[disableLedUSB] = one;
+        }
+        else
+        {
+            doc[disableLedUSB] = zero;
+        }
+        configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+    }
+    break;
+    case API_PAGE_ETHERNET:
+    {
+        configFile = LittleFS.open(configFileEther, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        doc["ip"] = serverWeb.arg("ipAddress");
+        doc["mask"] = serverWeb.arg("ipMask");
+        doc["gw"] = serverWeb.arg("ipGW");
+        const char *dhcp = "dhcp";
+        if (serverWeb.arg(dhcp) == "on")
+        {
+            doc[dhcp] = one;
+        }
+        else
+        {
+            doc[dhcp] = zero;
+            if (doc["mask"] == "")
+            {
+                doc["mask"] = "255.255.255.0";
+            }
+            if (doc["ip"] == "")
+            {
+                doc["ip"] = "192.168.0.1";
+            }
+            if (doc["gw"] == "")
+            {
+                doc["gw"] = "192.168.0.1";
+            }
+        }
+        // const char* disablePingCtrl = "disablePingCtrl";
+        // if (serverWeb.arg(disablePingCtrl) == on) {
+        //     doc[disablePingCtrl] = one;
+        // } else {
+        //     doc[disablePingCtrl] = zero;
+        // }
+        configFile = LittleFS.open(configFileEther, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+    }
+    case API_PAGE_MQTT:
+    {
+        configFile = LittleFS.open(configFileMqtt, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        doc["server"] = serverWeb.arg("MqttServer");
+        doc["port"] = serverWeb.arg("MqttPort");
+        doc["user"] = serverWeb.arg("MqttUser");
+        doc["pass"] = serverWeb.arg("MqttPass");
+        doc["topic"] = serverWeb.arg("MqttTopic");
+        doc["interval"] = serverWeb.arg("MqttInterval");
+
+        const char *enable = "enable";
+        if (serverWeb.arg("MqttEnable") == "on")
+        {
+            doc[enable] = one;
+        }
+        else
+        {
+            doc[enable] = zero;
+        }
+
+        const char *discovery = "discovery";
+        if (serverWeb.arg("MqttDiscovery") == "on")
+        {
+            doc[discovery] = one;
+        }
+        else
+        {
+            doc[discovery] = zero;
+        }
+
+        // const char* disablePingCtrl = "disablePingCtrl";
+        // if (serverWeb.arg(disablePingCtrl) == on) {
+        //     doc[disablePingCtrl] = one;
+        // } else {
+        //     doc[disablePingCtrl] = zero;
+        // }
+        configFile = LittleFS.open(configFileMqtt, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+        loadFileConfigMqtt();
+    }
+    break;
+    case API_PAGE_VPN:
+    {
+        configFile = LittleFS.open(configFileWg, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        doc["localAddr"] = serverWeb.arg("WgLocalAddr");
+        doc["localIP"] = serverWeb.arg("WgLocalPrivKey");
+        doc["endAddr"] = serverWeb.arg("WgEndAddr");
+        doc["endPubKey"] = serverWeb.arg("WgEndPubKey");
+        doc["endPort"] = serverWeb.arg("WgEndPort");
+
+        const char *enable = "enable";
+        if (serverWeb.arg("WgEnable") == "on")
+        {
+            doc[enable] = one;
+        }
+        else
+        {
+            doc[enable] = zero;
+        }
+
+        configFile = LittleFS.open(configFileWg, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+        loadFileConfigWg();
+    }
+    break;
+    case API_PAGE_NETWORK:
+    {
+        configFile = LittleFS.open(configFileWifi, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        doc["ssid"] = serverWeb.arg("WIFISSID");
+        doc["pass"] = serverWeb.arg("WIFIpassword");
+        const char *dhcpWiFi = "dhcpWiFi";
+        if (serverWeb.arg(dhcpWiFi) == on)
+        {
+            doc[dhcpWiFi] = 1;
+        }
+        else
+        {
+            doc[dhcpWiFi] = 0;
+        }
+        doc["ip"] = serverWeb.arg("ipAddress");
+        doc["mask"] = serverWeb.arg("ipMask");
+        doc["gw"] = serverWeb.arg("ipGW");
+        configFile = LittleFS.open(configFileWifi, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+        WiFi.persistent(false);
+        if (vars.apStarted)
+        {
+            WiFi.mode(WIFI_AP_STA);
+        }
+        else
+        {
+            WiFi.mode(WIFI_STA);
+        }
+        WiFi.begin(serverWeb.arg("WIFISSID").c_str(), serverWeb.arg("WIFIpassword").c_str());
+    }
+    break;
+    case API_PAGE_ZIGBEE:
+    {
+        configFile = LittleFS.open(configFileSerial, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        const char *baud = "baud";
+        if (serverWeb.hasArg(baud))
+        {
+            doc[baud] = serverWeb.arg(baud);
+        }
+        else
+        {
+            doc[baud] = 115200;
+        }
+        const char *port = "port";
+        if (serverWeb.hasArg(baud))
+        {
+            doc[port] = serverWeb.arg(port);
+        }
+        else
+        {
+            doc[port] = 6638;
+        }
+        configFile = LittleFS.open(configFileSerial, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+    }
+    break;
+    case API_PAGE_SECURITY:
+    {
+        configFile = LittleFS.open(configFileSecurity, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        const char *disableWeb = "disableWeb";
+        if (serverWeb.arg(disableWeb) == on)
+        {
+            doc[disableWeb] = 1;
+        }
+        else
+        {
+            doc[disableWeb] = 0;
+        }
+        const char *webAuth = "webAuth";
+        if (serverWeb.arg(webAuth) == on)
+        {
+            doc[webAuth] = 1;
+        }
+        else
+        {
+            doc[webAuth] = 0;
+        }
+        const char *webUser = "webUser";
+        if (serverWeb.arg(webUser) != "")
+        {
+            doc[webUser] = serverWeb.arg(webUser);
+        }
+        else
+        {
+            doc[webUser] = "admin";
+        }
+        const char *fwEnabled = "fwEnabled";
+        if (serverWeb.arg(fwEnabled) == on)
+        {
+            doc[fwEnabled] = 1;
+        }
+        else
+        {
+            doc[fwEnabled] = 0;
+        }
+        const char *fwIp = "fwIp";
+        doc[fwIp] = serverWeb.arg(fwIp);
+        doc["webPass"] = serverWeb.arg("webPass");
+
+        configFile = LittleFS.open(configFileSecurity, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+    }
+    break;
+    case API_PAGE_TOOLS:
+    {
+        const char *refreshLogs = "refreshLogs";
+        const char *hostname = "hostname";
+        configFile = LittleFS.open(configFileGeneral, FILE_READ);
+        deserializeJson(doc, configFile);
+        configFile.close();
+        if (serverWeb.hasArg(refreshLogs))
+        {
+            systemCfg.refreshLogs = serverWeb.arg(refreshLogs).toInt();
+            doc[refreshLogs] = systemCfg.refreshLogs;
+        }
+        if (serverWeb.hasArg(hostname))
+        {
+            doc[hostname] = serverWeb.arg(hostname);
+            strlcpy(systemCfg.hostname, serverWeb.arg(hostname).c_str(), sizeof(systemCfg.hostname));
+        }
+        const char *timeZoneName = "timeZoneName";
+        if (serverWeb.hasArg(timeZoneName))
+        {
+            doc[timeZoneName] = serverWeb.arg(timeZoneName);
+        }
+        configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
+        //configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
+        serializeJson(doc, configFile);
+        configFile.close();
+    }
+    break;
+
+    default:
+        break;
+    }
+    serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
+}
+else
+{
+    serverWeb.send(500, contTypeText, "bad args");
+}
+}*/
 
 bool checkAuth()
 {
-    if (!ConfigSettings.webAuth)
+    if (!systemCfg.webAuth)
         return true;
     const char *www_realm = "Login Required";
-    if (!serverWeb.authenticate(ConfigSettings.webUser, ConfigSettings.webPass))
+    if (!serverWeb.authenticate(systemCfg.webUser, systemCfg.webPass))
     {
         serverWeb.requestAuthentication(DIGEST_AUTH, www_realm, "Authentication failed");
         return false;
@@ -1140,79 +1172,128 @@ void handleGeneral()
 
     // doc["pageName"] = "General";
     //  DEBUG_PRINTLN(ConfigSettings.usbMode);
-    switch (ConfigSettings.coordinator_mode)
+    switch (vars.workMode)
     {
-    case COORDINATOR_MODE_USB:
+    case WORK_MODE_USB:
         doc["checkedUsbMode"] = checked;
         break;
-    case COORDINATOR_MODE_WIFI:
+    /*case COORDINATOR_MODE_WIFI:
         doc["checkedWifiMode"] = checked;
-        break;
-    case COORDINATOR_MODE_LAN:
+        break;*/
+    case WORK_MODE_NETWORK:
         doc["checkedLanMode"] = checked;
         break;
 
     default:
         break;
     }
-    // DEBUG_PRINTLN(ConfigSettings.disableLedPwr);
-    if (ConfigSettings.keepWeb)
+    // DEBUG_PRINTLN(systemCfg.disableLedPwr);
+    if (systemCfg.keepWeb)
     {
         doc["keepWeb"] = checked;
     }
-    if (ConfigSettings.disableLedPwr)
+    if (systemCfg.disableLedPwr)
     {
         doc["checkedDisableLedPwr"] = checked;
     }
-    // DEBUG_PRINTLN(ConfigSettings.disableLedUSB);
-    if (ConfigSettings.disableLedUSB)
+    // DEBUG_PRINTLN(systemCfg.disableLedUSB);
+    if (systemCfg.disableLedUSB)
     {
         doc["checkedDisableLedUSB"] = checked;
     }
+    // serializeJson(doc, result);
+    // serverWeb.sendHeader(respHeaderName, result);
+
+    // String result;
+    // DynamicJsonDocument doc(512);
+
+    doc["hostname"] = systemCfg.hostname;
+    doc["refreshLogs"] = systemCfg.refreshLogs;
+    if (systemCfg.timeZone)
+    {
+        doc["timeZoneName"] = systemCfg.timeZone;
+    }
+    doc["ntpServ1"] = systemCfg.ntpServ1; //.toString();
+    doc["ntpServ2"] = systemCfg.ntpServ2; //.toString();
+
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
+
+    DynamicJsonDocument zones(10240);
+    String results;
+
+    JsonArray zonesArray = zones.to<JsonArray>();
+    for (int i = 0; i < timeZoneCount; i++)
+    {
+        zonesArray.add(timeZones[i].zone);
+    }
+
+    serializeJson(zones, results);
+    serverWeb.sendHeader(respTimeZonesName, results);
 }
 void handleSecurity()
 {
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (ConfigSettings.disableWeb)
+    if (systemCfg.disableWeb)
     {
         doc["disableWeb"] = checked;
     }
 
-    if (ConfigSettings.webAuth)
+    if (systemCfg.webAuth)
     {
         doc["webAuth"] = checked;
     }
-    doc["webUser"] = (String)ConfigSettings.webUser;
-    doc["webPass"] = (String)ConfigSettings.webPass;
-    if (ConfigSettings.fwEnabled)
+    doc["webUser"] = (String)systemCfg.webUser;
+    doc["webPass"] = (String)systemCfg.webPass;
+    if (systemCfg.fwEnabled)
     {
         doc["fwEnabled"] = checked;
     }
-    doc["fwIp"] = ConfigSettings.fwIp.toString();
+    doc["fwIp"] = systemCfg.fwIp; //.toString();
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleWifi()
+void handleNetwork()
 {
     String result;
     DynamicJsonDocument doc(1024);
 
     // doc["pageName"] = "Config WiFi";
-    doc["ssid"] = String(ConfigSettings.ssid);
-    doc["passWifi"] = String(ConfigSettings.password);
-    if (ConfigSettings.dhcpWiFi)
+
+    if (networkCfg.ethEnable)
+    {
+        doc["ethEnbl"] = checked;
+    }
+    if (networkCfg.ethDhcp)
+    {
+        doc["modeEther"] = checked;
+    }
+    doc["ipEther"] = networkCfg.ethAddr;
+    doc["maskEther"] = networkCfg.ethMask;
+    doc["GWEther"] = networkCfg.ethGate;
+
+    doc["ethDns1"] = networkCfg.ethDns1;
+    doc["ethDns2"] = networkCfg.ethDns2;
+
+    if (networkCfg.wifiEnable)
+    {
+        doc["wifiEnbl"] = checked;
+    }
+    doc["ssid"] = String(networkCfg.wifiSsid);
+    doc["passWifi"] = String(networkCfg.wifiPassword);
+    if (networkCfg.wifiDhcp)
     {
         doc["dchp"] = checked;
     }
-    doc["ip"] = ConfigSettings.ipAddressWiFi;
-    doc["mask"] = ConfigSettings.ipMaskWiFi;
-    doc["gw"] = ConfigSettings.ipGWWiFi;
+    doc["ip"] = networkCfg.wifiAddr;
+    doc["mask"] = networkCfg.wifiMask;
+    doc["gw"] = networkCfg.wifiGate;
+    doc["wifiDns1"] = networkCfg.wifiDns1;
+    doc["wifiDns2"] = networkCfg.wifiDns2;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1223,23 +1304,23 @@ void handleSerial()
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (ConfigSettings.serialSpeed == 9600)
+    if (systemCfg.serialSpeed == 9600)
     {
         doc["9600"] = checked;
     }
-    else if (ConfigSettings.serialSpeed == 19200)
+    else if (systemCfg.serialSpeed == 19200)
     {
         doc["19200"] = checked;
     }
-    else if (ConfigSettings.serialSpeed == 38400)
+    else if (systemCfg.serialSpeed == 38400)
     {
         doc["8400"] = checked;
     }
-    else if (ConfigSettings.serialSpeed == 57600)
+    else if (systemCfg.serialSpeed == 57600)
     {
         doc["57600"] = checked;
     }
-    else if (ConfigSettings.serialSpeed == 115200)
+    else if (systemCfg.serialSpeed == 115200)
     {
         doc["115200"] = checked;
     }
@@ -1247,7 +1328,7 @@ void handleSerial()
     {
         doc["115200"] = checked;
     }
-    doc["socketPort"] = String(ConfigSettings.socketPort);
+    doc["socketPort"] = String(systemCfg.socketPort);
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1255,18 +1336,19 @@ void handleSerial()
 
 void handleEther()
 {
+    /*
     String result;
     DynamicJsonDocument doc(1024);
 
     // doc["pageName"] = "Config Ethernet";
 
-    if (ConfigSettings.dhcp)
+    if (networkCfg.ethDhcp)
     {
         doc["modeEther"] = checked;
     }
-    doc["ipEther"] = ConfigSettings.ipAddress;
-    doc["maskEther"] = ConfigSettings.ipMask;
-    doc["GWEther"] = ConfigSettings.ipGW;
+    doc["ipEther"] = networkCfg.ethAddr;
+    doc["maskEther"] = networkCfg.ethMask;
+    doc["GWEther"] = networkCfg.ethGate;
 
     // if (ConfigSettings.disablePingCtrl) {
     //     doc["disablePingCtrl"] = checked;
@@ -1274,6 +1356,7 @@ void handleEther()
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
+    */
 }
 
 void handleMqtt()
@@ -1281,18 +1364,18 @@ void handleMqtt()
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (MqttSettings.enable)
+    if (mqttCfg.enable)
     {
         doc["enableMqtt"] = checked;
     }
-    doc["serverMqtt"] = MqttSettings.server;
-    doc["portMqtt"] = MqttSettings.port;
-    doc["userMqtt"] = MqttSettings.user;
-    doc["passMqtt"] = MqttSettings.pass;
-    doc["topicMqtt"] = MqttSettings.topic;
-    doc["intervalMqtt"] = MqttSettings.interval;
+    doc["serverMqtt"] = mqttCfg.server;
+    doc["portMqtt"] = mqttCfg.port;
+    doc["userMqtt"] = mqttCfg.user;
+    doc["passMqtt"] = mqttCfg.pass;
+    doc["topicMqtt"] = mqttCfg.topic;
+    doc["intervalMqtt"] = mqttCfg.updateInt;
 
-    if (MqttSettings.discovery)
+    if (mqttCfg.discovery)
     {
         doc["discoveryMqtt"] = checked;
     }
@@ -1301,20 +1384,28 @@ void handleMqtt()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-void handleWg()
+void handleVpn()
 {
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (WgSettings.enable)
+    if (vpnCfg.wgEnable)
     {
         doc["enableWg"] = checked;
     }
-    doc["localAddrWg"] = WgSettings.localAddr;
-    doc["localPrivKeyWg"] = WgSettings.localPrivKey;
-    doc["endAddrWg"] = WgSettings.endAddr;
-    doc["endPubKeyWg"] = WgSettings.endPubKey;
-    doc["endPortWg"] = WgSettings.endPort;
+    doc["localAddrWg"] = vpnCfg.wgLocalIP.toString(); /// WgSettings.localAddr;
+    doc["localPrivKeyWg"] = vpnCfg.wgLocalPrivKey;
+    doc["endAddrWg"] = vpnCfg.wgEndAddr;
+    doc["endPubKeyWg"] = vpnCfg.wgEndPubKey;
+    doc["endPortWg"] = vpnCfg.wgEndPort;
+
+    if (vpnCfg.hnEnable)
+    {
+        doc["enableHn"] = checked;
+    }
+    doc["joinCodeHn"] = vpnCfg.hnJoinCode;
+    doc["hostNameHn"] = vpnCfg.hnHostName;
+    doc["dashUrlHn"] = vpnCfg.hnDashUrl;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1332,7 +1423,7 @@ DynamicJsonDocument getRootData()
     doc["VERSION"] = String(verArr);
 
     String readableTime;
-    getReadableTime(readableTime, ConfigSettings.socketTime);
+    getReadableTime(readableTime, vars.socketTime);
     const char *connectedSocketStatus = "connectedSocketStatus";
     const char *connectedSocket = "connectedSocket";
     const char *notConnected = "Not connected";
@@ -1341,16 +1432,16 @@ DynamicJsonDocument getRootData()
     const char *on = "On";
     const char *off = "Off";
 
-    if (ConfigSettings.connectedClients > 0)
+    if (vars.connectedClients > 0)
     {
-        if (ConfigSettings.connectedClients > 1)
+        if (vars.connectedClients > 1)
         {
-            doc[connectedSocketStatus] = "Yes, " + String(ConfigSettings.connectedClients) + "connection";
+            doc[connectedSocketStatus] = "Yes, " + String(vars.connectedClients) + "connection";
             doc[connectedSocket] = readableTime;
         }
         else
         {
-            doc[connectedSocketStatus] = "Yes, " + String(ConfigSettings.connectedClients) + " connections";
+            doc[connectedSocketStatus] = "Yes, " + String(vars.connectedClients) + " connections";
             doc[connectedSocket] = readableTime;
         }
     }
@@ -1360,16 +1451,16 @@ DynamicJsonDocument getRootData()
         doc[connectedSocket] = notConnected;
     }
     const char *operationalMode = "operationalMode";
-    switch (ConfigSettings.coordinator_mode)
+    switch (vars.workMode)
     {
-    case COORDINATOR_MODE_USB:
+    case WORK_MODE_USB:
         doc[operationalMode] = "Zigbee-to-USB";
         break;
-    case COORDINATOR_MODE_WIFI:
+    /*case COORDINATOR_MODE_WIFI:
         doc[operationalMode] = "Zigbee-to-WiFi";
-        break;
-    case COORDINATOR_MODE_LAN:
-        doc[operationalMode] = "Zigbee-to-Ethernet";
+        break;*/
+    case WORK_MODE_NETWORK:
+        doc[operationalMode] = "Zigbee-to-Network";
         break;
 
     default:
@@ -1378,14 +1469,8 @@ DynamicJsonDocument getRootData()
 
     // ETHERNET TAB
     const char *ethDhcp = "ethDhcp";
-    if (ConfigSettings.dhcp)
-    {
-        doc[ethDhcp] = on;
-    }
-    else
-    {
-        doc[ethDhcp] = off;
-    }
+
+    doc[ethDhcp] = networkCfg.ethDhcp ? on : off;
 
     const char *connectedEther = "connectedEther";
     const char *ethConnection = "ethConnection";
@@ -1394,25 +1479,32 @@ DynamicJsonDocument getRootData()
     const char *ethIp = "ethIp";
     const char *etchMask = "etchMask";
     const char *ethGate = "ethGate";
-    if (ConfigSettings.connectedEther)
+    const char *ethDns = "ethDns";
+    //
+    if (networkCfg.ethEnable)
     {
-        doc[connectedEther] = yes;
-        doc[ethConnection] = "Connected";
-        doc[ethMac] = ETH.macAddress();
-        doc[ethSpd] = String(ETH.linkSpeed()) + String(" Mbps");
-        doc[ethIp] = ETH.localIP().toString();
-        doc[etchMask] = ETH.subnetMask().toString();
-        doc[ethGate] = ETH.gatewayIP().toString();
-    }
-    else
-    {
-        doc[connectedEther] = no;
-        doc[ethConnection] = notConnected;
-        doc[ethMac] = notConnected;
-        doc[ethSpd] = notConnected;
-        doc[ethIp] = notConnected;
-        doc[etchMask] = notConnected;
-        doc[ethGate] = notConnected;
+        if (vars.connectedEther)
+        {
+
+            doc[connectedEther] = yes;
+            doc[ethConnection] = "Connected";
+            doc[ethMac] = ETH.macAddress();
+            doc[ethSpd] = String(ETH.linkSpeed()) + String(" Mbps");
+            doc[ethIp] = ETH.localIP().toString();
+            doc[etchMask] = ETH.subnetMask().toString();
+            doc[ethGate] = ETH.gatewayIP().toString();
+            doc[ethDns] = ETH.dnsIP().toString();
+        }
+        else
+        {
+            doc[connectedEther] = no;
+            doc[ethConnection] = notConnected;
+            doc[ethMac] = notConnected;
+            doc[ethSpd] = notConnected;
+            doc[ethIp] = notConnected;
+            doc[etchMask] = notConnected;
+            doc[ethGate] = notConnected;
+        }
     }
 
     getReadableTime(readableTime, 0);
@@ -1457,6 +1549,7 @@ DynamicJsonDocument getRootData()
     }
 
     doc["espFlashSize"] = String(ESP.getFlashChipSize() / (1024 * 1024));
+
     // wifi
     const char *wifiSsid = "wifiSsid";
     const char *wifiRssi = "wifiRssi";
@@ -1469,10 +1562,13 @@ DynamicJsonDocument getRootData()
     const char *wifiModeAPStatus = "wifiModeAPStatus";
     const char *wifiModeAP = "wifiModeAP";
     const char *wifiDhcp = "wifiDhcp";
+    const char *wifiDns = "wifiDns";
+
     doc["wifiMac"] = String(WiFi.macAddress().c_str());
-    if (ConfigSettings.coordinator_mode == COORDINATOR_MODE_WIFI)
+    // if (vars.workMode == WORK_MODE_NETWORK)
+    if (networkCfg.wifiEnable)
     {
-        doc[wifiEnabled] = yes;
+        // doc[wifiEnabled] = yes;
         doc[wifiMode] = "Client";
         if (WiFi.status() == WL_CONNECTED)
         { // STA connected
@@ -1483,27 +1579,21 @@ DynamicJsonDocument getRootData()
             doc[wifiIp] = WiFi.localIP().toString();
             doc[wifiMask] = WiFi.subnetMask().toString();
             doc[wifiGate] = WiFi.gatewayIP().toString();
+            doc[wifiDns] = WiFi.dnsIP().toString();
         }
         else
         {
             const char *connecting = "Connecting...";
-            doc["wifiSsid"] = ConfigSettings.ssid;
+            doc["wifiSsid"] = networkCfg.wifiSsid;
             doc[wifiRssi] = connecting;
             doc[wifiConnected] = connecting;
-            doc[wifiIp] = ConfigSettings.dhcpWiFi ? WiFi.localIP().toString() : connecting;
-            doc[wifiMask] = ConfigSettings.dhcpWiFi ? WiFi.subnetMask().toString() : connecting;
-            doc[wifiGate] = ConfigSettings.dhcpWiFi ? WiFi.gatewayIP().toString() : connecting;
+            doc[wifiIp] = networkCfg.wifiDhcp ? WiFi.localIP().toString() : connecting;
+            doc[wifiMask] = networkCfg.wifiDhcp ? WiFi.subnetMask().toString() : connecting;
+            doc[wifiGate] = networkCfg.wifiDhcp ? WiFi.gatewayIP().toString() : connecting;
         }
-        if (ConfigSettings.dhcpWiFi)
-        {
-            doc[wifiDhcp] = on;
-        }
-        else
-        {
-            doc[wifiDhcp] = off;
-        }
+        doc[wifiDhcp] = networkCfg.wifiDhcp ? on : off;
     }
-    else
+    /*else
     {
         doc[wifiEnabled] = no;
         doc[wifiConnected] = notConnected;
@@ -1514,16 +1604,16 @@ DynamicJsonDocument getRootData()
         doc[wifiGate] = off;
         doc[wifiRssi] = off;
         doc[wifiDhcp] = off;
-    }
-    if (ConfigSettings.apStarted)
+    }*/
+    if (vars.apStarted)
     { // AP active
         String AP_NameString;
-        char apSsid[18];
+        char apSsid[MAX_DEV_ID_LONG];
         getDeviceID(apSsid);
-        char wifiSsidBuf[35];
+        char wifiSsidBuf[MAX_DEV_ID_LONG + 25];
         sprintf(wifiSsidBuf, "%s (no password)", apSsid);
         doc[wifiSsid] = wifiSsidBuf;
-        doc[wifiIp] = "192.168.1.1 (UZG-01 web interface)";
+        doc[wifiIp] = "192.168.1.1 (XZG web interface)";
         doc[wifiMask] = "255.255.255.0 (Access point)";
         doc[wifiGate] = "192.168.1.1 (this device)";
         doc[wifiDhcp] = "On (Access point)";
@@ -1540,14 +1630,14 @@ DynamicJsonDocument getRootData()
     }
 
     // MQTT
-    if (MqttSettings.enable)
+    if (mqttCfg.enable)
     {
         const char *mqConnect = "mqConnect";
         const char *mqBroker = "mqBroker";
 
-        doc[mqBroker] = MqttSettings.server;
+        doc[mqBroker] = mqttCfg.server;
 
-        if (MqttSettings.connect)
+        if (vars.mqttConn)
         {
             doc[mqConnect] = yes;
         }
@@ -1557,23 +1647,41 @@ DynamicJsonDocument getRootData()
         }
     }
 
-    // VPN
-    if (WgSettings.enable)
+    // VPN WireGuard
+    if (vpnCfg.wgEnable)
     {
         const char *wgInit = "wgInit";
         const char *wgDeviceAddr = "wgDeviceAddr";
         const char *wgRemoteAddr = "wgRemoteAddr";
+        const char *wgConnect = "wgConnect";
+        const char *wgRemoteIP = "wgRemoteIp";
+        // const char *wgEndPort = "wgEndPort";
 
-        doc[wgDeviceAddr] = WgSettings.localAddr;
-        doc[wgRemoteAddr] = WgSettings.endAddr;
+        doc[wgInit] = vars.vpnWgInit ? yes : no;
+        doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();
+        doc[wgRemoteAddr] = vpnCfg.wgEndAddr;
+        // doc[wgEndPort] = vpnCfg.wgEndPort;
 
-        if (WgSettings.init)
+        doc[wgConnect] = vars.vpnWgConnect ? yes : no;
+
+        doc[wgRemoteIP] = vars.vpnWgPeerIp.toString();
+    }
+    // VPN Husarnet
+    if (vpnCfg.hnEnable)
+    {
+        const char *hnInit = "hnInit";
+        const char *hnHostName = "hnHostName";
+
+        // doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();//WgSettings.localAddr;
+        doc[hnHostName] = vpnCfg.hnHostName;
+
+        if (vars.vpnHnInit)
         {
-            doc[wgInit] = yes;
+            doc[hnInit] = yes;
         }
         else
         {
-            doc[wgInit] = no;
+            doc[hnInit] = no;
         }
     }
 
@@ -1595,7 +1703,7 @@ void handleStatus()
     DynamicJsonDocument doc(1024);
 
     // Authentication is needed for status page as well (if enabled)
-    if (ConfigSettings.webAuth)
+    if (systemCfg.webAuth)
     {
         if (!checkAuth())
         {
@@ -1616,29 +1724,31 @@ void handleStatus()
 
 void handleSysTools()
 {
+
     String result;
     DynamicJsonDocument doc(512);
 
-    doc["hostname"] = ConfigSettings.hostname;
-    doc["refreshLogs"] = ConfigSettings.refreshLogs;
-    if (ConfigSettings.timeZone)
-    {
-        doc["timeZoneName"] = ConfigSettings.timeZone;
-    }
+    // doc["hostname"] = systemCfg.hostname;
+    doc["refreshLogs"] = systemCfg.refreshLogs;
+    // if (systemCfg.timeZone)
+    //{
+    //     doc["timeZoneName"] = systemCfg.timeZone;
+    // }
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
+    /*
+        DynamicJsonDocument zones(10240);
+        String results;
 
-    DynamicJsonDocument zones(10240);
-    String results;
+        JsonArray zonesArray = zones.to<JsonArray>();
+        for (int i = 0; i < timeZoneCount; i++)
+        {
+            zonesArray.add(timeZones[i].zone);
+        }
 
-    JsonArray zonesArray = zones.to<JsonArray>();
-    for (int i = 0; i < timeZoneCount; i++)
-    {
-        zonesArray.add(timeZones[i].zone);
-    }
-
-    serializeJson(zones, results);
-    serverWeb.sendHeader(respTimeZonesName, results);
+        serializeJson(zones, results);
+        serverWeb.sendHeader(respTimeZonesName, results);
+        */
 }
 
 void handleSavefile()
@@ -1673,7 +1783,7 @@ void handleSavefile()
             }
 
             file.close();
-            serverWeb.sendHeader(F("Location"), F("/sys-tools"));
+            serverWeb.sendHeader(F("Location"), F("/tools"));
             serverWeb.send(303);
         }
     }

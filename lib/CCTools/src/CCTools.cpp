@@ -310,14 +310,14 @@ void CCTools::enterBSL()
     {
         digitalWrite(_CC_RST_PIN, LOW);
         digitalWrite(_CC_BSL_PIN, LOW);
-        DEBUG_PRINTLN(F("Zigbee RST pin ON"));
-        DEBUG_PRINTLN(F("Zigbee BSL pin ON"));
+        //DEBUG_PRINTLN(F("Zigbee RST pin ON"));
+        //DEBUG_PRINTLN(F("Zigbee BSL pin ON"));
         delay(250);
         digitalWrite(_CC_RST_PIN, HIGH);
-        DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
+        //DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
         delay(1000);
         digitalWrite(_CC_BSL_PIN, HIGH);
-        DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
+        //DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
         delay(1000);
     }
     // Other modes BSL_MODE can be added later
@@ -326,20 +326,20 @@ void CCTools::enterBSL()
 void CCTools::restart()
 {
     digitalWrite(_CC_RST_PIN, LOW);
-    DEBUG_PRINTLN(F("Zigbee RST pin ON"));
+    //DEBUG_PRINTLN(F("Zigbee RST pin ON"));
     delay(250);
     digitalWrite(_CC_RST_PIN, HIGH);
-    DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
+    //DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
     delay(1000);
 }
 
 void CCTools::routerRejoin()
 {
     digitalWrite(_CC_BSL_PIN, LOW);
-    DEBUG_PRINTLN(F("ZB BSL pin ON"));
+    //DEBUG_PRINTLN(F("ZB BSL pin ON"));
     delay(250);
     digitalWrite(_CC_BSL_PIN, HIGH);
-    DEBUG_PRINTLN(F("ZB BSL pin OFF"));
+    //DEBUG_PRINTLN(F("ZB BSL pin OFF"));
     delay(500);
 }
 String CCTools::detectChipInfo()

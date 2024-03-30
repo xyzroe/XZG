@@ -1,6 +1,6 @@
 
 void mqttConnectSetup();
-void mqttReconnect();
+bool mqttReconnect();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 void mqttLoop();
 void mqttPublishState();

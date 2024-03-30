@@ -1,4 +1,4 @@
-name: Build, release, update
+name: Build, release, push
 
 permissions:
   contents: write
@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - '*' # Push events to matching *, any
 
 jobs:
-  build_firmware:
+  build_release_push:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -20,58 +20,79 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
       - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
           key: ${{ runner.os }}-pio
+
       - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio==6.1.11
 
       - name: Build PlatformIO Project
         run: pio run
+
       - name: Get Release Version
         id: get_version
         shell: bash
         run: |
-          value=`cat tools/version`
+          value=$(grep '#define VERSION' src/version.h | awk -F '"' '{print $2}')
           echo "version=$value" >> $GITHUB_OUTPUT
-      - name: Get current date
-        id: date
-        run: echo "date=$(date +'%d%m%y')"  >> $GITHUB_OUTPUT
+
       - name: Get last commit message
         id: get_commit_message
         run: |
           commitMessage=$(git log -1 --pretty=%B | tail -n +3)
-          echo "::set-output name=message::${commitMessage}"
+          echo "commitMessage<<EOF" >> $GITHUB_ENV
+          echo "$commitMessage" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Calculate SHA-256 hash of the firmware
+        id: sha256_hash
+        run: |
+          echo "sha256=$(sha256sum bin/XZG_${{ steps.get_version.outputs.version }}.full.bin | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Get size of the firmware
+        id: firmware_size
+        run: |
+          echo "size=$(stat -c %s bin/XZG_${{ steps.get_version.outputs.version }}.full.bin)" >> $GITHUB_OUTPUT
+
+      - name: Create manifest.json for ESP Web Tools
+        run: |
+          cat << EOF > manifest.json
+          {
+            "name": "XZG Firmware",
+            "version": "${{ steps.get_version.outputs.version }}",
+            "files": [
+              {
+                "path": "XZG_${{ steps.get_version.outputs.version }}.full.bin",
+                "type": "app",
+                "lzma": false,
+                "address": "0x0",
+                "sha256": "${{ steps.sha256_hash.outputs.sha256 }}",
+                "size": ${{ steps.firmware_size.outputs.size }},
+                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.version }}/XZG_${{ steps.get_version.outputs.version }}.full.bin"
+              }
+            ],
+            "chipFamily": "ESP32"
+          }
+          EOF
+          echo "Manifest file created."
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: false
-          name: "v${{ steps.get_version.outputs.version }} (${{ steps.date.outputs.date }})"
-          body: ${{ steps.get_commit_message.outputs.message }}
+          name: "${{ steps.get_version.outputs.version }}"
+          body: ${{ env.commitMessage }}
           files: |
-            bin/XZG.bin
-            bin/XZG_v${{ steps.get_version.outputs.version }}.full.bin
-
-      - name: Updare version in manifest.json
-        run: |
-          sed -r 's/v[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}/v${{ steps.get_version.outputs.version }}/g' manifest.json > new.manifest.json
-      - name: Move file
-        shell: bash
-        run: |
-          echo "old"
-          cat manifest.json
-          mv -f new.manifest.json manifest.json 
-          echo "new"
-          cat manifest.json
-      - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: 'Release v${{ steps.get_version.outputs.version }} (${{ steps.date.outputs.date }})'
+            bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
+            bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
+            manifest.json

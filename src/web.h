@@ -5,10 +5,10 @@ void webServerHandleClient();
 void handleGeneral();
 void handleSecurity();
 void handleRoot();
-void handleWifi();
+void handleNetwork();
 void handleEther();
 void handleMqtt();
-void handleWg();
+void handleVpn();
 void handleZigbeeBSL();
 void handleZigbeeRestart();
 void handleSerial();
@@ -21,6 +21,7 @@ void printLogTime();
 void printLogMsg(String msg);
 void handleSaveParams();
 bool checkAuth();
+DynamicJsonDocument getRootData();
 
 void sendEvent(const char *event, const uint8_t evsz, const String data);
 void progressFunc(unsigned int progress, unsigned int total);
@@ -28,4 +29,5 @@ void progressFunc(unsigned int progress, unsigned int total);
 void getEspUpdate(String esp_fw_url);
 void runEspUpdateFirmware(uint8_t *data, size_t len);
 
-#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/UZG-01.bin"
+
+#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"

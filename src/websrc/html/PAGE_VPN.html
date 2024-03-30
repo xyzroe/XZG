@@ -1,0 +1,83 @@
+<div id='main'>
+    <!-- <div class='row'> -->
+    <form class="saveParams" method='POST' action="saveParams">
+        <div class='col-sm-12 cardPadding'>
+            <div class='card'>
+                <div class="card-header fw-bold text-start text-danger">WireGuard options</div>
+                <div class="card-body">
+                    <div class='mb-2 form-check form-switch'>
+                        <input data-replace="enableWg" id="WgEnable" class='form-check-input' type='checkbox'
+                            role="switch" name='WgEnable' onclick="WgInputDsbl(!this.checked)">
+                        <label class='form-check-label' for='WgEnable'>Enable</label>
+                    </div>
+                    <div class='mb-2'>
+                        <label for='localAddr'>IP address of the local interface</label>
+                        <input data-replace="localAddrWg" class='form-control' id='WgLocalAddr' type='text'
+                            name='WgLocalAddr' placeholder="X.X.X.X">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='localIP'>Private key of the local interface</label>
+                        <input data-replace="localPrivKeyWg" class='form-control' id='WgLocalPrivKey' type='text'
+                            name='WgLocalPrivKey' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='endAddr'>Address of the endpoint peer</label>
+                        <input data-replace="endAddrWg" class='form-control' id='WgEndAddr' type='text' name='WgEndAddr'
+                            placeholder="Domain name or IP address">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='endPubKey'>Public key of the endpoint peer</label>
+                        <input data-replace="endPubKeyWg" class='form-control' id='WgEndPubKey' type='text'
+                            name='WgEndPubKey' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='endPort'>Port of the endpoint peer</label>
+                        <input data-replace="endPortWg" class='form-control' id='WgEndPort' type='number'
+                            name='WgEndPort' placeholder="12345" min="1" max="65535">
+                    </div>
+                    <!-- <br>
+                        <div class="row justify-content-md-center">
+                            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                                name='save'>Save</button>
+                        </div> -->
+                </div>
+            </div>
+        </div>
+        <div class='col-sm-12 cardPadding'>
+            <div class='card'>
+                <div class="card-header fw-bold text-start text-danger">Husarnet options</div>
+                <div class="card-body">
+                    <div class='mb-2 form-check form-switch'>
+                        <input data-replace="enableHn" id="HnEnable" class='form-check-input' type='checkbox'
+                            role="switch" name='HnEnable' onclick="HnInputDsbl(!this.checked)">
+                        <label class='form-check-label' for='HnEnable'>Enable</label>
+                    </div>
+                    <div class='mb-2'>
+                        <label for='joinCode'>hnJoinCode[80];</label>
+                        <input data-replace="joinCodeHn" class='form-control' id='HnJoinCode' type='text'
+                            name='HnJoinCode' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='hostName'>hnHostName[30];</label>
+                        <input data-replace="hostNameHn" class='form-control' id='HnHostName' type='text'
+                            name='HnHostName' placeholder="Domain name or IP address">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='dashUrl'>hnDashUrl[30];</label>
+                        <input data-replace="dashUrlHn" class='form-control' id='HnDashUrl' type='text' name='HnDashUrl'
+                            placeholder="">
+                    </div>
+                    <!-- <br>
+                        <div class="row justify-content-md-center">
+                            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                                name='save'>Save</button>
+                        </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6' name='save'>Save</button>
+        </div>
+    </form>
+    <!-- </div> -->
+</div>

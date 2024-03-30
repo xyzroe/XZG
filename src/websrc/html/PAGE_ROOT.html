@@ -3,7 +3,11 @@
     <div class="row masonry" data-masonry="{&quot;percentPosition&quot;: true }">
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>Device status</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#link"></use>
+                    </svg><span>Device status</span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -11,15 +15,15 @@
                                 <td>Operational mode:</td>
                                 <td data-replace="operationalMode"></td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td>Ethernet connected:</td>
                                 <td data-replace="connectedEther"></td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <td>Socket client connected:</td>
                                 <td data-replace="connectedSocketStatus"></td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td>WiFi Client enabled:</td>
                                 <td data-replace="wifiEnabled"></td>
                             </tr>
@@ -34,7 +38,7 @@
                             <tr>
                                 <td>WiFi Access Point status:</td>
                                 <td data-replace="wifiModeAPStatus"></td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <td>Device Uptime:</td>
                                 <td data-replace="uptime"></td>
@@ -50,12 +54,15 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>Device information</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#hdd-stack"></use>
+                    </svg><span>Device information</span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Zig-Star model:</td>
+                                <td>Device model:</td>
                                 <td data-replace="hwRev"></td>
                             </tr>
                             <tr>
@@ -89,10 +96,6 @@
                                 <td>CC2652P hw version:</td>
                                 <td data-replace="zigbeeHwRev"></td>
                             </tr>
-                            <!--<tr>
-                                <td>CC2652P flash size:</td>
-                                <td>352 Kb</td>
-                            </tr>-->
                             <tr>
                                 <td>CC2652P fw rev:</td>
                                 <td data-replace="zigbeeFwRev"></td>
@@ -102,9 +105,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4">
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>Ethernet</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#ethernet"></use>
+                    </svg><span>Ethernet</span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -129,6 +135,10 @@
                                 <td data-replace="ethGate"></td>
                             </tr>
                             <tr>
+                                <td>DNS:</td>
+                                <td data-replace="ethDns"></td>
+                            </tr>
+                            <tr>
                                 <td>Connection speed:</td>
                                 <td data-replace="ethSpd"></td>
                             </tr>
@@ -141,9 +151,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4">
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>WiFi</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#wifi"></use>
+                    </svg><span>WiFi</span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -168,6 +181,10 @@
                                 <td data-replace="wifiGate"></td>
                             </tr>
                             <tr>
+                                <td>DNS:</td>
+                                <td data-replace="wifiDns"></td>
+                            </tr>
+                            <tr>
                                 <td>RSSI:</td>
                                 <td data-replace="wifiRssi"></td>
                             </tr>
@@ -182,7 +199,10 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>MQTT</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#mqtt"></use>
+                    </svg><span>MQTT</span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -201,13 +221,20 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary"><span>VPN</span></div>
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#vpn"></use>
+                    </svg><span>WireGuard</span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
                                 <td>Initialized:</td>
                                 <td data-replace="wgInit"></td>
+                            </tr>
+                            <tr>
+                                <td>Connected:</td>
+                                <td data-replace="wgConnect"></td>
                             </tr>
                             <tr>
                                 <td>Local IP address:</td>
@@ -217,6 +244,36 @@
                                 <td>Endpoint address:</td>
                                 <td data-replace="wgRemoteAddr"></td>
                             </tr>
+                            <tr>
+                                <td>Peer IP address:</td>
+                                <td data-replace="wgRemoteIp"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
+            <div class="card">
+                <div class="card-header fw-bold text-start text-primary">
+                    <svg viewBox="0 0 16 16" class="card_icon">
+                        <use xlink:href="icons.svg#vpn"></use>
+                    </svg><span>Husarnet</span></div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Initialized:</td>
+                                <td data-replace="hnInit"></td>
+                            </tr>
+                            <tr>
+                                <td>Hostname:</td>
+                                <td data-replace="hnHostName"></td>
+                            </tr>
+                            <!-- <tr>
+                                <td>Local IP address:</td>
+                                <td data-replace="hnDeviceAddr"></td>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>

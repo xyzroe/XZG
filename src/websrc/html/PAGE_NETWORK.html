@@ -1,0 +1,166 @@
+<div id='main'>
+    <form class="saveParams" method='POST' action="saveParams">
+        <div class='col-sm-12 cardPadding'>
+            <div class='card'>
+                <div class="card-header fw-bold text-start text-warning">Ethernet options</div>
+                <div class="card-body">
+                    <div class="mb-2 switches-container">
+                        <div class="form-check form-switch">
+                            <input data-replace="ethEnbl" class="form-check-input" id="ethEnbl" type="checkbox"
+                                role="switch" name="ethEnbl" onclick="EthEnbl(this.checked)">
+                            <label class="form-check-label" for="ethEnbl">Enable</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input data-replace="modeEther" class='form-check-input' id="EthDhcpTog" type='checkbox'
+                                role="switch" name='dhcp' onclick="EthDhcpDsbl(this.checked)">
+                            <label class='form-check-label' for='dhcp'>DHCP</label>
+                        </div>
+                    </div>
+                    <div class='mb-2'>
+                        <label for='ip'>IP</label>
+                        <input data-replace="ipEther" class='form-control' id='EthIp' type='text' name='ipAddress'
+                            placeholder="192.168.x.x">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='mask'>Mask</label>
+                        <input data-replace="maskEther" class='form-control' id='EthMask' type='text' name='ipMask'
+                            placeholder="255.255.255.0">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='gateway'>Gateway</label>
+                        <input data-replace="GWEther" type='text' class='form-control' id='EthGateway' name='ipGW'
+                            placeholder="192.168.x.x">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='ethDns1'>DNS server 1</label>
+                        <input data-replace="ethDns1" type='text' class='form-control' id='ethDns1' name='ethDns1'
+                            placeholder="X.X.X.X">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='ethDns2'>DNS server 2</label>
+                        <input data-replace="ethDns2" type='text' class='form-control' id='ethDns2' name='ethDns2'
+                            placeholder="X.X.X.X">
+                    </div>
+                    <!-- <div class='mb-2 form-check form-switch'>
+                    <input data-replace="disablePingCtrl" class='form-check-input' id='disablePingCtrl'
+                        type='checkbox' role="switch" name='disablePingCtrl'>
+                    <label class='form-check-label' for='disablePingCtrl'><b>Disable</b> gateway ping
+                        check</label>
+                </div> 
+                    <br>
+                    <div class="row justify-content-md-center">
+                        <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                            name='save'>Save</button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 cardPadding">
+            <div class="card">
+                <div class="card-header fw-bold text-start text-primary">Wi-Fi options</div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <div class="mb-2 switches-container">
+                                <div class="form-check form-switch">
+                                    <input data-replace="wifiEnbl" class="form-check-input" id="wifiEnbl"
+                                        type="checkbox" role="switch" name="wifiEnbl" onclick="WifiEnbl(this.checked)">
+                                    <label class="form-check-label" for="wifiEnbl">Enable</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input data-replace="dchp" class="form-check-input" id="dhcpWiFi" type="checkbox"
+                                        role="switch" name="dhcpWiFi" onclick="WifiDhcpDsbl(this.checked)">
+                                    <label class="form-check-label" for="dhcpWiFi">DHCP</label>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="ip">IP</label>
+                                <input data-replace="ip" class="form-control" id="WifiIp" type="text" name="ipAddress"
+                                    placeholder="192.168.x.x">
+                            </div>
+                            <div class="mb-2">
+                                <label for="mask">Mask</label>
+                                <input data-replace="mask" class="form-control" id="WifiMask" type="text" name="ipMask"
+                                    placeholder="255.255.255.0">
+                            </div>
+                            <div class="mb-2">
+                                <label for="gateway">Gateway</label>
+                                <input data-replace="gw" type="text" class="form-control" id="WifiGateway" name="ipGW"
+                                    placeholder="192.168.x.x">
+                            </div>
+                            <div class='mb-2'>
+                                <label for='wifiDns1'>DNS server 1</label>
+                                <input data-replace="wifiDns1" type='text' class='form-control' id='wifiDns1'
+                                    name='wifiDns1' placeholder="X.X.X.X">
+                            </div>
+                            <div class='mb-2'>
+                                <label for='wifiDns2'>DNS server 2</label>
+                                <input data-replace="wifiDns2" type='text' class='form-control' id='wifiDns2'
+                                    name='wifiDns2' placeholder="X.X.X.X">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">SSID</th>
+                                        <th scope="col">Security</th>
+                                        <th scope="col">Channel</th>
+                                        <th scope="col">RSSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wifiTable">
+                                    <tr id="wifiScanPreloader" class="visually-hidden">
+                                        <td colspan="4">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" aria-label="Animated striped example"
+                                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                                    style="width: 100%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="wifiScanButton">
+                                        <td colspan="4">
+                                            <div class="row justify-content-md-center">
+                                                <button type="button" class="btn btn-outline-primary col-sm-12 col-md-6"
+                                                    onclick="getWifiList()">Scan for WIFI networks</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="collapse" id="collapseWifiPass">
+                                <div class="card card-body">
+                                    <div class="mb-2">
+                                        <label for="WIFISSID">SSID</label>
+                                        <input data-replace="ssid" class="form-control" id="WIFIssid" type="text"
+                                            name="WIFISSID" id="WIFISSID" value="" minlength="2" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="pass">Password</label>
+                                        <input data-replace="passWifi" class="form-control" id="WIFIpassword"
+                                            type="password" name="WIFIpassword" id="WIFIpassword" minlength="8"
+                                            required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        
+                        <!-- <div class="col-sm-12">
+                            <div class="row justify-content-md-center">
+                                <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6"
+                                    name="save">Save</button>
+                            </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6' name='save'>Save</button>
+        </div>
+    </form>
+</div>

@@ -15,15 +15,15 @@ Firmware is opensource, so feel free to improve it <br> by making a commit to th
 
 
 ### Previous versions:
-| [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW/releases/latest)                                                                                      | [UZG-01](https://github.com/mercenaruss/uzg-firmware/releases/latest)                                                                                                    | [SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/releases/)                                                                                                             |
+| [ZigStarGW-FW](https://github.com/xyzroe/ZigStarGW-FW/releases/latest)                                                                                      | [XZG](https://github.com/mercenaruss/uzg-firmware/releases/latest)                                                                                                    | [SLZB-06](https://github.com/smlight-dev/slzb-06-firmware/releases/)                                                                                                             |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![ZigStarGW-FW's download](https://img.shields.io/github/downloads/xyzroe/ZigStarGW-FW/total.svg)](https://github.com/xyzroe/ZigStarGW-FW/releases/latest) | [![UZG-01 Firmware's download](https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg)](https://github.com/mercenaruss/uzg-firmware/releases/latest) | [![UZG-01 Firmware's download](https://img.shields.io/github/downloads/smlight-dev/slzb-06-firmware/total.svg)](https://github.com/smlight-dev/slzb-06-firmware/releases/latest) |
+| [![ZigStarGW-FW's download](https://img.shields.io/github/downloads/xyzroe/ZigStarGW-FW/total.svg)](https://github.com/xyzroe/ZigStarGW-FW/releases/latest) | [![XZG Firmware's download](https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg)](https://github.com/mercenaruss/uzg-firmware/releases/latest) | [![XZG Firmware's download](https://img.shields.io/github/downloads/smlight-dev/slzb-06-firmware/total.svg)](https://github.com/smlight-dev/slzb-06-firmware/releases/latest) |
   
   
   
 ## KEY FIRMWARE FEATURES
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Red LED On = USB mode, RED LED Off = Ethernet mode);
-- Adapter mode selector through web-interface: `Zigbee-to-Ethernet`, `Zigbee-to-USB` and `Zigbee-to-WiFI`;
+- Adapter mode selector through web-interface: `Zigbee-to-Network` or `Zigbee-to-USB`;
 - Support mDNS autodiscovery in your network (go in the browser to `uzg-01.local`), in Zigbee2MQTT (set `port: mdns://uzg-01`), and in ZHA;
 - Secure login through username and password;
 - Zigbee2MQTT and ZHA config helper;
@@ -75,7 +75,7 @@ You can contribute to XZG Firmware by
 
 People helping to keep the show on the road - **developers and contributors**:
 
-- [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**, for initial firmware release of UZG-01 version and giving me motivation and energy to implement new functions.
+- [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**, for initial firmware release of XZG version and giving me motivation and energy to implement new functions.
 
 - [@Tarik2142](https://github.com/Tarik2142) for refactoring, code optimizations done under [smlight-dev](https://github.com/smlight-dev/)
 

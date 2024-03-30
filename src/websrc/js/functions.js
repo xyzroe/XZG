@@ -20,13 +20,13 @@ const pages = {
 	API_PAGE_ROOT: { num: 0, str: "/", title: "Status" },
 	API_PAGE_GENERAL: { num: 1, str: "/general", title: "General" },
 	API_PAGE_ETHERNET: { num: 2, str: "/ethernet", title: "Config Ethernet" },
-	API_PAGE_WIFI: { num: 3, str: "/wifi", title: "Config WiFi" },
-	API_PAGE_SERIAL: { num: 4, str: "/zha-z2m", title: "Config ZHA and Z2M params" },
+	API_PAGE_NETWORK: { num: 3, str: "/network", title: "Network" },
+	API_PAGE_ZIGBEE: { num: 4, str: "/zigbee", title: "Zigbee" },
 	API_PAGE_SECURITY: { num: 5, str: "/security", title: "Security" },
-	API_PAGE_SYSTOOLS: { num: 6, str: "/sys-tools", title: "System and Tools" },
+	API_PAGE_TOOLS: { num: 6, str: "/tools", title: "Tools" },
 	API_PAGE_ABOUT: { num: 7, str: "/about", title: "About" },
-	API_PAGE_MQTT: { num: 8, str: "/mqtt", title: "Config MQTT" },
-	API_PAGE_WG: { num: 9, str: "/wg", title: "Config WireGuard" }
+	API_PAGE_MQTT: { num: 8, str: "/mqtt", title: "MQTT" },
+	API_PAGE_VPN: { num: 9, str: "/vpn", title: "VPN" }
 }
 
 const api = {
@@ -46,41 +46,51 @@ const api = {
 	pages: pages
 }
 
+let intervalIdUpdateRoot;
+let intervalTimeUpdateRoot;
+
 function applyScale(scale) {
-    document.querySelectorAll('.switch').forEach(function(element) {
-        element.style.transform = `scale(${scale})`;
-    });
+	document.querySelectorAll('.switch').forEach(function (element) {
+		element.style.transform = `scale(${scale})`;
+	});
 }
 
 function handleResize() {
-    if (window.innerWidth <= 767) {
-        applyScale(0.9);
-    } else {
-        applyScale(1.2);
-    }
+	if (window.innerWidth <= 767) {
+		applyScale(0.9);
+	} else {
+		applyScale(1.2);
+	}
 }
 
 window.addEventListener('resize', handleResize);
-
+document.addEventListener("scroll", function () {
+	var credits = document.getElementById("credits");
+	if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+		credits.style.display = "block";
+	} else {
+		credits.style.display = "none";
+	}
+});
 
 $(document).ready(function () { //handle active nav
 	$("a[href='" + document.location.pathname + "']").parent().addClass('nav-active'); //handle sidenav page selection on first load
 	loadPage(document.location.pathname);
 
-	if (!(localStorage.getItem('refresh_tip_got') == 1)) {//toast localStorage.setItem('refresh_tip_got', 1)
+	/*if (!(localStorage.getItem('refresh_tip_got') == 1)) {//toast localStorage.setItem('refresh_tip_got', 1)
 		toastConstructor("refreshTip");
-	}
+	}*/
 
 	if (isMobile()) {
 		if (!(localStorage.getItem('shv_sdnv_frst_t') == 1)) {//show sidenav first time
 			$("#sidenav").addClass("sidenav-active");
 			localStorage.setItem('shv_sdnv_frst_t', 1);
-			setTimeout(() => { $("#sidenav").removeClass("sidenav-active"); }, 2000);
+			//setTimeout(() => { $("#sidenav").removeClass("sidenav-active"); }, 2000);
 		}
 		setupSwipeHandler();
 		$("#pageContent").removeClass("container");//no containers for mobile
 	}
-	
+
 	handleResize();
 
 	$("a.nav-link").click(function (e) { //handle navigation
@@ -173,7 +183,7 @@ function generateConfig(params) {
 		case "z2m":
 			result = `# Serial settings
 serial:
-  # Location of UZG-01
+  # Location of XZG
   port: tcp://${ip}:${port}
   baudrate: ${$("#baud").val()}
   # Disable Zigbee (Y or W) led?
@@ -186,7 +196,7 @@ advanced:
 			result = `# For homeassistant: Go to "Settings"→"System"→"Hardware"→Select the 3 dot menu in the upper right corner→"All Hardware"→Scroll to ttyUSB and find your adapter→Copy Device path like "/dev/ttyUSB0"
 # List USB devices on Linux: ls  /dev/ttyUSB*
 serial:
-# Location of UZG-01
+# Location of XZG
   port: INSERT_DEVICE_PATCH_HERE
   baudrate: ${$("#baud").val()}
 # Disable green led?
@@ -204,7 +214,7 @@ advanced:
 
 function fillFileTable(files) {
 	const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-file" viewBox="0 0 28 28"><use xlink:href="icons.svg#file" /></svg>`;
-	files.slice(0, files.length - 1).forEach((elem) => {
+	files.forEach((elem) => { //.slice(0, files.length - 1)
 		let $row = $("<tr>").appendTo("#filelist");
 		$("<td>" + icon + "<a href='#config_file' onClick=\"readfile('" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
 		$("<td>" + elem.size + "B</td>").appendTo($row);
@@ -219,9 +229,58 @@ function sendHex() {
 	});
 }
 
+function setIconGlow(iconId, state) {
+	const icon = document.getElementById(iconId);
+	if (icon) {
+		switch (state) {
+			case 1:
+				color = '#fc0500'; // danger
+				break;
+			case 2:
+				color = '#e9cf01'; // warn
+				break;
+			case 3:
+				color = '#01b464'; // success
+				break;
+			default:
+				color = '#000000'; // black
+		}
+		icon.style.filter = color ? `drop-shadow(0 0 1px ${color})
+                                    drop-shadow(0 0 2px ${color})
+                                    drop-shadow(0 0 4px ${color})` : 'none';
+		icon.style.backgroundColor = color ? color : 'transparent';
+		icon.style.border = color ? `2px solid ${color}` : 'none';
+	}
+}
+
+setIconGlow('socketIcon', 1)
+
+setIconGlow('ethIcon', 3)
+
+setIconGlow('wifiIcon', 2)
+
+
+
 function loadPage(url) {
 	window.history.pushState("", document.title, url); //fake location
 	console.log("[loadPage] url: " + url);
+
+
+	if (url == "/") {
+		$.get(apiLink + api.actions.API_GET_PARAM + "&param=refreshLogs", function (data) {
+			if (parseInt(data) >= 1000) {
+				intervalTimeUpdateRoot = parseInt(data);
+			} else {
+				intervalTimeUpdateRoot = 1000;
+			}
+		});
+		//intervalIdUpdateRoot = setInterval(updateRoot, 1000);
+		intervalIdUpdateRoot = setTimeout(updateRoot, intervalTimeUpdateRoot);
+	}
+	else {
+		clearInterval(intervalIdUpdateRoot);
+	}
+
 	switch (url) {
 		case api.pages.API_PAGE_ROOT.str:
 			apiGetPage(api.pages.API_PAGE_ROOT);
@@ -236,7 +295,7 @@ function loadPage(url) {
 		case api.pages.API_PAGE_ETHERNET.str:
 			apiGetPage(api.pages.API_PAGE_ETHERNET, () => {
 				if ($("#EthDhcpTog").prop("checked")) {
-					EthInputDsbl(true);
+					EthDhcpDsbl(true);
 				}
 			});
 			break;
@@ -247,26 +306,51 @@ function loadPage(url) {
 				}
 			});
 			break;
-		case api.pages.API_PAGE_WG.str:
-			apiGetPage(api.pages.API_PAGE_WG, () => {
+		case api.pages.API_PAGE_VPN.str:
+			apiGetPage(api.pages.API_PAGE_VPN, () => {
 				if ($("#WgEnable").prop("checked") == false) {
 					WgInputDsbl(true);
 				}
+				if ($("#HnEnable").prop("checked") == false) {
+					HnInputDsbl(true);
+				}
 			});
 			break;
-		case api.pages.API_PAGE_WIFI.str:
-			apiGetPage(api.pages.API_PAGE_WIFI, () => {
+		case api.pages.API_PAGE_NETWORK.str:
+			apiGetPage(api.pages.API_PAGE_NETWORK, () => {
+
+				if ($("#ethEnbl").prop("checked")) {
+					EthEnbl(true);
+				}
+				else {
+					EthEnbl(false);
+				}
+
+				if ($("#EthDhcpTog").prop("checked")) {
+					EthDhcpDsbl(true);
+				}
+				else {
+					EthDhcpDsbl(false);
+				}
+
 				if ($("#WIFIssid").val().length > 1) {
 					setTimeout(() => {
 						$("#collapseWifiPass").collapse("show");
 					}, 600);
 				}
-				$.get(apiLink + api.actions.API_GET_PARAM + "&param=coordMode", function (data) {
+				/*$.get(apiLink + api.actions.API_GET_PARAM + "&param=coordMode", function (data) {
 					if (parseInt(data) != 1) {//not in wifi mode
 						$(".card").addClass("card-disabled");
 						toastConstructor("wifiDisabled");
 					}
-				});
+				});*/
+
+				if ($("#wifiEnbl").prop("checked")) {
+					WifiEnbl(true);
+				}
+				else {
+					WifiEnbl(false);
+				}
 				if ($("#dhcpWiFi").prop("checked")) {
 					WifiDhcpDsbl(true);
 				} else {
@@ -274,8 +358,8 @@ function loadPage(url) {
 				}
 			});
 			break;
-		case api.pages.API_PAGE_SERIAL.str:
-			apiGetPage(api.pages.API_PAGE_SERIAL, () => {
+		case api.pages.API_PAGE_ZIGBEE.str:
+			apiGetPage(api.pages.API_PAGE_ZIGBEE, () => {
 				generateConfig("z2m");
 			});
 			break;
@@ -289,11 +373,13 @@ function loadPage(url) {
 				}
 			});
 			break;
-		case api.pages.API_PAGE_SYSTOOLS.str:
-			apiGetPage(api.pages.API_PAGE_SYSTOOLS, () => {
+		case api.pages.API_PAGE_TOOLS.str:
+			apiGetPage(api.pages.API_PAGE_TOOLS, () => {
+				console.log(":1");
 				$.get(apiLink + api.actions.API_GET_FILELIST, function (data) {
 					fillFileTable(data.files);
 				});
+				console.log(":2");
 				$.get(apiLink + api.actions.API_GET_PARAM + "&param=refreshLogs", function (data) {
 					if (parseInt(data) >= 1000) {
 						logRefresh(parseInt(data));
@@ -301,6 +387,7 @@ function loadPage(url) {
 						logRefresh(1000);
 					}
 				});
+				console.log(":3");
 			});
 			break;
 		case api.pages.API_PAGE_ABOUT.str:
@@ -310,7 +397,7 @@ function loadPage(url) {
 			apiGetPage(api.pages.API_PAGE_ROOT);
 			break;
 	}
-	if (url != api.pages.API_PAGE_WIFI.str && $('.toast').hasClass("show")) {
+	if (url != api.pages.API_PAGE_NETWORK.str && $('.toast').hasClass("show")) {
 		if ($('#toastBody').text().indexOf("Wi-Fi mode") > 0) {
 			$('.toast').toast('hide');
 		}
@@ -321,16 +408,22 @@ function espReboot() {
 	$.get(apiLink + api.actions.API_CMD + "&cmd=3");
 }
 
-function apiGetPage(page, doneCall) {
-	const animDuration = 200;
+function apiGetPage(page, doneCall, loader = true) {
+	let animDuration = 0;
 	const locCall = doneCall;
-	showPreloader(true);
+	if (loader) {
+		animDuration = 200;
+		showPreloader(true);
+	}
 	$("#pageContent").fadeOut(animDuration).load(apiLink + api.actions.API_GET_PAGE + "&page=" + page.num, function (response, status, xhr) {
 		if (status == "error") {
 			const msg = "Page load error: ";
-			alert(msg + xhr.status + " " + xhr.statusText);
+			console.log(msg + xhr.status + " " + xhr.statusText);
+			//alert(msg + xhr.status + " " + xhr.statusText); //popup error
 		} else {
-			showPreloader(false);
+			if (loader) {
+				showPreloader(false);
+			}
 			if (xhr.getResponseHeader("Authentication") == "ok") $(".logoutLink").removeClass(classHide);
 			$("#pageContent").fadeIn(animDuration);
 
@@ -391,61 +484,46 @@ function apiGetPage(page, doneCall) {
 
 			$("[data-replace='pageName']").text(page.title);//update page name
 			$("title[data-replace='pageName']").text(page.title + " - XZG");//update page title
-
-			if (xhr.getResponseHeader("respValuesArr") === null) return;
-			console.log("[apiGetPage] starting parse values");
-			const values = JSON.parse(xhr.getResponseHeader("respValuesArr"));
 			let selectedTimeZone = null;
-			for (const property in values) {
-				if (property === "mqConnect") {
-					console.log("mqConnect +");
-					showSectionByTitle("MQTT");
+			//if (xhr.getResponseHeader("respValuesArr") === null) return;
+			if (xhr.getResponseHeader("respValuesArr") !== null) {
+				console.log("[apiGetPage] starting parse values");
+				const values = JSON.parse(xhr.getResponseHeader("respValuesArr"));
 
-				}
-				if (property === "wgInit") {
-					console.log("wgInit +");
-					showSectionByTitle("VPN");
-				}
-				if (property === "timeZoneName") {
-					selectedTimeZone = values[property];
-					console.log(selectedTimeZone);
-					console.log("timeZoneName");
-					continue;
-				}
-				$("[data-replace='" + property + "']").map(function () {
-					const elemType = $(this).prop('nodeName').toLowerCase();
-					let valueToSet = values[property];
-
-					const isIpValue = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(valueToSet);
-					const isMaskInPropertyName = property.toLowerCase().includes('mask');
-
-					if (isIpValue && !isMaskInPropertyName) {
-						valueToSet = '<a href="http://' + valueToSet + '">' + valueToSet + '</a>';
+				for (const property in values) {
+					if (property === "connectedEther") {
+						//console.log("wgInit +");
+						showSectionByTitle("Ethernet");
+					}
+					if (property === "wifiMode") {
+						//console.log("wgInit +");
+						showSectionByTitle("WiFi");
+					}
+					if (property === "mqConnect") {
+						//console.log("mqConnect +");
+						showSectionByTitle("MQTT");
+						//continue;
+					}
+					if (property === "wgInit") {
+						//console.log("wgInit +");
+						showSectionByTitle("WireGuard");
+						//continue;
+					}
+					if (property === "hnInit") {
+						//console.log("hnInit +");
+						showSectionByTitle("Husarnet");
+						//continue;
+					}
+					if (property === "timeZoneName") {
+						selectedTimeZone = values[property];
+						//console.log(selectedTimeZone);
+						//console.log("timeZoneName");
+						continue;
 					}
 
-					switch (elemType) {
-						case "input":
-						case "select":
-						case "textarea":
-							const type = $(this).prop('type').toLowerCase();
-							if (elemType == "input" && (type == "checkbox" || type == "radio")) {
-								$(this).prop("checked", values[property]);
-							} else {
-								$(this).val(values[property]);
-							}
-							break;
-						case "option":
-							$(this).prop("selected", true);
-							break;
-						default:
-							if (isIpValue && !isMaskInPropertyName) {
-								$(this).html(valueToSet);
-							} else {
-								$(this).text(valueToSet);
-							}
-							break;
-					}
-				});
+					dataReplace(values, property);
+
+				}
 			}
 
 			if (xhr.getResponseHeader("respTimeZones") !== null) {
@@ -471,15 +549,59 @@ function apiGetPage(page, doneCall) {
 	});
 }
 
+function dataReplace(values, property) {
+	$("[data-replace='" + property + "']").map(function () {
+		const elemType = $(this).prop('nodeName').toLowerCase();
+		let valueToSet = values[property];
+
+		const isIpValue = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(valueToSet);
+		const isMaskInPropertyName = property.toLowerCase().includes('mask');
+
+		if (isIpValue && !isMaskInPropertyName) {
+			valueToSet = '<a href="http://' + valueToSet + '">' + valueToSet + '</a>';
+		}
+
+		switch (elemType) {
+			case "input":
+			case "select":
+			case "textarea":
+				const type = $(this).prop('type').toLowerCase();
+				if (elemType == "input" && (type == "checkbox" || type == "radio")) {
+					$(this).prop("checked", values[property]);
+				} else {
+					$(this).val(values[property]);
+				}
+				break;
+			case "option":
+				$(this).prop("selected", true);
+				break;
+			default:
+				if (isIpValue && !isMaskInPropertyName) {
+					$(this).html(valueToSet);
+				} else {
+					$(this).text(valueToSet);
+				}
+				break;
+		}
+	});
+}
+
+function updateRoot() {
+	$.get(apiLink + api.actions.API_GET_PARAM + "&param=root", function (data) {
+		const values = JSON.parse(data);
+		for (const property in values) {
+			dataReplace(values, property);
+
+		}
+		intervalIdUpdateRoot = setTimeout(updateRoot, intervalTimeUpdateRoot);
+	});
+}
+
 function showSectionByTitle(title) {
-	// Ищем все заголовки внутри карточек, которые совпадают с заданным заголовком
 	const headers = document.querySelectorAll('.card .card-header span');
 
-	// Перебираем найденные заголовки
 	headers.forEach(header => {
 		if (header.textContent.trim() === title) {
-			// Если текст заголовка совпадает, находим родительский элемент 'col-sm-12 col-md-6 mb-4'
-			// и удаляем у него атрибут 'hidden'
 			const section = header.closest('.col-sm-12.col-md-6.mb-4');
 			if (section) {
 				section.removeAttribute('hidden');
@@ -490,9 +612,9 @@ function showSectionByTitle(title) {
 
 function showPreloader(state) {
 	if (state) {
-		$("#uzPreloader").removeClass(classHide);
+		$("#xzgPreloader").removeClass(classHide);
 	} else {
-		$("#uzPreloader").addClass(classHide);
+		$("#xzgPreloader").addClass(classHide);
 	}
 }
 
@@ -501,7 +623,7 @@ function toastConstructor(params) {
 	$("#toastHeaderText").text("");
 	$("#toastBody").text("");
 	switch (params) {
-		case "refreshTip":
+		/*case "refreshTip":
 			$("#toastHeaderText").text("Tip");
 			$("#toastBody").text("Statuses and other information in this window are updated when the page refreshes.");
 			$('<button>', {
@@ -513,7 +635,7 @@ function toastConstructor(params) {
 					$('.toast').toast('hide');
 				}
 			}).appendTo("#toastButtons");
-			break;
+			break;*/
 		case "wifiDisabled":
 			$("#toastHeaderText").text("Info");
 			$("#toastBody").text(`Wi-Fi page is inactive because Wi-Fi mode is not activated.
@@ -965,91 +1087,93 @@ function modalConstructor(type, params) {
 			}, 20000);
 			break;
 		case "saveOk":
-			if (window.location.pathname == "/wifi") {
-				$(headerText).text("Wi-Fi network connection");
-				$(modalBody).text(`Connecting to the network in progress...
+			$.get(apiLink + api.actions.API_GET_PARAM + "&param=wifiEnable", function (wifiEnable) {
+				if (window.location.pathname == "/network" & wifiEnable) {
+					$(headerText).text("Wi-Fi network connection");
+					$(modalBody).text(`Connecting to the network in progress...
 				Wait for the result.`);
-				$('<div>', {
-					"role": "status",
-					"class": "spinner-border text-primary",
-					append: $("<span>", {
-						"class": classHide
-					})
-				}).appendTo(modalBtns);
-				let counter = 0;
-				var getWifiIp = setInterval(function (params) {
-					if (counter <= 15) {
-						$.get(apiLink + api.actions.API_WIFICONNECTSTAT, function (data) {
-							if (data.connected) {
-								espReboot();
-								clearInterval(getWifiIp);
-								setTimeout(() => {//5sec for reboot
-									$(".modal-body").html(`<span style="color: green">Connected!</span><br>New IP address is ${data.ip}<br>Device will now reboot for the new settings to take effect.`);
-									$(modalBtns).html("");
-									$('<button>', {
-										type: "button",
-										"class": "btn btn-success",
-										text: "Go to " + data.ip,
-										click: function () {
-											window.location = "http://" + data.ip + "/";
-										}
-									}).appendTo(modalBtns);
-								}, 5000);
-							} else {
-								counter++;
-							}
-						});
-					} else {
-						clearInterval(getWifiIp);
-						$(modalBody).text("Connection error, check SSID, PASSWORD and try again").css("color", "red");
-						$(modalBtns).html("");
+					$('<div>', {
+						"role": "status",
+						"class": "spinner-border text-primary",
+						append: $("<span>", {
+							"class": classHide
+						})
+					}).appendTo(modalBtns);
+					let counter = 0;
+					var getWifiIp = setInterval(function (params) {
+						if (counter <= 15) {
+							$.get(apiLink + api.actions.API_WIFICONNECTSTAT, function (data) {
+								if (data.connected) {
+									espReboot();
+									clearInterval(getWifiIp);
+									setTimeout(() => {//5sec for reboot
+										$(".modal-body").html(`<span style="color: green">Connected!</span><br>New IP address is ${data.ip}<br>Device will now reboot for the new settings to take effect.`);
+										$(modalBtns).html("");
+										$('<button>', {
+											type: "button",
+											"class": "btn btn-success",
+											text: "Go to " + data.ip,
+											click: function () {
+												window.location = "http://" + data.ip + "/";
+											}
+										}).appendTo(modalBtns);
+									}, 5000);
+								} else {
+									counter++;
+								}
+							});
+						} else {
+							clearInterval(getWifiIp);
+							$(modalBody).text("Connection error, check SSID, PASSWORD and try again").css("color", "red");
+							$(modalBtns).html("");
+							$('<button>', {
+								type: "button",
+								"class": "btn btn-success",
+								text: "Close",
+								click: function () {
+									closeModal();
+								}
+							}).appendTo(modalBtns);
+						}
+					}, 1000);
+				} else {
+					let body = "New parameters saved. ";
+					$(headerText).text("SETTINGS SAVED");
+					if ($("#wifiMode").prop("checked")) {
+						body += "You will be redirected to the Wi-Fi network selection page.";
 						$('<button>', {
 							type: "button",
 							"class": "btn btn-success",
-							text: "Close",
+							text: "Select Wi-Fi network",
+							click: function () {
+								closeModal();
+								loadPage("/network");
+							}
+						}).appendTo(modalBtns);
+					} else {
+						body += "Some settings require a reboot.";
+						$('<button>', {
+							type: "button",
+							"class": "btn btn-warning",
+							text: "Restart manually later",
 							click: function () {
 								closeModal();
 							}
 						}).appendTo(modalBtns);
+						$('<button>', {
+							type: "button",
+							"class": "btn btn-success",
+							text: "Restart now",
+							click: function () {
+								closeModal();
+								espReboot();
+								rebootWait();
+							}
+						}).appendTo(modalBtns);
 					}
-				}, 1000);
-			} else {
-				let body = "New parameters saved. ";
-				$(headerText).text("SETTINGS SAVED");
-				if ($("#wifiMode").prop("checked")) {
-					body += "You will be redirected to the Wi-Fi network selection page.";
-					$('<button>', {
-						type: "button",
-						"class": "btn btn-success",
-						text: "Select Wi-Fi network",
-						click: function () {
-							closeModal();
-							loadPage("/wifi");
-						}
-					}).appendTo(modalBtns);
-				} else {
-					body += "Some settings require a reboot.";
-					$('<button>', {
-						type: "button",
-						"class": "btn btn-warning",
-						text: "Restart manually later",
-						click: function () {
-							closeModal();
-						}
-					}).appendTo(modalBtns);
-					$('<button>', {
-						type: "button",
-						"class": "btn btn-success",
-						text: "Restart now",
-						click: function () {
-							closeModal();
-							espReboot();
-							rebootWait();
-						}
-					}).appendTo(modalBtns);
+					$(modalBody).text(body);
 				}
-				$(modalBody).text(body);
-			}
+			});
 			break;
 		case "keepWeb":
 			$(headerText).text("Keep network & web server");
@@ -1070,11 +1194,6 @@ function modalConstructor(type, params) {
 	$("#modal").modal("show");
 }
 
-function WifiDhcpDsbl(state) {
-	$("#WifiIp").prop(disbl, state);
-	$("#WifiMask").prop(disbl, state);
-	$("#WifiGateway").prop(disbl, state);
-}
 
 function getWifiList() {
 	$("#collapseWifiPass").collapse("hide");
@@ -1156,6 +1275,18 @@ function sidenavAutoclose(now) {
 	}
 }
 
+$(document).ready(function () {
+	$('#logo').click(function () {
+		$('#sidenav').toggleClass('sidenav-active');
+	});
+	$('#pageContent').click(function () {
+		$('#sidenav').removeClass('sidenav-active');
+	});
+	$('#sidenav').click(function () {
+		$('#sidenav').removeClass('sidenav-active');
+	});
+});
+
 function setupSwipeHandler() {
 	document.addEventListener("touchstart", handleSwipe, false);
 	document.addEventListener("touchend", handleSwipe, false);
@@ -1164,9 +1295,9 @@ function setupSwipeHandler() {
 	function handleSwipe(event) {
 		if (event.type == "touchend") {
 			let endPoint = event.changedTouches[0].clientX;
-			if (startPoint < 30 && (endPoint - startPoint) > 50) {
+			if ((endPoint - startPoint) > 50) {  //startPoint < 30 && 
 				$("#sidenav").addClass("sidenav-active");//show sidenav
-				sidenavAutoclose()//timeout hide sidenaw
+				//sidenavAutoclose()//timeout hide sidenaw
 
 			} else if (endPoint == startPoint) {
 				$("#sidenav").removeClass("sidenav-active");//tap hide sidenav
@@ -1181,11 +1312,69 @@ function KeepWebDsbl(state) {
 	$("#keepWeb").prop(disbl, state);
 }
 
-function EthInputDsbl(state) {
+function EthEnbl(state) {
+	state = !state;
+	var dhcpEnabled = $("#EthDhcpTog").is(":checked");
+	if (dhcpEnabled) {
+		$("#EthDhcpTog").prop(disbl, state);
+		$("#EthIp").prop(disbl, true);
+		$("#EthMask").prop(disbl, true);
+		$("#EthGateway").prop(disbl, true);
+		$("#ethDns1").prop(disbl, true);
+		$("#ethDns2").prop(disbl, true);
+	} else {
+		$("#EthDhcpTog").prop(disbl, state);
+		$("#EthIp").prop(disbl, state);
+		$("#EthMask").prop(disbl, state);
+		$("#EthGateway").prop(disbl, state);
+		$("#ethDns1").prop(disbl, state);
+		$("#ethDns2").prop(disbl, state);
+	}
+}
+
+function WifiEnbl(state) {
+	state = !state;
+	var dhcpEnabled = $("#dhcpWiFi").is(":checked");
+	if (dhcpEnabled) {
+		$("#dhcpWiFi").prop(disbl, state);
+		$("#WifiIp").prop(disbl, true);
+		$("#WifiMask").prop(disbl, true);
+		$("#WifiGateway").prop(disbl, true);
+		$("#wifiDns1").prop(disbl, true);
+		$("#wifiDns2").prop(disbl, true);
+	} else {
+		$("#dhcpWiFi").prop(disbl, state);
+		$("#WifiIp").prop(disbl, state);
+		$("#WifiMask").prop(disbl, state);
+		$("#WifiGateway").prop(disbl, state);
+		$("#wifiDns1").prop(disbl, state);
+		$("#wifiDns2").prop(disbl, state);
+	}
+}
+
+function WifiDhcpDsbl(state) {
+	$("#WifiIp").prop(disbl, state);
+	$("#WifiMask").prop(disbl, state);
+	$("#WifiGateway").prop(disbl, state);
+	$("#wifiDns1").prop(disbl, state);
+	$("#wifiDns2").prop(disbl, state);
+}
+
+function EthDhcpDsbl(state) {
 	$("#EthIp").prop(disbl, state);
 	$("#EthMask").prop(disbl, state);
 	$("#EthGateway").prop(disbl, state);
-	$('#div_show3').toggle(this.checked);
+	$("#ethDns1").prop(disbl, state);
+	$("#ethDns2").prop(disbl, state);
+
+	/*$('input[name="ipAddress"]').prop(disbl, state);
+	$('input[name="ipMask"]').prop(disbl, state);
+	$('input[name="ipGW"]').prop(disbl, state);
+	$('input[name="ethDns1"]').prop(disbl, state);
+	$('input[name="ethDns2"]').prop(disbl, state);*/
+
+
+	//$('#div_show3').toggle(this.checked);
 }
 
 function MqttInputDsbl(state) {
@@ -1196,7 +1385,7 @@ function MqttInputDsbl(state) {
 	$("#MqttTopic").prop(disbl, state);
 	$("#MqttInterval").prop(disbl, state);
 	$("#MqttDiscovery").prop(disbl, state);
-	$('#div_show4').toggle(this.checked);
+	//$('#div_show4').toggle(this.checked);
 }
 
 function WgInputDsbl(state) {
@@ -1205,7 +1394,14 @@ function WgInputDsbl(state) {
 	$("#WgEndAddr").prop(disbl, state);
 	$("#WgEndPubKey").prop(disbl, state);
 	$("#WgEndPort").prop(disbl, state);
-	$('#div_show5').toggle(this.checked);
+	//$('#div_show5').toggle(this.checked);
+}
+
+function HnInputDsbl(state) {
+	$("#HnJoinCode").prop(disbl, state);
+	$("#HnHostName").prop(disbl, state);
+	$("#HnDashUrl").prop(disbl, state);
+	//$('#div_show6').toggle(this.checked);
 }
 
 function SeqInputDsbl(state) {

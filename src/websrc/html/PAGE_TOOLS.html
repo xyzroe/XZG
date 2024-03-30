@@ -5,15 +5,7 @@
         role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg"
           width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
           <use xlink:href="icons.svg#systemControl" />
-        </svg>System Control</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
-        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
-          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
-          viewBox="0 0 16 16">
-          <use xlink:href="icons.svg#systemTools" />
-        </svg>System Tools</button>
+        </svg>System control</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="fw-tab" data-bs-toggle="tab" data-bs-target="#firmwareUpdate" type="button"
@@ -23,41 +15,20 @@
           <use xlink:href="icons.svg#download" />
         </svg>Firmware update</button>
     </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
+        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
+          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
+          viewBox="0 0 16 16">
+          <use xlink:href="icons.svg#systemTools" />
+        </svg>Debug tools</button>
+    </li>
   </ul>
 
   <div class="tab-content">
 
     <div class="tab-pane fade show active" id="systemControl" role="tabpanel" aria-labelledby="home-tab">
       <div class="row masonry" data-masonry='{"percentPosition": true }'>
-
-        <div class="col-sm-12 col-md-6 mb-4">
-          <div class='card'>
-            <div class='card-header'>System vars</div>
-            <div class='card-body'>
-              <div class="container">
-                <form class="saveParams" method='POST' action="saveParams">
-                  <div class="row">
-                    <label for="hostname">Hostname. Device will be displayed in the network with
-                      this name</label>
-                    <input data-replace="hostname" class="form-control" id="hostname" type="text" name="hostname"
-                      value="" maxlength="50" required>
-                    <label for='refreshLogs'>Console log refresh interval</label>
-                    <input data-replace="refreshLogs" class='form-control' id='refreshLogs' type="number" min="1000"
-                      max="10000" step="1" name='refreshLogs' value='' placeholder="in milliseconds" required>
-                    <label for='timezone'>Timezone</label>
-                    <select data-replace="timeZones" id="timeZoneId" class='form-control' name="timeZoneName">
-                    </select>
-                    <div class="col">
-                      <div class="row justify-content-md-center mt-2">
-                        <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Set</button>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>

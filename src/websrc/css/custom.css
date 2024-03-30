@@ -12,7 +12,7 @@ label.swFx {
 }
 
 /* Preloader  */
-.uzg-loader {
+.xzg-loader {
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -27,7 +27,7 @@ label.swFx {
   }
 }
 
-#uzPreloader {
+#xzgPreloader {
   position: absolute;
   left: calc(50% - 50px);
   top: calc(50% - 50px);
@@ -57,7 +57,12 @@ label.swFx {
     position: fixed;
     left: -250px;
     transition: all 0.3s ease-out;
-    top: -1px !important;
+    /*top: -1px !important;*/
+  }
+
+  .nav-link {
+    justify-content: center !important;
+    display: flex !important;
   }
 
   nav.navbar {
@@ -65,9 +70,20 @@ label.swFx {
     z-index: 99;
   }
 
-  #pagenamePC {
+  /*#pagenamePC {
     display: none;
+  }*/
+}
+
+@media (min-width: 767px) {
+  .navbar-toggler-icon {
+    display: none !important;
   }
+}
+
+.navbar>.container {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .sidenav-active {
@@ -229,6 +245,16 @@ div#main {
   white-space: normal !important;
 }
 
+.nav-link {
+  padding: 0.5rem 0.5rem !important;
+}
+
+.nav-item {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  /*min-width: 125px !important;*/
+}
+
 .card {
   background-color: var(--card-background-color) !important;
 }
@@ -240,6 +266,7 @@ div#main {
 body {
   color: var(--text-color) !important;
   background-color: var(--background-color) !important;
+  margin: -1 !important;
 }
 
 .table {
@@ -249,6 +276,45 @@ body {
 .form-control:disabled {
   background-color: var(--form-disabled-background-color) !important;
 }
+
+.switches-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+.card_icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  margin-right: 6px;
+}
+
+.status_icon {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  margin-right: 10px;
+  color: black;
+  border-radius: 5px;
+}
+
+.card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: start !important;
+}
+
+.fixed-bottom {
+  text-align: right;
+  margin-bottom: 0;
+  font-weight: 100;
+  font-size: 80%;
+  margin-right: 6px;
+  display: none;
+}
+
 
 /*========== Variables Light theme (default) ==========*/
 :root {
@@ -316,6 +382,12 @@ body {
 
 .checkbox:checked+.switch .ball {
   transform: translateX(24px);
+}
+
+.bi {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
 }
 
 .bi-moon {

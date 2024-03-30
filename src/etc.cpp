@@ -12,18 +12,30 @@
 #include "log.h"
 #include "etc.h"
 #include "zones.h"
-#include "hw.h"
+// #include "hw.h"
 #include "zb.h"
 
-extern struct ConfigSettingsStruct ConfigSettings;
+#include <WireGuard-ESP32.h>
+static WireGuard wg;
+
+// extern struct ConfigSettingsStruct ConfigSettings;
+extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 extern struct BrdConfigStruct hwConfig;
-extern struct CurrentModesStruct modes;
+// extern struct CurrentModesStruct modes;
+
+extern struct SystemConfigStruct systemCfg;
+extern struct NetworkConfigStruct networkCfg;
+extern struct VpnConfigStruct vpnCfg;
+extern struct MqttConfigStruct mqttCfg;
+
+extern struct SysVarsStruct vars;
 
 extern CCTools CCTool;
 
-const char *coordMode = "coordMode";         // coordMode node name
-const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name
+const char *coordMode = "coordMode";         // coordMode node name ?? not name but text field with mode
+const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name ?? not name but text field with mode
+
 const char *configFileSystem = "/config/system.json";
 const char *configFileWifi = "/config/configWifi.json";
 const char *configFileEther = "/config/configEther.json";
@@ -33,7 +45,18 @@ const char *configFileSerial = "/config/configSerial.json";
 const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
 const char *configFileHw = "/config/configHw.json";
-// const char *deviceModel = "UZG-01";
+
+/*
+const char *cfgFileHw = "/cfg/hardware.json";
+const char *cfgFileGen = "/cfg/general.json";
+const char *cfgFileNet = "/cfg/network.json";
+const char *cfgFileSec = "/cfg/security.json";
+const char *cfgFileSer = "/cfg/serial.json";
+const char *cfgFileVpn = "/cfg/vpn.json";
+const char *cfgFileMqtt = "/cfg/mqtt.json";
+*/
+
+// const char *deviceModel = "XZG";
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
@@ -81,17 +104,17 @@ float readTemperature(bool clear)
   }
   else
   {
-    return (temprature_sens_read() - 32) / 1.8 - ConfigSettings.tempOffset;
+    return (temprature_sens_read() - 32) / 1.8 - systemCfg.tempOffset;
   }
 }
 
 float getCPUtemp(bool clear)
 {
-  DEBUG_PRINTLN(F("getCPUtemp"));
+  //DEBUG_PRINTLN(F("getCPUtemp"));
   float CPUtemp = 0.0;
   if (WiFi.getMode() == WIFI_MODE_NULL || WiFi.getMode() == WIFI_OFF)
   {
-    DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
+    //DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
     CPUtemp = readTemperature(clear);
     WiFi.disconnect();
@@ -133,71 +156,71 @@ void zigbeeRestart()
 
 void adapterModeUSB()
 {
-  if (modes.uartChIs)
+  if (vars.hwUartSelIs)
   {
-    printLogMsg("Switched UZG-01 to USB mode");
-    DEBUG_PRINTLN(F("Switched UZG-01 to USB mode"));
-    if (modes.uartChIs)
+    printLogMsg("Switched XZG to USB mode");
+    DEBUG_PRINTLN(F("Switched XZG to USB mode"));
+    if (vars.hwUartSelIs)
     {
-      digitalWrite(hwConfig.uartChPin, 1);
-      DEBUG_PRINTLN(F("digitalWrite(hwConfig.uartChPin, 1) - HIGH"));
+      digitalWrite(hwConfig.mist.uartSelPin, 1);
+      DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 1) - HIGH"));
     }
-    if (modes.ledUsbIs)
+    if (vars.hwLedUsbIs)
     {
-      digitalWrite(hwConfig.ledUsbPin, 1);
+      digitalWrite(hwConfig.mist.ledUsbPin, 1);
     }
   }
   else
   {
-    DEBUG_PRINTLN(F("NO modes.uartChIs. NO mode USB"));
+    DEBUG_PRINTLN(F("NO vars.hwUartSelIs. NO mode USB"));
   }
 }
 
 void adapterModeLAN()
 {
-  if (modes.uartChIs)
+  if (vars.hwUartSelIs)
   {
-    printLogMsg("Switched UZG-01 to LAN mode");
-    DEBUG_PRINTLN(F("Switched UZG-01 to LAN mode"));
-    digitalWrite(hwConfig.uartChPin, 0);
-    DEBUG_PRINTLN(F("digitalWrite(hwConfig.uartChPin, 0) - LOW"));
+    printLogMsg("Switched XZG to LAN mode");
+    DEBUG_PRINTLN(F("Switched XZG to LAN mode"));
+    digitalWrite(hwConfig.mist.uartSelPin, 0);
+    DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 0) - LOW"));
 
-    if (modes.ledUsbIs)
-      digitalWrite(hwConfig.ledUsbPin, 0);
+    if (vars.hwLedUsbIs)
+      digitalWrite(hwConfig.mist.ledUsbPin, 0);
   }
   else
   {
-    DEBUG_PRINTLN(F("NO modes.uartChIs. NO mode LAN"));
+    DEBUG_PRINTLN(F("NO vars.hwUartSelIs. NO mode LAN"));
   }
 }
 
 void ledPwrToggle()
 {
-  if (modes.ledPwrIs)
+  if (vars.hwLedPwrIs)
   {
     printLogMsg("BLUE LED has been toggled");
     DEBUG_PRINTLN(F("BLUE LED has been toggled"));
     DEBUG_PRINT(F("pin - "));
-    DEBUG_PRINTLN(hwConfig.ledPwrPin);
-    digitalWrite(hwConfig.ledPwrPin, !digitalRead(hwConfig.ledPwrPin));
+    DEBUG_PRINTLN(hwConfig.mist.ledPwrPin);
+    digitalWrite(hwConfig.mist.ledPwrPin, !digitalRead(hwConfig.mist.ledPwrPin));
   }
   else
   {
-    DEBUG_PRINTLN(F("NO modes.ledPwrIs. NO BLUE LED"));
+    DEBUG_PRINTLN(F("NO vars.hwLedPwrIs. NO BLUE LED"));
   }
 }
 
 void ledUsbToggle()
 {
-  if (modes.ledUsbIs)
+  if (vars.hwLedUsbIs)
   {
     printLogMsg("RED LED has been toggled");
     DEBUG_PRINTLN(F("RED LED has been toggled"));
-    digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin));
+    digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin));
   }
   else
   {
-    DEBUG_PRINTLN(F("NO modes.ledUsbIs. NO RED LED"));
+    DEBUG_PRINTLN(F("NO vars.hwLedUsbIs. NO RED LED"));
   }
 }
 
@@ -227,7 +250,9 @@ void getDeviceID(char *arr)
   }
 
   // Form the final string including the board name and the processed MAC address
-  sprintf(arr, "%s-%s", hwConfig.board, buf);
+  
+  //sprintf(arr, "%s-%s", hwConfig.board, buf);
+  snprintf(arr, MAX_DEV_ID_LONG, "%s-%s", hwConfig.board, buf);
 }
 
 /*
@@ -301,7 +326,7 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
   DEBUG_PRINT(F("Write defaults to "));
   DEBUG_PRINTLN(path);
-  serializeJson(doc, Serial);
+  serializeJsonPretty(doc, Serial);
   File configFile = LittleFS.open(path, FILE_WRITE);
   if (!configFile)
   {
@@ -310,12 +335,12 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
   }
   else
   {
-    serializeJson(doc, configFile);
+    serializeJsonPretty(doc, configFile);
   }
   configFile.close();
 }
 
-String hexToDec(String hexString)
+/*String hexToDec(String hexString)
 {
 
   unsigned int decValue = 0;
@@ -337,29 +362,29 @@ String hexToDec(String hexString)
   }
 
   return String(decValue);
-}
+}*/
 
-void resetSettings()
+void resetSettings() // to do adapt to Preferences
 {
   DEBUG_PRINTLN(F("[resetSettings] Start"));
-  if (modes.ledPwrIs)
+  if (vars.hwLedPwrIs)
   {
-    digitalWrite(hwConfig.ledPwrPin, 1);
+    digitalWrite(hwConfig.mist.ledPwrPin, 1);
   }
-  if (modes.ledUsbIs)
+  if (vars.hwLedUsbIs)
   {
-    digitalWrite(hwConfig.ledUsbPin, 0);
+    digitalWrite(hwConfig.mist.ledUsbPin, 0);
   }
   for (uint8_t i = 0; i < 15; i++)
   {
     delay(200);
-    if (modes.ledUsbIs)
+    if (vars.hwLedUsbIs)
     {
-      digitalWrite(hwConfig.ledUsbPin, !digitalRead(hwConfig.ledUsbPin));
+      digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin));
     }
-    if (modes.ledPwrIs)
+    if (vars.hwLedPwrIs)
     {
-      digitalWrite(hwConfig.ledPwrPin, !digitalRead(hwConfig.ledPwrPin));
+      digitalWrite(hwConfig.mist.ledPwrPin, !digitalRead(hwConfig.mist.ledPwrPin));
     }
   }
   DEBUG_PRINTLN(F("[resetSettings] Led blinking done"));
@@ -381,7 +406,7 @@ void resetSettings()
 
 void setClock()
 {
-  configTime(0, 0, "pool.ntp.org", "time.google.com");
+  configTime(0, 0, systemCfg.ntpServ1, systemCfg.ntpServ2);
 
   DEBUG_PRINT(F("Waiting for NTP time sync: "));
   int startTryingTime = millis();
@@ -404,9 +429,9 @@ void setClock()
   DEBUG_PRINT(asctime(&timeinfo));
 
   char *zoneToFind = const_cast<char *>("Europe/Kiev");
-  if (ConfigSettings.timeZone)
+  if (systemCfg.timeZone)
   {
-    zoneToFind = ConfigSettings.timeZone;
+    zoneToFind = systemCfg.timeZone;
   }
   const char *gmtOffset = getGmtOffsetForZone(zoneToFind);
 
@@ -482,27 +507,27 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
 
   int i = searchId;
 
-  if (ETH.begin(brdConfigs[i].addr, brdConfigs[i].pwrPin, brdConfigs[i].mdcPin, brdConfigs[i].mdiPin, brdConfigs[i].phyType, brdConfigs[i].clkMode, brdConfigs[i].pwrAltPin))
+  if (ETH.begin(brdConfigs[i].eth.addr, brdConfigs[i].eth.pwrPin, brdConfigs[i].eth.mdcPin, brdConfigs[i].eth.mdiPin, brdConfigs[i].eth.phyType, brdConfigs[i].eth.clkMode, brdConfigs[i].eth.pwrAltPin))
   {
     Serial.print("BrdConfig found: ");
     Serial.println(brdConfigs[i].board);
     brdOk = true;
     // zigbee check
 
-    if (brdConfigs[i].zbRxPin > 0 && brdConfigs[i].zbTxPin > 0 && brdConfigs[i].zbRstPin > 0 && brdConfigs[i].zbBslPin > 0)
+    if (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0)
     {
       DEBUG_PRINTLN(F("Zigbee pins OK. Try to connect..."));
 
       esp_task_wdt_reset();
 
-      Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, brdConfigs[i].zbRxPin, brdConfigs[i].zbTxPin); // start zigbee serial
+      Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, brdConfigs[i].zb.rxPin, brdConfigs[i].zb.txPin); // start zigbee serial
 
       // CCTool.switchStream(Serial2);
 
       int BSL_MODE = 0;
       // delay(500);
-      
-      if (zbInit(brdConfigs[i].zbRstPin, brdConfigs[i].zbBslPin, BSL_MODE))
+
+      if (zbInit(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_MODE))
       {
         DEBUG_PRINTLN(F("Zigbee find - OK"));
         brdOk = true;
@@ -512,7 +537,6 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
         DEBUG_PRINTLN(F("Zigbee find - ERROR"));
         brdOk = false;
       }
-      
     }
   }
   if (brdOk == true)
@@ -523,7 +547,7 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
   {
     Serial.print("BrdConfig error with: ");
     Serial.println(brdConfigs[i].board);
-    //delay(500);
+    // delay(500);
 
     DynamicJsonDocument config(300);
     config["searchId"] = i + 1;
@@ -566,7 +590,7 @@ ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPi
     //Serial2.end();
     //DEBUG_PRINTLN(F("Serial2.end"));
 
-    Serial2.begin(ConfigSettings.serialSpeed, SERIAL_8N1, zbConfigs[i].rxPin, zbConfigs[i].txPin); // start zigbee serial
+    Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, zbConfigs[i].rxPin, zbConfigs[i].txPin); // start zigbee serial
     DEBUG_PRINTLN(F("Serial2.begin"));
 
     CCTool.switchStream(Serial2);
@@ -587,3 +611,82 @@ ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPi
   return nullptr;
 }
 */
+
+void wgBegin()
+{
+  if (!wg.is_initialized())
+  {
+    // printLogMsg(String("Initializing WireGuard interface..."));
+    auto subnet = IPAddress(255, 255, 255, 255);
+    auto gateway = IPAddress(0, 0, 0, 0);
+    auto localport = 50000;
+    if (!wg.begin(
+            vpnCfg.wgLocalIP,
+            subnet,
+            localport,
+            gateway,
+            vpnCfg.wgLocalPrivKey,
+            vpnCfg.wgEndAddr,
+            vpnCfg.wgEndPubKey,
+            vpnCfg.wgEndPort))
+    {
+      printLogMsg(String("Failed to initialize WG"));
+      vars.vpnWgInit = false;
+    }
+    else
+    {
+      printLogMsg(String("WG was initialized"));
+      vars.vpnWgInit = true;
+    }
+  }
+}
+
+void wgLoop()
+{
+  String tag = "WG";
+  uint16_t localport = 50000;
+  //IPAddress ip = ;
+  
+  int checkPeriod = 5; // to do vpnCfg.checkTime; 
+  ip_addr_t lwip_ip;
+
+  lwip_ip.u_addr.ip4.addr = static_cast<uint32_t>(vpnCfg.wgLocalIP);
+
+  if (wg.is_initialized())
+  {
+    if (vars.vpnWgCheckTime == 0)
+    {
+      vars.vpnWgCheckTime = millis() + 1000 * checkPeriod; 
+    }
+    else
+    {
+      if (vars.vpnWgCheckTime <= millis())
+      {
+        //LOGI(tag, "check");
+        vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
+        if (wg.is_peer_up(&lwip_ip, &localport))
+        {
+          vars.vpnWgPeerIp = (lwip_ip.u_addr.ip4.addr);
+          if (!vars.vpnWgConnect)
+          {
+            LOGI(tag, "Peer with IP %s connect", vars.vpnWgPeerIp.toString().c_str());
+          }
+          vars.vpnWgConnect = true;
+        }
+        else
+        {
+          if (vars.vpnWgConnect)
+          {
+            LOGI(tag, "Peer disconnect");
+          }
+          vars.vpnWgPeerIp.clear();
+          vars.vpnWgConnect = false;
+        }
+      }
+    }
+  }
+  else
+  {
+    vars.vpnWgInit = false;
+  }
+}
