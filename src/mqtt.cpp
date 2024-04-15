@@ -59,10 +59,10 @@ bool mqttReconnect()
     String willTopic = String(mqttCfg.topic) + "/avty";
 
     boolean willRetain = false;
-    char deviceIdArr[MAX_DEV_ID_LONG];
-    getDeviceID(deviceIdArr);
+    //char deviceIdArr[MAX_DEV_ID_LONG];
+    //getDeviceID(deviceIdArr);
 
-    if (clientPubSub.connect(deviceIdArr, mqttCfg.user, mqttCfg.pass, willTopic.c_str(), willQoS, willRetain, willMessage))
+    if (clientPubSub.connect(vars.deviceId, mqttCfg.user, mqttCfg.pass, willTopic.c_str(), willQoS, willRetain, willMessage))
     {
         vars.mqttReconnectTime = 0;
         mqttOnConnect();
@@ -140,7 +140,7 @@ void mqttPublishState()
         }
         else
         {
-            root["ip"] = networkCfg.ethAddr;
+            root["ip"] = networkCfg.ethIp;
         }
     }
     else
@@ -151,7 +151,7 @@ void mqttPublishState()
         }
         else
         {
-            root["ip"] = networkCfg.wifiAddr;
+            root["ip"] = networkCfg.wifiIp;
         }
     }
     // if (ConfigSettings.emergencyWifi)
@@ -163,7 +163,7 @@ void mqttPublishState()
     //     root["emergencyMode"] = "OFF";
     // }
 
-    switch (vars.workMode)
+    switch (systemCfg.workMode)
     {
     case WORK_MODE_USB:
         root["mode"] = "Zigbee-to-USB";
@@ -287,9 +287,9 @@ void mqttPublishDiscovery()
     String mqttBuffer;
 
     DynamicJsonDocument via(150);
-    char deviceIdArr[MAX_DEV_ID_LONG];
-    getDeviceID(deviceIdArr);
-    via["ids"] = String(deviceIdArr);
+    //char deviceIdArr[MAX_DEV_ID_LONG];
+    //getDeviceID(deviceIdArr);
+    via["ids"] = String(vars.deviceId);
 
     String sensor_topic = String(homeAssistant) + "/" + String(haSensor) + "/";
     String button_topic = String(homeAssistant) + "/" + String(haButton) + "/";
@@ -304,10 +304,10 @@ void mqttPublishDiscovery()
         case 0:
         {
             DynamicJsonDocument dev(256);
-            char deviceIdArr[MAX_DEV_ID_LONG];
-            getDeviceID(deviceIdArr);
+            //char deviceIdArr[MAX_DEV_ID_LONG];
+            //getDeviceID(deviceIdArr);
 
-            dev["ids"] = String(deviceIdArr);
+            dev["ids"] = String(vars.deviceId);
             dev["name"] = systemCfg.hostname;
             dev["mf"] = "Zig Star";
             // dev["mdl"] = ConfigSettings.boardName;

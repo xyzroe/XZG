@@ -17,7 +17,7 @@ label.swFx {
   height: 100px;
   border-radius: 50%;
   border: 16px solid;
-  border-color: #047cc3 #0000;
+  border-color: var(--link-color) #0000;
   animation: s1 0.5s infinite;
 }
 
@@ -96,6 +96,26 @@ label.swFx {
   margin-right: 20px;
 }
 
+#toastButtons {
+  display: flex !important;
+  justify-content: space-evenly;
+  gap: 1em;
+}
+
+.spinner-color {
+  color: var(--link-color);
+}
+
+.card-update {
+  height: 11em !important;
+}
+
+.card-body-update {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
 .nav-container {
   min-width: fit-content;
   z-index: 100;
@@ -154,70 +174,38 @@ label.swFx {
   border-bottom: none !important;
 }
 
-#file-input {
+
+.file-inputFW {
   padding: 0;
   border: 1px solid #ddd;
-  line-height: 44px;
+  line-height: 2.5em;
   text-align: center;
   display: block;
   cursor: pointer;
-  width: 100%;
-  height: 44px;
-  border-radius: 4px;
-  margin: 10px auto;
-  font-size: 15px
+  height: 2.5em;
+  border-radius: 0.7em;
+  margin: 1em;
+  font-size: 15px;
+  background-color: var(--background-color) !important;
 }
 
-#file-input_zb {
-  padding: 0;
-  border: 1px solid #ddd;
-  line-height: 44px;
-  text-align: center;
-  display: block;
-  cursor: pointer;
-  width: 100%;
-  height: 44px;
-  border-radius: 4px;
-  margin: 10px auto;
-  font-size: 15px
-}
-
-#bar,
-#prgbar {
-  background-color: #f1f1f1;
+.prgbarFW {
+  background-color: var(--card-background-color) !important;
   border-radius: 10px
 }
 
-#bar_zb,
-#prgbar_zb {
-  background-color: #f1f1f1;
-  border-radius: 10px
-}
-
-#bar {
-  background-color: #17a2b8;
+.barFW {
+  background-color: var(--link-color);
+  border-radius: 10px;
   width: 0%;
   height: 10px
 }
 
-#bar_zb {
-  background-color: #17a2b8;
-  width: 0%;
-  height: 10px
-}
-
-form#upload_form {
-  background: #fff;
+.fw_form {
   max-width: 408px;
   border-radius: 5px;
-  text-align: center
-}
-
-form#upload_form_zb {
-  background: #fff;
-  max-width: 408px;
-  border-radius: 5px;
-  text-align: center
+  text-align: center;
+  margin-bottom: 1em !important;
 }
 
 h2 {
@@ -285,25 +273,39 @@ body {
 }
 
 .card_icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
-  margin-right: 6px;
+  margin-right: 0.5em;
+}
+
+.file_icon {
+  height: 2em !important;
+  width: 2em !important;
+  color: var(--link-color);
 }
 
 .status_icon {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
+  width: 25px;
+  height: 25px;
   margin-right: 10px;
   color: black;
   border-radius: 5px;
+}
+
+.status_icon:active,
+.status_icon:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
+  border-color: transparent;
 }
 
 .card-header {
   display: flex !important;
   align-items: center !important;
   justify-content: start !important;
+  color: var(--link-color) !important;
 }
 
 .fixed-bottom {
@@ -315,14 +317,66 @@ body {
   display: none;
 }
 
+.lang_select {
+  background-color: #111 !important;
+  border: none !important;
+  font-size: 0.83rem !important;
+  width: auto !important;
+  color: fff !important;
+}
+
+.ui_set {
+  /*display: flex;*/
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-left: 0.25em !important;
+  padding-right: 0.25em !important;
+  margin-top: 1em;
+}
+
+
+.form-check-input:checked {
+  background-color: var(--link-color) !important;
+  border-color: var(--link-color) !important;
+}
+
+#clock {
+  border-color: var(--card-background-color);
+  color: var(--card-background-color);
+  --bs-btn-padding-y: 0.05rem !important;
+  --bs-btn-padding-x: 0.3rem !important;
+  border-width: revert;
+}
+
+.tooltip {
+  --bs-tooltip-color: var(--card-background-color) !important;
+  --bs-tooltip-bg: var(--table-text-color) !important;
+}
+
+.progress-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  text-shadow:
+    0 0 2px var(--form-disabled-background-color),
+    0 0 2px var(--form-disabled-background-color),
+    0 0 4px var(--form-disabled-background-color);
+}
+
+.progress-div {
+  position: relative;
+  background: var(--card-background-color) !important;
+}
 
 /*========== Variables Light theme (default) ==========*/
 :root {
-  --background-color: #ffffff;
-  --text-color: #000000;
+  --background-color: #fff;
+  --text-color: #000;
   --card-background-color: #f0f0f0;
-  --table-text-color: var(--bs-table-color);
-  --modal-background-color: var(--bs-modal-bg);
+  --table-text-color: #000;
+  --modal-background-color: #adadad;
   --form-disabled-background-color: #e9ecef;
   --link-color: #047cc3;
   --link-hover-color: #04d5ec;
@@ -348,10 +402,8 @@ body {
 
 .switch-container {
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 50px;
-  width: 100%;
+  flex-shrink: 0;
 }
 
 .switch {
@@ -396,4 +448,103 @@ body {
 
 .bi-sun {
   color: #f39c12;
+}
+
+/*Login page*/
+#loginForm {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+
+#floatingUser {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#floatingPassword {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+#togglePassVisLog {
+  border-top-right-radius: 0;
+}
+
+#messageTxt {
+  margin-top: 10px;
+  color: red;
+  font-size: medium;
+}
+
+/*Login page*/
+
+.two_cols_checkbox {
+  padding-left: 2.5rem !important;
+}
+
+.two_cols_switch {
+  padding-left: 3.5rem !important;
+}
+
+.inline_icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.inline_btn {
+  --bs-btn-color: #6c757d !important;
+  --bs-btn-border-color: #ced4da !important;
+  --bs-btn-hover-color: #7a7c7e;
+  --bs-btn-hover-bg: #b6b6b6;
+  --bs-btn-hover-border-color: #ced4da !important;
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: #000;
+  --bs-btn-active-border-color: #000;
+  background-color: #fff !important;
+}
+
+
+.cmd_btn {
+  flex: 0 0 auto;
+  width: auto !important;
+  margin: 0.4rem !important;
+}
+
+.cmd_row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  --bs-modal-width: 600px !important;
 }

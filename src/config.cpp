@@ -3,15 +3,16 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
-
-#include "config.h"
-#include "etc.h"
-
-Preferences preferences;
-
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "HTTPClient.h"
+
+#include "config.h"
+#include "etc.h"
+#include "web.h"
+#include "keys.h"
+
+Preferences preferences;
 
 extern struct SysVarsStruct vars;
 extern struct BrdConfigStruct hwConfig;
@@ -22,111 +23,28 @@ extern struct NetworkConfigStruct networkCfg;
 extern struct VpnConfigStruct vpnCfg;
 extern struct MqttConfigStruct mqttCfg;
 
-const char *networkConfigKey = "network-config";
-const char *wifiEnableKey = "wifiEnable";
-const char *wifiSsidKey = "wifiSsid";
-const char *wifiPasswordKey = "wifiPassword";
-const char *wifiDhcpKey = "wifiDhcp";
-const char *wifiAddrKey = "wifiAddr";
-const char *wifiMaskKey = "wifiMask";
-const char *wifiGateKey = "wifiGate";
-const char *wifiDns1Key = "wifiDns1";
-const char *wifiDns2Key = "wifiDns2";
-const char *ethEnableKey = "ethEnable";
-const char *ethDhcpKey = "ethDhcp";
-const char *ethAddrKey = "ethAddr";
-const char *ethMaskKey = "ethMask";
-const char *ethGateKey = "ethGate";
-const char *ethDns1Key = "ethDns1";
-const char *ethDns2Key = "ethDns2";
-
-const char *vpnConfigKey = "vpn-config";
-const char *wgEnableKey = "wgEnable";
-const char *wgLocalIPKey = "wgLocalIP";
-const char *wgLocalPrivKeyKey = "wgLocalPrivKey";
-const char *wgEndAddrKey = "wgEndAddr";
-const char *wgEndPubKeyKey = "wgEndPubKey";
-const char *wgEndPortKey = "wgEndPort";
-const char *hnEnableKey = "hnEnable";
-const char *hnJoinCodeKey = "hnJoinCode";
-const char *hnHostNameKey = "hnHostName";
-const char *hnDashUrlKey = "hnDashUrl";
-
-const char *mqttConfigKey = "mqtt-config";
-const char *enableKey = "enable";
-const char *serverKey = "server";
-//const char *serverIPKey = "serverIP";
-const char *portKey = "port";
-const char *userKey = "user";
-const char *passKey = "pass";
-const char *topicKey = "topic";
-const char *intervalKey = "interval";
-const char *updateIntKey = "updateInt";
-const char *discoveryKey = "discovery";
-//const char *reconnectTimeKey = "reconnectTime";
-const char *reconnectIntKey = "reconnectIntKey";
-//const char *heartbeatTimeKey = "heartbeatTime";
-
-const char *systemConfigKey = "system-config";
-const char *keepWebKey = "keepWeb";
-const char *disableWebKey = "disableWeb";
-const char *webAuthKey = "webAuth";
-const char *webUserKey = "webUser";
-const char *webPassKey = "webPass";
-const char *fwEnabledKey = "fwEnabled";
-const char *fwIpKey = "fwIp";
-const char *serialSpeedKey = "serialSpeed";
-const char *socketPortKey = "socketPort";
-const char *tempOffsetKey = "tempOffset";
-const char *disableLedUSBKey = "disableLedUSB";
-const char *disableLedPwrKey = "disableLedPwr";
-const char *disableLedsKey = "disableLeds";
-const char *refreshLogsKey = "refreshLogs";
-const char *hostnameKey = "hostname";
-const char *timeZoneKey = "timeZone";
-const char *ntpServ1Key = "ntpServ1";
-const char *ntpServ2Key = "ntpServ2";
-// const char *prevWorkModeKey = "prevWorkMode";
-// const char *workModeKey = "prevWorkMode";
-
-const char *systemVarsKey = "system-vars";
-const char *hwBtnIsKey = "hwBtnIs";
-const char *hwLedUsbIsKey = "hwLedUsbIs";
-const char *hwLedPwrIsKey = "hwLedPwrIs";
-const char *hwUartSelIsKey = "hwUartSelIs";
-const char *hwZigbeeIsKey = "hwZigbeeIs";
-const char *workModeKey = "workMode";
-const char *connectedSocketKey = "connectedSocket";
-const char *connectedClientsKey = "connectedClients";
-const char *socketTimeKey = "socketTime";
-const char *connectedEtherKey = "connectedEther";
-const char *apStartedKey = "apStarted";
-const char *wifiWebSetupInProgressKey = "wifiWebSetupInProgress";
-const char *vpnWgInitKey = "vpnWgInit";
-const char *vpnWgConnectKey = "vpnWgConnect";
-const char *vpnWgPeerIpKey = "vpnWgPeerIp";
-const char *vpnWgCheckTimeKey = "vpnWgCheckTimeKey";
-const char *vpnHnInitKey = "vpnHnInit";
-const char *mqttConnKey = "mqttConn";
-const char *mqttReconnectTimeKey = "mqttReconnectTime";
-const char *mqttHeartbeatTimeKey = "mqttHeartbeatTime";
-const char *zbLedStateKey = "zbLedState";
-const char *zbFlashingKey = "zbFlashing";
-
 String tag = "NVS";
 
-void printNVSFreeSpace()
+void getNvsStats(int *total, int *used)
 {
     nvs_stats_t nvsStats;
     nvs_get_stats(NULL, &nvsStats);
 
-    LOGI(tag, "Total Entries: %d, Used Entries: %d, Free Entries: %d", nvsStats.total_entries, nvsStats.used_entries, (nvsStats.total_entries - nvsStats.used_entries));
+    *total = nvsStats.total_entries;
+    *used = nvsStats.used_entries;
+}
+
+void printNVSFreeSpace()
+{
+    int total, used;
+    getNvsStats(&total, &used);
+    LOGI(tag, "Total Entries: %d, Used Entries: %d, Free Entries: %d", total, used, (total - used));
 }
 
 void eraseNVS()
 {
     LOGI(tag, "Going to erase NVS. It will factory reset device.");
-    int timeDelay = 10;
+    int timeDelay = 3;
     for (int i = 0; i < timeDelay; i++)
     {
         LOGI(tag, "%d seconds left..", (timeDelay - i));
@@ -201,19 +119,19 @@ void saveNetworkConfig(const NetworkConfigStruct &config)
 {
     preferences.begin(networkConfigKey, false);
 
-    preferences.putBool(wifiEnableKey, config.wifiEnable);
+    preferences.putBool(wifiEnblKey, config.wifiEnable);
     preferences.putString(wifiSsidKey, config.wifiSsid);
-    preferences.putString(wifiPasswordKey, config.wifiPassword);
+    preferences.putString(wifiPassKey, config.wifiPass);
     preferences.putBool(wifiDhcpKey, config.wifiDhcp);
-    preferences.putString(wifiAddrKey, config.wifiAddr.toString());
+    preferences.putString(wifiIpKey, config.wifiIp.toString());
     preferences.putString(wifiMaskKey, config.wifiMask.toString());
     preferences.putString(wifiGateKey, config.wifiGate.toString());
     preferences.putString(wifiDns1Key, config.wifiDns1.toString());
     preferences.putString(wifiDns2Key, config.wifiDns2.toString());
 
-    preferences.putBool(ethEnableKey, config.ethEnable);
+    preferences.putBool(ethEnblKey, config.ethEnable);
     preferences.putBool(ethDhcpKey, config.ethDhcp);
-    preferences.putString(ethAddrKey, config.ethAddr.toString());
+    preferences.putString(ethIpKey, config.ethIp.toString());
     preferences.putString(ethMaskKey, config.ethMask.toString());
     preferences.putString(ethGateKey, config.ethGate.toString());
     preferences.putString(ethDns1Key, config.ethDns1.toString());
@@ -226,19 +144,19 @@ void loadNetworkConfig(NetworkConfigStruct &config)
 {
     preferences.begin(networkConfigKey, true);
 
-    config.wifiEnable = preferences.getBool(wifiEnableKey, false);
+    config.wifiEnable = preferences.getBool(wifiEnblKey, false);
     strlcpy(config.wifiSsid, preferences.getString(wifiSsidKey).c_str(), sizeof(config.wifiSsid));
-    strlcpy(config.wifiPassword, preferences.getString(wifiPasswordKey).c_str(), sizeof(config.wifiPassword));
+    strlcpy(config.wifiPass, preferences.getString(wifiPassKey).c_str(), sizeof(config.wifiPass));
     config.wifiDhcp = preferences.getBool(wifiDhcpKey, true);
-    config.wifiAddr.fromString(preferences.getString(wifiAddrKey));
+    config.wifiIp.fromString(preferences.getString(wifiIpKey));
     config.wifiMask.fromString(preferences.getString(wifiMaskKey, NETWORK_MASK));
     config.wifiGate.fromString(preferences.getString(wifiGateKey));
     config.wifiDns1.fromString(preferences.getString(wifiDns1Key, DNS_SERV_1));
     config.wifiDns2.fromString(preferences.getString(wifiDns2Key, DNS_SERV_2));
 
-    config.ethEnable = preferences.getBool(ethEnableKey, true);
+    config.ethEnable = preferences.getBool(ethEnblKey, true);
     config.ethDhcp = preferences.getBool(ethDhcpKey, true);
-    config.ethAddr.fromString(preferences.getString(ethAddrKey));
+    config.ethIp.fromString(preferences.getString(ethIpKey));
     config.ethMask.fromString(preferences.getString(ethMaskKey, NETWORK_MASK));
     config.ethGate.fromString(preferences.getString(ethGateKey));
     config.ethDns1.fromString(preferences.getString(ethDns1Key, DNS_SERV_1));
@@ -279,8 +197,8 @@ void loadVpnConfig(VpnConfigStruct &config)
 
     config.hnEnable = preferences.getBool(hnEnableKey, false);
     strlcpy(config.hnJoinCode, preferences.getString(hnJoinCodeKey).c_str(), sizeof(config.hnJoinCode));
-    strlcpy(config.hnHostName, preferences.getString(hnHostNameKey).c_str(), sizeof(config.hnHostName));
-    strlcpy(config.hnDashUrl, preferences.getString(hnDashUrlKey).c_str(), sizeof(config.hnDashUrl));
+    strlcpy(config.hnHostName, preferences.getString(hnHostNameKey, String(vars.deviceId)).c_str(), sizeof(config.hnHostName));
+    strlcpy(config.hnDashUrl, preferences.getString(hnDashUrlKey, "default").c_str(), sizeof(config.hnDashUrl));
 
     preferences.end();
 }
@@ -292,7 +210,7 @@ void saveMqttConfig(const MqttConfigStruct &config)
     preferences.putBool(enableKey, config.enable);
     // preferences.putBool(connectKey, config.connect);
     preferences.putString(serverKey, config.server);
-    //preferences.putString(serverIPKey, config.serverIP.toString());
+    // preferences.putString(serverIPKey, config.serverIP.toString());
     preferences.putInt(portKey, config.port);
     preferences.putString(userKey, config.user);
     preferences.putString(passKey, config.pass);
@@ -301,7 +219,7 @@ void saveMqttConfig(const MqttConfigStruct &config)
     preferences.putInt(updateIntKey, config.updateInt);
     preferences.putBool(discoveryKey, config.discovery);
     preferences.putULong(reconnectIntKey, config.reconnectInt);
-    //preferences.putULong(heartbeatTimeKey, config.heartbeatTime);
+    // preferences.putULong(heartbeatTimeKey, config.heartbeatTime);
 
     preferences.end();
 }
@@ -313,16 +231,16 @@ void loadMqttConfig(MqttConfigStruct &config)
     config.enable = preferences.getBool(enableKey, false);
     // config.connect = preferences.getBool(connect, false);
     strlcpy(config.server, preferences.getString(serverKey, "").c_str(), sizeof(config.server));
-    //config.serverIP.fromString(preferences.getString(serverIPKey));
+    // config.serverIP.fromString(preferences.getString(serverIPKey));
     config.port = preferences.getInt(portKey, 1883);
     strlcpy(config.user, preferences.getString(userKey, "").c_str(), sizeof(config.user));
     strlcpy(config.pass, preferences.getString(passKey, "").c_str(), sizeof(config.pass));
-    strlcpy(config.topic, preferences.getString(topicKey, "").c_str(), sizeof(config.topic));
+    strlcpy(config.topic, preferences.getString(topicKey, String(vars.deviceId)).c_str(), sizeof(config.topic));
     // config.retain = preferences.getBool(retain, false); // If needed
     config.updateInt = preferences.getInt(updateIntKey, 60);
     config.discovery = preferences.getBool(discoveryKey, true);
     config.reconnectInt = preferences.getULong(reconnectIntKey, 15);
-    //config.heartbeatTime = preferences.getULong(heartbeatTimeKey, 60000);
+    // config.heartbeatTime = preferences.getULong(heartbeatTimeKey, 60000);
 
     preferences.end();
 }
@@ -343,12 +261,14 @@ void saveSystemConfig(const SystemConfigStruct &config)
     preferences.putInt(tempOffsetKey, config.tempOffset);
     preferences.putBool(disableLedUSBKey, config.disableLedUSB);
     preferences.putBool(disableLedPwrKey, config.disableLedPwr);
-    preferences.putBool(disableLedsKey, config.disableLeds);
     preferences.putInt(refreshLogsKey, config.refreshLogs);
     preferences.putString(hostnameKey, config.hostname);
     preferences.putString(timeZoneKey, config.timeZone);
     preferences.putString(ntpServ1Key, config.ntpServ1);
     preferences.putString(ntpServ2Key, config.ntpServ2);
+    preferences.putBool(nmEnableKey, config.nmEnable);
+    preferences.putString(nmStartHourKey, config.nmStart);
+    preferences.putString(nmEndHourKey, config.nmEnd);
     // preferences.putInt(prevWorkModeKey, static_cast<int>(config.prevWorkMode));
     preferences.putInt(workModeKey, static_cast<int>(config.workMode));
 
@@ -371,12 +291,15 @@ void loadSystemConfig(SystemConfigStruct &config)
     config.tempOffset = preferences.getInt(tempOffsetKey, 0);
     config.disableLedUSB = preferences.getBool(disableLedUSBKey, false);
     config.disableLedPwr = preferences.getBool(disableLedPwrKey, false);
-    config.disableLeds = preferences.getBool(disableLedsKey, false);
-    config.refreshLogs = preferences.getInt(refreshLogsKey, 1000);
+    config.refreshLogs = preferences.getInt(refreshLogsKey, 1);
     strlcpy(config.hostname, preferences.getString(hostnameKey, "XZG").c_str(), sizeof(config.hostname)); /// to do add def host name!!
     strlcpy(config.timeZone, preferences.getString(timeZoneKey, NTP_TIME_ZONE).c_str(), sizeof(config.timeZone));
     strlcpy(config.ntpServ1, preferences.getString(ntpServ1Key, NTP_SERV_1).c_str(), sizeof(config.ntpServ1));
     strlcpy(config.ntpServ2, preferences.getString(ntpServ2Key, NTP_SERV_2).c_str(), sizeof(config.ntpServ2));
+
+    config.nmEnable = preferences.getBool(nmEnableKey, false);
+    strlcpy(config.nmStart, preferences.getString(nmStartHourKey, NM_START_TIME).c_str(), sizeof(config.nmStart));
+    strlcpy(config.nmEnd, preferences.getString(nmEndHourKey, NM_END_TIME).c_str(), sizeof(config.nmEnd));
     // config.prevWorkMode = static_cast<WORK_MODE_t>(preferences.getInt(prevWorkMode, WORK_MODE_NETWORK));
     // config.prevWorkMode = static_cast<WORK_MODE_t>(preferences.getInt(prevWorkModeKey, WORK_MODE_NETWORK));
     config.workMode = static_cast<WORK_MODE_t>(preferences.getInt(workModeKey, WORK_MODE_NETWORK));
@@ -384,6 +307,7 @@ void loadSystemConfig(SystemConfigStruct &config)
     preferences.end();
 }
 
+/*
 enum API_PAGE_t : uint8_t
 {
     API_PAGE_ROOT,
@@ -397,6 +321,7 @@ enum API_PAGE_t : uint8_t
     API_PAGE_MQTT,
     API_PAGE_VPN
 };
+*/
 
 void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, NetworkConfigStruct &configNet, VpnConfigStruct &configVpn, MqttConfigStruct &configMqtt)
 {
@@ -421,55 +346,58 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
                     configSys.workMode = static_cast<WORK_MODE_t>(mode);
                 }
             }
-            if (serverWeb.hasArg(keepWebKey))
-            {
-                configSys.keepWeb = serverWeb.arg(keepWebKey) == on;
-            }
 
-            
-            if (serverWeb.hasArg(disableLedPwrKey))
-            {
-                configSys.disableLedPwr = serverWeb.arg(disableLedPwrKey) == on;
-            }
+            configSys.keepWeb = serverWeb.hasArg(keepWebKey) == true;
 
-            
-            if (serverWeb.hasArg(disableLedUSBKey))
-            {
-                configSys.disableLedUSB = serverWeb.arg(disableLedUSBKey) == on;
-            }
+            configSys.disableLedPwr = serverWeb.hasArg(disableLedPwrKey) == true;
 
-            
+            configSys.disableLedUSB = serverWeb.hasArg(disableLedUSBKey) == true;
+
             if (serverWeb.hasArg(refreshLogsKey))
             {
                 configSys.refreshLogs = serverWeb.arg(refreshLogsKey).toInt();
             }
 
-            const char *hostname = "hostname";
-            if (serverWeb.hasArg(hostname))
+            if (serverWeb.hasArg(hostnameKey))
             {
                 // Ensure the string does not exceed 49 characters, leaving space for the null terminator
-                strncpy(configSys.hostname, serverWeb.arg(hostname).c_str(), sizeof(configSys.hostname) - 1);
+                strncpy(configSys.hostname, serverWeb.arg(hostnameKey).c_str(), sizeof(configSys.hostname) - 1);
                 configSys.hostname[sizeof(configSys.hostname) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *timeZoneName = "timeZoneName";
-            if (serverWeb.hasArg(timeZoneName))
+            if (serverWeb.hasArg(timeZoneNameKey))
             {
-                strncpy(configSys.timeZone, serverWeb.arg(timeZoneName).c_str(), sizeof(configSys.timeZone) - 1);
+                strncpy(configSys.timeZone, serverWeb.arg(timeZoneNameKey).c_str(), sizeof(configSys.timeZone) - 1);
                 configSys.timeZone[sizeof(configSys.timeZone) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *ntpServ1 = "ntpServ1";
-            if (serverWeb.hasArg(ntpServ1))
+            if (serverWeb.hasArg(ntpServ1Key))
             {
-                strncpy(configSys.ntpServ1, serverWeb.arg(ntpServ1).c_str(), sizeof(configSys.ntpServ1) - 1);
+                strncpy(configSys.ntpServ1, serverWeb.arg(ntpServ1Key).c_str(), sizeof(configSys.ntpServ1) - 1);
                 configSys.ntpServ1[sizeof(configSys.ntpServ1) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-            const char *ntpServ2 = "ntpServ2";
-            if (serverWeb.hasArg(ntpServ2))
+
+            if (serverWeb.hasArg(ntpServ2Key))
             {
-                strncpy(configSys.ntpServ2, serverWeb.arg(ntpServ2).c_str(), sizeof(configSys.ntpServ2) - 1);
+                strncpy(configSys.ntpServ2, serverWeb.arg(ntpServ2Key).c_str(), sizeof(configSys.ntpServ2) - 1);
                 configSys.ntpServ2[sizeof(configSys.ntpServ2) - 1] = '\0'; // Guarantee a null terminator at the end
+            }
+
+            configSys.nmEnable = serverWeb.hasArg(nmEnableKey) == true;
+
+            if (serverWeb.hasArg(nmStartHourKey))
+            {
+                LOGI(tag, "nmStartHourKey %s", String(serverWeb.arg(nmStartHourKey)));
+                //Serial.println(convertTimeToCron(serverWeb.arg(nmStartHourKey)));
+                strncpy(configSys.nmStart, serverWeb.arg(nmStartHourKey).c_str(), sizeof(configSys.nmStart) - 1);
+                configSys.nmStart[sizeof(configSys.nmStart) - 1] = '\0'; // Guarantee a null terminator at the end
+            }
+            if (serverWeb.hasArg(nmEndHourKey))
+            {
+                LOGI(tag, "nmEndHourKey %s", String(serverWeb.arg(nmEndHourKey)));
+                //Serial.println(convertTimeToCron(serverWeb.arg(nmEndHourKey)));
+                strncpy(configSys.nmEnd, serverWeb.arg(nmEndHourKey).c_str(), sizeof(configSys.nmEnd) - 1);
+                configSys.nmEnd[sizeof(configSys.nmEnd) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
             saveSystemConfig(configSys);
@@ -477,77 +405,71 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         break;
         case API_PAGE_NETWORK:
         {
-            const char *ethEnableKey = "ethEnbl";
-            configNet.ethEnable = serverWeb.hasArg(ethEnableKey) == true;
+            configNet.ethEnable = serverWeb.hasArg(ethEnblKey) == true;
 
-            const char *ethDhcpKey = "dhcp";
             configNet.ethDhcp = serverWeb.hasArg(ethDhcpKey) == true;
 
-            const char *ethAddrKey = "ipAddress";
-            if (serverWeb.hasArg(ethAddrKey))
+            if (serverWeb.hasArg(ethIpKey))
             {
-                configNet.ethAddr.fromString(serverWeb.arg(ethAddrKey));
+                configNet.ethIp.fromString(serverWeb.arg(ethIpKey));
             }
-            const char *ethMaskKey = "ipMask";
+
             if (serverWeb.hasArg(ethMaskKey))
             {
                 configNet.ethMask.fromString(serverWeb.arg(ethMaskKey));
             }
-            const char *ethGateKey = "ipGW";
+
             if (serverWeb.hasArg(ethGateKey))
             {
                 configNet.ethGate.fromString(serverWeb.arg(ethGateKey));
             }
-            const char *ethDns1Key = "ethDns1";
+
             if (serverWeb.hasArg(ethDns1Key))
             {
                 configNet.ethDns1.fromString(serverWeb.arg(ethDns1Key));
             }
-            const char *ethDns2Key = "ethDns2";
+
             if (serverWeb.hasArg(ethDns2Key))
             {
                 configNet.ethDns2.fromString(serverWeb.arg(ethDns2Key));
             }
 
-            const char *wifiEnableKey = "wifiEnbl";
-            configNet.wifiEnable = serverWeb.hasArg(wifiEnableKey) == true;
+            configNet.wifiEnable = serverWeb.hasArg(wifiEnblKey) == true;
 
-            const char *wifiDhcpKey = "dhcpWiFi";
             configNet.wifiDhcp = serverWeb.hasArg(wifiDhcpKey) == true;
 
-            const char *wifiSsidKey = "WIFISSID";
             if (serverWeb.arg(wifiSsidKey))
             {
                 strncpy(configNet.wifiSsid, serverWeb.arg(wifiSsidKey).c_str(), sizeof(configNet.wifiSsid) - 1);
                 configNet.wifiSsid[sizeof(configNet.wifiSsid) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-            const char *wifiPasswordKey = "WIFIpassword";
-            if (serverWeb.arg("WIFIpassword"))
+
+            if (serverWeb.arg(wifiPassKey))
             {
-                strncpy(configNet.wifiPassword, serverWeb.arg(wifiPasswordKey).c_str(), sizeof(configNet.wifiPassword) - 1);
-                configNet.wifiPassword[sizeof(configNet.wifiPassword) - 1] = '\0'; // Guarantee a null terminator at the end
+                strncpy(configNet.wifiPass, serverWeb.arg(wifiPassKey).c_str(), sizeof(configNet.wifiPass) - 1);
+                configNet.wifiPass[sizeof(configNet.wifiPass) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-            const char *wifiAddrKey = "ipAddress";
-            if (serverWeb.hasArg(wifiAddrKey))
+
+            if (serverWeb.hasArg(wifiIpKey))
             {
-                configNet.wifiAddr.fromString(serverWeb.arg(wifiAddrKey));
+                configNet.wifiIp.fromString(serverWeb.arg(wifiIpKey));
             }
-            const char *wifiMaskKey = "ipMask";
+
             if (serverWeb.hasArg(wifiMaskKey))
             {
                 configNet.wifiMask.fromString(serverWeb.arg(wifiMaskKey));
             }
-            const char *wifiGateKey = "ipGW";
+
             if (serverWeb.hasArg(wifiGateKey))
             {
                 configNet.wifiGate.fromString(serverWeb.arg(wifiGateKey));
             }
-            const char *wifiDns1Key = "wifiDns1";
+
             if (serverWeb.hasArg(wifiDns1Key))
             {
                 configNet.wifiDns1.fromString(serverWeb.arg(wifiDns1Key));
             }
-            const char *wifiDns2Key = "wifiDns2";
+
             if (serverWeb.hasArg(wifiDns2Key))
             {
                 configNet.wifiDns2.fromString(serverWeb.arg(wifiDns2Key));
@@ -566,7 +488,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
                 {
                     WiFi.mode(WIFI_STA);
                 }
-                WiFi.begin(configNet.wifiSsid, configNet.wifiPassword);
+                WiFi.begin(configNet.wifiSsid, configNet.wifiPass);
             }
         }
         break;
@@ -667,63 +589,53 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         break;
         case API_PAGE_VPN:
         {
-            const char *WgEnableKey = "WgEnable";
-            configVpn.wgEnable = serverWeb.hasArg(WgEnableKey) == true;
+            configVpn.wgEnable = serverWeb.hasArg(wgEnableKey) == true;
 
-            const char *WgLocalAddrKey = "WgLocalAddr";
-            if (serverWeb.hasArg(WgLocalAddrKey))
+            if (serverWeb.hasArg(wgLocalIPKey))
             {
-                configVpn.wgLocalIP.fromString(serverWeb.arg(WgLocalAddrKey));
+                configVpn.wgLocalIP.fromString(serverWeb.arg(wgLocalIPKey));
             }
 
-            const char *WgLocalPrivKeyKey = "WgLocalPrivKey";
-            if (serverWeb.hasArg(WgLocalPrivKeyKey))
+            if (serverWeb.hasArg(wgLocalPrivKeyKey))
             {
-                strncpy(configVpn.wgLocalPrivKey, serverWeb.arg(WgLocalPrivKeyKey).c_str(), sizeof(configVpn.wgLocalPrivKey) - 1);
+                strncpy(configVpn.wgLocalPrivKey, serverWeb.arg(wgLocalPrivKeyKey).c_str(), sizeof(configVpn.wgLocalPrivKey) - 1);
                 configVpn.wgLocalPrivKey[sizeof(configVpn.wgLocalPrivKey) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *WgEndAddrKey = "WgEndAddr";
-            if (serverWeb.hasArg(WgEndAddrKey))
+            if (serverWeb.hasArg(wgEndAddrKey))
             {
-                strncpy(configVpn.wgEndAddr, serverWeb.arg(WgEndAddrKey).c_str(), sizeof(configVpn.wgEndAddr) - 1);
+                strncpy(configVpn.wgEndAddr, serverWeb.arg(wgEndAddrKey).c_str(), sizeof(configVpn.wgEndAddr) - 1);
                 configVpn.wgEndAddr[sizeof(configVpn.wgEndAddr) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *WgEndPubKeyKey = "WgEndPubKey";
-            if (serverWeb.hasArg(WgEndPubKeyKey))
+            if (serverWeb.hasArg(wgEndPubKeyKey))
             {
-                strncpy(configVpn.wgEndPubKey, serverWeb.arg(WgEndPubKeyKey).c_str(), sizeof(configVpn.wgEndPubKey) - 1);
+                strncpy(configVpn.wgEndPubKey, serverWeb.arg(wgEndPubKeyKey).c_str(), sizeof(configVpn.wgEndPubKey) - 1);
                 configVpn.wgEndPubKey[sizeof(configVpn.wgEndPubKey) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *WgEndPortKey = "WgEndPort";
-            if (serverWeb.hasArg(WgEndPortKey))
+            if (serverWeb.hasArg(wgEndPortKey))
             {
-                configVpn.wgEndPort = serverWeb.arg(WgEndPortKey).toInt();
+                configVpn.wgEndPort = serverWeb.arg(wgEndPortKey).toInt();
             }
 
-            const char *HnEnableKey = "HnEnable";
-            configVpn.hnEnable = serverWeb.hasArg(HnEnableKey) == true;
+            configVpn.hnEnable = serverWeb.hasArg(hnEnableKey) == true;
 
-            const char *HnJoinCodeKey = "HnJoinCode";
-            if (serverWeb.hasArg(HnJoinCodeKey))
+            if (serverWeb.hasArg(hnJoinCodeKey))
             {
-                strncpy(configVpn.hnJoinCode, serverWeb.arg(HnJoinCodeKey).c_str(), sizeof(configVpn.hnJoinCode) - 1);
+                strncpy(configVpn.hnJoinCode, serverWeb.arg(hnJoinCodeKey).c_str(), sizeof(configVpn.hnJoinCode) - 1);
                 configVpn.hnJoinCode[sizeof(configVpn.hnJoinCode) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *HnHostNameKey = "HnHostName";
-            if (serverWeb.hasArg(HnHostNameKey))
+            if (serverWeb.hasArg(hnHostNameKey))
             {
-                strncpy(configVpn.hnHostName, serverWeb.arg(HnHostNameKey).c_str(), sizeof(configVpn.hnHostName) - 1);
+                strncpy(configVpn.hnHostName, serverWeb.arg(hnHostNameKey).c_str(), sizeof(configVpn.hnHostName) - 1);
                 configVpn.hnHostName[sizeof(configVpn.hnHostName) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
-            const char *HnDashUrlKey = "HnDashUrl";
-            if (serverWeb.hasArg(HnDashUrlKey))
+            if (serverWeb.hasArg(hnDashUrlKey))
             {
-                strncpy(configVpn.hnDashUrl, serverWeb.arg(HnDashUrlKey).c_str(), sizeof(configVpn.hnDashUrl) - 1);
+                strncpy(configVpn.hnDashUrl, serverWeb.arg(hnDashUrlKey).c_str(), sizeof(configVpn.hnDashUrl) - 1);
                 configVpn.hnDashUrl[sizeof(configVpn.hnDashUrl) - 1] = '\0'; // Guarantee a null terminator at the end
             }
 
@@ -744,18 +656,18 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
 // Serialization NetworkConfigStruct into JSON
 void serializeNetworkConfigToJson(const NetworkConfigStruct &config, JsonObject obj)
 {
-    obj[wifiEnableKey] = config.wifiEnable;
+    obj[wifiEnblKey] = config.wifiEnable;
     obj[wifiSsidKey] = config.wifiSsid;
-    obj[wifiPasswordKey] = config.wifiPassword;
+    obj[wifiPassKey] = config.wifiPass;
     obj[wifiDhcpKey] = config.wifiDhcp;
-    obj[wifiAddrKey] = config.wifiAddr.toString();
+    obj[wifiIpKey] = config.wifiIp.toString();
     obj[wifiMaskKey] = config.wifiMask.toString();
     obj[wifiGateKey] = config.wifiGate.toString();
     obj[wifiDns1Key] = config.wifiDns1.toString();
     obj[wifiDns2Key] = config.wifiDns2.toString();
-    obj[ethEnableKey] = config.ethEnable;
+    obj[ethEnblKey] = config.ethEnable;
     obj[ethDhcpKey] = config.ethDhcp;
-    obj[ethAddrKey] = config.ethAddr.toString();
+    obj[ethIpKey] = config.ethIp.toString();
     obj[ethMaskKey] = config.ethMask.toString();
     obj[ethGateKey] = config.ethGate.toString();
     obj[ethDns1Key] = config.ethDns1.toString();
@@ -782,7 +694,7 @@ void serializeMqttConfigToJson(const MqttConfigStruct &config, JsonObject obj)
 {
     obj[enableKey] = config.enable;
     obj[serverKey] = config.server;
-    //obj[serverIPKey] = config.serverIP.toString();
+    // obj[serverIPKey] = config.serverIP.toString();
     obj[portKey] = config.port;
     obj[userKey] = config.user;
     obj[passKey] = config.pass;
@@ -790,7 +702,7 @@ void serializeMqttConfigToJson(const MqttConfigStruct &config, JsonObject obj)
     obj[updateIntKey] = config.updateInt;
     obj[discoveryKey] = config.discovery;
     obj[reconnectIntKey] = config.reconnectInt;
-    //obj[heartbeatTimeKey] = config.heartbeatTime;
+    // obj[heartbeatTimeKey] = config.heartbeatTime;
 }
 
 // Serialization SystemConfigStruct into JSON
@@ -808,12 +720,14 @@ void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject ob
     obj[tempOffsetKey] = config.tempOffset;
     obj[disableLedUSBKey] = config.disableLedUSB;
     obj[disableLedPwrKey] = config.disableLedPwr;
-    obj[disableLedsKey] = config.disableLeds;
     obj[refreshLogsKey] = config.refreshLogs;
     obj[hostnameKey] = config.hostname;
     obj[timeZoneKey] = config.timeZone;
     obj[ntpServ1Key] = config.ntpServ1;
     obj[ntpServ2Key] = config.ntpServ2;
+    obj[nmEnableKey] = config.nmEnable;
+    obj[nmStartHourKey] = config.nmStart;
+    obj[nmEndHourKey] = config.nmEnd;
     // obj[prevWorkModeKey] = static_cast<int>(config.prevWorkMode);
     obj[workModeKey] = static_cast<int>(config.workMode);
 }
@@ -828,7 +742,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[hwZigbeeIsKey] = vars.hwZigbeeIs;
 
     // Assuming WORK_MODE_t can be directly cast to int for serialization
-    obj[workModeKey] = static_cast<int>(vars.workMode);
+   // obj[workModeKey] = static_cast<int>(systemCfg.workMode);
 
     // Serializing an array of connectedSocket
     /*JsonArray connectedSocketArray = obj.createNestedArray(connectedSocket);
@@ -852,12 +766,16 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[mqttReconnectTimeKey] = vars.mqttReconnectTime;
     obj[mqttHeartbeatTimeKey] = vars.mqttHeartbeatTime;
 
+    obj[disableLedsKey] = vars.disableLeds;
     obj[zbLedStateKey] = vars.zbLedState;
     obj[zbFlashingKey] = vars.zbFlashing;
+
+    obj[deviceIdKey] = vars.deviceId;
 }
 
 bool loadFileConfigHW()
 {
+    String tag = "HW";
     const char *board = "board";
     const char *addr = "addr";
     const char *pwrPin = "pwrPin";
@@ -881,23 +799,6 @@ bool loadFileConfigHW()
     {
         DynamicJsonDocument config(300);
         config[board] = "";
-        /*
-        config[addr] = -1;
-        config[pwrPin] = -1;
-        config[mdcPin] = -1;
-        config[mdiPin] = -1;
-        config[phyType] = -1;
-        config[clkMode] = -1;
-        config[pwrAltPin] = -1;
-        config[btnPin] = -1;
-        config[uartChPin] = -1;
-        config[ledUsbPin] = -1;
-        config[ledPwrPin] = -1;
-        config[zbTxPin] = -1;
-        config[zbRxPin] = -1;
-        config[zbRstPin] = -1;
-        config[zbBslPin] = -1;
-        */
         writeDefaultConfig(configFileHw, config);
         configFile = LittleFS.open(configFileHw, FILE_READ);
     }
@@ -927,15 +828,13 @@ bool loadFileConfigHW()
 
     if (hwConfig.board[0] != '\0' && strlen(hwConfig.board) > 0)
     {
-        DEBUG_PRINTLN("hwConfig LOAD - OK");
-
-        delay(1000);
+        LOGI(tag, "LOAD - OK");
         return true;
     }
     else
     {
-        DEBUG_PRINTLN("hwConfig LOAD - ERROR");
-        delay(1000);
+        LOGE(tag, "LOAD - ERROR");
+
         int searchId = 0;
         if (config["searchId"])
         {
@@ -944,7 +843,7 @@ bool loadFileConfigHW()
         BrdConfigStruct *newConfig = findBrdConfig(searchId);
         if (newConfig)
         {
-            DEBUG_PRINTLN(F("Saving HW config"));
+            LOGI(tag, "Find. Saving config");
 
             DynamicJsonDocument config(512);
             config[board] = newConfig->board;
@@ -964,14 +863,14 @@ bool loadFileConfigHW()
             config[zbRstPin] = newConfig->zb.rstPin;
             config[zbBslPin] = newConfig->zb.bslPin;
             writeDefaultConfig(configFileHw, config);
-            // configFile = LittleFS.open(configFileHw, FILE_WRITE);
-            // serializeJson(config, configFile);
 
-            // serializeJson(config, Serial);
-            // configFile.close();
+            LOGI(tag, "Calc and save temp offset");
+            float CPUtemp = getCPUtemp(true);
+            int offset = CPUtemp - 30;
+            systemCfg.tempOffset = int(offset);
+            saveSystemConfig(systemCfg);
 
-            // delay(500);
-            DEBUG_PRINTLN(F("Restarting..."));
+            LOGI(tag, "Restarting...");
             ESP.restart();
         }
     }
@@ -983,14 +882,36 @@ bool loadFileConfigHW()
 const char *msg_file_rm = "OK. Remove old format file";
 const char *msg_open_f = "open failed";
 
+void fileReadError(String tag, DeserializationError error, const char *fileName)
+{
+    String fileContent = "";
+    File configFile = LittleFS.open(fileName, FILE_READ);
+    if (!configFile)
+    {
+        LOGE(tag, "Failed to open file: %s", fileName);
+        return;
+    }
+    while (configFile.available())
+    {
+        fileContent += (char)configFile.read();
+    }
+    LOGE(tag, "%s - %s - %s", fileName, error.f_str(), fileContent.c_str());
+    configFile.close();
+    if (error == DeserializationError::EmptyInput)
+    {
+        LOGI(tag, "%s %s", fileName, msg_file_rm);
+        LittleFS.remove(fileName);
+    }
+}
+
 bool loadFileSystemVar()
 {
-    DEBUG_PRINT(F(configFileSystem));
+    String tag = "FL_CFG";
 
     File configFile = LittleFS.open(configFileSystem, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileSystem, msg_open_f);
         return false;
     }
 
@@ -999,15 +920,15 @@ bool loadFileSystemVar()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileSystem);
         return false;
     }
 
     systemCfg.tempOffset = (int)doc[tempOffsetKey];
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileSystem, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSystem);
     return true;
@@ -1015,7 +936,7 @@ bool loadFileSystemVar()
 
 bool loadFileConfigWifi()
 {
-    DEBUG_PRINT(F(configFileWifi));
+    String tag = "FL_CFG";
 
     const char *enableWiFi = "enableWiFi";
     const char *ssid = "ssid";
@@ -1027,7 +948,7 @@ bool loadFileConfigWifi()
     File configFile = LittleFS.open(configFileWifi, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileWifi, msg_open_f);
         return false;
     }
 
@@ -1036,21 +957,21 @@ bool loadFileConfigWifi()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileWifi);
         return false;
     }
 
     networkCfg.wifiDhcp = (int)doc[dhcpWiFi];
     strlcpy(networkCfg.wifiSsid, doc[ssid] | "", sizeof(networkCfg.wifiSsid));
-    strlcpy(networkCfg.wifiPassword, doc[passKey] | "", sizeof(networkCfg.wifiPassword));
+    strlcpy(networkCfg.wifiPass, doc[passKey] | "", sizeof(networkCfg.wifiPass));
 
-    networkCfg.wifiAddr.fromString(doc[ip] | "");
+    networkCfg.wifiIp.fromString(doc[ip] | "");
     networkCfg.wifiMask.fromString(doc[mask] | "");
     networkCfg.wifiGate.fromString(doc[gw] | "");
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileWifi, msg_file_rm);
     saveNetworkConfig(networkCfg);
     LittleFS.remove(configFileWifi);
     return true;
@@ -1058,16 +979,17 @@ bool loadFileConfigWifi()
 
 bool loadFileConfigEther()
 {
-    DEBUG_PRINT(F(configFileEther));
+    String tag = "FL_CFG";
 
     const char *dhcp = "dhcp";
     const char *ip = "ip";
     const char *mask = "mask";
     const char *gw = "gw";
+
     File configFile = LittleFS.open(configFileEther, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileEther, msg_open_f);
         return false;
     }
 
@@ -1076,18 +998,18 @@ bool loadFileConfigEther()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileEther);
         return false;
     }
 
     networkCfg.ethDhcp = (int)doc[dhcp];
-    networkCfg.ethAddr.fromString(doc[ip] | "");
+    networkCfg.ethIp.fromString(doc[ip] | "");
     networkCfg.ethMask.fromString(doc[mask] | "");
     networkCfg.ethGate.fromString(doc[gw] | "");
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileEther, msg_file_rm);
     saveNetworkConfig(networkCfg);
     LittleFS.remove(configFileEther);
     return true;
@@ -1095,15 +1017,14 @@ bool loadFileConfigEther()
 
 bool loadFileConfigGeneral()
 {
-    DEBUG_PRINT(F(configFileGeneral));
-    const char *hostname = "hostname";
-    
-    
-    File configFile = LittleFS.open(configFileGeneral, FILE_READ);
+    String tag = "FL_CFG";
 
+    // const char *hostname = "hostname";
+
+    File configFile = LittleFS.open(configFileGeneral, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileGeneral, msg_open_f);
         return false;
     }
 
@@ -1112,26 +1033,26 @@ bool loadFileConfigGeneral()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileGeneral);
         return false;
     }
 
-    if ((double)doc[refreshLogsKey] < 1000)
+    if ((double)doc[refreshLogsKey] < 1)
     {
-        systemCfg.refreshLogs = 1000;
+        systemCfg.refreshLogs = 1;
     }
     else
     {
-        systemCfg.refreshLogs = (int)doc[refreshLogsKey];
+        systemCfg.refreshLogs = (int)doc[refreshLogsKey] / 1000;
     }
     // DEBUG_PRINT(F("[loadFileConfigGeneral] 'doc[coordMode]' res is: "));
     // DEBUG_PRINTLN(String((uint8_t)doc[coordMode]));
 
-    strlcpy(systemCfg.hostname, doc[hostname] | "", sizeof(systemCfg.hostname));
+    strlcpy(systemCfg.hostname, doc[hostnameKey] | "", sizeof(systemCfg.hostname));
 
-    vars.workMode = static_cast<WORK_MODE_t>((uint8_t)doc[coordMode]);
-    systemCfg.prevWorkMode = static_cast<WORK_MODE_t>((uint8_t)doc[prevCoordMode]);
+    systemCfg.workMode = static_cast<WORK_MODE_t>((uint8_t)doc[coordMode]);
+    //systemCfg.prevWorkMode = static_cast<WORK_MODE_t>((uint8_t)doc[prevCoordMode]);
     // DEBUG_PRINT(F("[loadFileConfigGeneral] 'vars.workMode' res is: "));
     // DEBUG_PRINTLN(String(vars.workMode));
 
@@ -1139,14 +1060,14 @@ bool loadFileConfigGeneral()
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLedPwr"));
     systemCfg.disableLedUSB = (uint8_t)doc[disableLedUSBKey];
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLedUSB"));
-    systemCfg.disableLeds = (uint8_t)doc[disableLedsKey];
+    vars.disableLeds = (uint8_t)doc[disableLedsKey];
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
     systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
     strlcpy(systemCfg.timeZone, doc[timeZoneKey] | "", sizeof(systemCfg.timeZone));
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileGeneral, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileGeneral);
     return true;
@@ -1154,11 +1075,12 @@ bool loadFileConfigGeneral()
 
 bool loadFileConfigSecurity()
 {
-    DEBUG_PRINT(F(configFileSecurity));
+    String tag = "FL_CFG";
+
     File configFile = LittleFS.open(configFileSecurity, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileSecurity, msg_open_f);
         return false;
     }
 
@@ -1167,8 +1089,8 @@ bool loadFileConfigSecurity()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileSecurity);
         return false;
     }
 
@@ -1180,7 +1102,7 @@ bool loadFileConfigSecurity()
     systemCfg.fwIp.fromString(doc[fwIpKey] | "0.0.0.0");
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileSecurity, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSecurity);
     return true;
@@ -1188,25 +1110,24 @@ bool loadFileConfigSecurity()
 
 bool loadFileConfigSerial()
 {
-    DEBUG_PRINT(F(configFileSerial));
-    const char *baud = "baud";
-    File configFile = LittleFS.open(configFileSerial, FILE_READ);
+    String tag = "FL_CFG";
 
+    const char *baud = "baud";
+
+    File configFile = LittleFS.open(configFileSerial, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileSerial, msg_open_f);
         return false;
     }
 
     DynamicJsonDocument doc(512);
     DeserializationError error = deserializeJson(doc, configFile);
 
-    serializeJson(doc, Serial);
-
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
+        fileReadError(tag, error, configFileSerial);
         return false;
     }
 
@@ -1214,7 +1135,7 @@ bool loadFileConfigSerial()
     systemCfg.socketPort = (int)doc[portKey];
 
     configFile.close();
-    DEBUG_PRINTLN(F(msg_file_rm));
+    LOGI(tag, "%s %s", configFileSerial, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSerial);
     return true;
@@ -1222,35 +1143,27 @@ bool loadFileConfigSerial()
 
 bool loadFileConfigMqtt()
 {
-    DEBUG_PRINT(F(configFileMqtt));
+    String tag = "FL_CFG";
 
-    
     File configFile = LittleFS.open(configFileMqtt, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileMqtt, msg_open_f);
         return false;
     }
 
     DynamicJsonDocument doc(512);
     DeserializationError error = deserializeJson(doc, configFile);
 
-    serializeJson(doc, Serial);
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
-        if (error == DeserializationError::EmptyInput)
-        {
-            DEBUG_PRINTLN(F(msg_file_rm));
-            LittleFS.remove(configFileMqtt);
-        }
+        fileReadError(tag, error, configFileMqtt);
         return false;
     }
 
     mqttCfg.enable = (int)doc[enableKey];
     strlcpy(mqttCfg.server, doc[serverKey] | "", sizeof(mqttCfg.server));
-    //mqttCfg.serverIP.fromString(mqttCfg.server); // parse_ip_address(mqttCfg.server);
     mqttCfg.port = (int)doc[portKey];
     strlcpy(mqttCfg.user, doc[userKey] | "", sizeof(mqttCfg.user));
     strlcpy(mqttCfg.pass, doc[passKey] | "", sizeof(mqttCfg.pass));
@@ -1259,14 +1172,16 @@ bool loadFileConfigMqtt()
     mqttCfg.discovery = (int)doc[discoveryKey];
 
     configFile.close();
+    LOGI(tag, "%s %s", configFileMqtt, msg_file_rm);
     saveMqttConfig(mqttCfg);
-    DEBUG_PRINTLN(F("OK"));
+    LittleFS.remove(configFileMqtt);
     return true;
 }
 
 bool loadFileConfigWg()
 {
-    DEBUG_PRINT(F(configFileWg));
+    String tag = "FL_CFG";
+
     const char *localAddr = "localAddr";
     const char *localPrivKey = "localIP";
     const char *endAddr = "endAddr";
@@ -1276,7 +1191,7 @@ bool loadFileConfigWg()
     File configFile = LittleFS.open(configFileWg, FILE_READ);
     if (!configFile)
     {
-        DEBUG_PRINTLN(F(msg_open_f));
+        LOGI(tag, "%s %s", configFileWg, msg_open_f);
         return false;
     }
 
@@ -1285,21 +1200,14 @@ bool loadFileConfigWg()
 
     if (error)
     {
-        DEBUG_PRINTLN(error.f_str());
         configFile.close();
-        if (error == DeserializationError::EmptyInput)
-        {
-            DEBUG_PRINTLN(F(msg_file_rm));
-            LittleFS.remove(configFileWg);
-        }
+        fileReadError(tag, error, configFileWg);
         return false;
     }
 
     vpnCfg.wgEnable = (int)doc[enableKey];
 
-    // strlcpy(WgSettings.localAddr, doc[localAddr] | "", sizeof(WgSettings.localAddr));
-
-    vpnCfg.wgLocalIP.fromString(doc[localAddr] | ""); // parse_ip_address(doc[localAddr]);
+    vpnCfg.wgLocalIP.fromString(doc[localAddr] | "");
 
     strlcpy(vpnCfg.wgLocalPrivKey, doc[localPrivKey] | "", sizeof(vpnCfg.wgLocalPrivKey));
     strlcpy(vpnCfg.wgEndAddr, doc[endAddr] | "", sizeof(vpnCfg.wgEndAddr));
@@ -1307,8 +1215,9 @@ bool loadFileConfigWg()
     vpnCfg.wgEndPort = (int)doc[endPort];
 
     configFile.close();
+    LOGI(tag, "%s %s", configFileWg, msg_file_rm);
     saveVpnConfig(vpnCfg);
-    DEBUG_PRINTLN(F("OK"));
+    LittleFS.remove(configFileWg);
     return true;
 }
 

@@ -3,16 +3,16 @@
     <div class="row masonry" data-masonry="{&quot;percentPosition&quot;: true }">
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#link"></use>
-                    </svg><span>Device status</span>
+                    </svg><span data-i18n="pages.root.dsc.tt"></span>
                 </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Operational mode:</td>
+                                <td data-i18n="pages.root.dsc.op"></td>
                                 <td data-replace="operationalMode"></td>
                             </tr>
                             <!-- <tr>
@@ -20,7 +20,7 @@
                                 <td data-replace="connectedEther"></td>
                             </tr> -->
                             <tr>
-                                <td>Socket client connected:</td>
+                                <td data-i18n="pages.root.dsc.scc"></td>
                                 <td data-replace="connectedSocketStatus"></td>
                             </tr>
                             <!-- <tr>
@@ -40,12 +40,16 @@
                                 <td data-replace="wifiModeAPStatus"></td>
                             </tr> -->
                             <tr>
-                                <td>Device Uptime:</td>
+                                <td data-i18n="pages.root.dsc.du"></td>
                                 <td data-replace="uptime"></td>
                             </tr>
                             <tr>
-                                <td>Socket uptime:</td>
+                                <td data-i18n="pages.root.dsc.su"></td>
                                 <td data-replace="connectedSocket"></td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="pages.root.dsc.lt"></td>
+                                <td data-replace="localTime"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -54,96 +58,150 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#hdd-stack"></use>
-                    </svg><span>Device information</span></div>
+                    </svg><span data-i18n="pages.root.dic.tt"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Device model:</td>
+                                <td data-i18n="pages.root.dic.dm"></td>
                                 <td data-replace="hwRev"></td>
                             </tr>
                             <tr>
-                                <td>ESP32 fw ver:</td>
+                                <td data-i18n="pages.root.dic.efv"></td>
                                 <td data-replace="VERSION"></td>
                             </tr>
                             <tr>
-                                <td>ESP32 hw version:</td>
+                                <td data-i18n="pages.root.dic.ehv"></td>
                                 <td data-replace="espModel"></td>
                             </tr>
                             <tr>
-                                <td>ESP32 temperature:</td>
-                                <td><span data-replace="deviceTemp"></span> °C</td>
+                                <td data-i18n="pages.root.dic.et"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgTemp"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text">
+                                            <span data-replace="deviceTemp"></span> °C
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>ESP32 frequency:</td>
-                                <td><span data-replace="espCores"></span> cores @ <span data-replace="espFreq"></span>
-                                    MHz </td>
+                                <td data-i18n="pages.root.dic.ef"></td>
+                                <td><span data-replace="espCores"></span> <span data-i18n="pages.root.dic.cs"></span> @
+                                    <span data-replace="espFreq"></span>
+                                    <span data-i18n="pages.root.dic.mhz"></span>
+                                </td>
                             </tr>
                             <tr>
-                                <td>ESP32 flash size:</td>
-                                <td><span data-replace="espFlashSize"></span> Mb, <span
-                                        data-replace="espFlashType"></span></td>
+                                <td data-i18n="pages.root.dic.ehs"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgHeap"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text">
+                                            <span data-replace="espHeapUsed"></span> / <span
+                                                data-replace="espHeapSize"></span>
+                                            <span data-i18n="pages.root.dic.kb"></span>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>ESP32 heap (free / total):</td>
-                                <td><span data-replace="espHeapFree"></span> / <span data-replace="espHeapSize"></span>
-                                    KiB </td>
+                                <td data-i18n="pages.root.dic.efs"></td>
+                                <td><span data-replace="espFlashSize"></span> <span
+                                        data-i18n="pages.root.dic.mb"></span>, <span data-replace="espFlashType"></span>
+                                </td>
                             </tr>
                             <tr>
-                                <td>CC2652P hw version:</td>
-                                <td data-replace="zigbeeHwRev"></td>
+                                <td data-i18n="pages.root.dic.ens"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgNvs"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text">
+                                            <span data-replace="espNvsUsed"></span> / <span
+                                                data-replace="espNvsSize"></span>
+                                            <span data-i18n="pages.root.dic.ent"></span>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>CC2652P fw rev:</td>
+                                <td data-i18n="pages.root.dic.efss"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgFs"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text">
+                                            <span data-replace="espFsUsed"></span> / <span
+                                                data-replace="espFsSize"></span>
+                                            <span data-i18n="pages.root.dic.kb"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="pages.root.dic.zfv"></td>
                                 <td data-replace="zigbeeFwRev"></td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="pages.root.dic.zhv"></td>
+                                <td data-replace="zigbeeHwRev"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4" hidden>
+        <div class="col-sm-12 col-md-6 mb-4" id="ttEt" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#ethernet"></use>
-                    </svg><span>Ethernet</span></div>
+                    </svg><span data-i18n="pages.root.te"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Connection status:</td>
-                                <td data-replace="ethConnection"></td>
+                                <td data-i18n="common.cst"></td>
+                                <td data-replace="ethConn"></td>
                             </tr>
                             <tr>
-                                <td>DHCP:</td>
+                                <td data-i18n="pages.net.dhcp"></td>
                                 <td data-replace="ethDhcp"></td>
                             </tr>
                             <tr>
-                                <td>IP address:</td>
+                                <td data-i18n="pages.net.ip"></td>
                                 <td data-replace="ethIp"></td>
                             </tr>
                             <tr>
-                                <td>Subnet mask:</td>
-                                <td data-replace="etchMask"></td>
+                                <td data-i18n="pages.net.mask"></td>
+                                <td data-replace="ethMask"></td>
                             </tr>
                             <tr>
-                                <td>Default gateway:</td>
+                                <td data-i18n="pages.net.gw"></td>
                                 <td data-replace="ethGate"></td>
                             </tr>
                             <tr>
-                                <td>DNS:</td>
+                                <td data-i18n="pages.net.dns"></td>
                                 <td data-replace="ethDns"></td>
                             </tr>
                             <tr>
-                                <td>Connection speed:</td>
+                                <td data-i18n="common.csp"></td>
                                 <td data-replace="ethSpd"></td>
                             </tr>
                             <tr>
-                                <td>MAC address:</td>
+                                <td data-i18n="common.mac"></td>
                                 <td data-replace="ethMac"></td>
                             </tr>
                         </tbody>
@@ -151,45 +209,59 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4" hidden>
+        <div class="col-sm-12 col-md-6 mb-4" id="ttWi" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#wifi"></use>
-                    </svg><span>WiFi</span></div>
+                    </svg><span data-i18n="pages.root.tw"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Mode:</td>
+                                <td data-i18n="common.mode"></td>
                                 <td data-replace="wifiMode"></td>
                             </tr>
                             <tr>
-                                <td>SSID:</td>
+                                <td data-i18n="pages.net.wifi.ssid"></td>
                                 <td data-replace="wifiSsid"></td>
                             </tr>
                             <tr>
-                                <td>IP address:</td>
+                                <td data-i18n="pages.net.dhcp"></td>
+                                <td data-replace="wifiDhcp"></td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="pages.net.ip"></td>
                                 <td data-replace="wifiIp"></td>
                             </tr>
                             <tr>
-                                <td>Subnet mask:</td>
+                                <td data-i18n="pages.net.mask"></td>
                                 <td data-replace="wifiMask"></td>
                             </tr>
                             <tr>
-                                <td>Default gateway:</td>
+                                <td data-i18n="pages.net.gw"></td>
                                 <td data-replace="wifiGate"></td>
                             </tr>
                             <tr>
-                                <td>DNS:</td>
+                                <td data-i18n="pages.net.dns"></td>
                                 <td data-replace="wifiDns"></td>
                             </tr>
                             <tr>
-                                <td>RSSI:</td>
-                                <td data-replace="wifiRssi"></td>
+                                <td data-i18n="pages.net.wifi.rssi"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgRssi"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text">
+                                            <span data-replace="wifiRssi"></span>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>MAC address:</td>
+                                <td data-i18n="common.mac"></td>
                                 <td data-replace="wifiMac"></td>
                             </tr>
                         </tbody>
@@ -197,21 +269,22 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4" hidden>
+        <div class="col-sm-12 col-md-6 mb-4" id="ttMq" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#mqtt"></use>
-                    </svg><span>MQTT</span></div>
+                    </svg><span data-i18n="pages.root.tm"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Connected:</td>
+                                <td data-i18n="common.conn"></td>
                                 <td data-replace="mqConnect"></td>
                             </tr>
                             <tr>
-                                <td>Broker:</td>
+                                <td data-i18n="pages.mqtt.broker.n"></td>
                                 <td data-replace="mqBroker"></td>
                             </tr>
                         </tbody>
@@ -219,33 +292,34 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4" hidden>
+        <div class="col-sm-12 col-md-6 mb-4" id="ttWg" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#vpn"></use>
-                    </svg><span>WireGuard</span></div>
+                    </svg><span data-i18n="pages.root.wgc.tt"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Initialized:</td>
+                                <td data-i18n="common.init"></td>
                                 <td data-replace="wgInit"></td>
                             </tr>
                             <tr>
-                                <td>Connected:</td>
+                                <td data-i18n="common.conn"></td>
                                 <td data-replace="wgConnect"></td>
                             </tr>
                             <tr>
-                                <td>Local IP address:</td>
+                                <td data-i18n="pages.root.wgc.lip"></td>
                                 <td data-replace="wgDeviceAddr"></td>
                             </tr>
                             <tr>
-                                <td>Endpoint address:</td>
+                                <td data-i18n="pages.root.wgc.ed"></td>
                                 <td data-replace="wgRemoteAddr"></td>
                             </tr>
                             <tr>
-                                <td>Peer IP address:</td>
+                                <td data-i18n="pages.root.wgc.pip"></td>
                                 <td data-replace="wgRemoteIp"></td>
                             </tr>
                         </tbody>
@@ -253,25 +327,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 mb-4" hidden>
+        <div class="col-sm-12 col-md-6 mb-4" id="ttHn" hidden>
             <div class="card">
-                <div class="card-header fw-bold text-start text-primary">
+                <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#vpn"></use>
-                    </svg><span>Husarnet</span></div>
+                    </svg><span data-i18n="pages.root.tvh"></span>
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>Initialized:</td>
+                                <td data-i18n="common.init"></td>
                                 <td data-replace="hnInit"></td>
                             </tr>
                             <tr>
-                                <td>Hostname:</td>
+                                <td data-i18n="common.host"></td>
                                 <td data-replace="hnHostName"></td>
                             </tr>
                             <!-- <tr>
-                                <td>Local IP address:</td>
+                                <td data-i18n=""></td>
                                 <td data-replace="hnDeviceAddr"></td>
                             </tr> -->
                         </tbody>

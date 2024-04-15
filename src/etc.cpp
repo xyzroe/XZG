@@ -6,6 +6,8 @@
 #include <ETH.h>
 #include <CCTools.h>
 #include <esp_task_wdt.h>
+#include <CronAlarms.h>
+// #include <Husarnet.h> //not available now
 
 #include "config.h"
 #include "web.h"
@@ -31,6 +33,8 @@ extern struct MqttConfigStruct mqttCfg;
 
 extern struct SysVarsStruct vars;
 
+extern LEDControl ledControl;
+
 extern CCTools CCTool;
 
 const char *coordMode = "coordMode";         // coordMode node name ?? not name but text field with mode
@@ -44,19 +48,44 @@ const char *configFileSecurity = "/config/configSecurity.json";
 const char *configFileSerial = "/config/configSerial.json";
 const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
-const char *configFileHw = "/config/configHw.json";
+const char *configFileHw = "/configHw.json";
 
-/*
-const char *cfgFileHw = "/cfg/hardware.json";
-const char *cfgFileGen = "/cfg/general.json";
-const char *cfgFileNet = "/cfg/network.json";
-const char *cfgFileSec = "/cfg/security.json";
-const char *cfgFileSer = "/cfg/serial.json";
-const char *cfgFileVpn = "/cfg/vpn.json";
-const char *cfgFileMqtt = "/cfg/mqtt.json";
-*/
+#include "mbedtls/md.h"
 
-// const char *deviceModel = "XZG";
+String sha1(String payloadStr)
+{
+  const char *payload = payloadStr.c_str();
+
+  int size = 20;
+
+  byte shaResult[size];
+
+  mbedtls_md_context_t ctx;
+  mbedtls_md_type_t md_type = MBEDTLS_MD_SHA1;
+
+  const size_t payloadLength = strlen(payload);
+
+  mbedtls_md_init(&ctx);
+  mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+  mbedtls_md_starts(&ctx);
+  mbedtls_md_update(&ctx, (const unsigned char *)payload, payloadLength);
+  mbedtls_md_finish(&ctx, shaResult);
+  mbedtls_md_free(&ctx);
+
+  String hashStr = "";
+
+  for (uint16_t i = 0; i < size; i++)
+  {
+    String hex = String(shaResult[i], HEX);
+    if (hex.length() < 2)
+    {
+      hex = "0" + hex;
+    }
+    hashStr += hex;
+  }
+
+  return hashStr;
+}
 
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
@@ -110,11 +139,11 @@ float readTemperature(bool clear)
 
 float getCPUtemp(bool clear)
 {
-  //DEBUG_PRINTLN(F("getCPUtemp"));
+  // DEBUG_PRINTLN(F("getCPUtemp"));
   float CPUtemp = 0.0;
   if (WiFi.getMode() == WIFI_MODE_NULL || WiFi.getMode() == WIFI_OFF)
   {
-    //DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
+    // DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
     CPUtemp = readTemperature(clear);
     WiFi.disconnect();
@@ -165,10 +194,7 @@ void adapterModeUSB()
       digitalWrite(hwConfig.mist.uartSelPin, 1);
       DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 1) - HIGH"));
     }
-    if (vars.hwLedUsbIs)
-    {
-      digitalWrite(hwConfig.mist.ledUsbPin, 1);
-    }
+    ledControl.modeLED.mode = LED_ON;
   }
   else
   {
@@ -184,43 +210,11 @@ void adapterModeLAN()
     DEBUG_PRINTLN(F("Switched XZG to LAN mode"));
     digitalWrite(hwConfig.mist.uartSelPin, 0);
     DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 0) - LOW"));
-
-    if (vars.hwLedUsbIs)
-      digitalWrite(hwConfig.mist.ledUsbPin, 0);
+    ledControl.modeLED.mode = LED_OFF;
   }
   else
   {
     DEBUG_PRINTLN(F("NO vars.hwUartSelIs. NO mode LAN"));
-  }
-}
-
-void ledPwrToggle()
-{
-  if (vars.hwLedPwrIs)
-  {
-    printLogMsg("BLUE LED has been toggled");
-    DEBUG_PRINTLN(F("BLUE LED has been toggled"));
-    DEBUG_PRINT(F("pin - "));
-    DEBUG_PRINTLN(hwConfig.mist.ledPwrPin);
-    digitalWrite(hwConfig.mist.ledPwrPin, !digitalRead(hwConfig.mist.ledPwrPin));
-  }
-  else
-  {
-    DEBUG_PRINTLN(F("NO vars.hwLedPwrIs. NO BLUE LED"));
-  }
-}
-
-void ledUsbToggle()
-{
-  if (vars.hwLedUsbIs)
-  {
-    printLogMsg("RED LED has been toggled");
-    DEBUG_PRINTLN(F("RED LED has been toggled"));
-    digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin));
-  }
-  else
-  {
-    DEBUG_PRINTLN(F("NO vars.hwLedUsbIs. NO RED LED"));
   }
 }
 
@@ -238,7 +232,7 @@ void getDeviceID(char *arr)
   b ^= (mac >> (8 * 4)) & 0xFF;
   b ^= (mac >> (8 * 5)) & 0xFF;
 
-  char buf[20];
+  char buf[MAX_DEV_ID_LONG];
 
   // Format a and b into buf as hexadecimal values, ensuring two-digit representation for each
   sprintf(buf, "%02x%02x", a, b);
@@ -250,77 +244,12 @@ void getDeviceID(char *arr)
   }
 
   // Form the final string including the board name and the processed MAC address
-  
-  //sprintf(arr, "%s-%s", hwConfig.board, buf);
-  snprintf(arr, MAX_DEV_ID_LONG, "%s-%s", hwConfig.board, buf);
+
+  // sprintf(arr, "%s-%s", hwConfig.board, buf);
+
+  String devicePref = "XZG"; // hwConfig.board
+  snprintf(arr, MAX_DEV_ID_LONG, "%s-%s", devicePref, buf);
 }
-
-/*
-void getDeviceID(char *arr)
-{
-  uint64_t mac = ESP.getEfuseMac();
-  uint8_t a;
-  uint8_t b;
-  a ^= mac >> 8 * 0;
-  a ^= mac >> 8 * 1;
-  a ^= mac >> 8 * 2;
-  a ^= mac >> 8 * 3;
-  b ^= mac >> 8 * 4;
-  b ^= mac >> 8 * 5;
-  b ^= mac >> 8 * 6;
-  b ^= mac >> 8 * 7;
-
-  char buf[20];
-
-  if (a < 16)
-  {
-    sprintf(buf, "0%x", a);
-  }
-  else
-  {
-    sprintf(buf, "%x", a);
-  }
-
-  if (b < 16)
-  {
-    sprintf(buf, "%s0%x", buf, b);
-  }
-  else
-  {
-    sprintf(buf, "%s%x", buf, b);
-  }
-
-  for (uint8_t cnt = 0; cnt < strlen(buf); cnt++)
-  {
-    buf[cnt] = toupper(buf[cnt]);
-  }
-
-  // char buf[20];
-  sprintf(arr, "%s-%s", hwConfig.board, buf);
-  // arr = buf;
-} */
-
-// void writeDefaultConfig(const char *path, String StringConfig)
-// {
-//   DEBUG_PRINTLN(path);
-//   DEBUG_PRINTLN(F("failed open. try to write defaults"));
-//   DEBUG_PRINTLN(StringConfig);
-
-//   DynamicJsonDocument doc(1024);
-//   deserializeJson(doc, StringConfig);
-
-//   File configFile = LittleFS.open(path, FILE_WRITE);
-//   if (!configFile)
-//   {
-//     DEBUG_PRINTLN(F("failed write"));
-//     //return false;
-//   }
-//   else
-//   {
-//     serializeJson(doc, configFile);
-//   }
-//   configFile.close();
-// }
 
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
@@ -331,6 +260,16 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
   if (!configFile)
   {
     DEBUG_PRINTLN(F("Failed Write"));
+    if (LittleFS.mkdir(path))
+    {
+      DEBUG_PRINTLN(F("Config dir created"));
+      delay(500);
+      ESP.restart();
+    }
+    else
+    {
+      DEBUG_PRINTLN(F("mkdir failed"));
+    }
     // return false;
   }
   else
@@ -340,57 +279,24 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
   configFile.close();
 }
 
-/*String hexToDec(String hexString)
+void factoryReset()
 {
+  String tag = "FactoryReset";
 
-  unsigned int decValue = 0;
-  int nextInt;
+  LOGI(tag, "start");
 
-  for (int i = 0; i < hexString.length(); i++)
+  ledControl.powerLED.mode = LED_FLASH_3Hz;
+  ledControl.modeLED.mode = LED_FLASH_3Hz;
+
+  for (uint8_t i = 0; i < 5; i++)
   {
-
-    nextInt = int(hexString.charAt(i));
-    if (nextInt >= 48 && nextInt <= 57)
-      nextInt = map(nextInt, 48, 57, 0, 9);
-    if (nextInt >= 65 && nextInt <= 70)
-      nextInt = map(nextInt, 65, 70, 10, 15);
-    if (nextInt >= 97 && nextInt <= 102)
-      nextInt = map(nextInt, 97, 102, 10, 15);
-    nextInt = constrain(nextInt, 0, 15);
-
-    decValue = (decValue * 16) + nextInt;
+    LOGI(tag, "%d, sec", 5 - i);
+    delay(1000);
   }
 
-  return String(decValue);
-}*/
-
-void resetSettings() // to do adapt to Preferences
-{
-  DEBUG_PRINTLN(F("[resetSettings] Start"));
-  if (vars.hwLedPwrIs)
-  {
-    digitalWrite(hwConfig.mist.ledPwrPin, 1);
-  }
-  if (vars.hwLedUsbIs)
-  {
-    digitalWrite(hwConfig.mist.ledUsbPin, 0);
-  }
-  for (uint8_t i = 0; i < 15; i++)
-  {
-    delay(200);
-    if (vars.hwLedUsbIs)
-    {
-      digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin));
-    }
-    if (vars.hwLedPwrIs)
-    {
-      digitalWrite(hwConfig.mist.ledPwrPin, !digitalRead(hwConfig.mist.ledPwrPin));
-    }
-  }
-  DEBUG_PRINTLN(F("[resetSettings] Led blinking done"));
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
-    DEBUG_PRINTLN(F("Error with LITTLEFS"));
+    LOGI(tag, "Error with LITTLEFS");
   }
   LittleFS.remove(configFileSerial);
   LittleFS.remove(configFileSecurity);
@@ -400,63 +306,163 @@ void resetSettings() // to do adapt to Preferences
   LittleFS.remove(configFileSystem);
   LittleFS.remove(configFileWg);
   LittleFS.remove(configFileHw);
-  DEBUG_PRINTLN(F("[resetSettings] Config del done"));
+  LittleFS.remove(configFileMqtt);
+  LOGI(tag, "FS Done");
+  eraseNVS();
+  LOGI(tag, "NVS Done");
+
+  ledControl.powerLED.mode = LED_OFF;
+  ledControl.modeLED.mode = LED_OFF;
+  delay(500);
   ESP.restart();
 }
 
-void setClock()
+void setClock(void *pvParameters)
 {
+  String tag = "clock";
   configTime(0, 0, systemCfg.ntpServ1, systemCfg.ntpServ2);
 
-  DEBUG_PRINT(F("Waiting for NTP time sync: "));
-  int startTryingTime = millis();
-  DEBUG_PRINTLN(startTryingTime);
-  startTryingTime = startTryingTime / 1000;
+  const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
+
+  LOGI(tag, "Waiting for NTP time sync: ");
+  unsigned long startTryingTime = millis();
+
   time_t nowSecs = time(nullptr);
-  DEBUG_PRINTLN(nowSecs);
-  while ((nowSecs - startTryingTime) < 60)
+
+  // over 01.01.2000 or longer than 5 minutes
+  while ((nowSecs < targetTime) && ((millis() - startTryingTime) < 300000))
   {
     delay(500);
     DEBUG_PRINT(F("."));
     yield();
     nowSecs = time(nullptr);
   }
-
   DEBUG_PRINTLN();
+
   struct tm timeinfo;
-  localtime_r(&nowSecs, &timeinfo);
-  DEBUG_PRINT(F("Current GMT time: "));
-  DEBUG_PRINT(asctime(&timeinfo));
-
-  char *zoneToFind = const_cast<char *>("Europe/Kiev");
-  if (systemCfg.timeZone)
+  if (localtime_r(&nowSecs, &timeinfo))
   {
-    zoneToFind = systemCfg.timeZone;
-  }
-  const char *gmtOffset = getGmtOffsetForZone(zoneToFind);
+    LOGI(tag, "Current GMT time: %s", String(asctime(&timeinfo)));
 
-  String timezone = "EET-2EEST,M3.5.0/3,M10.5.0/4";
+    char *zoneToFind = const_cast<char *>("Europe/Kiev");
+    if (systemCfg.timeZone)
+    {
+      zoneToFind = systemCfg.timeZone;
+    }
+    const char *gmtOffset = getGmtOffsetForZone(zoneToFind);
 
-  if (gmtOffset != nullptr)
-  {
-    DEBUG_PRINT(F("GMT Offset for "));
-    DEBUG_PRINT(zoneToFind);
-    DEBUG_PRINT(F(" is "));
-    DEBUG_PRINTLN(gmtOffset);
-    timezone = gmtOffset;
-    setTimezone(timezone);
+    String timezone = "EET-2EEST,M3.5.0/3,M10.5.0/4";
+
+    if (gmtOffset != nullptr)
+    {
+      LOGI(tag, "GMT Offset for %s is %s", zoneToFind, gmtOffset);
+      timezone = gmtOffset;
+      setTimezone(timezone);
+    }
+    else
+    {
+      LOGI(tag, "GMT Offset for %s not found.", zoneToFind);
+    }
+
+    setupCron();
   }
   else
   {
-    DEBUG_PRINT(F("GMT Offset for "));
-    DEBUG_PRINT(zoneToFind);
-    DEBUG_PRINTLN(F(" not found."));
+    LOGI(tag, "Failed to get time from NTP server.");
+  }
+  vTaskDelete(NULL);
+}
+
+void setLedsDisable(bool all)
+{
+  if (vars.hwLedPwrIs || vars.hwLedUsbIs)
+  {
+    LOGI("setLedsDisable", "%s", String(all));
+    if (all)
+    {
+      ledControl.powerLED.active = false;
+      ledControl.modeLED.active = false;
+    }
+    else
+    {
+      ledControl.powerLED.active = !systemCfg.disableLedPwr;
+      ledControl.modeLED.active = !systemCfg.disableLedUSB;
+    }
+  }
+}
+
+void nmActivate()
+{
+  LOGI("NM", "start");
+  setLedsDisable(true);
+}
+
+void nmDeactivate()
+{
+  LOGI("NM", "end");
+  setLedsDisable();
+}
+
+void setupCron()
+{
+  // Cron.create(const_cast<char *>("0 */1 * * * *"), cronTest, false);
+
+  if (systemCfg.nmEnable)
+  {
+
+    time_t nowSecs = time(nullptr);
+    struct tm timeinfo;
+    localtime_r(&nowSecs, &timeinfo);
+    int currentTimeInMinutes = timeinfo.tm_hour * 60 + timeinfo.tm_min;
+
+    int sTargetHour, sTargetMinute, startTimeInMinutes;
+    int eTargetHour, eTargetMinute, endTimeInMinutes;
+
+    sscanf(systemCfg.nmStart, "%d:%d", &sTargetHour, &sTargetMinute);
+    startTimeInMinutes = sTargetHour * 60 + sTargetMinute;
+
+    sscanf(systemCfg.nmEnd, "%d:%d", &eTargetHour, &eTargetMinute);
+    endTimeInMinutes = eTargetHour * 60 + eTargetMinute;
+
+    if (startTimeInMinutes <= endTimeInMinutes)
+    {
+      if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes)
+      {
+        nmActivate();
+      }
+      else
+      {
+        nmDeactivate();
+      }
+    }
+    else
+    {
+      if (currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes < endTimeInMinutes)
+      {
+        nmActivate();
+      }
+      else
+      {
+        nmDeactivate();
+      }
+    }
+
+    char startCron[30];
+    char endCron[30];
+    strcpy(startCron, convertTimeToCron(String(systemCfg.nmStart)));
+    strcpy(endCron, convertTimeToCron(String(systemCfg.nmEnd)));
+    LOGI("cron", "NM start %s", startCron);
+    LOGI("cron", "NM end %s", endCron);
+
+    Cron.create(const_cast<char *>(startCron), nmActivate, false);
+    Cron.create(const_cast<char *>(endCron), nmDeactivate, false);
   }
 }
 
 void setTimezone(String timezone)
 {
-  DEBUG_PRINTLN(F("Setting Timezone"));
+  String tag = "TZ";
+  LOGI(tag, "Setting Timezone");
   setenv("TZ", timezone.c_str(), 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
   tzset();
   time_t nowSecs = time(nullptr);
@@ -465,8 +471,7 @@ void setTimezone(String timezone)
 
   String timeNow = asctime(&timeinfo);
   timeNow.remove(timeNow.length() - 1);
-  DEBUG_PRINT(F("Local time: "));
-  DEBUG_PRINTLN(timeNow);
+  LOGI(tag, "Local time: %s", timeNow.c_str());
   printLogMsg("Local time: " + timeNow);
 }
 
@@ -484,6 +489,35 @@ const char *getGmtOffsetForZone(const char *zone)
   return nullptr;
 }
 
+String getTime()
+{
+  time_t nowSecs = time(nullptr);
+  struct tm timeinfo;
+  localtime_r(&nowSecs, &timeinfo);
+
+  String timeNow = asctime(&timeinfo);
+  timeNow.remove(timeNow.length() - 1);
+  return timeNow;
+}
+
+char *convertTimeToCron(const String &time)
+{
+  static char formattedTime[16];
+  int hours, minutes;
+
+  // Использование метода toCharArray() для получения C-строки из объекта String
+  char timeArray[6]; // Достаточно места для "ЧЧ:ММ\0"
+  time.toCharArray(timeArray, sizeof(timeArray));
+
+  // Разбор времени
+  sscanf(timeArray, "%d:%d", &hours, &minutes);
+
+  // Формирование cron-строки
+  snprintf(formattedTime, sizeof(formattedTime), "0 %d %d * * *", minutes, hours);
+
+  return formattedTime;
+}
+
 void ledsScheduler()
 {
   DEBUG_PRINTLN(F("LEDS Scheduler"));
@@ -493,6 +527,7 @@ BrdConfigStruct customConfig;
 
 BrdConfigStruct *findBrdConfig(int searchId = 0)
 {
+  String tag = "BRD";
   int brdConfigsSize = sizeof(brdConfigs) / sizeof(brdConfigs[0]);
 
   bool brdOk = false;
@@ -509,32 +544,25 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
 
   if (ETH.begin(brdConfigs[i].eth.addr, brdConfigs[i].eth.pwrPin, brdConfigs[i].eth.mdcPin, brdConfigs[i].eth.mdiPin, brdConfigs[i].eth.phyType, brdConfigs[i].eth.clkMode, brdConfigs[i].eth.pwrAltPin))
   {
-    Serial.print("BrdConfig found: ");
-    Serial.println(brdConfigs[i].board);
+    LOGI(tag, "Config found: %s", brdConfigs[i].board);
     brdOk = true;
-    // zigbee check
 
     if (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0)
     {
-      DEBUG_PRINTLN(F("Zigbee pins OK. Try to connect..."));
-
+      LOGI(tag, "Zigbee pins OK. Try to connect...");
       esp_task_wdt_reset();
-
       Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, brdConfigs[i].zb.rxPin, brdConfigs[i].zb.txPin); // start zigbee serial
 
       // CCTool.switchStream(Serial2);
-
       int BSL_MODE = 0;
-      // delay(500);
-
       if (zbInit(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_MODE))
       {
-        DEBUG_PRINTLN(F("Zigbee find - OK"));
+        LOGI(tag, "Zigbee find - OK");
         brdOk = true;
       }
       else
       {
-        DEBUG_PRINTLN(F("Zigbee find - ERROR"));
+        LOGE(tag, "Zigbee find - ERROR");
         brdOk = false;
       }
     }
@@ -545,16 +573,14 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
   }
   else
   {
-    Serial.print("BrdConfig error with: ");
-    Serial.println(brdConfigs[i].board);
-    // delay(500);
-
+    LOGE(tag, "Config error with: %s", brdConfigs[i].board);
     DynamicJsonDocument config(300);
     config["searchId"] = i + 1;
     writeDefaultConfig(configFileHw, config);
 
+    LOGI(tag, "Restarting...");
+
     delay(500);
-    DEBUG_PRINTLN(F("Restarting..."));
     ESP.restart();
 
     return nullptr;
@@ -645,9 +671,9 @@ void wgLoop()
 {
   String tag = "WG";
   uint16_t localport = 50000;
-  //IPAddress ip = ;
-  
-  int checkPeriod = 5; // to do vpnCfg.checkTime; 
+  // IPAddress ip = ;
+
+  int checkPeriod = 5; // to do vpnCfg.checkTime;
   ip_addr_t lwip_ip;
 
   lwip_ip.u_addr.ip4.addr = static_cast<uint32_t>(vpnCfg.wgLocalIP);
@@ -656,13 +682,13 @@ void wgLoop()
   {
     if (vars.vpnWgCheckTime == 0)
     {
-      vars.vpnWgCheckTime = millis() + 1000 * checkPeriod; 
+      vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
     }
     else
     {
       if (vars.vpnWgCheckTime <= millis())
       {
-        //LOGI(tag, "check");
+        // LOGI(tag, "check");
         vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
         if (wg.is_peer_up(&lwip_ip, &localport))
         {
@@ -688,5 +714,98 @@ void wgLoop()
   else
   {
     vars.vpnWgInit = false;
+  }
+}
+
+/* //not available now
+void hnBegin()
+{
+  Husarnet.selfHostedSetup(vpnCfg.hnDashUrl);
+  Husarnet.join(vpnCfg.hnJoinCode, vpnCfg.hnHostName);
+  Husarnet.start();
+}
+*/
+
+void ledTask(void *parameter)
+{
+  LEDSettings *led = (LEDSettings *)parameter;
+  TickType_t lastWakeTime = xTaskGetTickCount();
+  int previousMode = LED_OFF;
+
+  // String tag = "ledTask";
+  while (1)
+  {
+    // LOGI(tag, "%d | led %s | m %d", millis(), led->name, led->mode);
+    if (led->pin == -1)
+      continue;
+    if (!led->active)
+    {
+      digitalWrite(led->pin, LOW);
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(500));
+      continue;
+    }
+
+    switch (led->mode)
+    {
+    case LED_OFF:
+      previousMode = led->mode;
+      digitalWrite(led->pin, LOW);
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(500));
+      break;
+    case LED_ON:
+      previousMode = led->mode;
+      digitalWrite(led->pin, HIGH);
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(500));
+      break;
+    case LED_TOGGLE:
+      if (digitalRead(led->pin) == LOW)
+      {
+        digitalWrite(led->pin, HIGH);
+        led->mode = LED_ON;
+      }
+      else
+      {
+        digitalWrite(led->pin, LOW);
+        led->mode = LED_OFF;
+      }
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(500));
+      break;
+    case LED_BLINK_5T:
+      for (int j = 0; j < 5; j++)
+      {
+        digitalWrite(led->pin, HIGH);
+        vTaskDelay(pdMS_TO_TICKS(500));
+        digitalWrite(led->pin, LOW);
+        vTaskDelay(pdMS_TO_TICKS(500));
+      }
+      led->mode = static_cast<LEDMode>(previousMode);
+      break;
+    case LED_BLINK_1T:
+      digitalWrite(led->pin, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(500));
+      digitalWrite(led->pin, LOW);
+      vTaskDelay(pdMS_TO_TICKS(500));
+      led->mode = static_cast<LEDMode>(previousMode);
+      break;
+    case LED_BLINK_1Hz:
+    case LED_FLASH_1Hz:
+      previousMode = led->mode;
+      digitalWrite(led->pin, (led->mode == LED_BLINK_1Hz) ? HIGH : LOW);
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(800));
+      digitalWrite(led->pin, (led->mode == LED_BLINK_1Hz) ? LOW : HIGH);
+      vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(200));
+      break;
+    case LED_BLINK_3Hz:
+    case LED_FLASH_3Hz:
+      previousMode = led->mode;
+      for (int j = 0; j < 3; j++)
+      {
+        digitalWrite(led->pin, (led->mode == LED_BLINK_3Hz) ? HIGH : LOW);
+        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(267));
+        digitalWrite(led->pin, (led->mode == LED_BLINK_3Hz) ? LOW : HIGH);
+        vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(100));
+      }
+      break;
+    }
   }
 }

@@ -1,0 +1,347 @@
+{
+  "menu": {
+    "st": "Status",
+    "ge": "General",
+    "ne": "Network",
+    "zi": "Zigbee",
+    "mq": "MQTT",
+    "vp": "VPN",
+    "se": "Security",
+    "tl": "Tools",
+    "ab": "About",
+    "lo": "Logout"
+  },
+  "pages": {
+    "general": {
+      "desc": "General settings",
+      "host": {
+        "n": "Hostname",
+        "ph": "Access device over network using this name.local",
+        "tt": "Latin letters and numbers, no spaces"
+      },
+      "refresh": {
+        "n": "Web refresh interval",
+        "ph": "in seconds",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Select the device operating mode",
+          "net": "NETWORK mode",
+          "usb": "USB mode"
+        }
+      },
+      "kw": "Keep network & web server",
+      "led": {
+        "desc": "LED config",
+        "dis": "Full disable",
+        "pwr": "Power LED",
+        "mode": "Work mode LED",
+        "night": "Night mode - time based LEDs control"
+      },
+      "ntp": {
+        "desc": "NTP config",
+        "zone": "Timezone",
+        "server": {
+          "n": "NTP server",
+          "ph": "pool.ntp.org",
+          "tt": "Enter valid domain name"
+        }
+      }
+    },
+    "login": {
+      "pt": "Login - XZG",
+      "lbl": "Please sign in",
+      "btn": "Sing in"
+    },
+    "mqtt": {
+      "enb": "Enable this to activate MQTT",
+      "desc": "MQTT config",
+      "broker": {
+        "n": "Broker",
+        "ph": "Domain name or IP address",
+        "tt": "Enter valid domain or IP"
+      },
+      "port": {
+        "n": "Port",
+        "ph": "MQTT port number",
+        "tt": "Enter the port number (usually 1883)"
+      },
+      "topic": {
+        "n": "Topic",
+        "ph": "MQTT topic",
+        "tt": "Enter the MQTT topic of device X/Y/Z or X/Y or X. No spaces."
+      },
+      "interval": {
+        "n": "Interval",
+        "ph": "Update interval in seconds",
+        "tt": "Enter how often to send updates (in seconds)"
+      },
+      "disc": {
+        "n": "Home Assistant - Auto Discovery",
+        "ph": "Enable or disable",
+        "tt": "💡 Enable this for Home Assistant's MQTT discovery feature"
+      },
+      "user": {
+        "ph": "MQTT username",
+        "tt": "Enter username from your broker"
+      },
+      "pass": {
+        "ph": "MQTT password",
+        "tt": "Enter password from your broker"
+      }
+    },
+    "net": {
+      "descEth": "Ethernet config",
+      "dhcp": "DHCP",
+      "ip": "IP",
+      "mask": "Mask",
+      "gw": "Gateway",
+      "dns": "DNS server",
+      "descWifi": "Wi-Fi config",
+      "wifi": {
+        "btn": {
+          "scan": "Scan for Wi-Fi networks",
+          "man": "Enter manually"
+        },
+        "rssi": "RSSI",
+        "ssid": "SSID",
+        "sc": "Security",
+        "ch": "Channel",
+        "nnf": "WiFi networks not found"
+      }
+    },
+    "root": {
+      "dsc": {
+        "tt": "Device status",
+        "op": "Operational mode",
+        "scc": "Socket client connected",
+        "du": "Device uptime",
+        "su": "Socket time",
+        "lt": "Device time",
+        "sccy": "Yes, {{count}} clients",
+        "sccn": "No connection",
+        "opn": "Zigbee-Network",
+        "opu": "Zigbee-USB"
+      },
+      "dic": {
+        "tt": "Device information",
+        "dm": "Device model",
+        "efv": "ESP32 FW revision",
+        "ehv": "ESP32 HW version",
+        "et": "ESP32 temperature",
+        "ef": "ESP32 processor",
+        "cs": "cores",
+        "mhz": "MHz",
+        "efs": "ESP32 memory",
+        "mb": "Mb",
+        "ehs": "ESP32 heap",
+        "kb": "KiB",
+        "zhv": "Zigbee HW revision",
+        "zfv": "Zigbee FW version",
+        "efti": "internal",
+        "efte": "external",
+        "ens": "ESP32 nv storage",
+        "ent": "entries",
+        "efss": "ESP32 file system"
+      },
+      "te": "Ethernet",
+      "tw": "WiFi",
+      "tm": "MQTT",
+      "wgc": {
+        "tt": "WireGuard",
+        "lip": "Local IP address",
+        "ed": "Endpoint address",
+        "pip": "Peer IP address"
+      },
+      "tvh": "Husarnet",
+      "wc": {
+        "mcl": "Client",
+        "map": "AP"
+      }
+    },
+    "sec": {
+      "desc": "Security config",
+      "web": {
+        "dis": "Disable web server when socket is connected",
+        "auth": "Enable web server authentication"
+      },
+      "fw": {
+        "desc": "IP whitelist for socket",
+        "ip": "Allowed IP"
+      }
+    },
+    "tools": {
+      "sc": "System control",
+      "fu": "Firmware update",
+      "dt": "Debug tools",
+      "mc": "Modules control",
+      "zb": "Zigbee",
+      "rst": "Restart",
+      "fm": "Flash Mode",
+      "rr": "Router Reconnect",
+      "esp": "ESP32",
+      "fr": "Factory reset",
+      "csc": "Peripherals control",
+      "ms": "Mode select",
+      "ntw": "Network",
+      "usb": "USB",
+      "lt": "LEDs toggle",
+      "ls": "starting...",
+      "lb": "blinking...",
+      "pwr": "Power",
+      "mode": "Mode",
+      "dc": "Debug console",
+      "rd": "Raw data ",
+      "cc": "Clear Console",
+      "czc": "Check Zigbee connect",
+      "czv": "Check Zigbee version",
+      "fb": "File Browser",
+      "fn": "Filename",
+      "s": "Size",
+      "egu": "Git ESP32 update",
+      "efu": "File ESP32 update",
+      "cf": "Choose file...",
+      "ilfg": "Install latest",
+      "sri": "Select version",
+      "zu": "Zigbee update (in develop)",
+      "zfu": "Zigbee file update"
+    },
+    "vpn": {
+      "wg": {
+        "tt": "WireGuard config",
+        "lip": "IP address of the local interface",
+        "lpk": "Private key of the local interface",
+        "ea": "Address of the endpoint peer",
+        "epk": "Public key of the endpoint peer",
+        "ep": "Port of the endpoint peer"
+      },
+      "hn": {
+        "tt": "Husarnet config (in develope)",
+        "jc": "Join Code for your network",
+        "hn": "Host name for your device",
+        "du": "Dashboard URL (leave 'default')"
+      }
+    },
+    "zgb": {
+      "so": "Serial config",
+      "ss": "Socket Speed",
+      "sp": "Socket Port",
+      "cfg": {
+        "tt": "Config generator",
+        "sel": "Generate config for",
+        "alarm": "It seems that XZG works in access point mode (IP 192.168.1.1). The IP address will change after connecting to ethernet or Wi-Fi, after that the config needs to be generated again.",
+        "ss": "Serial config",
+        "lxzg": "Location of XZG",
+        "dzl": "Disable Zigbee led?",
+        "sopm": "Set output power to max 20",
+        "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
+        "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
+        "dp": "INSERT_DEVICE_PATCH_HERE"
+      }
+    }
+  },
+  "common": {
+    "user": "Username",
+    "pass": "Password",
+    "save": "Save",
+    "enable": "Enable",
+    "en": "Enabled",
+    "dis": "Disabled",
+    "close": "Close",
+    "cancel": "Cancel",
+    "sure": "I'm sure",
+    "ltr": "Later",
+    "drm": "Don't remind",
+    "err": "Error",
+    "ok": "OK",
+    "time": {
+      "start": "Start time",
+      "end": "End time"
+    },
+    "now": "Install now",
+    "mode": "Mode",
+    "cst": "Connection status",
+    "csp": "Connection speed",
+    "mac": "MAC address",
+    "conn": "Connected",
+    "connecting": "Connecting",
+    "disconn": "Disconnected",
+    "init": "Initialized",
+    "host": "Hostname",
+    "inst": "Install",
+    "cc": "Copy to clipboard",
+    "erss": "Error saving settings. Check your network",
+    "ercn": "Error. Check your network",
+    "proj": "Created with ❤️ by",
+    "nc": "No connection"
+  },
+  "md": {
+    "esp": {
+      "rst": {
+        "tt": "RESTART DEVICE",
+        "msg": "Waiting for reboot. Will close automatically.",
+        "nrps": "No response; check if IP or USB mode changed."
+      },
+      "fr": {
+        "tt": "FACTORY RESET WARNING",
+        "msg": "This will erase ALL settings."
+      },
+      "fu": {
+        "tt": "XZG FIRMWARE UPDATE",
+        "lfm": "Updating from local file.",
+        "gvm": "Updating to {{ver}} GitHub release.",
+        "glm": "Updating to latest GitHub release.",
+        "wm": "It will disconnect ALL socket connections",
+        "wdm": "Waiting for device...",
+        "fri": "Fetching firmware info...",
+        "lgds": "Downloading latest GitHub release...",
+        "vgds": "Downloading release {{ver}} from GitHub...",
+        "ucr": "Update complete! Rebooting!",
+        "prgs": "Update: {{per}}%",
+        "gvt": "GitHub releases",
+        "bil": "Install Latest"
+      },
+      "ws": {
+        "tt": "Wi-Fi network connection",
+        "msg": "Connecting to the network in progress... Wait for the result.",
+        "nip": "New IP address is {{ip}} Device will now reboot for the new settings to take effect.",
+        "btn": "Go to",
+        "err": "Connection error, check SSID, PASSWORD and try again"
+      }
+    },
+    "zb": {
+      "fu": {
+        "vt": "validate: {{per}} %",
+        "vc": "Validate complete!"
+      }
+    },
+    "ss": {
+      "tt": "SETTINGS SAVED",
+      "rr": "Some settings require a reboot.",
+      "msg": "New parameters saved.",
+      "rn": "Restart now",
+      "rl": "Restart manually later"
+    },
+    "kw": {
+      "msg": "This function allows you to leave one of the communication channels active and have access to the web interface. The device itself will select an available channel according to priority: WIFI, ETHERNET, WIFI AP"
+    }
+  },
+  "ts": {
+    "esp": {
+      "upd": {
+        "tt": "ESP32 update available 🚀",
+        "msg": "New firmware ({{ver}}) was found on GitHub. It was downloaded {{count}} times."
+      },
+      "beta": {
+        "tt": "FW beta feedback",
+        "msg": "Thanks for testing new version! 🎢 Don't forget to give feedback 💌",
+        "cnt": "Contact 🧧"
+      },
+      "ane": {
+        "tt": "Network Config Error",
+        "msg": "No network interfaces are enabled. Please activate at least one interface to continue."
+      }
+    }
+  }
+}

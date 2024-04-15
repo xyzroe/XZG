@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pull Adding all changes\
+# Pull Adding all changes
 git pull
 
 # Adding all changes to staging
@@ -51,7 +51,7 @@ git tag "$tag"
 
 # Pushing changes and tags
 git push
-git push origin "$version"
+git push origin "$tag"
 
 # Cleaning up the commit message file
 tools/clean_file.sh "$COMMIT_MESSAGE_FILE"

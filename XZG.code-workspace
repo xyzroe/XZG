@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"i18n-ally.keystyle": "nested",
+		"i18n-ally.localesPaths": [
+			"src/websrc/json"
+		],
+		"cSpell.useGitignore": false,
+	},
+	"extensions": {
+		"recommendations": [
+			"jock.svg",
+			"DevEscalus.svg-sprites-viewer",
+			"streetsidesoftware.code-spell-checker",
+			"Perkovec.emoji",
+			"lokalise.i18n-ally",
+			"platformio.platformio-ide",
+			"marcochan.get-svg-icons",
+			"yzhang.markdown-all-in-one",
+			"ms-vscode.cpptools"
+		]
+	}
+}

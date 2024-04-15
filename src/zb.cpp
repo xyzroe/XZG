@@ -14,18 +14,18 @@
 #include "etc.h"
 #include "zb.h"
 
-
-//extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
 
+extern struct SysVarsStruct vars;
+extern struct BrdConfigStruct hwConfig;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
-extern struct BrdConfigStruct hwConfig;
-//extern struct CurrentModesStruct modes;
-
 extern struct SystemConfigStruct systemCfg;
+extern struct NetworkConfigStruct networkCfg;
+extern struct VpnConfigStruct vpnCfg;
+extern struct MqttConfigStruct mqttCfg;
 
-extern struct SysVarsStruct vars;
+extern LEDControl ledControl;
 
 extern const char *tempFile;
 
@@ -43,6 +43,8 @@ const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
 
 size_t lastSize = 0;
 
+String tag_ZB = "[ZB]";
+
 extern CCTools CCTool;
 
 void clearS2Buffer()
@@ -53,7 +55,7 @@ void clearS2Buffer()
     }
 }
 
-void getZbVer()
+void zbFwCheck()
 {
     zbVer.zbRev = 0;
     const byte cmdFrameStart = 0xFE;
@@ -84,18 +86,33 @@ void getZbVer()
             zbVer.majorrel = zbVerBuf[2];
             zbVer.product = zbVerBuf[1];
             zbVer.transportrev = zbVerBuf[0];
-            printLogMsg(String("[ZBVER]") + " Rev: " + zbVer.zbRev + " Maintrel: " + zbVer.maintrel + " Minorrel: " + zbVer.minorrel + " Majorrel: " + zbVer.majorrel + " Transportrev: " + zbVer.transportrev + " Product: " + zbVer.product);
+            printLogMsg(tag_ZB + " v: " + zbVer.zbRev + " Main: " + zbVer.maintrel + " Min: " + zbVer.minorrel + " Maj: " + zbVer.majorrel + " T: " + zbVer.transportrev + " P: " + zbVer.product);
             clearS2Buffer();
             break;
         }
     }
 }
 
-void zbCheck()
+void zbHwCheck()
 {
+    int BSL_MODE = 0;
+    ledControl.modeLED.mode = LED_BLINK_1Hz;
+    if (zbInit(hwConfig.zb.rstPin, hwConfig.zb.bslPin, BSL_MODE))
+    {
+        ledControl.modeLED.mode = LED_OFF;
+        printLogMsg("[ZBCHK] Connection OK");
+    }
+    else
+    {
+        ledControl.modeLED.mode = LED_BLINK_3Hz;
+        printLogMsg("[ZBCHK] Error");
+        zbVer.zbRev = 0;
+    }
+    /*
     // getZbChip();
     //  Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
     bool respOk = false;
+    ledControl.modeLED.mode = LED_BLINK_1Hz;
     for (uint8_t i = 0; i < 12; i++)
     { // wait for zigbee start
         if (respOk)
@@ -127,54 +144,26 @@ void zbCheck()
             }
         }
 
-        if (vars.hwLedUsbIs)
-        {
-            digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin)); // blue led flashing mean wait for zigbee resp}
-        }
         delay(500);
         if (!respOk)
         {
-            if (vars.hwLedPwrIs)
-            {
-                digitalWrite(hwConfig.mist.ledPwrPin, 1);
-            }
-            if (vars.hwLedUsbIs)
-            {
-                digitalWrite(hwConfig.mist.ledUsbPin, 1);
-            }
-            for (uint8_t i = 0; i < 5; i++)
-            { // indicate wrong resp
-                if (vars.hwLedPwrIs)
-                {
-                    digitalWrite(hwConfig.mist.ledPwrPin, !digitalRead(hwConfig.mist.ledPwrPin));
-                }
-                if (vars.hwLedUsbIs)
-                {
-                    digitalWrite(hwConfig.mist.ledUsbPin, !digitalRead(hwConfig.mist.ledUsbPin));
-                }
-                delay(1000);
-            }
+            ledControl.modeLED.mode = LED_BLINK_3Hz;
             printLogMsg("[ZBCHK] Wrong answer");
             zbVer.zbRev = 0;
         }
         else
         {
+            ledControl.modeLED.mode = LED_OFF;
             Serial2.write(zigLed1Off, sizeof(zigLed1Off));
             Serial2.flush();
             delay(250);
             clearS2Buffer();
             printLogMsg("[ZBCHK] Connection OK");
         }
-        if (vars.hwLedPwrIs)
-        {
-            digitalWrite(hwConfig.mist.ledPwrPin, 0);
-        }
-        if (vars.hwLedUsbIs)
-        {
-            digitalWrite(hwConfig.mist.ledUsbPin, 0);
-        }
     }
+    */
 }
+
 void zbLedToggle()
 {
     bool respOk = false;
@@ -389,28 +378,28 @@ void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, th
 bool zbInit(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
 {
 
-    // zbCheck();
-    // getZbVer();
     if (CCTool.begin(CC_RST_PIN, CC_BSL_PIN, BSL_MODE))
     {
-
         // CCTool.cmdGetChipId();
         String zb_chip = CCTool.detectChipInfo();
         DEBUG_PRINTLN(zb_chip);
-        printLogMsg(String("[ZBCHIP] ") + zb_chip);
+        printLogMsg(tag_ZB + zb_chip);
         zbVer.chipID = zb_chip;
         // zigbeeRestart();
         CCTool.restart();
         // delay(5000);
-
-        // getZbVer();
+        DEBUG_PRINTLN(F("Zigbee init - OK"));
+        vars.hwZigbeeIs = true;
+        // zbFwCheck();
         return true;
     }
     else
     {
         String msg = "No connection with Zigbee";
-        printLogMsg(String("[ZBCHIP] ") + msg);
+        printLogMsg(tag_ZB + " " + msg);
         DEBUG_PRINTLN(msg);
+        DEBUG_PRINTLN(F("Zigbee init - ERROR"));
+        vars.hwZigbeeIs = false;
         return false;
     }
 }

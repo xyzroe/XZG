@@ -1,0 +1,344 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "cc": "Copiar para área de transferência",
+    "close": "Fechar",
+    "conn": "Conectado",
+    "csp": "Velocidade de conexão",
+    "cst": "Status da conexão",
+    "drm": "Não lembre",
+    "enable": "Habilitar",
+    "ercn": "Erro. \nVerifique sua rede",
+    "erss": "Erro ao salvar as configurações. \nVerifique sua rede",
+    "host": "nome de anfitrião",
+    "init": "Inicializado",
+    "inst": "Instalar",
+    "ltr": "Mais tarde",
+    "mac": "Endereço MAC",
+    "mode": "Modo",
+    "now": "Instale agora",
+    "pass": "Senha",
+    "proj": "Criado com ❤️ por",
+    "save": "Salvar",
+    "sure": "Tenho certeza",
+    "time": {
+      "end": "Fim do tempo",
+      "start": "Hora de início"
+    },
+    "user": "Nome de usuário",
+    "ok": "OK",
+    "connecting": "Conectando",
+    "dis": "Desabilitado",
+    "disconn": "Desconectado",
+    "en": "Habilitado",
+    "err": "Erro",
+    "nc": "Sem conexão"
+  },
+  "md": {
+    "esp": {
+      "fr": {
+        "msg": "Isso apagará TODAS as configurações.",
+        "tt": "AVISO DE REINICIALIZAÇÃO DE FÁBRICA"
+      },
+      "fu": {
+        "bil": "Instalar mais recente",
+        "fri": "Buscando informações de firmware...",
+        "glm": "Atualizando para a versão mais recente do GitHub.",
+        "gvm": "Atualizando para a versão {{ver}} do GitHub.",
+        "gvt": "Lançamentos do GitHub",
+        "lfm": "Atualizando do arquivo local.",
+        "lgds": "Baixando a versão mais recente do GitHub...",
+        "prgs": "Atualização: {{per}}%",
+        "tt": "ATUALIZAÇÃO DE FIRMWARE XZG",
+        "ucr": "Atualização completa! \nReiniciando!",
+        "vgds": "Baixando a versão {{ver}} do GitHub...",
+        "wdm": "Aguardando dispositivo...",
+        "wm": "Isso desconectará TODAS as conexões de soquete"
+      },
+      "rst": {
+        "msg": "Esperando a reinicialização. \nFechará automaticamente.",
+        "nrps": "Nenhuma resposta; \nverifique se o modo IP ou USB mudou.",
+        "tt": "DISPOSITIVO DE REINÍCIO"
+      },
+      "ws": {
+        "btn": "Vá para",
+        "err": "Erro de conexão, verifique SSID, SENHA e tente novamente",
+        "msg": "Conectando-se à rede em andamento... Aguarde o resultado.",
+        "nip": "O novo endereço IP é {{ip}} O dispositivo será reiniciado para que as novas configurações tenham efeito.",
+        "tt": "Conexão de rede Wi-Fi"
+      }
+    },
+    "zb": {
+      "fu": {
+        "vc": "Validação completa!",
+        "vt": "validar: {{por}}%"
+      }
+    },
+    "kw": {
+      "msg": "Esta função permite deixar um dos canais de comunicação ativo e ter acesso à interface web. \nO próprio dispositivo selecionará um canal disponível de acordo com a prioridade: WIFI, ETHERNET, WIFI AP"
+    },
+    "ss": {
+      "msg": "Novos parâmetros salvos.",
+      "rl": "Reinicie manualmente mais tarde",
+      "rn": "Reinicie agora",
+      "rr": "Algumas configurações exigem uma reinicialização.",
+      "tt": "CONFIGURAÇÕES SALVAS"
+    }
+  },
+  "menu": {
+    "ab": "Sobre",
+    "ge": "Em geral",
+    "lo": "Sair",
+    "mq": "MQTT",
+    "ne": "Rede",
+    "se": "Segurança",
+    "st": "Status",
+    "tl": "Ferramentas",
+    "vp": "VPN",
+    "zi": "Zigbee"
+  },
+  "pages": {
+    "general": {
+      "desc": "Configurações Gerais",
+      "host": {
+        "n": "nome de anfitrião",
+        "ph": "Acesse o dispositivo pela rede usando este nome.local",
+        "tt": "Letras e números latinos, sem espaços"
+      },
+      "kw": "Manter rede",
+      "led": {
+        "desc": "Configuração de LED",
+        "dis": "Desativação total",
+        "mode": "LED de modo de trabalho",
+        "night": "Modo noturno - controle de LEDs baseado em tempo",
+        "pwr": "LED de força"
+      },
+      "ntp": {
+        "desc": "Configuração NTP",
+        "server": {
+          "n": "Servidor NTP",
+          "ph": "pool.ntp.org",
+          "tt": "Insira um nome de domínio válido"
+        },
+        "zone": "Fuso horário"
+      },
+      "refresh": {
+        "n": "Intervalo de atualização da web",
+        "ph": "em segundos",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Selecione o modo de operação do dispositivo",
+          "net": "Modo de rede",
+          "usb": "Modo USB"
+        }
+      }
+    },
+    "login": {
+      "btn": "Cante",
+      "lbl": "Por favor, inscreva-se",
+      "pt": "Entrar - XZG"
+    },
+    "mqtt": {
+      "broker": {
+        "n": "Corretor",
+        "ph": "Nome de domínio ou endereço IP",
+        "tt": "Insira um domínio ou IP válido"
+      },
+      "desc": "Configuração MQTT",
+      "disc": {
+        "n": "Assistente Doméstico - Descoberta Automática",
+        "ph": "Habilitar ou desabilitar",
+        "tt": "💡 Habilite isto para o recurso de descoberta MQTT do Home Assistant"
+      },
+      "enb": "Habilite isto para ativar o MQTT",
+      "interval": {
+        "n": "Intervalo",
+        "ph": "Intervalo de atualização em segundos",
+        "tt": "Insira com que frequência enviar atualizações (em segundos)"
+      },
+      "pass": {
+        "ph": "Senha MQTT",
+        "tt": "Digite a senha do seu corretor"
+      },
+      "port": {
+        "n": "Porta",
+        "ph": "Número da porta MQTT",
+        "tt": "Digite o número da porta (geralmente 1883)"
+      },
+      "topic": {
+        "n": "Tema",
+        "ph": "Tópico MQTT",
+        "tt": "Insira o tópico MQTT do dispositivo X/Y/Z ou X/Y ou X. Sem espaços."
+      },
+      "user": {
+        "ph": "Nome de usuário MQTT",
+        "tt": "Digite o nome de usuário do seu corretor"
+      }
+    },
+    "net": {
+      "descEth": "Configuração Ethernet",
+      "descWifi": "Configuração de Wi-Fi",
+      "dhcp": "DHCP",
+      "dns": "Servidor dns",
+      "gw": "Porta de entrada",
+      "ip": "PI",
+      "mask": "mascarar",
+      "wifi": {
+        "btn": {
+          "man": "Entre manualmente",
+          "scan": "Procure redes Wi-Fi"
+        },
+        "ch": "Canal",
+        "rssi": "RSSI",
+        "sc": "Segurança",
+        "ssid": "SSID",
+        "nnf": "Redes WiFi não encontradas"
+      }
+    },
+    "root": {
+      "dic": {
+        "cs": "núcleos",
+        "dm": "Modelo do dispositivo",
+        "ef": "Processador ESP32",
+        "efs": "Memória ESP32",
+        "efv": "Revisão do firmware ESP32",
+        "ehs": "Pilha ESP32",
+        "ehv": "Versão ESP32 HW",
+        "et": "Temperatura ESP32",
+        "kb": "KiB",
+        "mb": "MB",
+        "mhz": "MHz",
+        "tt": "Informação de dispositivo",
+        "zfv": "Versão Zigbee FW",
+        "zhv": "Revisão do hardware Zigbee",
+        "efte": "externo",
+        "efti": "interno"
+      },
+      "dsc": {
+        "du": "Tempo de atividade do dispositivo",
+        "op": "Modo operacional",
+        "scc": "Cliente de soquete conectado",
+        "su": "Tempo de atividade do soquete",
+        "tt": "Status do dispositivo",
+        "lt": "Horário local",
+        "opn": "Rede Zigbee",
+        "opu": "Zigbee-USB",
+        "sccn": "Sem conexão",
+        "sccy": "Sim, {{count}} clientes"
+      },
+      "te": "Ethernet",
+      "tm": "MQTT",
+      "tvh": "Husarnet",
+      "tw": "Wi-fi",
+      "wgc": {
+        "ed": "Endereço do terminal",
+        "lip": "Endereço IP local",
+        "pip": "Endereço IP de mesmo nível",
+        "tt": "WireGuard"
+      },
+      "wc": {
+        "map": "PA",
+        "mcl": "Cliente"
+      }
+    },
+    "sec": {
+      "desc": "Configuração de segurança",
+      "fw": {
+        "desc": "Lista de permissões de IP para soquete",
+        "ip": "IP permitido"
+      },
+      "web": {
+        "auth": "Habilitar autenticação de servidor web",
+        "dis": "Desative o servidor web quando o soquete estiver conectado"
+      }
+    },
+    "tools": {
+      "cc": "Limpar console",
+      "cf": "Escolher arquivo...",
+      "csc": "Controle de periféricos",
+      "czc": "Verifique a conexão Zigbee",
+      "czv": "Verifique a versão do Zigbee",
+      "dc": "Console de depuração",
+      "dt": "Ferramentas de depuração",
+      "efu": "Atualização do arquivo ESP32",
+      "egu": "Atualização do Git ESP32",
+      "esp": "ESP32",
+      "fb": "Navegador de arquivos",
+      "fm": "Modo de flash",
+      "fn": "Nome do arquivo",
+      "fr": "Restauração de fábrica",
+      "fu": "Atualização de Firmware",
+      "ilfg": "Instalar mais recente",
+      "lb": "piscando...",
+      "ls": "iniciando...",
+      "lt": "LEDs alternam",
+      "mc": "Controle de módulos",
+      "mode": "Modo",
+      "ms": "Seleção de modo",
+      "ntw": "Rede",
+      "pwr": "Poder",
+      "rd": "Dados não tratados",
+      "rr": "Reconectar roteador",
+      "rst": "Reiniciar",
+      "s": "Tamanho",
+      "sc": "Controle de sistema",
+      "sri": "Selecione a versão",
+      "usb": "USB",
+      "zb": "Zigbee",
+      "zfu": "Atualização de arquivo Zigbee",
+      "zu": "Atualização Zigbee (em desenvolvimento)"
+    },
+    "vpn": {
+      "hn": {
+        "du": "URL do painel (deixe 'padrão')",
+        "hn": "Nome do host do seu dispositivo",
+        "jc": "Código de adesão para sua rede",
+        "tt": "Configuração Husarnet (em desenvolvimento)"
+      },
+      "wg": {
+        "ea": "Endereço do ponto final",
+        "ep": "Porta do ponto final",
+        "epk": "Chave pública do ponto final",
+        "lip": "Endereço IP da interface local",
+        "lpk": "Chave privada da interface local",
+        "tt": "Configuração do WireGuard"
+      }
+    },
+    "zgb": {
+      "cfg": {
+        "alarm": "Parece que o XZG funciona em modo ponto de acesso (IP 192.168.1.1). \nO endereço IP mudará após a conexão com Ethernet ou Wi-Fi, após isso a configuração precisará ser gerada novamente.",
+        "dp": "INSERT_DEVICE_PATCH_HERE",
+        "dzl": "Desativar led Zigbee?",
+        "ha": "Para Home Assistant: Vá para \"Configurações\"→\"Sistema\"→\"Hardware\"→Selecione o menu de 3 pontos no canto superior direito→\"Todo o Hardware\"→Role até ttyUSB e encontre seu adaptador→Copiar caminho do dispositivo como \"/dev/ \nttyUSB0\"",
+        "lin": "Listar dispositivos USB no Linux: ls /dev/ttyUSB*",
+        "lxzg": "Localização do XZG",
+        "sel": "Gerar configuração para",
+        "sopm": "Defina a potência de saída para no máximo 20",
+        "ss": "Configuração serial",
+        "tt": "Gerador de configuração"
+      },
+      "so": "Configuração serial",
+      "sp": "Porta de soquete",
+      "ss": "Velocidade do soquete"
+    }
+  },
+  "ts": {
+    "esp": {
+      "ane": {
+        "msg": "Nenhuma interface de rede está habilitada. \nAtive pelo menos uma interface para continuar.",
+        "tt": "Erro de configuração de rede"
+      },
+      "beta": {
+        "cnt": "Contato 🧧",
+        "msg": "Obrigado por testar a nova versão! \n🎢 Não se esqueça de dar feedback 💌",
+        "tt": "Feedback beta do firmware"
+      },
+      "upd": {
+        "msg": "Novo firmware ({{ver}}) foi encontrado no GitHub. \nEle foi baixado {{count}} vezes.",
+        "tt": "Atualização ESP32 disponível 🚀"
+      }
+    }
+  }
+}

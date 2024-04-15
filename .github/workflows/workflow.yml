@@ -51,10 +51,15 @@ jobs:
       - name: Get last commit message
         id: get_commit_message
         run: |
+          currentTag=${GITHUB_REF#refs/tags/}
+          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/$currentTag/total)%0A"
           commitMessage=$(git log -1 --pretty=%B | tail -n +3)
+          fullCommitMessage="$badgeText$commitMessage"
           echo "commitMessage<<EOF" >> $GITHUB_ENV
-          echo "$commitMessage" >> $GITHUB_ENV
+          echo "$fullCommitMessage" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+        env:
+          GITHUB_REF: ${{ github.ref }}
 
       - name: Calculate SHA-256 hash of the firmware
         id: sha256_hash

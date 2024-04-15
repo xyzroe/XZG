@@ -2,26 +2,30 @@
   <ul class="nav nav-tabs nav-fill mb-3" role="tablist" style="flex-wrap: inherit;">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#systemControl" type="button"
-        role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg"
-          width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+        role="tab" aria-controls="home" aria-selected="true">
+        <svg class="card_icon" viewBox="0 0 16 16">
           <use xlink:href="icons.svg#systemControl" />
-        </svg>System control</button>
+        </svg>
+        <span class="align-middle" data-i18n="pages.tools.sc"></span>
+      </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="fw-tab" data-bs-toggle="tab" data-bs-target="#firmwareUpdate" type="button"
-        role="tab" aria-controls="fw" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
-          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
-          viewBox="0 0 16 16">
+        role="tab" aria-controls="fw" aria-selected="false" onclick="$('.masonry').masonry()">
+        <svg class="card_icon" viewBox="0 0 16 16">
           <use xlink:href="icons.svg#download" />
-        </svg>Firmware update</button>
+        </svg>
+        <span class="align-middle" data-i18n="pages.tools.fu"></span>
+      </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
-        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
-          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
-          viewBox="0 0 16 16">
+        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()">
+        <svg class="card_icon" viewBox="0 0 16 16">
           <use xlink:href="icons.svg#systemTools" />
-        </svg>Debug tools</button>
+        </svg>
+        <span class="align-middle" data-i18n="pages.tools.dt"></span>
+      </button>
     </li>
   </ul>
 
@@ -32,19 +36,23 @@
 
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>Modules control</div>
+            <div class="card-header fw-bold" data-i18n="pages.tools.mc"></div>
             <div class='card-body'>
-              <div class="row" style="display: flex; align-items: center; justify-content: center;">
-                <button type='button' data-cmd="1"
-                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1'>Zigbee Restart</button>
-                <button type='button' data-cmd="2"
-                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1'>Zigbee Flash Mode</button>
-                <button type='button' data-cmd="0"
-                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1'>Router Reconnect</button>
+              <div class="row cmd_row">
+                <span class="text-center" data-i18n="pages.tools.zb"></span>
+                <button type='button' data-cmd="1" class='btn btn-outline-primary cmd_btn'
+                  data-i18n="pages.tools.rst"></button>
+                <button type='button' data-cmd="2" class='btn btn-outline-primary cmd_btn'
+                  data-i18n="pages.tools.fm"></button>
+                <button type='button' data-cmd="0" class='btn btn-outline-accent2 cmd_btn'
+                  data-i18n="pages.tools.rr"></button>
               </div>
-              <div class="row" style="display: flex; align-items: center; justify-content: center;">
-                <button type='button' data-cmd="3" class='btn btn-outline-warning col-sm-12 col-md-auto mb-1 me-1'>ESP32
-                  Restart</button>
+              <div class="row cmd_row">
+                <span class="mt-2 text-center" data-i18n="pages.tools.esp"></span>
+                <button type='button' data-cmd="3" class='btn btn-outline-warning cmd_btn' data-i18n="pages.tools.rst"
+                  onclick="modalConstructor('restartWait')"></button>
+                <button type='button' onclick="modalConstructor('factoryResetWarning')"
+                  class='btn btn-outline-danger cmd_btn' data-i18n="pages.tools.fr"></button>
               </div>
             </div>
           </div>
@@ -52,21 +60,23 @@
 
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>Current session control</div>
+            <div class="card-header fw-bold" data-i18n="pages.tools.csc"></div>
             <div class='card-body'>
-              <div class="row" style="display: flex; align-items: center; justify-content: center;">
-                <button type='button' data-cmd="4" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1'>LAN
-                  Mode ON</button>
-                <button type='button' data-cmd="5" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1'>USB
-                  Mode ON</button>
+              <div class="row cmd_row" id="curModeSelCard" hidden>
+                <span class="text-center" data-i18n="pages.tools.ms"></span>
+                <button type='button' data-cmd="4" class='btn btn-outline-primary cmd_btn'
+                  data-i18n="pages.tools.ntw"></button>
+                <button type='button' data-cmd="5" class='btn btn-outline-warning cmd_btn'
+                  data-i18n="pages.tools.usb"></button>
               </div>
-              <div class="row" style="display: flex; align-items: center; justify-content: center;">
-                <button type='button' data-cmd="6" class='btn btn-info col-sm-12 col-md-auto mb-1 me-1'>BLUE 💡
-                  Toggle</button>
-                <button type="button" data-cmd="7" class="btn btn-danger col-sm-12 col-md-auto mb-1 me-1">RED 💡
-                  Toggle</button>
-                <button type="button" data-cmd="12" class="btn btn-warning col-sm-12 col-md-auto mb-1 me-1">YELLOW 💡
-                  Toggle</button>
+              <div class="row cmd_row">
+                <span class="mt-2 text-center" data-i18n="pages.tools.lt"></span>
+                <button type='button' data-cmd="14&led=0&act=2" class='btn btn-outline-success cmd_btn'
+                  data-i18n="pages.tools.pwr" id="pwrLedBtn" hidden></button>
+                <button type="button" data-cmd="14&led=1&act=2" class="btn btn-outline-success cmd_btn"
+                  data-i18n="pages.tools.mode" id="modeLedBtn" hidden></button>
+                <button type="button" data-cmd="12" class="btn btn-outline-success cmd_btn"
+                  data-i18n="pages.tools.zb"></button>
               </div>
             </div>
           </div>
@@ -80,20 +90,24 @@
 
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>Debug console</div>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#terminal" />
+              </svg><span data-i18n="pages.tools.dc"></span>
+            </div>
             <div class='card-body'>
               <div class="row">
                 <div class="col">
-                  <div class="col-sm-12">Raw data :</div>
+                  <div class="col-sm-12" data-i18n="pages.tools.rd"></div>
                   <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
-                  <button type="button" data-cmd="8" onclick="$('console').val('')"
-                    class="btn btn-outline-primary col-sm-12 col-md-auto mb-1 me-1">Clear Console</button>
-                  <button type="button" data-cmd="11"
-                    class="btn btn-outline-accent2 col-sm-12 col-md-auto mb-1 me-1">Check
-                    Zigbee connection</button>
-                  <button type="button" data-cmd="10"
-                    class="btn btn-outline-success col-sm-12 col-md-auto mb-1 me-1">Check
-                    Zigbee revision</button>
+                  <div class="row cmd_row">
+                    <button type="button" data-cmd="8" onclick="$('console').val('')"
+                      class="btn btn-outline-primary cmd_btn" data-i18n="pages.tools.cc"></button>
+                    <button type="button" data-cmd="11" class="btn btn-outline-accent2 cmd_btn"
+                      data-i18n="pages.tools.czc"></button>
+                    <button type="button" data-cmd="10" class="btn btn-outline-success cmd_btn"
+                      data-i18n="pages.tools.czv"></button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -102,13 +116,17 @@
 
         <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>File Browser</div>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#file" />
+              </svg><span data-i18n="pages.tools.fb"></span>
+            </div>
             <div class='card-body'>
               <table id="filelist" class="table">
                 <thead>
                   <tr>
-                    <th scope="col">Filename</th>
-                    <th scope="col">Size</th>
+                    <th scope="col" data-i18n="pages.tools.fn"></th>
+                    <th scope="col" data-i18n="pages.tools.s"></th>
                   </tr>
                 </thead>
               </table>
@@ -117,7 +135,10 @@
                   <div><label for="file">File : <span id="title"></span></label><input type="hidden" name="filename"
                       id="filename" value=""></div><textarea class="form-control mb-2" id="config_file" name="file"
                     rows="10"></textarea>
-                </div><button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Save</button>
+                </div>
+                <div class="row cmd_row">
+                  <button type="submit" class="btn btn-outline-primary col-6 mt-4" data-i18n="common.save"></button>
+                </div>
               </form>
             </div>
           </div>
@@ -125,7 +146,7 @@
 
         <!--<div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>Tests</div>
+            <div class="card-header fw-bold">Tests</div>
             <div class='card-body'>
               <div class="row">
                 <div class="col">
@@ -150,51 +171,61 @@
 
     <div class="tab-pane fade" id="firmwareUpdate" role="tabpanel" aria-labelledby="fw-tab">
       <div class="row masonry" data-masonry='{"percentPosition": true }'>
+
         <div class="col-sm-12 col-md-6 mb-4">
-          <div class='card'>
-            <div class='card-header'>ESP32 update</div>
-            <div class='card-body'>
-              <form class="container" method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
-                <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
-                <label id='file-input' for='file'> Choose file...</label>
-                <input id="updButton" type='submit' class='btn btn-warning mb-2' value='ESP32 file update' disabled>
-                <br>
-                <div class="container" style="max-width: 300px; margin-top: 30px;">
-                  <div id='prg'></div>
-                  <div id='prgbar'>
-                    <div id='bar'></div>
-                  </div>
-                </div>
-                <br>
-                <div class="container" style="max-width: 300px; margin-top: 15px;">
-                  <div class="row">
-                    <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from
-                      Github</button>
-                  </div>
-                  <div class="row">
-                    <button type="button" id="info_esp_git" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show
-                      version info</button>
-                  </div>
-                </div>
+          <div class='card card-update'>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#github" />
+              </svg><span data-i18n="pages.tools.egu"></span>
+            </div>
+            <div class='card-body card-body-update'>
+              <div class="container">
+                <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-8 mb-2"
+                  data-i18n="pages.tools.ilfg"></button>
+                <button type="button" id="info_esp_git" class="btn btn-outline-warning col-sm-8 mt-2"
+                  data-i18n="pages.tools.sri"></button>
+              </div>
               </form>
             </div>
           </div>
         </div>
 
         <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card card-update'>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#file" />
+              </svg><span data-i18n="pages.tools.efu"></span>
+            </div>
+            <div class='card-body card-body-update' style="padding: 0 !important;">
+              <form class="container fw_form" method='POST' action='#' enctype='multipart/form-data'
+                id='esp_upload_form'>
+                <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
+                <label class='file-inputFW' id='file-input' for='file' data-i18n="pages.tools.cf"></label>
+                <button id="updButton" type="submit" class="btn btn-warning mt-1" disabled=""
+                  data-i18n="common.inst"></button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-6 mb-4" hidden>
           <div class='card'>
-            <div class='card-header'>Zigbee update (in develop)</div>
+            <div class="card-header fw-bold" data-i18n="pages.tools.zu"></div>
             <div class='card-body'>
-              <form class="container" method='POST' action='#' enctype='multipart/form-data' id='upload_form_zb'>
+              <form class="container fw_form" method='POST' action='#' enctype='multipart/form-data'
+                id='upload_form_zb'>
                 <input type='file' name='update_zb' id='file_zb' onchange='sub_zb(this)' style=display:none
                   accept='.hex'>
-                <label id='file-input_zb' for='file_zb'> Choose file...</label>
-                <input id="updButton_zb" type='submit' class='btn btn-primary mb-2' value='Zigbee file update' disabled>
+                <label class='file-inputFW' id='file-input_zb' for='file_zb' data-i18n="pages.tools.cf"> </label>
+                <button id="updButton_zb" type="submit" class="btn btn-primary mb-2" disabled=""
+                  data-i18n="pages.tools.zfu"></button>
                 <br>
                 <div class="container" style="max-width: 300px; margin-top: 30px;">
                   <div id='prg_zb'></div>
-                  <div id='prgbar_zb'>
-                    <div id='bar_zb'></div>
+                  <div class='prgbarFW' id='prgbar_zb'>
+                    <div class='barFW' id='bar_zb'></div>
                   </div>
                 </div>
               </form>
@@ -204,14 +235,14 @@
 
         <!--data-cmd="9"  <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>ESP32 OTA online update</div>
+            <div class="card-header fw-bold">ESP32 OTA online update</div>
             <div class='card-body'>
               <div class="container" style="max-width: 400px;">
                 <div class="row">
                   <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from Github</button>
                 </div>
                 <div class="row">
-                  <button type="button" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show changelog</button>
+                  <button type="button" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show changelog</button>flsh_esp 
                 </div>
               </div>
             </div>
@@ -220,7 +251,7 @@
 
         <!-- <div class="col-sm-12 col-md-6 mb-4">
           <div class='card'>
-            <div class='card-header'>Zigbee OTA online update</div>
+            <div class="card-header fw-bold">Zigbee OTA online update</div>
             <div class='card-body'>
               <div class="container" style="max-width: 400px;">
                 <div class="row">
@@ -234,149 +265,8 @@
       </div>
     </div>
 
-    <script src="/js/masonry.js"></script>
-    <script>
-      $(".flsh_zb").click(function () {//http://192.168.0.105/api?action=10&fwurl=https://raw.githubusercontent.com/Tarik2142/devHost/main/coordinator_20220219.bin
-        //alert("Feature under development");
-        modalConstructor("flashZB");//
-        //apiLink + api.actions.API_FLASH_ZB + "&fwurl=" + "https://raw.githubusercontent.com/Tarik2142/devHost/main/" + this.id + ".bin"
-      });
-      function sub(obj) {
-        let fileName = obj.value.split('\\\\');
-        if (fileName != "") {
-          $("#updButton").removeAttr("disabled");
-          localStorage.setItem('beta_feedback', 0);
-          /* if (!(localStorage.getItem('flash_warning') == 1)) {
-            modalConstructor("flashWarning");
-          } else {
-            $("#updButton").removeAttr("disabled");
-          } */
-        }
-        else {
-          $("#updButton").prop(disbl, 1);
-        }
-        document.getElementById('file-input').innerHTML = '   ' + fileName[fileName.length - 1];
-      };
-      function sub_zb(obj) {
-        let fileName = obj.value.split('\\\\');
-        if (fileName != "") {
-          $("#updButton_zb").removeAttr("disabled");
-        }
-        else {
-          $("#updButton_zb").prop(disbl, 1);
-        }
-        document.getElementById('file-input_zb').innerHTML = '   ' + fileName[fileName.length - 1];
-      };
-      $('form#upload_form').submit(function (e) {
-        e.preventDefault();
-        var form = $('#upload_form')[0];
-        var data = new FormData(form);
+    <script type='text/javascript' src='/js/masonry.js'></script>
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/marked/marked.min.js'></script>
+    <script type='text/javascript' src='/js/ota.js'></script>
 
-        ESPfwStartEvents();
-
-        //setTimeout(function () {
-        //	$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
-        //	console.log("[flash] start");
-        //	$('#prg').html('Github download starting...');
-        //}, 500);
-
-        $.ajax({
-          url: '/update',
-          type: 'POST',
-          data: data,
-          contentType: false,
-          processData: false,
-          xhr: function () {
-            var xhr = new window.XMLHttpRequest();
-            //xhr.upload.addEventListener('progress', function (evt) {
-            //  if (evt.lengthComputable) {
-            //    var per = evt.loaded / evt.total;
-            //    $('#prg').html('progress: ' + Math.round(per * 100) + '%');
-            //    $('#bar').css('width', Math.round(per * 100) + '%');
-            //  }
-            //}, false);
-
-            return xhr;
-          },
-          success: function (d, s) {
-            console.log('success!');
-            //$('#prg').html('Update completed!<br>Rebooting!');
-            //window.location.href = '/';
-            //rebootWait();
-          },
-          error: function (a, b, c) {
-          }
-        });
-      });
-      $('form#upload_form_zb').submit(function (e) {
-        e.preventDefault();
-        var form = $('#upload_form_zb')[0];
-        var data = new FormData(form);
-
-        ZBfwStartEvents();
-
-        $.ajax({
-          url: '/updateZB',
-          type: 'POST',
-          data: data,
-          contentType: false,
-          processData: false,
-          xhr: function () {
-            var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener('progress', function (evt) {
-              if (evt.lengthComputable) {
-                var per = evt.loaded / evt.total;
-                $('#prg_zb').html('upload: ' + Math.round(per * 100) + '%');
-                $('#bar_zb').css('width', Math.round(per * 100) + '%');
-              }
-            }, false);
-            return xhr;
-          },
-          success: function (d, s) {
-            console.log('success!');
-            $('#prg_zb').html('Upload and validate completed! <br>Start flashing...');
-            $('#bar_zb').css('width', '0%');
-            //window.location.href = '/';
-            //rebootWait();
-          },
-          error: function (a, b, c) {
-          }
-        });
-      });
-
-
-      $('button#upd_esp_git').click(function () {
-
-        console.log('Update from Git started... Just be patient!');
-        localStorage.setItem('update_notify', 0);
-        espFlashGitWait();
-
-      });
-    </script>
-    <script src="https://unpkg.com/commonmark@0.29.3/dist/commonmark.js"></script>
-    <script>
-
-      $('button#info_esp_git').click(function () {
-
-
-        processResponses().then(combinedData => {
-
-          var asset = combinedData.jsonData.assets[0];
-          var downloadCount = 0;
-          for (var i = 0; i < combinedData.jsonData.assets.length; i++) {
-            downloadCount += combinedData.jsonData.assets[i].download_count;
-          }
-          var text = "Local version is v" + combinedData.textData + ". GitHub version is " + combinedData.jsonData.tag_name + " and it was downloaded " + downloadCount.toLocaleString() + " times. It's your turn now 🚀";
-
-          var reader = new commonmark.Parser();
-          var writer = new commonmark.HtmlRenderer();
-          var parsed = reader.parse(combinedData.jsonData.body);
-          var chglog = writer.render(parsed);
-
-          modalConstructor("espFlashGitInfo", { text, chglog });
-        });
-      });
-
-
-    </script>
   </div>

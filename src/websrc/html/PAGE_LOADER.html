@@ -6,6 +6,12 @@
     <link href='css/style.css' rel='stylesheet' type='text/css' />
     <link rel="icon" type="image/svg+xml" href="/logo.svg">
     <title data-replace="pageName"></title>
+    <script type='text/javascript' src='/js/i18next.min.js'></script>
+    <script type='text/javascript' src='/js/i18nextHttpBackend.min.js'></script>
+    <script type='text/javascript' src='/js/jquery-min.js'></script>
+    <script type='text/javascript' src='/js/bootstrap.bundle.min.js'></script>
+    <script type='text/javascript' src='/js/masonry.js'></script>
+    <script type='text/javascript' src='/js/functions.js' defer></script>
 </head>
 
 <body>
@@ -15,10 +21,13 @@
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div class="toast fade toast_show hide" data-bs-autohide="false" role="alert">
             <div class="toast-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                     class="bi bi-info-circle" viewBox="0 0 16 16" reserveAspectRatio="xMidYMid slice" focusable="false"
                     role="img">
-                    <use xlink:href="icons.svg#info-circle" />
+                    <use xlink:href="icons.svg#info-square" />
+                </svg> -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <use xlink:href="icons.svg#info-square"></use>
                 </svg>
                 <strong class="mr-auto" style="padding-left: 10px;" id="toastHeaderText">Tip</strong>
             </div>
@@ -36,7 +45,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Modal title</h5>
+                    <h5 class="modal-title" id="modalTitle">MT</h5>
                     <button type="button" class="btn-close visually-hidden modal-btn-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -52,36 +61,39 @@
     <nav class="navbar shadow sticky-top bg-top">
         <div class="container">
             <div class='d-flex align-items-center'>
-                <img src="logo.svg" width="32" height="32" class="d-inline-block align-text-middle" alt="XZG logo" id="logo">
+                <img src="logo.svg" width="32" height="32" class="d-inline-block align-text-middle" alt="XZG logo"
+                    id="logo">
                 <span class='fs-3 px-2 fw-bold d-none d-sm-inline'>XZG</span>
             </div>
-            <h2 data-replace="pageName" class="position-absolute top-50 start-50 translate-middle"></h2>
+            <h2 data-replace="pageName" id="pageName" class="position-absolute top-50 start-50 translate-middle"></h2>
 
             <div class="icon-container d-flex align-items-center">
-                <svg id="ethIcon" class="status_icon" viewBox="0 0 16 16">
+                <div>
+                    <button id="clock" class="btn btn-sm mx-3" data-replace="clock" data-bs-toggle="tooltip"
+                        data-bs-html="true"></button>
+                </div>
+                <svg id="ethIcon" class="status_icon visually-hidden" viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                    data-bs-html="true">
                     <use xlink:href="icons.svg#ethernet"></use>
                 </svg>
-                <svg id="wifiIcon" class="status_icon visually-hidden" viewBox="0 0 16 16">
+                <svg id="wifiIcon" class="status_icon visually-hidden" viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                    data-bs-html="true">
                     <use xlink:href="icons.svg#wifi"></use>
                 </svg>
-                <svg id="vpnIcon" class="status_icon" viewBox="0 0 16 16">
+                <svg id="vpnIcon" class="status_icon visually-hidden" viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                    data-bs-html="true">
                     <use xlink:href="icons.svg#vpn"></use>
                 </svg>
-                <svg id="mqttIcon" class="status_icon visually-hidden" viewBox="0 0 16 16">
+                <svg id="mqttIcon" class="status_icon visually-hidden" viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                    data-bs-html="true">
                     <use xlink:href="icons.svg#mqtt"></use>
                 </svg>
-                <svg id="socketIcon" class="status_icon" viewBox="0 0 16 16">
+                <svg id="socketIcon" class="status_icon visually-hidden" viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                    data-bs-html="true">
                     <use xlink:href="icons.svg#activity"></use>
                 </svg>
 
             </div>
-            <!-- <a href='/logout' class='btn logoutLink nav-link visually-hidden'>
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
-                    class="bi bi-door-open" viewBox="0 0 16 16">
-                    <use xlink:href="icons.svg#door-open" />
-                </svg>
-                <span>Logout</span>
-            </a> -->
         </div>
     </nav>
     <div class='container-fluid'>
@@ -96,7 +108,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#house"></use>
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Status</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.st"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -104,7 +116,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#hdd-stack" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>General</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.ge"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -112,7 +124,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#ethernet" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Network</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.ne"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -120,7 +132,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#activity" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Zigbee</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.zi"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -128,7 +140,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#mqtt" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>MQTT</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.mq"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -136,7 +148,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#vpn" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>VPN</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.vp"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -144,7 +156,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#lock" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Security</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.se"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -152,7 +164,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#cpu" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Tools</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.tl"></span>
                             </a>
                         </li>
                         <li class='nav-item'>
@@ -160,7 +172,7 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#info-square" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>About</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.ab"></span>
                             </a>
                         </li>
                         <li class='nav-item logoutLink visually-hidden'>
@@ -168,11 +180,11 @@
                                 <svg width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                                     <use xlink:href="icons.svg#door-open" />
                                 </svg>
-                                <span class='ms-1 d-none d-sm-inline'>Logout</span>
+                                <span class='ms-1 d-none d-sm-inline' data-i18n="menu.lo"></span>
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item class ui_set hstack">
                             <div class="switch-container">
                                 <input type="checkbox" class="checkbox" id="toggleBtn">
                                 <label class="switch" for="toggleBtn">
@@ -185,6 +197,11 @@
                                     <div class="ball"></div>
                                 </label>
                             </div>
+                            <div>
+                                <select class="form-select rounded-pill lang_select" id="langSel" aria-label="Language">
+
+                                </select>
+                            </div>
                         </li>
                     </ul>
                     <hr>
@@ -196,15 +213,11 @@
 
                 </div>
                 <h6 class="fixed-bottom" id="credits">
-                    Made with &#x2764;&#xFE0F; by <a href="https://xyzroe.cc/" target="_blank">xyzroe</a> © 2024
+                    <span data-i18n="common.proj"></span> <a href="https://xyzroe.cc/" target="_blank">xyzroe</a> © 2024
                 </h6>
             </div>
         </div>
     </div>
-    <script type='text/javascript' src='/js/jquery-min.js'></script>
-    <script type='text/javascript' src='/js/bootstrap.min.js'></script>
-    <script type='text/javascript' src='/js/functions.js'></script>
-    <script type='text/javascript' src="/js/masonry.js"></script>
 </body>
 
 </html>

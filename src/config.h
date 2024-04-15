@@ -1,5 +1,5 @@
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -10,8 +10,9 @@
 #include <WebServer.h>
 
 #define DEBOUNCE_TIME 70
+#define MAX_DEV_ID_LONG 50
 
-#define ZB_TCP_PORT 9999 // any port ever. later setup from config file
+#define ZB_TCP_PORT 6638 // any port ever. later setup from config file
 #define ZB_SERIAL_SPEED 115200
 #define NTP_TIME_ZONE "Europe/Kiev"
 #define NTP_SERV_1 "pool.ntp.org"
@@ -19,10 +20,16 @@
 #define DNS_SERV_1 "1.1.1.1"
 #define DNS_SERV_2 "8.8.8.8"
 #define NETWORK_MASK "255.255.255.0"
+#define NM_START_TIME "23:00"
+#define NM_END_TIME "07:00"
 
 #define MAX_SOCKET_CLIENTS 5
 
 #define FORMAT_LITTLEFS_IF_FAILED true
+
+#define BUFFER_SIZE 256
+
+#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
 
 // CC2652 settings (FOR BSL VALIDATION!)
 #define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
@@ -38,6 +45,21 @@ enum WORK_MODE_t : uint8_t
   WORK_MODE_USB
 };
 
+enum LED_t : uint8_t
+{
+  POWER_LED,
+  MODE_LED,
+  ZB_LED
+};
+
+enum MODE_t : uint8_t
+{
+  OFF,
+  ON,
+  TOGGLE,
+  BLINK
+};
+
 extern const char *coordMode;     // coordMode node name
 extern const char *prevCoordMode; // prevCoordMode node name
 extern const char *configFileSystem;
@@ -51,38 +73,40 @@ extern const char *configFileWg;
 extern const char *configFileHw;
 // extern const char *deviceModel;
 
-
 struct SysVarsStruct
 {
-    bool hwBtnIs = false;
-    bool hwLedUsbIs = false;
-    bool hwLedPwrIs = false;
-    bool hwUartSelIs = false;
-    bool hwZigbeeIs = false;
+  bool hwBtnIs = false;
+  bool hwLedUsbIs = false;
+  bool hwLedPwrIs = false;
+  bool hwUartSelIs = false;
+  bool hwZigbeeIs = false;
 
-    WORK_MODE_t workMode; // for button  // WORK_MODE_t
+  //WORK_MODE_t workMode; // for button  // WORK_MODE_t
 
-    bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
-    int connectedClients;
-    unsigned long socketTime;
+  bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
+  int connectedClients;
+  unsigned long socketTime;
 
-    bool connectedEther = false;
+  bool connectedEther = false;
 
-    bool apStarted = false;
-    bool wifiWebSetupInProgress = false;
+  bool apStarted = false;
+  bool wifiWebSetupInProgress = false;
 
-    bool vpnWgInit = false;
-    bool vpnWgConnect = false;
-    IPAddress vpnWgPeerIp;
-    unsigned long vpnWgCheckTime;
+  bool vpnWgInit = false;
+  bool vpnWgConnect = false;
+  IPAddress vpnWgPeerIp;
+  unsigned long vpnWgCheckTime;
 
-    bool vpnHnInit = false;
-    bool mqttConn = true;
-    unsigned long mqttReconnectTime;
-    unsigned long mqttHeartbeatTime;
+  bool vpnHnInit = false;
+  bool mqttConn = true;
+  unsigned long mqttReconnectTime;
+  unsigned long mqttHeartbeatTime;
 
-    bool zbLedState;
-    bool zbFlashing;
+  bool disableLeds;
+  bool zbLedState;
+  bool zbFlashing;
+
+  char deviceId[MAX_DEV_ID_LONG];
 };
 
 // Network configuration structure
@@ -91,9 +115,9 @@ struct NetworkConfigStruct
   // Wi-Fi
   bool wifiEnable;
   char wifiSsid[50];
-  char wifiPassword[50];
+  char wifiPass[50];
   bool wifiDhcp;
-  IPAddress wifiAddr;
+  IPAddress wifiIp;
   IPAddress wifiMask;
   IPAddress wifiGate;
   IPAddress wifiDns1;
@@ -101,7 +125,7 @@ struct NetworkConfigStruct
   // LAN
   bool ethEnable;
   bool ethDhcp;
-  IPAddress ethAddr;
+  IPAddress ethIp;
   IPAddress ethMask;
   IPAddress ethGate;
   IPAddress ethDns1;
@@ -139,7 +163,7 @@ struct MqttConfigStruct
   bool enable;
   // bool connect;
   char server[50];
-  //IPAddress serverIP;
+  // IPAddress serverIP;
   int port;
   char user[50];
   char pass[50];
@@ -148,7 +172,7 @@ struct MqttConfigStruct
   int updateInt;
   bool discovery;
   int reconnectInt;
-  //unsigned long heartbeatTime;
+  // unsigned long heartbeatTime;
 };
 
 // Function prototypes for MqttConfigStruct
@@ -174,7 +198,6 @@ struct SystemConfigStruct
 
   bool disableLedUSB;
   bool disableLedPwr;
-  bool disableLeds;
 
   int refreshLogs;
   char hostname[50];
@@ -183,7 +206,11 @@ struct SystemConfigStruct
   char ntpServ1[50];
   char ntpServ2[50];
 
-  WORK_MODE_t prevWorkMode; // for button // WORK_MODE_t
+  bool nmEnable;
+  char nmStart[6];
+  char nmEnd[6];
+
+  //WORK_MODE_t prevWorkMode; // for button // WORK_MODE_t
   WORK_MODE_t workMode;     // for button  // WORK_MODE_t
 };
 
@@ -199,78 +226,6 @@ void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject ob
 void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj);
 
 void updateConfiguration(WebServer &server, SystemConfigStruct &configSys, NetworkConfigStruct &configNet, VpnConfigStruct &configVpn, MqttConfigStruct &configMqtt);
-
-/*
-struct ConfigSettingsStruct
-{
-  char ssid[50]; //+
-  char password[50]; //+
-  char ipAddressWiFi[18]; //+
-  char ipMaskWiFi[16]; //+
-  char ipGWWiFi[18]; //+
-  bool dhcpWiFi; //+
-  bool dhcp; //+
-  *bool connectedEther; //+
-  char ipAddress[18]; //+
-  char ipMask[16]; //+
-  char ipGW[18]; //+
-  int serialSpeed; //+
-  int socketPort; //+
-  bool disableWeb; //+
-  int refreshLogs; //+
-  char hostname[50]; //+
-  bool connectedSocket[10]; //+
-  int connectedClients; //+
-  unsigned long socketTime; //+
-  int tempOffset; //+
-  bool webAuth; //+
-  char webUser[50]; //+
-  char webPass[50]; //+
-  bool disableLedUSB; //+
-  bool disableLedPwr; //+
-  // bool disablePingCtrl;
-  bool disableLeds; //+
-  WORK_MODE_t coordinator_mode;  //+
-  WORK_MODE_t prevCoordinator_mode; // for button  //+
-  bool keepWeb; //+
-  bool apStarted;  //+
-  bool wifiWebSetupInProgress;
-  bool fwEnabled; //+
-  IPAddress fwIp; //+
-
-  bool zbLedState; //+
-  bool zbFlashing; //+
-  char timeZone[50]; //+
-};*/
-/*
-struct MqttSettingsStruct
-{
-  bool enable;
-  bool connect = 0;
-  char server[50];
-  IPAddress serverIP;
-  int port;
-  char user[50];
-  char pass[50];
-  char topic[50];
-  // bool retain;
-  int interval;
-  bool discovery;
-  unsigned long reconnectTime;
-  unsigned long heartbeatTime;
-};*/
-/*
-struct WgSettingsStruct
-{
-  bool enable;
-  bool init = 0;
-  char localAddr[16];
-  IPAddress localIP;
-  char localPrivKey[45];
-  char endAddr[45];
-  char endPubKey[45];
-  int endPort;
-};*/
 
 struct zbVerStruct
 {
@@ -288,6 +243,7 @@ typedef CircularBuffer<char, 8024> LogConsoleType;
 // #define WL_MAC_ADDR_LENGTH 6
 
 void initNVS();
+void getNvsStats(int *total, int *used);
 void printNVSFreeSpace();
 void eraseNVS();
 String makeJsonConfig(const NetworkConfigStruct *networkCfg = nullptr,
@@ -307,8 +263,23 @@ bool loadFileConfigSecurity();
 bool loadFileConfigSerial();
 bool loadFileConfigMqtt();
 bool loadFileConfigWg();
-// IPAddress parse_ip_address(const char *str);
 /* Previous firmware read config support. end */
+
+/* ----- Define functions | START -----*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+  uint8_t temprature_sens_read();
+#ifdef __cplusplus
+}
+#endif
+uint8_t temprature_sens_read();
+
+#define STRINGIFY(s) STRINGIFY1(s) // Don’t ask why. It has to do with the inner workings of the preprocessor.
+#define STRINGIFY1(s) #s           // https://community.platformio.org/t/how-to-put-a-string-in-a-define-in-build-flag-into-a-libary-json-file/13480/6
+
+// #define min(a, b) ((a) < (b) ? (a) : (b))
 
 #ifdef DEBUG
 #define DEBUG_PRINT(x) Serial.print(String(x))
@@ -332,4 +303,33 @@ bool loadFileConfigWg();
 #define LOGE(f_, ...)
 #define LOGI(f_, ...)
 #endif
+
 #endif
+
+/* ----- Define functions | END -----*/
+
+enum LEDMode
+{
+  LED_OFF,
+  LED_ON,
+  LED_TOGGLE,
+  LED_BLINK_5T,
+  LED_BLINK_1T,
+  LED_BLINK_1Hz,
+  LED_BLINK_3Hz,
+  LED_FLASH_1Hz,
+  LED_FLASH_3Hz
+};
+
+struct LEDSettings
+{
+  String name = "";
+  int pin = -1;
+  LEDMode mode;
+  bool active;
+};
+
+struct LEDControl {
+    LEDSettings modeLED;
+    LEDSettings powerLED;
+};
