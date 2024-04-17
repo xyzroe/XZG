@@ -27,8 +27,8 @@ def create_header_file(cpp_filename, h_filename):
         print("No const found !")
 
 
-KEYS_CPP = "keys.cpp"
-KEYS_H = "keys.h"
+KEYS_CPP = "const/keys.cpp"
+KEYS_H = "const/keys.h"
 
 if os.environ.get("PLATFORMIO_INCLUDE_DIR") is not None:
     KEYS_CPP = (

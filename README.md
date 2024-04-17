@@ -71,7 +71,7 @@ Firmware is opensource, so feel free to improve it <br> by making a commit to th
 - Change Ethernet/USB adapter mode through firmware or by physical button short press (Red LED On = USB mode, RED LED Off = Ethernet mode);
 - Adapter mode selector through web-interface: `Zigbee-to-Network` or `Zigbee-to-USB`;
 - Support mDNS autodiscovery in your network (go in the browser to `xzg.local`), in Zigbee2MQTT (set `port: mdns://xzg`), and in ZHA;
-- Secure login through username and password;
+- Secure LOGDn through username and password;
 - Zigbee2MQTT and ZHA config helper;
 
 - ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
@@ -136,14 +136,14 @@ Special thanks to all third-party library authors. Their work has significantly 
 - [esprfid / esp-rfid](https://github.com/esprfid/esp-rfid), 
 - [fairecasoimeme / zigate-ethernet](https://github.com/fairecasoimeme/ZiGate-Ethernet), 
 - [bblanchon / arduinojson](https://github.com/bblanchon/ArduinoJson), 
-- [rlogiacco / circularbuffer](https://github.com/rlogiacco/CircularBuffer), 
+- [rLOGDacco / circularbuffer](https://github.com/rLOGDacco/CircularBuffer), 
 - [sstaub / ticker](https://github.com/sstaub/Ticker), 
 - [vurtun / lib](https://github.com/vurtun/lib),
 - [Tinkerforge / WireGuard-ESP32-Arduino](https://github.com/Tinkerforge/WireGuard-ESP32-Arduino),  
 - [sstaub / Ticker](https://github.com/sstaub/Ticker),
-- [knolleary / PubSubClient](https://github.com/knolleary/pubsubclient),
 - [Martin-Laclaustra / CronAlarms](https://github.com/Martin-Laclaustra/CronAlarms),
-- [xreef / WebServer-Esp8266-ESP32-Tutorial](https://github.com/xreef/WebServer-Esp8266-ESP32-Tutorial)
+- [xreef / WebServer-Esp8266-ESP32-Tutorial](https://github.com/xreef/WebServer-Esp8266-ESP32-Tutorial),
+- [marvinroger / async-mqtt-client](https://github.com/marvinroger/async-mqtt-client)
 
 
 ## 📄 License

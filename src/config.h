@@ -81,7 +81,7 @@ struct SysVarsStruct
   bool hwUartSelIs = false;
   bool hwZigbeeIs = false;
 
-  //WORK_MODE_t workMode; // for button  // WORK_MODE_t
+  // WORK_MODE_t workMode; // for button  // WORK_MODE_t
 
   bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
   int connectedClients;
@@ -210,8 +210,8 @@ struct SystemConfigStruct
   char nmStart[6];
   char nmEnd[6];
 
-  //WORK_MODE_t prevWorkMode; // for button // WORK_MODE_t
-  WORK_MODE_t workMode;     // for button  // WORK_MODE_t
+  // WORK_MODE_t prevWorkMode; // for button // WORK_MODE_t
+  WORK_MODE_t workMode; // for button  // WORK_MODE_t
 };
 
 // Function prototypes for SystemConfigStruct
@@ -281,29 +281,47 @@ uint8_t temprature_sens_read();
 
 // #define min(a, b) ((a) < (b) ? (a) : (b))
 
+// Define log levels
+#define LOG_LEVEL_NONE 0
+#define LOG_LEVEL_PROD 1
+#define LOG_LEVEL_DEBUG 2
+
 #ifdef DEBUG
+
+// Set the current logging level here
+#define CURRENT_LOG_LEVEL LOG_LEVEL_DEBUG
+
 #define DEBUG_PRINT(x) Serial.print(String(x))
 #define DEBUG_PRINTLN(x) Serial.println(String(x))
 
-#define LOGE(tag, format, ...) Serial.printf("[%s] " format " (%s:%d)\n", tag, ##__VA_ARGS__, __FILE__, __LINE__)
-#define LOGI(tag, format, ...) Serial.printf("[%s] " format "\n", tag, ##__VA_ARGS__)
-
-/*
-      LOGE("ZB", "%u - %s", 1, "test");
-      LOGI("ZB", "%u - %s", 1, "test");
-
-
-      [ZB] 1 - test (src/main.cpp:1374)
-      [ZB] 1 - test
-*/
-
 #else
+
+// Set the current logging level here
+#define CURRENT_LOG_LEVEL LOG_LEVEL_PROD
+
 #define DEBUG_PRINT(x)
 #define DEBUG_PRINTLN(x)
-#define LOGE(f_, ...)
-#define LOGI(f_, ...)
 #endif
 
+#endif
+
+// Define ANSI color codes
+#define ANSI_COLOR_PURPLE "\x1b[35m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+
+// Conditional logging macros
+#if CURRENT_LOG_LEVEL >= LOG_LEVEL_PROD
+#define LOGP(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] "ANSI_COLOR_RESET ANSI_COLOR_GREEN format ANSI_COLOR_RESET "\n", millis(), __func__, ##__VA_ARGS__)
+#else
+#define LOGP(format, ...) // Nothing
+#endif
+
+#if CURRENT_LOG_LEVEL >= LOG_LEVEL_DEBUG
+#define LOGD(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] "ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#else
+#define LOGD(format, ...) // Nothing
 #endif
 
 /* ----- Define functions | END -----*/
@@ -329,7 +347,8 @@ struct LEDSettings
   bool active;
 };
 
-struct LEDControl {
-    LEDSettings modeLED;
-    LEDSettings powerLED;
+struct LEDControl
+{
+  LEDSettings modeLED;
+  LEDSettings powerLED;
 };

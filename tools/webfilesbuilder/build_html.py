@@ -26,7 +26,7 @@ def build_html():
 
         env.Execute("npm install --silent")
 
-        env.Execute("npx gulp")
+        env.Execute("npx gulp xzg")
 
         print("")
         print("Finish building WEB files")

@@ -2,35 +2,35 @@
     <form class="saveParams" method='POST' action="saveParams">
         <div class="col-12 cardPadding">
             <div class='card'>
-                <div class="card-header fw-bold" data-i18n="pages.vpn.wg.tt"></div>
+                <div class="card-header fw-bold" data-i18n="p.vp.wg.tt"></div>
                 <div class="card-body">
                     <div class='mb-2 form-check form-switch'>
                         <input data-replace="enableWg" id="wgEnable" class='form-check-input' type='checkbox'
                             role="switch" name='wgEnable' onclick="WgInputDsbl(!this.checked)">
-                        <label class='form-check-label' for='wgEnable' data-i18n="common.enable"></label>
+                        <label class='form-check-label' for='wgEnable' data-i18n="c.enable"></label>
                     </div>
                     <div class='mb-2'>
-                        <label for='localAddr' data-i18n="pages.vpn.wg.lip"></label>
+                        <label for='localAddr' data-i18n="p.vp.wg.lip"></label>
                         <input data-replace="wgLocalIP" class='form-control' id='wgLocalIP' type='text'
                             name='wgLocalIP' placeholder="X.X.X.X">
                     </div>
                     <div class='mb-2'>
-                        <label for='localIP' data-i18n="pages.vpn.wg.lpk"></label>
+                        <label for='localIP' data-i18n="p.vp.wg.lpk"></label>
                         <input data-replace="localPrivKeyWg" class='form-control' id='wgLocalPrivKey' type='text'
                             name='wgLocalPrivKey' placeholder="">
                     </div>
                     <div class='mb-2'>
-                        <label for='endAddr' data-i18n="pages.vpn.wg.ea"></label>
+                        <label for='endAddr' data-i18n="p.vp.wg.ea"></label>
                         <input data-replace="wgEndAddr" class='form-control' id='wgEndAddr' type='text' name='wgEndAddr'
                             placeholder="Domain name or IP address">
                     </div>
                     <div class='mb-2'>
-                        <label for='endPubKey' data-i18n="pages.vpn.wg.epk"></label>
+                        <label for='endPubKey' data-i18n="p.vp.wg.epk"></label>
                         <input data-replace="wgEndPubKey" class='form-control' id='wgEndPubKey' type='text'
                             name='wgEndPubKey' placeholder="">
                     </div>
                     <div class='mb-2'>
-                        <label for='endPort' data-i18n="pages.vpn.wg.ep"></label>
+                        <label for='endPort' data-i18n="p.vp.wg.ep"></label>
                         <input data-replace="wgEndPort" class='form-control' id='wgEndPort' type='number'
                             name='wgEndPort' placeholder="12345" min="1" max="65535">
                     </div>
@@ -39,25 +39,25 @@
         </div>
         <div class="col-12 cardPadding" hidden>
             <div class='card'>
-                <div class="card-header fw-bold" data-i18n="pages.vpn.hn.tt"></div>
+                <div class="card-header fw-bold" data-i18n="p.vp.hn.tt"></div>
                 <div class="card-body">
                     <div class='mb-2 form-check form-switch'>
                         <input data-replace="hnEnable" id="hnEnable" class='form-check-input' type='checkbox'
                             role="switch" name='hnEnable' onclick="HnInputDsbl(!this.checked)">
-                        <label class='form-check-label' for='hnEnable' data-i18n="common.enable"></label>
+                        <label class='form-check-label' for='hnEnable' data-i18n="c.enable"></label>
                     </div>
                     <div class='mb-2'>
-                        <label for='joinCode' data-i18n="pages.vpn.hn.jc"></label>
+                        <label for='joinCode' data-i18n="p.vp.hn.jc"></label>
                         <input data-replace="hnJoinCode" class='form-control' id='hnJoinCode' type='text'
                             name='hnJoinCode' placeholder="">
                     </div>
                     <div class='mb-2'>
-                        <label for='hostName' data-i18n="pages.vpn.hn.hn"></label>
+                        <label for='hostName' data-i18n="p.vp.hn.hn"></label>
                         <input data-replace="hnHostName" class='form-control' id='hnHostName' type='text'
                             name='hnHostName' placeholder="Domain name or IP address">
                     </div>
                     <div class='mb-2'>
-                        <label for='dashUrl' data-i18n="pages.vpn.hn.du"></label>
+                        <label for='dashUrl' data-i18n="p.vp.hn.du"></label>
                         <input data-replace="hnDashUrl" class='form-control' id='hnDashUrl' type='text' name='hnDashUrl'
                             placeholder="">
                     </div>
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div class="col-12 d-flex justify-content-center">
-            <button type="submit" class="btn btn-outline-primary col-6" name='save' data-i18n="common.save"></button>
+            <button type="submit" class="btn btn-outline-primary col-6" name='save' data-i18n="c.save"></button>
         </div>
     </form>
 </div>

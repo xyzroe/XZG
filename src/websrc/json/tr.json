@@ -1,8 +1,7 @@
 {
-  "common": {
+  "c": {
     "cancel": "İptal etmek",
     "cc": "Panoya kopyala",
-    "close": "Kapalı",
     "conn": "Bağlı",
     "csp": "Bağlantı hızı",
     "cst": "Bağlantı durumu",
@@ -21,17 +20,19 @@
     "proj": "❤️ ile tarafından oluşturuldu",
     "save": "Kaydetmek",
     "sure": "Eminim",
-    "time": {
-      "end": "Bitiş zamanı",
-      "start": "Başlangıç ​​saati"
-    },
     "user": "Kullanıcı adı",
     "ok": "TAMAM",
     "connecting": "Bağlanıyor",
     "dis": "Engelli",
     "disconn": "Bağlantı kesildi",
     "en": "Etkinleştirilmiş",
-    "err": "Hata"
+    "err": "Hata",
+    "nc": "Bağlantı yok",
+    "cl": "Kapalı",
+    "t": {
+      "e": "Bitiş zamanı",
+      "s": "Başlangıç ​​saati"
+    }
   },
   "md": {
     "esp": {
@@ -84,7 +85,7 @@
       "tt": "AYARLAR KAYDEDİLDİ"
     }
   },
-  "menu": {
+  "l": {
     "ab": "Hakkında",
     "ge": "Genel",
     "lo": "Çıkış Yap",
@@ -92,12 +93,12 @@
     "ne": "Ağ",
     "se": "Güvenlik",
     "st": "Durum",
-    "tl": "Aletler",
+    "to": "Aletler",
     "vp": "VPN",
     "zi": "Zigbee"
   },
-  "pages": {
-    "general": {
+  "p": {
+    "ge": {
       "desc": "Genel Ayarlar",
       "host": {
         "n": "Ana makine adı",
@@ -134,12 +135,12 @@
         }
       }
     },
-    "login": {
+    "lo": {
       "btn": "Şarkı söyle",
       "lbl": "Lütfen giriş yapın",
       "pt": "Giriş - XZG"
     },
-    "mqtt": {
+    "mq": {
       "broker": {
         "n": "Komisyoncu",
         "ph": "Alan adı veya IP adresi",
@@ -174,9 +175,14 @@
       "user": {
         "ph": "MQTT kullanıcı adı",
         "tt": "Brokerınızın kullanıcı adını girin"
+      },
+      "reconnect": {
+        "n": "Yeniden bağlan",
+        "ph": "Saniye cinsinden yeniden bağlanma aralığı",
+        "tt": "Hızlı bir şekilde girin ve komisyoncuya yeniden bağlanmayı deneyin (saniyeler içinde)"
       }
     },
-    "net": {
+    "ne": {
       "descEth": "Ethernet yapılandırması",
       "descWifi": "Wi-Fi yapılandırması",
       "dhcp": "DHCP",
@@ -196,7 +202,7 @@
         "nnf": "WiFi ağları bulunamadı"
       }
     },
-    "root": {
+    "st": {
       "dic": {
         "cs": "çekirdekler",
         "dm": "Cihaz modeli",
@@ -213,7 +219,10 @@
         "zfv": "Zigbee FW sürümü",
         "zhv": "Zigbee Donanım revizyonu",
         "efte": "harici",
-        "efti": "dahili"
+        "efti": "dahili",
+        "efss": "ESP32 dosya sistemi",
+        "ens": "ESP32 nv depolama",
+        "ent": "girdileri"
       },
       "dsc": {
         "du": "Cihaz Çalışma Süresi",
@@ -242,7 +251,7 @@
         "mcl": "Müşteri"
       }
     },
-    "sec": {
+    "se": {
       "desc": "Güvenlik yapılandırması",
       "fw": {
         "desc": "Soket için IP beyaz listesi",
@@ -253,7 +262,7 @@
         "dis": "Soket bağlandığında web sunucusunu devre dışı bırak"
       }
     },
-    "tools": {
+    "to": {
       "cc": "Konsolu Temizle",
       "cf": "Dosya seçin...",
       "csc": "Çevre birimleri kontrolü",
@@ -289,7 +298,7 @@
       "zfu": "Zigbee dosya güncellemesi",
       "zu": "Zigbee güncellemesi (geliştirilme aşamasında)"
     },
-    "vpn": {
+    "vp": {
       "hn": {
         "du": "Kontrol Paneli URL'si ('varsayılan'ı bırakın)",
         "hn": "Cihazınız için ana bilgisayar adı",
@@ -305,7 +314,7 @@
         "tt": "WireGuard yapılandırması"
       }
     },
-    "zgb": {
+    "zi": {
       "cfg": {
         "alarm": "Görünüşe göre XZG erişim noktası modunda çalışıyor (IP 192.168.1.1). \nEthernet veya Wi-Fi'ye bağlandıktan sonra IP adresi değişecektir, bundan sonra yapılandırmanın yeniden oluşturulması gerekir.",
         "dp": "INSERT_DEVICE_PATCH_HERE",

@@ -233,4 +233,4 @@ const imgTasks = gulp.series(imggz, imgs);
 const htmlTasks = gulp.series(htmlgz, htmls);
 const jsonTasks = gulp.series(jsongz, jsons);
 
-exports.default = gulp.parallel(styleTasks, scriptTasks, fontTasks, imgTasks, htmlTasks, jsonTasks);
+exports.xzg = gulp.parallel(styleTasks, scriptTasks, fontTasks, imgTasks, htmlTasks, jsonTasks);

@@ -1,4 +1,4 @@
-#include "hw.h"
+#include "const/hw.h"
 
 
 BrdConfigStruct brdConfigs[BOARD_CFG_CNT] = {

@@ -1,4 +1,4 @@
-#include "keys.h"
+#include "const/keys.h"
 
 const char *networkConfigKey = "network-config";
 const char *wifiEnblKey = "wifiEnbl";
@@ -40,9 +40,7 @@ const char *topicKey = "topic";
 const char *intervalKey = "interval";
 const char *updateIntKey = "updateInt";
 const char *discoveryKey = "discovery";
-// const char *reconnectTimeKey = "reconnectTime";
 const char *reconnectIntKey = "reconnectInt";
-// const char *heartbeatTimeKey = "heartbeatTime";
 
 const char *systemConfigKey = "system-config";
 const char *keepWebKey = "keepWeb";

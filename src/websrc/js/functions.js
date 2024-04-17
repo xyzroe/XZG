@@ -129,7 +129,7 @@ function identifyLed(event, element, led) {
 	let count = 0;
 	let blinkingText = element.nextElementSibling;
 
-	blinkingText.textContent = i18next.t('pages.tools.ls');
+	blinkingText.textContent = i18next.t('p.to.ls');
 
 	function toggleEmoji() {
 		element.innerHTML = element.innerHTML === offLed ? onLed : offLed;
@@ -159,10 +159,10 @@ function identifyLed(event, element, led) {
 	}
 	if (led > -1) {*/
 	$.get(apiLink + api.actions.API_CMD + "&cmd=14&act=3&led=" + led, function (data) {
-		blinkingText.textContent = i18next.t('pages.tools.lb');
+		blinkingText.textContent = i18next.t('p.to.lb');
 		toggleEmoji();
 	}).fail(function () {
-		alert(i18next.t('common.ercn'));
+		alert(i18next.t('c.ercn'));
 	});
 
 
@@ -284,9 +284,9 @@ function copyCode() {
 function generateConfig(params) {
 	let result;
 	const mist_cfg_txt = `baudrate: ${$("#baud").val()}
-# ${i18next.t('pages.zgb.cfg.dzl')}
+# ${i18next.t('p.zi.cfg.dzl')}
 	disable_led: false
-# ${i18next.t('pages.zgb.cfg.sopm')}
+# ${i18next.t('p.zi.cfg.sopm')}
 advanced:
 	transmit_power: 20`;
 	const ip = window.location.host;
@@ -297,19 +297,19 @@ advanced:
 			result = "socket://" + ip + ":" + port;
 			break;
 		case "z2m":
-			result = `# ${i18next.t('pages.zgb.cfg.ss')}
+			result = `# ${i18next.t('p.zi.cfg.ss')}
 serial:
-# ${i18next.t('pages.zgb.cfg.lxzg')}
+# ${i18next.t('p.zi.cfg.lxzg')}
   port: tcp://${ip}:${port}
   ${mist_cfg_txt}`;
 			break;
 		case "usb":
-			result = `# ${i18next.t('pages.zgb.cfg.ha')}
-# ${i18next.t('pages.zgb.cfg.lin')}
-# ${i18next.t('pages.zgb.cfg.ss')}
+			result = `# ${i18next.t('p.zi.cfg.ha')}
+# ${i18next.t('p.zi.cfg.lin')}
+# ${i18next.t('p.zi.cfg.ss')}
 serial:
-# ${i18next.t('pages.zgb.cfg.lxzg')}
-  port: ${i18next.t('pages.zgb.cfg.dp')}
+# ${i18next.t('p.zi.cfg.lxzg')}
+  port: ${i18next.t('p.zi.cfg.dp')}
   ${mist_cfg_txt}`;
 			break;
 
@@ -510,31 +510,31 @@ function localizeTitle(url) {
 	//console.log(url);
 	switch (url) {
 		case api.pages.API_PAGE_ROOT.str:
-			page_title = i18next.t('menu.st');
+			page_title = i18next.t('l.st');
 			break;
 		case api.pages.API_PAGE_GENERAL.str:
-			page_title = i18next.t('menu.ge');
+			page_title = i18next.t('l.ge');
 			break;
 		case api.pages.API_PAGE_NETWORK.str:
-			page_title = i18next.t('menu.ne');
+			page_title = i18next.t('l.ne');
 			break;
 		case api.pages.API_PAGE_ZIGBEE.str:
-			page_title = i18next.t('menu.zi');
+			page_title = i18next.t('l.zi');
 			break;
 		case api.pages.API_PAGE_MQTT.str:
-			page_title = i18next.t('menu.mq');
+			page_title = i18next.t('l.mq');
 			break;
 		case api.pages.API_PAGE_VPN.str:
-			page_title = i18next.t('menu.vp');
+			page_title = i18next.t('l.vp');
 			break;
 		case api.pages.API_PAGE_SECURITY.str:
-			page_title = i18next.t('menu.se');
+			page_title = i18next.t('l.se');
 			break;
 		case api.pages.API_PAGE_TOOLS.str:
-			page_title = i18next.t('menu.tl');
+			page_title = i18next.t('l.to');
 			break;
 		case api.pages.API_PAGE_ABOUT.str:
-			page_title = i18next.t('menu.ab');
+			page_title = i18next.t('l.ab');
 			break;
 	}
 	$("[data-replace='pageName']").text(page_title);//update page name
@@ -591,7 +591,7 @@ function apiGetPage(page, doneCall, loader = true) {
 						modalConstructor("saveOk");
 					},
 					error: function () {
-						alert(i18next.t('common.erss'));
+						alert(i18next.t('c.erss'));
 					},
 					complete: function () {
 						spiner.remove();
@@ -627,7 +627,7 @@ function apiGetPage(page, doneCall, loader = true) {
 						setTimeout(function (jbtn) {
 							statusFail.remove();
 						}, 1000, jbtn);
-						alert(i18next.t('common.ercn'));
+						alert(i18next.t('c.ercn'));
 					});
 				}
 			});
@@ -848,55 +848,55 @@ function showCardDrawIcon(property, values) {
 
 function updateTooltips() {
 	//console.log("updateTooltips");
-	//title = i18next.t("pages.root.dsc.scc");
+	//title = i18next.t("p.st.dsc.scc");
 	let valueToSet = "";
 	if (updateValues.connectedSocketStatus > 0) {
-		valueToSet = i18next.t('pages.root.dsc.sccy', { count: updateValues.connectedSocketStatus });
+		valueToSet = i18next.t('p.st.dsc.sccy', { count: updateValues.connectedSocketStatus });
 	}
 	else {
-		valueToSet = i18next.t('pages.root.dsc.sccn');
+		valueToSet = i18next.t('p.st.dsc.sccn');
 	}
 	valueToSet = valueToSet + "<br><i>" + getReadableTime(updateValues.uptime - updateValues.connectedSocket) + "</i>"
 	setTitleAndActivateTooltip('socketIcon', '<b>' + valueToSet + '</b>');
 
 	if (updateValues.ethConn) {
-		valueToSet = i18next.t('common.conn');
+		valueToSet = i18next.t('c.conn');
 		valueToSet = valueToSet + "<br><i>" + updateValues.ethIp + "</i>";
 	}
 	else {
-		valueToSet = i18next.t('common.disconn');
+		valueToSet = i18next.t('c.disconn');
 	}
 	setTitleAndActivateTooltip('ethIcon', '<b>' + valueToSet + '</b>');
 
 	if (updateValues.wifiConn) {
-		valueToSet = i18next.t('common.conn');
+		valueToSet = i18next.t('c.conn');
 		valueToSet = valueToSet + "<br><i>" + updateValues.wifiIp + "</i>";
 		valueToSet = valueToSet + "<br>" + updateValues.wifiSsid;
 	}
 	else {
-		valueToSet = i18next.t('common.disconn');
+		valueToSet = i18next.t('c.disconn');
 	}
 	setTitleAndActivateTooltip('wifiIcon', '<b>' + valueToSet + '</b>');
 
 	if (updateValues.mqConnect) {
-		valueToSet = i18next.t('common.conn');
+		valueToSet = i18next.t('c.conn');
 		valueToSet = valueToSet + "<br><i>" + updateValues.mqBroker + "</i>";
 	}
 	else {
-		valueToSet = i18next.t('common.disconn');
+		valueToSet = i18next.t('c.disconn');
 	}
 	setTitleAndActivateTooltip('mqttIcon', '<b>' + valueToSet + '</b>');
 
 	if (updateValues.wgConnect) {
-		valueToSet = i18next.t('common.conn');
+		valueToSet = i18next.t('c.conn');
 		//valueToSet = valueToSet + "<br><i>" + updateValues.wifiIp + "</i>";
 	}
 	else {
-		valueToSet = i18next.t('common.disconn');
+		valueToSet = i18next.t('c.disconn');
 	}
 	setTitleAndActivateTooltip('vpnIcon', '<b>' + valueToSet + '</b>');
 
-	valueToSet = i18next.t('pages.root.dsc.du');
+	valueToSet = i18next.t('p.st.dsc.du');
 	valueToSet = valueToSet + "<br><i>" + getReadableTime(updateValues.uptime) + "</i>";
 	setTitleAndActivateTooltip('clock', '<b>' + valueToSet + '</b>');
 
@@ -946,10 +946,10 @@ function dataReplace(values, navOnly = false) {
 			switch (property) {
 				case "connectedSocketStatus": //clients
 					if (valueToSet) {
-						valueToSet = i18next.t('pages.root.dsc.sccy', { count: valueToSet });
+						valueToSet = i18next.t('p.st.dsc.sccy', { count: valueToSet });
 					}
 					else {
-						valueToSet = i18next.t('pages.root.dsc.sccn');
+						valueToSet = i18next.t('p.st.dsc.sccn');
 					}
 					break;
 				case "espHeapSize":
@@ -958,9 +958,9 @@ function dataReplace(values, navOnly = false) {
 				case "espNvsSize":
 					updateProgressBar("prgNvs", values.espNvsUsed, 0, valueToSet)
 					break;
-					case "espFsSize":
-						updateProgressBar("prgFs", values.espFsUsed, 0, valueToSet)
-						break;
+				case "espFsSize":
+					updateProgressBar("prgFs", values.espFsUsed, 0, valueToSet)
+					break;
 				case "deviceTemp":
 					updateProgressBar("prgTemp", valueToSet, 15, 85)
 					break;
@@ -980,33 +980,35 @@ function dataReplace(values, navOnly = false) {
 					}
 					break;
 				case "espFlashType":
+					updateValues[property] = values[property];
 					switch (valueToSet) {
 						case 1:
-							valueToSet = i18next.t('pages.root.dic.efti');
+							valueToSet = i18next.t('p.st.dic.efti');
 							break;
 						case 2:
-							valueToSet = i18next.t('pages.root.dic.efte');
+							valueToSet = i18next.t('p.st.dic.efte');
 							break;
 					}
 					break;
 
 				case "operationalMode":
+					updateValues[property] = values[property];
 					switch (valueToSet) {
 						case 0:
-							valueToSet = i18next.t('pages.root.dsc.opn');
+							valueToSet = i18next.t('p.st.dsc.opn');
 							break;
 						case 1:
-							valueToSet = i18next.t('pages.root.dsc.opu');
+							valueToSet = i18next.t('p.st.dsc.opu');
 							break;
 					}
 					break;
 				case "ethDhcp":
 				case "wifiDhcp":
 					if (valueToSet) {
-						valueToSet = i18next.t('common.en');
+						valueToSet = i18next.t('c.en');
 					}
 					else {
-						valueToSet = i18next.t('common.dis');
+						valueToSet = i18next.t('c.dis');
 					}
 					break;
 
@@ -1015,10 +1017,10 @@ function dataReplace(values, navOnly = false) {
 				case "mqConnect":
 				case "wgConnect":
 					if (valueToSet) {
-						valueToSet = i18next.t('common.conn');
+						valueToSet = i18next.t('c.conn');
 					}
 					else {
-						valueToSet = i18next.t('common.disconn');
+						valueToSet = i18next.t('c.disconn');
 					}
 
 					break;
@@ -1026,13 +1028,13 @@ function dataReplace(values, navOnly = false) {
 				case "wifiMode":
 					switch (valueToSet) {
 						case 0: // Error
-							valueToSet = i18next.t('common.err');
+							valueToSet = i18next.t('c.err');
 							break;
 						case 1:
-							valueToSet = i18next.t('pages.root.wc.mcl');
+							valueToSet = i18next.t('p.st.wc.mcl');
 							break;
 						case 2:
-							valueToSet = i18next.t('pages.root.wc.map');
+							valueToSet = i18next.t('p.st.wc.map');
 							break;
 					}
 					break;
@@ -1040,13 +1042,13 @@ function dataReplace(values, navOnly = false) {
 				case "wifiConn": //rename to wifiStatus
 					switch (valueToSet) {
 						case 0: // Error
-							valueToSet = i18next.t('common.err');
+							valueToSet = i18next.t('c.err');
 							break;
 						case 1: // Connecting / Not Started
-							valueToSet = i18next.t('common.connecting');
+							valueToSet = i18next.t('c.connecting');
 							break;
 						case 2: // Connected / Started
-							valueToSet = i18next.t('common.conn');
+							valueToSet = i18next.t('c.conn');
 							break;
 					}
 					break;
@@ -1054,16 +1056,16 @@ function dataReplace(values, navOnly = false) {
 				case "wgInit":
 				case "hnInit":
 					if (valueToSet) {
-						valueToSet = i18next.t('common.init');
+						valueToSet = i18next.t('c.init');
 					}
 					else {
-						valueToSet = i18next.t('common.err');
+						valueToSet = i18next.t('c.err');
 					}
 					break;
 			}
 
 			if (valueToSet == "noConn") {
-				valueToSet = i18next.t('common.nc');
+				valueToSet = i18next.t('c.nc');
 			}
 
 			switch (elemType) {
@@ -1139,7 +1141,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-danger",
-				text: i18next.t("common.drm"),
+				text: i18next.t("c.drm"),
 				click: function () {
 					$('.toast').toast('hide');
 					localStorage.setItem('update_notify', 1);
@@ -1148,7 +1150,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("common.now"),
+				text: i18next.t("c.now"),
 				click: function () {
 					$('.toast').toast('hide');
 					modalConstructor("flashESP");
@@ -1157,7 +1159,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-success",
-				text: i18next.t("common.ltr"),
+				text: i18next.t("c.ltr"),
 				click: function () {
 					$('.toast').toast('hide');
 
@@ -1180,7 +1182,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-primary",
-				text: i18next.t("common.close"),
+				text: i18next.t("c.cl"),
 				click: function () {
 					$('.toast').toast('hide');
 					localStorage.setItem('beta_feedback', 1);
@@ -1193,7 +1195,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-primary",
-				text: i18next.t("common.close"),
+				text: i18next.t("c.cl"),
 				click: function () {
 					$('.toast').toast('hide');
 				}
@@ -1252,46 +1254,46 @@ function espFlashGitWait(url) {
 
 }
 
+let retryCount = 0;
+const maxRetries = 30;
+
 function updateRootEvents(callback) {
-	var source = new EventSource('/events', { withCredentials: false, timeout: 1000 }); // Установка таймаута в 3 секунды
+	if (retryCount >= maxRetries) {
+		console.log(i18next.t('c.cerp'));
+		alert(i18next.t('c.cerp'));
+		return;
+	}
+
+	var source = new EventSource('/events', { withCredentials: false, timeout: 1000 });
 	console.log("Events try to open");
 
 	source.addEventListener('open', function (e) {
 		console.log("Events Connected");
-		callback(true); // Вызываем callback с аргументом true при успешном подключении
+		callback(true);
+		retryCount = 0;
 	}, false);
 
 	source.addEventListener('error', function (e) {
 		if (e.target.readyState != EventSource.OPEN) {
 			console.log("Events Err. Reconnecting...");
-			// При возникновении ошибки, попробуйте переподключиться через некоторое время
+			retryCount++;
 			setTimeout(function () {
-				updateRootEvents(callback); // Повторно вызываем функцию для повторной попытки подключения
-			}, 2000); // Пауза в 5 секунд перед повторной попыткой подключения
+				source.close();
+				updateRootEvents(callback);
+			}, 1000);
 		}
 	}, false);
-	source.addEventListener('root_update', function (e) {
-		//console.log(e.data);
 
+	source.addEventListener('root_update', function (e) {
 		if (e.data != "finish") {
 			Object.assign(updateValues, JSON.parse(e.data));
-		}
-		else {
-			var navOnly;
-
-			if (window.location.pathname === "/") {
-				navOnly = false;
-			} else {
-				navOnly = true;
-			}
-
+		} else {
+			var navOnly = window.location.pathname != "/";
 			dataReplace(updateValues, navOnly);
 			updateTooltips();
 		}
-
 	});
 }
-
 
 function ESPfwStartEvents(callback) {
 	var source = new EventSource('/events', { withCredentials: false, timeout: 500 }); // Установка таймаута в 3 секунды
@@ -1541,7 +1543,7 @@ function modalConstructor(type, params) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-primary",
-				text: i18next.t('common.cancel'),
+				text: i18next.t('c.cancel'),
 				click: function () {
 					closeModal();
 				}
@@ -1549,7 +1551,7 @@ function modalConstructor(type, params) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t('common.sure'),
+				text: i18next.t('c.sure'),
 				title: i18next.t("md.esp.fu.wm"),
 				click: function () {
 					//$.get(apiLink + api.actions.API_CMD + "&cmd=13&conf=1", function () {
@@ -1703,7 +1705,7 @@ function modalConstructor(type, params) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-success",
-				text: i18next.t('common.cancel'),
+				text: i18next.t('c.cancel'),
 				click: function () {
 					closeModal();
 				}
@@ -1711,7 +1713,7 @@ function modalConstructor(type, params) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-danger",
-				text: i18next.t('common.sure'),
+				text: i18next.t('c.sure'),
 				click: function () {
 					$.get(apiLink + api.actions.API_CMD + "&cmd=13&conf=1", function () {
 					});
@@ -1751,8 +1753,8 @@ function modalConstructor(type, params) {
 							modalConstructor("flashESP", downloadLink);
 						},
 						"data-bs-toggle": "tooltip",
-						"title": i18next.t('common.inst') + " " + release.tag_name,
-						"text": i18next.t('common.inst'),
+						"title": i18next.t('c.inst') + " " + release.tag_name,
+						"text": i18next.t('c.inst'),
 						"role": "button"
 					}).css("white-space", "nowrap")
 						.appendTo(buttonAndDownloadsContainer);
@@ -1768,7 +1770,7 @@ function modalConstructor(type, params) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-primary",
-				text: i18next.t('common.close'),
+				text: i18next.t('c.cl'),
 				click: function () {
 					closeModal();
 				}
@@ -1811,7 +1813,7 @@ function modalConstructor(type, params) {
 				$('<button>', {
 					type: "button",
 					"class": "btn btn-warning",
-					text: i18next.t('common.close'),
+					text: i18next.t('c.cl'),
 					click: function () {
 						closeModal();
 					}
@@ -1838,7 +1840,7 @@ function modalConstructor(type, params) {
 									espReboot();
 									clearInterval(getWifiIp);
 									setTimeout(() => {//5sec for reboot
-										$(".modal-body").html(`<span style="color: green">${i18next.t('common.conn')}!</span><br>${i18next.t('md.esp.ws.nip', { ip: data.ip })}`);
+										$(".modal-body").html(`<span style="color: green">${i18next.t('c.conn')}!</span><br>${i18next.t('md.esp.ws.nip', { ip: data.ip })}`);
 										$(modalBtns).html("");
 										$('<button>', {
 											type: "button",
@@ -1860,7 +1862,7 @@ function modalConstructor(type, params) {
 							$('<button>', {
 								type: "button",
 								"class": "btn btn-success",
-								text: i18next.t('common.close'),
+								text: i18next.t('c.cl'),
 								click: function () {
 									closeModal();
 								}
@@ -1907,12 +1909,12 @@ function modalConstructor(type, params) {
 			});
 			break;
 		case "keepWeb":
-			$(headerText).text(i18next.t('pages.general.kw'));
+			$(headerText).text(i18next.t('p.ge.kw'));
 			$(modalBody).text(i18next.t('md.kw.msg'));
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-primary",
-				text: i18next.t('common.ok'),
+				text: i18next.t('c.ok'),
 				click: function () {
 					closeModal();
 				}
@@ -1938,7 +1940,7 @@ function getWifiList() {
 			$.get(apiLink + api.actions.API_WIFISCANSTATUS, function (data) {
 				if (!data.scanDone) return;
 				if (!data.wifi) {
-					alert(i18next.t('pages.net.wifi.nnf'));
+					alert(i18next.t('p.ne.wifi.nnf'));
 				} else {
 					if (data.wifi.length > 0) {
 						data.wifi.forEach((elem) => {
@@ -2111,6 +2113,7 @@ function MqttInputDsbl(state) {
 	$("#MqttTopic").prop(disbl, state);
 	$("#MqttInterval").prop(disbl, state);
 	$("#MqttDiscovery").prop(disbl, state);
+	$("#mqttReconnect").prop(disbl, state);
 	//$('#div_show4').toggle(this.checked);
 }
 

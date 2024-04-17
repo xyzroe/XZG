@@ -1,5 +1,5 @@
 {
-  "menu": {
+  "l": {
     "st": "Status",
     "ge": "General",
     "ne": "Network",
@@ -7,111 +7,12 @@
     "mq": "MQTT",
     "vp": "VPN",
     "se": "Security",
-    "tl": "Tools",
+    "to": "Tools",
     "ab": "About",
     "lo": "Logout"
   },
-  "pages": {
-    "general": {
-      "desc": "General settings",
-      "host": {
-        "n": "Hostname",
-        "ph": "Access device over network using this name.local",
-        "tt": "Latin letters and numbers, no spaces"
-      },
-      "refresh": {
-        "n": "Web refresh interval",
-        "ph": "in seconds",
-        "tt": "?"
-      },
-      "work": {
-        "mode": {
-          "desc": "Select the device operating mode",
-          "net": "NETWORK mode",
-          "usb": "USB mode"
-        }
-      },
-      "kw": "Keep network & web server",
-      "led": {
-        "desc": "LED config",
-        "dis": "Full disable",
-        "pwr": "Power LED",
-        "mode": "Work mode LED",
-        "night": "Night mode - time based LEDs control"
-      },
-      "ntp": {
-        "desc": "NTP config",
-        "zone": "Timezone",
-        "server": {
-          "n": "NTP server",
-          "ph": "pool.ntp.org",
-          "tt": "Enter valid domain name"
-        }
-      }
-    },
-    "login": {
-      "pt": "Login - XZG",
-      "lbl": "Please sign in",
-      "btn": "Sing in"
-    },
-    "mqtt": {
-      "enb": "Enable this to activate MQTT",
-      "desc": "MQTT config",
-      "broker": {
-        "n": "Broker",
-        "ph": "Domain name or IP address",
-        "tt": "Enter valid domain or IP"
-      },
-      "port": {
-        "n": "Port",
-        "ph": "MQTT port number",
-        "tt": "Enter the port number (usually 1883)"
-      },
-      "topic": {
-        "n": "Topic",
-        "ph": "MQTT topic",
-        "tt": "Enter the MQTT topic of device X/Y/Z or X/Y or X. No spaces."
-      },
-      "interval": {
-        "n": "Interval",
-        "ph": "Update interval in seconds",
-        "tt": "Enter how often to send updates (in seconds)"
-      },
-      "disc": {
-        "n": "Home Assistant - Auto Discovery",
-        "ph": "Enable or disable",
-        "tt": "💡 Enable this for Home Assistant's MQTT discovery feature"
-      },
-      "user": {
-        "ph": "MQTT username",
-        "tt": "Enter username from your broker"
-      },
-      "pass": {
-        "ph": "MQTT password",
-        "tt": "Enter password from your broker"
-      }
-    },
-    "net": {
-      "descEth": "Ethernet config",
-      "dhcp": "DHCP",
-      "ip": "IP",
-      "mask": "Mask",
-      "gw": "Gateway",
-      "dns": "DNS server",
-      "descWifi": "Wi-Fi config",
-      "wifi": {
-        "btn": {
-          "scan": "Scan for Wi-Fi networks",
-          "man": "Enter manually"
-        },
-        "rssi": "RSSI",
-        "ssid": "SSID",
-        "sc": "Security",
-        "ch": "Channel",
-        "nnf": "WiFi networks not found"
-      }
-    },
-    "root": {
+  "p": {
+    "st": {
       "dsc": {
         "tt": "Device status",
         "op": "Operational mode",
@@ -160,7 +61,139 @@
         "map": "AP"
       }
     },
-    "sec": {
+    "ge": {
+      "desc": "General settings",
+      "host": {
+        "n": "Hostname",
+        "ph": "Access device over network using this name.local",
+        "tt": "Latin letters and numbers, no spaces"
+      },
+      "refresh": {
+        "n": "Web refresh interval",
+        "ph": "in seconds",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Select the device operating mode",
+          "net": "NETWORK mode",
+          "usb": "USB mode"
+        }
+      },
+      "kw": "Keep network & web server",
+      "led": {
+        "desc": "LED config",
+        "dis": "Full disable",
+        "pwr": "Power LED",
+        "mode": "Work mode LED",
+        "night": "Night mode - time based LEDs control"
+      },
+      "ntp": {
+        "desc": "NTP config",
+        "zone": "Timezone",
+        "server": {
+          "n": "NTP server",
+          "ph": "pool.ntp.org",
+          "tt": "Enter valid domain name"
+        }
+      }
+    },
+    "ne": {
+      "descEth": "Ethernet config",
+      "dhcp": "DHCP",
+      "ip": "IP",
+      "mask": "Mask",
+      "gw": "Gateway",
+      "dns": "DNS server",
+      "descWifi": "Wi-Fi config",
+      "wifi": {
+        "btn": {
+          "scan": "Scan for Wi-Fi networks",
+          "man": "Enter manually"
+        },
+        "rssi": "RSSI",
+        "ssid": "SSID",
+        "sc": "Security",
+        "ch": "Channel",
+        "nnf": "WiFi networks not found"
+      }
+    },
+    "zi": {
+      "so": "Serial config",
+      "ss": "Socket Speed",
+      "sp": "Socket Port",
+      "cfg": {
+        "tt": "Config generator",
+        "sel": "Generate config for",
+        "alarm": "It seems that XZG works in access point mode (IP 192.168.1.1). The IP address will change after connecting to ethernet or Wi-Fi, after that the config needs to be generated again.",
+        "ss": "Serial config",
+        "lxzg": "Location of XZG",
+        "dzl": "Disable Zigbee led?",
+        "sopm": "Set output power to max 20",
+        "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
+        "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
+        "dp": "INSERT_DEVICE_PATCH_HERE"
+      }
+    },
+    "mq": {
+      "enb": "Enable this to activate MQTT",
+      "desc": "MQTT config",
+      "broker": {
+        "n": "Broker",
+        "ph": "Domain name or IP address",
+        "tt": "Enter valid domain or IP"
+      },
+      "port": {
+        "n": "Port",
+        "ph": "MQTT port number",
+        "tt": "Enter the port number (usually 1883)"
+      },
+      "topic": {
+        "n": "Topic",
+        "ph": "MQTT topic",
+        "tt": "Enter the MQTT topic of device X/Y/Z or X/Y or X. No spaces."
+      },
+      "interval": {
+        "n": "Interval",
+        "ph": "Update interval in seconds",
+        "tt": "Enter how often to send updates (in seconds)"
+      },
+      "disc": {
+        "n": "Home Assistant - Auto Discovery",
+        "ph": "Enable or disable",
+        "tt": "💡 Enable this for Home Assistant's MQTT discovery feature"
+      },
+      "user": {
+        "ph": "MQTT username",
+        "tt": "Enter username from your broker"
+      },
+      "pass": {
+        "ph": "MQTT password",
+        "tt": "Enter password from your broker"
+      },
+      "reconnect": {
+        "n": "Reconnect",
+        "ph": "Reconnect interval in seconds",
+        "tt": "Enter fast try to reconnect broker (in seconds)"
+      }
+    },
+    "vp": {
+      "wg": {
+        "tt": "WireGuard config",
+        "lip": "IP address of the local interface",
+        "lpk": "Private key of the local interface",
+        "ea": "Address of the endpoint peer",
+        "epk": "Public key of the endpoint peer",
+        "ep": "Port of the endpoint peer"
+      },
+      "hn": {
+        "tt": "Husarnet config (in develope)",
+        "jc": "Join Code for your network",
+        "hn": "Host name for your device",
+        "du": "Dashboard URL (leave 'default')"
+      }
+    },
+    "se": {
       "desc": "Security config",
       "web": {
         "dis": "Disable web server when socket is connected",
@@ -171,7 +204,7 @@
         "ip": "Allowed IP"
       }
     },
-    "tools": {
+    "to": {
       "sc": "System control",
       "fu": "Firmware update",
       "dt": "Debug tools",
@@ -207,58 +240,25 @@
       "zu": "Zigbee update (in develop)",
       "zfu": "Zigbee file update"
     },
-    "vpn": {
-      "wg": {
-        "tt": "WireGuard config",
-        "lip": "IP address of the local interface",
-        "lpk": "Private key of the local interface",
-        "ea": "Address of the endpoint peer",
-        "epk": "Public key of the endpoint peer",
-        "ep": "Port of the endpoint peer"
-      },
-      "hn": {
-        "tt": "Husarnet config (in develope)",
-        "jc": "Join Code for your network",
-        "hn": "Host name for your device",
-        "du": "Dashboard URL (leave 'default')"
-      }
-    },
-    "zgb": {
-      "so": "Serial config",
-      "ss": "Socket Speed",
-      "sp": "Socket Port",
-      "cfg": {
-        "tt": "Config generator",
-        "sel": "Generate config for",
-        "alarm": "It seems that XZG works in access point mode (IP 192.168.1.1). The IP address will change after connecting to ethernet or Wi-Fi, after that the config needs to be generated again.",
-        "ss": "Serial config",
-        "lxzg": "Location of XZG",
-        "dzl": "Disable Zigbee led?",
-        "sopm": "Set output power to max 20",
-        "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
-        "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
-        "dp": "INSERT_DEVICE_PATCH_HERE"
-      }
+    "lo": {
+      "pt": "Login - XZG",
+      "lbl": "Please sign in",
+      "btn": "Sing in"
     }
   },
-  "common": {
+  "c": {
     "user": "Username",
     "pass": "Password",
     "save": "Save",
     "enable": "Enable",
     "en": "Enabled",
     "dis": "Disabled",
-    "close": "Close",
     "cancel": "Cancel",
     "sure": "I'm sure",
     "ltr": "Later",
     "drm": "Don't remind",
     "err": "Error",
     "ok": "OK",
-    "time": {
-      "start": "Start time",
-      "end": "End time"
-    },
     "now": "Install now",
     "mode": "Mode",
     "cst": "Connection status",
@@ -274,7 +274,13 @@
     "erss": "Error saving settings. Check your network",
     "ercn": "Error. Check your network",
     "proj": "Created with ❤️ by",
-    "nc": "No connection"
+    "nc": "No connection",
+    "cl": "Close",
+    "t": {
+      "e": "End time",
+      "s": "Start time"
+    },
+    "cerp": "Events reconnection max retries reached. Refresh page to continue."
   },
   "md": {
     "esp": {

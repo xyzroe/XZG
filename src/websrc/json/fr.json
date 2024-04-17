@@ -1,8 +1,7 @@
 {
-  "common": {
+  "c": {
     "cancel": "Annuler",
     "cc": "Copier dans le presse-papier",
-    "close": "Fermer",
     "conn": "Connecté",
     "csp": "Vitesse de connexion",
     "cst": "Statut de connexion",
@@ -21,17 +20,19 @@
     "proj": "Créé avec ❤️ par",
     "save": "Sauvegarder",
     "sure": "Je suis sûr",
-    "time": {
-      "end": "Heure de fin",
-      "start": "Heure de début"
-    },
     "user": "Nom d'utilisateur",
     "ok": "D'ACCORD",
     "connecting": "De liaison",
     "dis": "Désactivé",
     "disconn": "Débranché",
     "en": "Activé",
-    "err": "Erreur"
+    "err": "Erreur",
+    "nc": "Pas de connection",
+    "cl": "Fermer",
+    "t": {
+      "e": "Heure de fin",
+      "s": "Heure de début"
+    }
   },
   "md": {
     "esp": {
@@ -41,14 +42,14 @@
       },
       "fu": {
         "bil": "Installer le dernier",
-        "fri": "Récupération des informations sur le micrologiciel...",
+        "fri": "Récupération des informations sur le microLOGDciel...",
         "glm": "Mise à jour vers la dernière version de GitHub.",
         "gvm": "Mise à jour vers la version {{ver}} de GitHub.",
         "gvt": "Versions de GitHub",
         "lfm": "Mise à jour à partir d'un fichier local.",
         "lgds": "Téléchargement de la dernière version de GitHub...",
         "prgs": "Mise à jour : {{per}} %",
-        "tt": "MISE À JOUR DU MICROLOGICIEL XZG",
+        "tt": "MISE À JOUR DU MICROLOGDCIEL XZG",
         "ucr": "Mise à jour terminée! \nRedémarrage !",
         "vgds": "Téléchargement de la version {{ver}} depuis GitHub...",
         "wdm": "En attente de l'appareil...",
@@ -84,7 +85,7 @@
       "tt": "PARAMÈTRES SAUVEGARDÉS"
     }
   },
-  "menu": {
+  "l": {
     "ab": "À propos",
     "ge": "Général",
     "lo": "Se déconnecter",
@@ -92,12 +93,12 @@
     "ne": "Réseau",
     "se": "Sécurité",
     "st": "Statut",
-    "tl": "Outils",
+    "to": "Outils",
     "vp": "VPN",
     "zi": "Zigbee"
   },
-  "pages": {
-    "general": {
+  "p": {
+    "ge": {
       "desc": "Réglages généraux",
       "host": {
         "n": "Nom d'hôte",
@@ -134,12 +135,12 @@
         }
       }
     },
-    "login": {
+    "lo": {
       "btn": "Chantez",
       "lbl": "Veuillez vous connecter",
       "pt": "Connexion - XZG"
     },
-    "mqtt": {
+    "mq": {
       "broker": {
         "n": "Courtier",
         "ph": "Nom de domaine ou adresse IP",
@@ -174,9 +175,14 @@
       "user": {
         "ph": "Nom d'utilisateur MQTT",
         "tt": "Entrez le nom d'utilisateur de votre courtier"
+      },
+      "reconnect": {
+        "n": "Reconnecter",
+        "ph": "Intervalle de reconnexion en secondes",
+        "tt": "Entrez rapidement, essayez de reconnecter le courtier (en secondes)"
       }
     },
-    "net": {
+    "ne": {
       "descEth": "Configuration Ethernet",
       "descWifi": "Configuration Wi-Fi",
       "dhcp": "DHCP",
@@ -196,13 +202,13 @@
         "nnf": "Réseaux WiFi introuvables"
       }
     },
-    "root": {
+    "st": {
       "dic": {
         "cs": "noyaux",
         "dm": "Modèle d'appareil",
         "ef": "Processeur ESP32",
         "efs": "Mémoire ESP32",
-        "efv": "Révision du micrologiciel ESP32",
+        "efv": "Révision du microLOGDciel ESP32",
         "ehs": "Tas ESP32",
         "ehv": "Version matérielle ESP32",
         "et": "Température ESP32",
@@ -210,10 +216,13 @@
         "mb": "Mo",
         "mhz": "MHz",
         "tt": "Informations sur l'appareil",
-        "zfv": "Version du micrologiciel Zigbee",
+        "zfv": "Version du microLOGDciel Zigbee",
         "zhv": "Révision du matériel Zigbee",
         "efte": "externe",
-        "efti": "interne"
+        "efti": "interne",
+        "efss": "Système de fichiers ESP32",
+        "ens": "Stockage ESP32 NV",
+        "ent": "entrées"
       },
       "dsc": {
         "du": "Temps de disponibilité de l'appareil",
@@ -242,7 +251,7 @@
         "mcl": "Client"
       }
     },
-    "sec": {
+    "se": {
       "desc": "Configuration de sécurité",
       "fw": {
         "desc": "Liste blanche IP pour le socket",
@@ -253,7 +262,7 @@
         "dis": "Désactiver le serveur Web lorsque le socket est connecté"
       }
     },
-    "tools": {
+    "to": {
       "cc": "Effacer la console",
       "cf": "Choisir le fichier...",
       "csc": "Contrôle des périphériques",
@@ -289,7 +298,7 @@
       "zfu": "Mise à jour du fichier Zigbee",
       "zu": "Mise à jour Zigbee (en développement)"
     },
-    "vpn": {
+    "vp": {
       "hn": {
         "du": "URL du tableau de bord (laisser « par défaut »)",
         "hn": "Nom d'hôte de votre appareil",
@@ -305,7 +314,7 @@
         "tt": "Configuration WireGuard"
       }
     },
-    "zgb": {
+    "zi": {
       "cfg": {
         "alarm": "Il semble que XZG fonctionne en mode point d'accès (IP 192.168.1.1). \nL'adresse IP changera après la connexion à Ethernet ou au Wi-Fi, après quoi la configuration devra être à nouveau générée.",
         "dp": "INSERT_DEVICE_PATCH_HERE",

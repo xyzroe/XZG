@@ -5,8 +5,7 @@
 #include <WebServer.h>
 #include <FS.h>
 #include <LittleFS.h>
-#include <PubSubClient.h>
-#include <esp_task_wdt.h>
+#include <AsyncMqttClient.h>
 
 #include "config.h"
 #include "web.h"
@@ -14,9 +13,7 @@
 #include "etc.h"
 #include "mqtt.h"
 
-// extern struct ConfigSettingsStruct ConfigSettings;
 extern struct zbVerStruct zbVer;
-// extern struct MqttSettingsStruct MqttSettings;
 
 extern struct SystemConfigStruct systemCfg;
 extern struct NetworkConfigStruct networkCfg;
@@ -24,9 +21,9 @@ extern struct MqttConfigStruct mqttCfg;
 
 extern struct SysVarsStruct vars;
 
-WiFiClient clientMqtt;
-
-PubSubClient clientPubSub(clientMqtt);
+AsyncMqttClient mqttClient;
+TimerHandle_t mqttReconnectTimer;
+TimerHandle_t mqttPubStateTimer;
 
 String tagMQTT = "MQTT";
 
@@ -38,243 +35,158 @@ const char *willMessage = "offline";
 
 void mqttConnectSetup()
 {
-    LOGI(tagMQTT, "Try to connect %s:%d", mqttCfg.server, mqttCfg.port);
-    if (strlen(mqttCfg.server) > 0 && mqttCfg.port > 0)
+    LOGD("mqttConnectSetup");
+
+    mqttReconnectTimer = xTimerCreate("mqttReconnectTimer", pdMS_TO_TICKS(mqttCfg.reconnectInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
+    mqttPubStateTimer = xTimerCreate("mqttPubStateTimer", pdMS_TO_TICKS(mqttCfg.updateInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(mqttPublishState));
+    
+    if (mqttReconnectTimer == NULL)
     {
-        clientPubSub.setServer(mqttCfg.server, mqttCfg.port); //
-        LOGI(tagMQTT, "Try to setCallback");
-        clientPubSub.setCallback(mqttCallback);
+        LOGD("Failed to create timer");
     }
     else
     {
-        LOGE(tagMQTT, "Error in config");
+        LOGD("Timer created successfully");
+    }
+    mqttClient.setServer(mqttCfg.server, mqttCfg.port);
+    mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
+
+    mqttClient.onConnect(onMqttConnect);
+    mqttClient.onDisconnect(onMqttDisconnect);
+
+    mqttClient.onMessage(onMqttMessage);
+
+    if (xTimerStart(mqttReconnectTimer, 0) != pdPASS)
+    {
+        LOGD("Failed to start timer");
     }
 }
 
-bool mqttReconnect()
+void connectToMqtt()
 {
-    LOGI(tagMQTT, "Attempting MQTT connection...");
-
-    byte willQoS = 0;
-    String willTopic = String(mqttCfg.topic) + "/avty";
-
-    boolean willRetain = false;
-    //char deviceIdArr[MAX_DEV_ID_LONG];
-    //getDeviceID(deviceIdArr);
-
-    if (clientPubSub.connect(vars.deviceId, mqttCfg.user, mqttCfg.pass, willTopic.c_str(), willQoS, willRetain, willMessage))
-    {
-        vars.mqttReconnectTime = 0;
-        mqttOnConnect();
-        LOGI(tagMQTT, "OK, %d", clientPubSub.state());
-        return true;
-    }
-    else
-    {
-        LOGI(tagMQTT, "failed, rc= %d  try again in %d seconds", clientPubSub.state(), mqttCfg.reconnectInt);
-
-        return false;
-    }
+    Serial.println("Connecting to MQTT...");
+    mqttClient.connect();
 }
 
-void mqttOnConnect()
+void onMqttConnect(bool sessionPresent)
 {
-    //LOGI(tagMQTT, "connected");
-    vars.mqttConn = true;
-    mqttSubscribe("cmd");
-    LOGI(tagMQTT, "mqtt Subscribed");
-    if (mqttCfg.discovery)
-    {
-        mqttPublishDiscovery();
-        LOGI(tagMQTT, "mqtt Published Discovery");
-    }
+    LOGD("Connected to MQTT. Session present: %s", String(sessionPresent).c_str());
 
+    mqttClient.subscribe((String(mqttCfg.topic) + "/cmd").c_str(), 2);
+
+    mqttPublishDiscovery();
+    
     mqttPublishIo("rst_esp", "OFF");
     mqttPublishIo("rst_zig", "OFF");
     mqttPublishIo("enbl_bsl", "OFF");
     mqttPublishIo("socket", "OFF");
-    LOGI(tagMQTT, "mqtt Published IOs");
+    mqttPublishState();
+
     mqttPublishAvail();
-    LOGI(tagMQTT, "mqtt Published Avty");
-    if (mqttCfg.updateInt > 0)
+}
+
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
+{
+    LOGP("Disconnected from MQTT: %d", reason);
+    xTimerStart(mqttReconnectTimer, 0);
+}
+
+void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
+{
+    String topicStr(topic); 
+    if (topicStr.endsWith("/cmd"))
     {
-        mqttPublishState();
-        LOGI(tagMQTT, "mqtt Published State");
+        char json[len + 1];
+        memcpy(json, payload, len);
+        json[len] = '\0';
+
+        DynamicJsonDocument doc(512);
+        deserializeJson(doc, json);
+        const char *command = doc["cmd"];
+
+        LOGD("cmd - %s", String(json));
+
+        if (command)
+        {
+            executeCommand(command);
+        }
     }
 }
 
-void mqttPublishMsg(String topic, String msg, bool retain)
+void executeCommand(const char *command)
 {
-    clientPubSub.beginPublish(topic.c_str(), msg.length(), retain);
-    clientPubSub.print(msg.c_str());
-    clientPubSub.endPublish();
+    LOGD("mqtt cmd - %s", String(command));
+    if (strcmp(command, "rst_esp") == 0)
+    {
+        printLogMsg("ESP restart MQTT");
+        ESP.restart();
+    }
+
+    if (strcmp(command, "rst_zig") == 0)
+    {
+        printLogMsg("Zigbee restart MQTT");
+        zigbeeRestart();
+    }
+
+    if (strcmp(command, "enbl_bsl") == 0)
+    {
+        printLogMsg("Zigbee BSL enable MQTT");
+        zigbeeEnableBSL();
+    }
 }
 
 void mqttPublishAvail()
 {
-    String topic(mqttCfg.topic);
-    topic = topic + "/avty";
-    String mqttBuffer = "online";
-    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
+    String topic = String(mqttCfg.topic) + "/avty";
+    mqttClient.publish(topic.c_str(), 1, true, "online");
+}
+
+void mqttPublishIo(const String &io, const String &state)
+{
+    if (mqttClient.connected())
+    {
+        String topic = String(mqttCfg.topic) + "/io/" + io;
+        LOGD("Pub Io %s at %s", state.c_str(), topic.c_str());
+        mqttClient.publish(topic.c_str(), 0, true, state.c_str());
+    }
 }
 
 void mqttPublishState()
 {
-    String topic(mqttCfg.topic);
-    topic = topic + "/state";
+    String topic = String(mqttCfg.topic) + "/state";
     DynamicJsonDocument root(1024);
+
     String readableTime;
     getReadableTime(readableTime, 0);
     root["uptime"] = readableTime;
 
     float CPUtemp = getCPUtemp();
     root["temperature"] = String(CPUtemp);
-
     root["connections"] = vars.connectedClients;
 
-    if (vars.connectedEther)
-    {
-        if (networkCfg.ethDhcp)
-        {
-            root["ip"] = ETH.localIP().toString();
-        }
-        else
-        {
-            root["ip"] = networkCfg.ethIp;
-        }
-    }
-    else
-    {
-        if (networkCfg.wifiDhcp)
-        {
-            root["ip"] = WiFi.localIP().toString();
-        }
-        else
-        {
-            root["ip"] = networkCfg.wifiIp;
-        }
-    }
-    // if (ConfigSettings.emergencyWifi)
-    //{
-    //     root["emergencyMode"] = "ON";
-    // }
-    // else
-    //{
-    //     root["emergencyMode"] = "OFF";
-    // }
+    String ip = networkCfg.wifiDhcp ? WiFi.localIP().toString() : networkCfg.wifiIp.toString();
+    root["ip"] = ip;
 
     switch (systemCfg.workMode)
     {
     case WORK_MODE_USB:
         root["mode"] = "Zigbee-to-USB";
         break;
-    /*case COORDINATOR_MODE_WIFI:
-        root["mode"] = "Zigbee-to-WiFi";
-        break;*/
     case WORK_MODE_NETWORK:
         root["mode"] = "Zigbee-to-Network";
         break;
-    default:
-        break;
     }
+
     root["zbfw"] = String(zbVer.zbRev);
     root["hostname"] = systemCfg.hostname;
+
     String mqttBuffer;
     serializeJson(root, mqttBuffer);
-    // DEBUG_PRINTLN(mqttBuffer);
-    clientPubSub.publish(topic.c_str(), mqttBuffer.c_str(), true);
-    vars.mqttHeartbeatTime = millis() + (mqttCfg.updateInt * 1000);
-}
 
-void mqttPublishIo(String const &io, String const &state)
-{
-    if (clientPubSub.connected())
-    {
-        String topic(mqttCfg.topic);
-        topic = topic + "/io/" + io;
-        clientPubSub.publish(topic.c_str(), state.c_str(), true);
-    }
-}
+    mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
 
-void mqttCallback(char *topic, byte *payload, unsigned int length)
-{
-    char jjson[length + 1];
-    memcpy(jjson, payload, length);
-    //jjson[length + 1] = '\0';
-    jjson[length] = '\0';
 
-    DynamicJsonDocument jsonBuffer(512);
-
-    deserializeJson(jsonBuffer, jjson);
-
-    const char *command = jsonBuffer["cmd"];
-
-    LOGI(tagMQTT, "mqtt Callback - %s", String(jjson));
-
-    if (command)
-    {
-        LOGI(tagMQTT, "mqtt cmd - %s", String(command));
-        if (strcmp(command, "rst_esp") == 0)
-        {
-            printLogMsg("ESP restart MQTT");
-            ESP.restart();
-        }
-
-        if (strcmp(command, "rst_zig") == 0)
-        {
-            printLogMsg("Zigbee restart MQTT");
-            zigbeeRestart();
-        }
-
-        if (strcmp(command, "enbl_bsl") == 0)
-        {
-            printLogMsg("Zigbee BSL enable MQTT");
-            zigbeeEnableBSL();
-        }
-    }
-    return;
-}
-
-void mqttSubscribe(String topic)
-{
-    String mtopic(mqttCfg.topic);
-    mtopic = mtopic + "/" + topic;
-    clientPubSub.subscribe(mtopic.c_str());
-}
-
-void mqttLoop()
-{
-    if (!clientPubSub.connected())
-    {
-        vars.mqttConn = false;
-        if (vars.mqttReconnectTime == 0)
-        {
-            // mqttReconnect();
-            LOGI(tagMQTT, "Connect in %d seconds", mqttCfg.reconnectInt);
-            vars.mqttReconnectTime = millis() + mqttCfg.reconnectInt*1000;
-        }
-        else
-        {
-            if (vars.mqttReconnectTime <= millis())
-            {
-                bool conn = mqttReconnect();
-                //LOGI(tagMQTT, "mqttReconnect exit with %s", conn ? "true" : "false");
-                vars.mqttReconnectTime = millis() + mqttCfg.reconnectInt*1000;
-            }
-        }
-    }
-    else
-    {
-        clientPubSub.loop();
-        if (mqttCfg.updateInt > 0)
-        {
-            if (vars.mqttHeartbeatTime <= millis())
-            {
-                mqttPublishState();
-            }
-        }
-    }
-    // LOGI(tagMQTT, "loop end");
+    xTimerStart(mqttPubStateTimer, 0);
 }
 
 void mqttPublishDiscovery()
@@ -287,8 +199,8 @@ void mqttPublishDiscovery()
     String mqttBuffer;
 
     DynamicJsonDocument via(150);
-    //char deviceIdArr[MAX_DEV_ID_LONG];
-    //getDeviceID(deviceIdArr);
+    // char deviceIdArr[MAX_DEV_ID_LONG];
+    // getDeviceID(deviceIdArr);
     via["ids"] = String(vars.deviceId);
 
     String sensor_topic = String(homeAssistant) + "/" + String(haSensor) + "/";
@@ -304,8 +216,8 @@ void mqttPublishDiscovery()
         case 0:
         {
             DynamicJsonDocument dev(256);
-            //char deviceIdArr[MAX_DEV_ID_LONG];
-            //getDeviceID(deviceIdArr);
+            // char deviceIdArr[MAX_DEV_ID_LONG];
+            // getDeviceID(deviceIdArr);
 
             dev["ids"] = String(vars.deviceId);
             dev["name"] = systemCfg.hostname;
@@ -480,8 +392,8 @@ void mqttPublishDiscovery()
         if (topic != "error")
         {
             serializeJson(buffJson, mqttBuffer);
-            // DEBUG_PRINTLN(mqttBuffer);
-            mqttPublishMsg(topic, mqttBuffer, true);
+            mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
+
             buffJson.clear();
             mqttBuffer = "";
         }

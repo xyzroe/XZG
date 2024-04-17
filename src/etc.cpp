@@ -13,8 +13,8 @@
 #include "web.h"
 #include "log.h"
 #include "etc.h"
-#include "zones.h"
-// #include "hw.h"
+#include "const/zones.h"
+// #include "const/hw.h"
 #include "zb.h"
 
 #include <WireGuard-ESP32.h>
@@ -283,20 +283,20 @@ void factoryReset()
 {
   String tag = "FactoryReset";
 
-  LOGI(tag, "start");
+  LOGD("start");
 
   ledControl.powerLED.mode = LED_FLASH_3Hz;
   ledControl.modeLED.mode = LED_FLASH_3Hz;
 
   for (uint8_t i = 0; i < 5; i++)
   {
-    LOGI(tag, "%d, sec", 5 - i);
+    LOGD("%d, sec", 5 - i);
     delay(1000);
   }
 
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
-    LOGI(tag, "Error with LITTLEFS");
+    LOGD("Error with LITTLEFS");
   }
   LittleFS.remove(configFileSerial);
   LittleFS.remove(configFileSecurity);
@@ -307,9 +307,9 @@ void factoryReset()
   LittleFS.remove(configFileWg);
   LittleFS.remove(configFileHw);
   LittleFS.remove(configFileMqtt);
-  LOGI(tag, "FS Done");
+  LOGD("FS Done");
   eraseNVS();
-  LOGI(tag, "NVS Done");
+  LOGD("NVS Done");
 
   ledControl.powerLED.mode = LED_OFF;
   ledControl.modeLED.mode = LED_OFF;
@@ -324,7 +324,7 @@ void setClock(void *pvParameters)
 
   const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
 
-  LOGI(tag, "Waiting for NTP time sync: ");
+  LOGD("Waiting for NTP time sync: ");
   unsigned long startTryingTime = millis();
 
   time_t nowSecs = time(nullptr);
@@ -342,7 +342,7 @@ void setClock(void *pvParameters)
   struct tm timeinfo;
   if (localtime_r(&nowSecs, &timeinfo))
   {
-    LOGI(tag, "Current GMT time: %s", String(asctime(&timeinfo)));
+    LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
 
     char *zoneToFind = const_cast<char *>("Europe/Kiev");
     if (systemCfg.timeZone)
@@ -355,20 +355,20 @@ void setClock(void *pvParameters)
 
     if (gmtOffset != nullptr)
     {
-      LOGI(tag, "GMT Offset for %s is %s", zoneToFind, gmtOffset);
+      LOGD("GMT Offset for %s is %s", zoneToFind, gmtOffset);
       timezone = gmtOffset;
       setTimezone(timezone);
     }
     else
     {
-      LOGI(tag, "GMT Offset for %s not found.", zoneToFind);
+      LOGD("GMT Offset for %s not found.", zoneToFind);
     }
 
     setupCron();
   }
   else
   {
-    LOGI(tag, "Failed to get time from NTP server.");
+    LOGD("Failed to get time from NTP server.");
   }
   vTaskDelete(NULL);
 }
@@ -377,7 +377,7 @@ void setLedsDisable(bool all)
 {
   if (vars.hwLedPwrIs || vars.hwLedUsbIs)
   {
-    LOGI("setLedsDisable", "%s", String(all));
+    LOGD("setLedsDisable", "%s", String(all));
     if (all)
     {
       ledControl.powerLED.active = false;
@@ -393,13 +393,13 @@ void setLedsDisable(bool all)
 
 void nmActivate()
 {
-  LOGI("NM", "start");
+  LOGD("NM", "start");
   setLedsDisable(true);
 }
 
 void nmDeactivate()
 {
-  LOGI("NM", "end");
+  LOGD("NM", "end");
   setLedsDisable();
 }
 
@@ -451,8 +451,8 @@ void setupCron()
     char endCron[30];
     strcpy(startCron, convertTimeToCron(String(systemCfg.nmStart)));
     strcpy(endCron, convertTimeToCron(String(systemCfg.nmEnd)));
-    LOGI("cron", "NM start %s", startCron);
-    LOGI("cron", "NM end %s", endCron);
+    LOGD("cron", "NM start %s", startCron);
+    LOGD("cron", "NM end %s", endCron);
 
     Cron.create(const_cast<char *>(startCron), nmActivate, false);
     Cron.create(const_cast<char *>(endCron), nmDeactivate, false);
@@ -462,7 +462,7 @@ void setupCron()
 void setTimezone(String timezone)
 {
   String tag = "TZ";
-  LOGI(tag, "Setting Timezone");
+  LOGD("Setting Timezone");
   setenv("TZ", timezone.c_str(), 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
   tzset();
   time_t nowSecs = time(nullptr);
@@ -471,7 +471,7 @@ void setTimezone(String timezone)
 
   String timeNow = asctime(&timeinfo);
   timeNow.remove(timeNow.length() - 1);
-  LOGI(tag, "Local time: %s", timeNow.c_str());
+  LOGD("Local time: %s", timeNow.c_str());
   printLogMsg("Local time: " + timeNow);
 }
 
@@ -544,12 +544,12 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
 
   if (ETH.begin(brdConfigs[i].eth.addr, brdConfigs[i].eth.pwrPin, brdConfigs[i].eth.mdcPin, brdConfigs[i].eth.mdiPin, brdConfigs[i].eth.phyType, brdConfigs[i].eth.clkMode, brdConfigs[i].eth.pwrAltPin))
   {
-    LOGI(tag, "Config found: %s", brdConfigs[i].board);
+    LOGD("Config found: %s", brdConfigs[i].board);
     brdOk = true;
 
     if (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0)
     {
-      LOGI(tag, "Zigbee pins OK. Try to connect...");
+      LOGD("Zigbee pins OK. Try to connect...");
       esp_task_wdt_reset();
       Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, brdConfigs[i].zb.rxPin, brdConfigs[i].zb.txPin); // start zigbee serial
 
@@ -557,12 +557,12 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
       int BSL_MODE = 0;
       if (zbInit(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_MODE))
       {
-        LOGI(tag, "Zigbee find - OK");
+        LOGD("Zigbee find - OK");
         brdOk = true;
       }
       else
       {
-        LOGE(tag, "Zigbee find - ERROR");
+        LOGP("Zigbee find - ERROR");
         brdOk = false;
       }
     }
@@ -573,12 +573,12 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
   }
   else
   {
-    LOGE(tag, "Config error with: %s", brdConfigs[i].board);
+    LOGP("Config error with: %s", brdConfigs[i].board);
     DynamicJsonDocument config(300);
     config["searchId"] = i + 1;
     writeDefaultConfig(configFileHw, config);
 
-    LOGI(tag, "Restarting...");
+    LOGD("Restarting...");
 
     delay(500);
     ESP.restart();
@@ -688,14 +688,14 @@ void wgLoop()
     {
       if (vars.vpnWgCheckTime <= millis())
       {
-        // LOGI(tag, "check");
+        // LOGD("check");
         vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
         if (wg.is_peer_up(&lwip_ip, &localport))
         {
           vars.vpnWgPeerIp = (lwip_ip.u_addr.ip4.addr);
           if (!vars.vpnWgConnect)
           {
-            LOGI(tag, "Peer with IP %s connect", vars.vpnWgPeerIp.toString().c_str());
+            LOGD("Peer with IP %s connect", vars.vpnWgPeerIp.toString().c_str());
           }
           vars.vpnWgConnect = true;
         }
@@ -703,7 +703,7 @@ void wgLoop()
         {
           if (vars.vpnWgConnect)
           {
-            LOGI(tag, "Peer disconnect");
+            LOGD("Peer disconnect");
           }
           vars.vpnWgPeerIp.clear();
           vars.vpnWgConnect = false;
@@ -735,7 +735,7 @@ void ledTask(void *parameter)
   // String tag = "ledTask";
   while (1)
   {
-    // LOGI(tag, "%d | led %s | m %d", millis(), led->name, led->mode);
+    // LOGD("%d | led %s | m %d", millis(), led->name, led->mode);
     if (led->pin == -1)
       continue;
     if (!led->active)

@@ -52,8 +52,10 @@ jobs:
         id: get_commit_message
         run: |
           currentTag=${GITHUB_REF#refs/tags/}
-          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/$currentTag/total)%0A"
-          commitMessage=$(git log -1 --pretty=%B | tail -n +3)
+          badgeText=`![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/$currentTag/total}
+          
+          `
+          commitMessage=$(git log -1 --pretty=%B | tail -n +2)
           fullCommitMessage="$badgeText$commitMessage"
           echo "commitMessage<<EOF" >> $GITHUB_ENV
           echo "$fullCommitMessage" >> $GITHUB_ENV

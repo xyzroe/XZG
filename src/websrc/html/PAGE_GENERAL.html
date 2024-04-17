@@ -2,24 +2,24 @@
     <form class="saveParams" method='POST' action="saveParams">
         <div class="col-12 cardPadding">
             <div class="card">
-                <div class="card-header fw-bold" data-i18n="pages.general.desc"></div>
+                <div class="card-header fw-bold" data-i18n="p.ge.desc"></div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12 col-md-6 mb-3">
                             <div class="row">
                                 <div class='mb-2'>
-                                    <label for="hostname" data-i18n="pages.general.host.n"></label>
+                                    <label for="hostname" data-i18n="p.ge.host.n"></label>
                                     <input data-replace="hostname" class="form-control" id="hostname" type="text"
                                         name="hostname" minlength="3" maxlength="50"
                                         pattern="^[a-zA-Z0-9]+([\-]?[a-zA-Z0-9]+)*$"
-                                        data-i18n="pages.general.host.ph[placeholder];pages.general.host.tt[title]"
+                                        data-i18n="p.ge.host.ph[placeholder];p.ge.host.tt[title]"
                                         required>
                                 </div>
                                 <div class='mb-2'>
-                                    <label for="refreshLogs" data-i18n="pages.general.refresh.n"></label>
+                                    <label for="refreshLogs" data-i18n="p.ge.refresh.n"></label>
                                     <input data-replace="refreshLogs" class='form-control' id="refreshLogs"
                                         type="number" name="refreshLogs" min="1" max="30" step="1"
-                                        data-i18n="pages.general.refresh.ph[placeholder];pages.general.refresh.tt[title]"
+                                        data-i18n="p.ge.refresh.ph[placeholder];p.ge.refresh.tt[title]"
                                         required>
                                 </div>
                             </div>
@@ -27,24 +27,24 @@
                         <div class="col-sm-12 col-md-6 mb-3" id="modeSelCard" hidden>
                             <div class="row">
                                 <div class="col-sm-12 mb-3" onclick="KeepWebDsbl(!$('#usbMode').prop('checked'))">
-                                    <span data-i18n="pages.general.work.mode.desc"></span>
+                                    <span data-i18n="p.ge.work.mode.desc"></span>
                                     <div class="form-check">
                                         <input data-replace="checkedLanMode" class="form-check-input" type="radio"
                                             name="coordMode" id="lanMode" value="0">
                                         <label class="form-check-label" for="lanMode"
-                                            data-i18n="pages.general.work.mode.net"></label>
+                                            data-i18n="p.ge.work.mode.net"></label>
                                     </div>
                                     <div class="form-check">
                                         <input data-replace="checkedUsbMode" class="form-check-input" type="radio"
                                             name="coordMode" id="usbMode" value="2">
                                         <label class="form-check-label" for="usbMode"
-                                            data-i18n="pages.general.work.mode.usb"></label>
+                                            data-i18n="p.ge.work.mode.usb"></label>
                                     </div>
                                     <div class="form-check form-check-inline me-1">
                                         <input class="form-check-input" type="checkbox" id="keepWeb" name="keepWeb"
                                             data-replace="keepWeb">
                                         <label class="form-check-label" for="keepWeb"
-                                            data-i18n="pages.general.kw"></label>
+                                            data-i18n="p.ge.kw"></label>
                                     </div>
                                     <div class="form-check form-check-inline ps-0">
                                         <button type="button" onclick="modalConstructor('keepWeb');"
@@ -61,17 +61,17 @@
 
         <div class="col-12 cardPadding" id="ledsCard" hidden>
             <div class="card">
-                <div class="card-header fw-bold" data-i18n="pages.general.led.desc"></div>
+                <div class="card-header fw-bold" data-i18n="p.ge.led.desc"></div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12 col-md-6 mb-3">
                             <div class="row">
-                                <span data-i18n="pages.general.led.dis"></span>
+                                <span data-i18n="p.ge.led.dis"></span>
                                 <div class="form-check pt-2 two_cols_checkbox">
                                     <input data-replace="checkedDisableLedPwr" class="form-check-input"
                                         id="disableLedPwr" type="checkbox" name="disableLedPwr">
                                     <label class="form-check-label" for="disableLedPwr"
-                                        data-i18n="pages.general.led.pwr"></label>
+                                        data-i18n="p.ge.led.pwr"></label>
                                     <label><a href="" onclick="identifyLed(event, this, 0);" data-bs-toggle="tooltip"
                                             title="Identify power LED" style="text-decoration: none;margin: 0.5em;"> 💡
                                         </a>
@@ -82,7 +82,7 @@
                                     <input data-replace="checkedDisableLedUSB" class="form-check-input"
                                         id="disableLedUSB" type="checkbox" name="disableLedUSB">
                                     <label class="form-check-label" for="disableLedUSB"
-                                        data-i18n="pages.general.led.mode"></label>
+                                        data-i18n="p.ge.led.mode"></label>
                                     <label><a href="" onclick="identifyLed(event, this, 1);" data-bs-toggle="tooltip"
                                             title="Identify work mode LED" style="text-decoration: none;margin: 0.5em;">
                                             💡
@@ -95,11 +95,11 @@
 
                         <div class="col-sm-12 col-md-6 mb-3">
                             <div class="row">
-                                <span data-i18n="pages.general.led.night"></span>
+                                <span data-i18n="p.ge.led.night"></span>
                                 <div class='form-check pt-2 form-switch two_cols_switch'>
                                     <input class='form-check-input' id='nightMode' type='checkbox' role="switch"
                                         name='nightMode' data-replace="nightMode">
-                                    <label class='form-check-label' for='nightMode' data-i18n="common.enable"></label>
+                                    <label class='form-check-label' for='nightMode' data-i18n="c.enable"></label>
                                 </div>
                                 <div class="container">
                                     <div class="row align-items-center mt-3">
@@ -108,7 +108,7 @@
                                                 data-replace="startHour" />
                                         </div>
                                         <div class="col-6">
-                                            <label for="startHour" data-i18n="common.time.start"></label>
+                                            <label for="startHour" data-i18n="c.t.s"></label>
                                         </div>
                                     </div>
                                     <div class="row align-items-center mt-3">
@@ -117,7 +117,7 @@
                                                 data-replace="endHour" />
                                         </div>
                                         <div class="col-6">
-                                            <label for="endHour" data-i18n="common.time.end"></label>
+                                            <label for="endHour" data-i18n="c.t.e"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -129,32 +129,32 @@
         </div>
         <div class="col-12 cardPadding">
             <div class='card'>
-                <div class="card-header fw-bold" data-i18n="pages.general.ntp.desc"></div>
+                <div class="card-header fw-bold" data-i18n="p.ge.ntp.desc"></div>
                 <div class="card-body">
                     <div class='mb-2'>
-                        <label for='timezone' data-i18n="pages.general.ntp.zone"></label>
+                        <label for='timezone' data-i18n="p.ge.ntp.zone"></label>
                         <select data-replace="timeZones" id="timeZoneId" class='form-control' name="timeZoneName">
                         </select>
                     </div>
                     <div class='mb-2'>
-                        <label for="ntpServ1"><span data-i18n="pages.general.ntp.server.n"></span> 1</label>
+                        <label for="ntpServ1"><span data-i18n="p.ge.ntp.server.n"></span> 1</label>
                         <input data-replace="ntpServ1" class="form-control" id="ntpServ1" type="text" name="ntpServ1"
                             pattern="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
-                            data-i18n="pages.general.ntp.server.ph[placeholder];pages.general.ntp.server.tt[title]"
+                            data-i18n="p.ge.ntp.server.ph[placeholder];p.ge.ntp.server.tt[title]"
                             maxlength="50" required>
                     </div>
                     <div class='mb-2'>
-                        <label for="ntpServ2"><span data-i18n="pages.general.ntp.server.n"></span> 2</label>
+                        <label for="ntpServ2"><span data-i18n="p.ge.ntp.server.n"></span> 2</label>
                         <input data-replace="ntpServ2" class="form-control" id="ntpServ2" type="text" name="ntpServ2"
                             pattern="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
-                            data-i18n="pages.general.ntp.server.ph[placeholder];pages.general.ntp.server.tt[title]"
+                            data-i18n="p.ge.ntp.server.ph[placeholder];p.ge.ntp.server.tt[title]"
                             maxlength="50" required>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 d-flex justify-content-center">
-            <button type="submit" class="btn btn-outline-primary col-6" name="save" data-i18n="common.save"></button>
+            <button type="submit" class="btn btn-outline-primary col-6" name="save" data-i18n="c.save"></button>
         </div>
     </form>
 </div>

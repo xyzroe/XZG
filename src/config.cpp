@@ -10,7 +10,7 @@
 #include "config.h"
 #include "etc.h"
 #include "web.h"
-#include "keys.h"
+#include "const/keys.h"
 
 Preferences preferences;
 
@@ -38,23 +38,23 @@ void printNVSFreeSpace()
 {
     int total, used;
     getNvsStats(&total, &used);
-    LOGI(tag, "Total Entries: %d, Used Entries: %d, Free Entries: %d", total, used, (total - used));
+    LOGD("Total Entries: %d, Used Entries: %d, Free Entries: %d", total, used, (total - used));
 }
 
 void eraseNVS()
 {
-    LOGI(tag, "Going to erase NVS. It will factory reset device.");
+    LOGD("Going to erase NVS. It will factory reset device.");
     int timeDelay = 3;
     for (int i = 0; i < timeDelay; i++)
     {
-        LOGI(tag, "%d seconds left..", (timeDelay - i));
+        LOGD("%d seconds left..", (timeDelay - i));
         delay(1000);
     }
-    LOGI(tag, "Erasing NVS. It will factory reset device!");
+    LOGD("Erasing NVS. It will factory reset device!");
     ESP_ERROR_CHECK(nvs_flash_erase());
     esp_err_t ret = nvs_flash_init();
     ESP_ERROR_CHECK(ret);
-    LOGI(tag, "Erase complete!");
+    LOGD("Erase complete!");
 }
 
 void initNVS()
@@ -62,7 +62,7 @@ void initNVS()
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
-        LOGI(tag, "ESP_ERR_NVS_NO_FREE_PAGES || ESP_ERR_NVS_NEW_VERSION_FOUND . DOWNGRADE and BACKUP CONFIG");
+        LOGD("ESP_ERR_NVS_NO_FREE_PAGES || ESP_ERR_NVS_NEW_VERSION_FOUND . DOWNGRADE and BACKUP CONFIG");
         while (true)
         {
             delay(1); // stop any work
@@ -387,15 +387,15 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
 
             if (serverWeb.hasArg(nmStartHourKey))
             {
-                LOGI(tag, "nmStartHourKey %s", String(serverWeb.arg(nmStartHourKey)));
-                //Serial.println(convertTimeToCron(serverWeb.arg(nmStartHourKey)));
+                LOGD("nmStartHourKey %s", String(serverWeb.arg(nmStartHourKey)));
+                // Serial.println(convertTimeToCron(serverWeb.arg(nmStartHourKey)));
                 strncpy(configSys.nmStart, serverWeb.arg(nmStartHourKey).c_str(), sizeof(configSys.nmStart) - 1);
                 configSys.nmStart[sizeof(configSys.nmStart) - 1] = '\0'; // Guarantee a null terminator at the end
             }
             if (serverWeb.hasArg(nmEndHourKey))
             {
-                LOGI(tag, "nmEndHourKey %s", String(serverWeb.arg(nmEndHourKey)));
-                //Serial.println(convertTimeToCron(serverWeb.arg(nmEndHourKey)));
+                LOGD("nmEndHourKey %s", String(serverWeb.arg(nmEndHourKey)));
+                // Serial.println(convertTimeToCron(serverWeb.arg(nmEndHourKey)));
                 strncpy(configSys.nmEnd, serverWeb.arg(nmEndHourKey).c_str(), sizeof(configSys.nmEnd) - 1);
                 configSys.nmEnd[sizeof(configSys.nmEnd) - 1] = '\0'; // Guarantee a null terminator at the end
             }
@@ -581,6 +581,12 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
                 configMqtt.updateInt = serverWeb.arg(MqttIntervalKey).toInt();
             }
 
+            const char *mqttReconnectKey = "mqttReconnect";
+            if (serverWeb.hasArg(mqttReconnectKey))
+            {
+                configMqtt.reconnectInt = serverWeb.arg(mqttReconnectKey).toInt();
+            }
+
             const char *MqttDiscoveryKey = "MqttDiscovery";
             configMqtt.discovery = serverWeb.hasArg(MqttDiscoveryKey) == true;
 
@@ -742,7 +748,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[hwZigbeeIsKey] = vars.hwZigbeeIs;
 
     // Assuming WORK_MODE_t can be directly cast to int for serialization
-   // obj[workModeKey] = static_cast<int>(systemCfg.workMode);
+    // obj[workModeKey] = static_cast<int>(systemCfg.workMode);
 
     // Serializing an array of connectedSocket
     /*JsonArray connectedSocketArray = obj.createNestedArray(connectedSocket);
@@ -828,12 +834,12 @@ bool loadFileConfigHW()
 
     if (hwConfig.board[0] != '\0' && strlen(hwConfig.board) > 0)
     {
-        LOGI(tag, "LOAD - OK");
+        LOGD("LOAD - OK");
         return true;
     }
     else
     {
-        LOGE(tag, "LOAD - ERROR");
+        LOGP("LOAD - ERROR");
 
         int searchId = 0;
         if (config["searchId"])
@@ -843,7 +849,7 @@ bool loadFileConfigHW()
         BrdConfigStruct *newConfig = findBrdConfig(searchId);
         if (newConfig)
         {
-            LOGI(tag, "Find. Saving config");
+            LOGD("Find. Saving config");
 
             DynamicJsonDocument config(512);
             config[board] = newConfig->board;
@@ -864,13 +870,13 @@ bool loadFileConfigHW()
             config[zbBslPin] = newConfig->zb.bslPin;
             writeDefaultConfig(configFileHw, config);
 
-            LOGI(tag, "Calc and save temp offset");
+            LOGD("Calc and save temp offset");
             float CPUtemp = getCPUtemp(true);
             int offset = CPUtemp - 30;
             systemCfg.tempOffset = int(offset);
             saveSystemConfig(systemCfg);
 
-            LOGI(tag, "Restarting...");
+            LOGD("Restarting...");
             ESP.restart();
         }
     }
@@ -888,18 +894,18 @@ void fileReadError(String tag, DeserializationError error, const char *fileName)
     File configFile = LittleFS.open(fileName, FILE_READ);
     if (!configFile)
     {
-        LOGE(tag, "Failed to open file: %s", fileName);
+        LOGP("Failed to open file: %s", fileName);
         return;
     }
     while (configFile.available())
     {
         fileContent += (char)configFile.read();
     }
-    LOGE(tag, "%s - %s - %s", fileName, error.f_str(), fileContent.c_str());
+    LOGP("%s - %s - %s", fileName, error.f_str(), fileContent.c_str());
     configFile.close();
     if (error == DeserializationError::EmptyInput)
     {
-        LOGI(tag, "%s %s", fileName, msg_file_rm);
+        LOGD("%s %s", fileName, msg_file_rm);
         LittleFS.remove(fileName);
     }
 }
@@ -911,7 +917,7 @@ bool loadFileSystemVar()
     File configFile = LittleFS.open(configFileSystem, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileSystem, msg_open_f);
+        LOGD("%s %s", configFileSystem, msg_open_f);
         return false;
     }
 
@@ -928,7 +934,7 @@ bool loadFileSystemVar()
     systemCfg.tempOffset = (int)doc[tempOffsetKey];
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileSystem, msg_file_rm);
+    LOGD("%s %s", configFileSystem, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSystem);
     return true;
@@ -948,7 +954,7 @@ bool loadFileConfigWifi()
     File configFile = LittleFS.open(configFileWifi, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileWifi, msg_open_f);
+        LOGD("%s %s", configFileWifi, msg_open_f);
         return false;
     }
 
@@ -971,7 +977,7 @@ bool loadFileConfigWifi()
     networkCfg.wifiGate.fromString(doc[gw] | "");
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileWifi, msg_file_rm);
+    LOGD("%s %s", configFileWifi, msg_file_rm);
     saveNetworkConfig(networkCfg);
     LittleFS.remove(configFileWifi);
     return true;
@@ -989,7 +995,7 @@ bool loadFileConfigEther()
     File configFile = LittleFS.open(configFileEther, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileEther, msg_open_f);
+        LOGD("%s %s", configFileEther, msg_open_f);
         return false;
     }
 
@@ -1009,7 +1015,7 @@ bool loadFileConfigEther()
     networkCfg.ethGate.fromString(doc[gw] | "");
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileEther, msg_file_rm);
+    LOGD("%s %s", configFileEther, msg_file_rm);
     saveNetworkConfig(networkCfg);
     LittleFS.remove(configFileEther);
     return true;
@@ -1024,7 +1030,7 @@ bool loadFileConfigGeneral()
     File configFile = LittleFS.open(configFileGeneral, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileGeneral, msg_open_f);
+        LOGD("%s %s", configFileGeneral, msg_open_f);
         return false;
     }
 
@@ -1052,9 +1058,9 @@ bool loadFileConfigGeneral()
     strlcpy(systemCfg.hostname, doc[hostnameKey] | "", sizeof(systemCfg.hostname));
 
     systemCfg.workMode = static_cast<WORK_MODE_t>((uint8_t)doc[coordMode]);
-    //systemCfg.prevWorkMode = static_cast<WORK_MODE_t>((uint8_t)doc[prevCoordMode]);
-    // DEBUG_PRINT(F("[loadFileConfigGeneral] 'vars.workMode' res is: "));
-    // DEBUG_PRINTLN(String(vars.workMode));
+    // systemCfg.prevWorkMode = static_cast<WORK_MODE_t>((uint8_t)doc[prevCoordMode]);
+    //  DEBUG_PRINT(F("[loadFileConfigGeneral] 'vars.workMode' res is: "));
+    //  DEBUG_PRINTLN(String(vars.workMode));
 
     systemCfg.disableLedPwr = (uint8_t)doc[disableLedPwrKey];
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLedPwr"));
@@ -1067,7 +1073,7 @@ bool loadFileConfigGeneral()
     strlcpy(systemCfg.timeZone, doc[timeZoneKey] | "", sizeof(systemCfg.timeZone));
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileGeneral, msg_file_rm);
+    LOGD("%s %s", configFileGeneral, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileGeneral);
     return true;
@@ -1080,7 +1086,7 @@ bool loadFileConfigSecurity()
     File configFile = LittleFS.open(configFileSecurity, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileSecurity, msg_open_f);
+        LOGD("%s %s", configFileSecurity, msg_open_f);
         return false;
     }
 
@@ -1102,7 +1108,7 @@ bool loadFileConfigSecurity()
     systemCfg.fwIp.fromString(doc[fwIpKey] | "0.0.0.0");
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileSecurity, msg_file_rm);
+    LOGD("%s %s", configFileSecurity, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSecurity);
     return true;
@@ -1117,7 +1123,7 @@ bool loadFileConfigSerial()
     File configFile = LittleFS.open(configFileSerial, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileSerial, msg_open_f);
+        LOGD("%s %s", configFileSerial, msg_open_f);
         return false;
     }
 
@@ -1135,7 +1141,7 @@ bool loadFileConfigSerial()
     systemCfg.socketPort = (int)doc[portKey];
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileSerial, msg_file_rm);
+    LOGD("%s %s", configFileSerial, msg_file_rm);
     saveSystemConfig(systemCfg);
     LittleFS.remove(configFileSerial);
     return true;
@@ -1148,7 +1154,7 @@ bool loadFileConfigMqtt()
     File configFile = LittleFS.open(configFileMqtt, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileMqtt, msg_open_f);
+        LOGD("%s %s", configFileMqtt, msg_open_f);
         return false;
     }
 
@@ -1170,9 +1176,10 @@ bool loadFileConfigMqtt()
     strlcpy(mqttCfg.topic, doc[topicKey] | "", sizeof(mqttCfg.topic));
     mqttCfg.updateInt = (int)doc[intervalKey];
     mqttCfg.discovery = (int)doc[discoveryKey];
+    mqttCfg.reconnectInt = (int)doc[reconnectIntKey];
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileMqtt, msg_file_rm);
+    LOGD("%s %s", configFileMqtt, msg_file_rm);
     saveMqttConfig(mqttCfg);
     LittleFS.remove(configFileMqtt);
     return true;
@@ -1191,7 +1198,7 @@ bool loadFileConfigWg()
     File configFile = LittleFS.open(configFileWg, FILE_READ);
     if (!configFile)
     {
-        LOGI(tag, "%s %s", configFileWg, msg_open_f);
+        LOGD("%s %s", configFileWg, msg_open_f);
         return false;
     }
 
@@ -1215,7 +1222,7 @@ bool loadFileConfigWg()
     vpnCfg.wgEndPort = (int)doc[endPort];
 
     configFile.close();
-    LOGI(tag, "%s %s", configFileWg, msg_file_rm);
+    LOGD("%s %s", configFileWg, msg_file_rm);
     saveVpnConfig(vpnCfg);
     LittleFS.remove(configFileWg);
     return true;

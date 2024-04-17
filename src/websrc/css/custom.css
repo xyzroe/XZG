@@ -450,8 +450,8 @@ body {
   color: #f39c12;
 }
 
-/*Login page*/
-#loginForm {
+/*LOGDn page*/
+#LOGDnForm {
   display: flex;
   height: 100vh;
   align-items: center;
@@ -504,7 +504,7 @@ body {
   font-size: medium;
 }
 
-/*Login page*/
+/*LOGDn page*/
 
 .two_cols_checkbox {
   padding-left: 2.5rem !important;

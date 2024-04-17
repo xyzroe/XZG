@@ -22,7 +22,7 @@
 #include "mqtt.h"
 #include "zb.h"
 #include "version.h"
-// #include "hw.h"
+// #include "const/hw.h"
 
 #include "esp_system.h"
 #include "esp_task_wdt.h"
@@ -78,21 +78,21 @@ CCTools CCTool(Serial2);
 
 void initLan()
 {
+  String tag = "initLan";
+  LOGD("Some ETH config found. Try to use %s", hwConfig.board);
 
-  DEBUG_PRINT(F("Some ETH config found. Try to use "));
-  DEBUG_PRINTLN(hwConfig.board);
   if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode, hwConfig.eth.pwrAltPin))
   {
-    DEBUG_PRINTLN(F("LAN start ok"));
+     LOGD("LAN start ok");
     if (!networkCfg.ethDhcp)
     {
-      DEBUG_PRINTLN(F("ETH STATIC"));
+      LOGD("ETH STATIC");
       ETH.config(networkCfg.ethIp, networkCfg.ethGate, networkCfg.ethMask, networkCfg.ethDns1, networkCfg.ethDns2);
       // ConfigSettings.disconnectEthTime = millis();
     }
     else
     {
-      DEBUG_PRINTLN(F("ETH DHCP"));
+       LOGD("ETH DHCP");
     }
   }
   else
@@ -326,18 +326,18 @@ void NetworkEvent(WiFiEvent_t event)
   switch (event)
   {
   case ARDUINO_EVENT_ETH_START: // 18: // SYSTEM_EVENT_ETH_START:
-    LOGI(ethKey, "Started");
+    LOGD("%s Started", ethKey);
     // DEBUG_PRINTLN(F("ETH Started"));
     //  ConfigSettings.disconnectEthTime = millis();
     ETH.setHostname(systemCfg.hostname);
     break;
   case ARDUINO_EVENT_ETH_CONNECTED: // 20: // SYSTEM_EVENT_ETH_CONNECTED:
     // DEBUG_PRINTLN(F("ETH Connected"));
-    LOGI(ethKey, "Connected");
+    LOGD("%s Connected", ethKey);
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
 
-    LOGI(ethKey, "MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps",
+    LOGD("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps", ethKey,
          ETH.macAddress().c_str(),
          ETH.localIP().toString().c_str(),
          ETH.subnetMask().toString().c_str(),
@@ -351,7 +351,7 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case ARDUINO_EVENT_ETH_DISCONNECTED: // 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
     // DEBUG_PRINTLN(F("ETH Disconnected"));
-    LOGI(ethKey, "Disconnected");
+    LOGD("%s Disconnected", ethKey);
     vars.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
     if (tmrNetworkOverseer.state() == STOPPED && systemCfg.workMode == WORK_MODE_NETWORK)
@@ -361,7 +361,7 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case SYSTEM_EVENT_ETH_STOP: // 27:
   case ARDUINO_EVENT_ETH_STOP:
-    LOGI(ethKey, "Stopped");
+    LOGD("%s Stopped", ethKey);
     // DEBUG_PRINTLN(F("ETH Stopped"));
     vars.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
@@ -383,7 +383,7 @@ void NetworkEvent(WiFiEvent_t event)
     DEBUG_PRINTLN(WiFi.gatewayIP().toString());
     */
 
-    LOGI(wifiKey, "MAC: %s, IP: %s, Mask: %s, Gw: %s",
+    LOGD("%s MAC: %s, IP: %s, Mask: %s, Gw: %s", wifiKey,
          WiFi.macAddress().c_str(),
          WiFi.localIP().toString().c_str(),
          WiFi.subnetMask().toString().c_str(),
@@ -392,7 +392,7 @@ void NetworkEvent(WiFiEvent_t event)
     // setClock();
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
-    LOGI(wifiKey, "STA DISCONNECTED");
+    LOGD("%s STA DISCONNECTED", wifiKey);
     // DEBUG_PRINTLN(F("WIFI "));
     if (tmrNetworkOverseer.state() == STOPPED)
     {
@@ -407,7 +407,7 @@ void NetworkEvent(WiFiEvent_t event)
 void startAP(const bool start)
 {
   String tag = "sAP";
-  LOGI(tag, "begin s=%d, v=%d", start, vars.apStarted);
+  LOGD("begin s=%d, v=%d", start, vars.apStarted);
 
   if (vars.apStarted)
   {
@@ -432,7 +432,7 @@ void startAP(const bool start)
   {
     if (!start)
       return;
-    LOGI(tag, "WIFI_AP_STA");
+    LOGD("WIFI_AP_STA");
     WiFi.mode(WIFI_AP_STA); // WIFI_AP_STA for possible wifi scan in wifi mode
     WiFi.disconnect();
     // String AP_NameString;
@@ -455,7 +455,7 @@ void startAP(const bool start)
     dnsServer.start(53, "*", apIP);
     WiFi.setSleep(false);
     // ConfigSettings.wifiAPenblTime = millis();
-    LOGI(tag, "startServers()");
+    LOGD("startServers()");
     startServers();
     vars.apStarted = true;
   }
@@ -534,13 +534,13 @@ void mDNS_start()
   if (!MDNS.begin(systemCfg.hostname))
   {
     String msg = "Error setting up MDNS responder!";
-    LOGI(tag, "%s", msg.c_str());
+    LOGD("%s", msg.c_str());
     // printLogMsg(msg);
   }
   else
   {
     String msg = "mDNS responder started";
-    LOGI(tag, "%s", msg.c_str());
+    LOGD("%s", msg.c_str());
     // printLogMsg(msg);
     MDNS.addService(http, tcp, 80); // web
     //--zeroconf zha--
@@ -551,7 +551,7 @@ void mDNS_start()
     MDNS.addServiceTxt(host, tcp, "data_flow_control", "software");
     MDNS.addServiceTxt(host, tcp, "board", String(hwConfig.board));
     // msg = "setup finish";
-    // LOGI(tag, "%s", msg);
+    // LOGD("%s", msg);
   }
 }
 
@@ -582,7 +582,7 @@ void handleLongBtn()
   String tag = "lBTN";
   if (!digitalRead(hwConfig.mist.btnPin))
   {
-    LOGI(tag, "press +, %d s", btnFlag);
+    LOGD("press +, %d s", btnFlag);
 
     btnFlag++;
     if (btnFlag >= 3)
@@ -592,7 +592,7 @@ void handleLongBtn()
   }
   else
   {
-    LOGI(tag, "press -, %d s", btnFlag);
+    LOGD("press -, %d s", btnFlag);
 
     if (btnFlag >= 3)
     {
@@ -624,7 +624,7 @@ void toggleUsbMode()
 {
 
   String tag = "tUSB";
-  LOGI(tag, "start");
+  LOGD("start");
   delay(250);
   if (systemCfg.workMode != WORK_MODE_USB)
   {
@@ -635,7 +635,7 @@ void toggleUsbMode()
     systemCfg.workMode = WORK_MODE_NETWORK;
   }
   saveSystemConfig(systemCfg);
-  LOGI(tag, "Change mode to %s", String(systemCfg.workMode));
+  LOGD("Change mode to %s", String(systemCfg.workMode));
 
   if (vars.hwLedUsbIs)
   {
@@ -652,7 +652,7 @@ void setupCoordinatorMode()
     DEBUG_PRINTLN(F("WRONG MODE DETECTED, set to LAN"));
     systemCfg.workMode = WORK_MODE_NETWORK;
   }
-  LOGI("setupCoordinatorMode", "Mode is: %d", systemCfg.workMode);
+  LOGD("setupCoordinatorMode", "Mode is: %d", systemCfg.workMode);
 
   if (systemCfg.workMode != WORK_MODE_USB || systemCfg.keepWeb)
   { // start network overseer
@@ -730,7 +730,7 @@ void setup()
   loadMqttConfig(mqttCfg);
 
   /*
-  LOGI(tag, "After NVS load config\n");
+  LOGD("After NVS load config\n");
   delay(500);
   printConfig(networkCfg, vpnCfg, mqttCfg, systemCfg);
   */
@@ -738,7 +738,7 @@ void setup()
   // LOAD System vars and create FS / start
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
   {
-    LOGI(tag, "Error with LITTLEFS");
+    LOGD("Error with LITTLEFS");
     return;
   }
 
@@ -767,7 +767,7 @@ void setup()
     ledControl.modeLED.active = true;
     ledControl.modeLED.mode = LED_OFF;
 
-    LOGI(tag, "%d", ledControl.modeLED.mode);
+    LOGD("%d", ledControl.modeLED.mode);
 
     xTaskCreate(ledTask, "MODE LED Task", 2048, &ledControl.modeLED, 6, NULL);
   }
@@ -782,7 +782,7 @@ void setup()
     ledControl.powerLED.active = true;
     ledControl.powerLED.mode = LED_OFF;
 
-    LOGI(tag, "%d", ledControl.powerLED.mode);
+    LOGD("%d", ledControl.powerLED.mode);
 
     xTaskCreate(ledTask, "PWR LED Task", 2048, &ledControl.powerLED, 6, NULL);
   }
@@ -848,7 +848,7 @@ void setup()
   loadFileConfigWg();
   // READ file to support migrate from old firmware
 
-  LOGI(tag, "After full load config");
+  LOGD("After full load config");
   // printConfig(networkCfg, vpnCfg, mqttCfg, systemCfg);
   String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
   DEBUG_PRINTLN(cfg);
@@ -872,7 +872,7 @@ void setup()
   printNVSFreeSpace();
 
   /*
-  LOGI(tag, "Saving config to NVS");
+  LOGD("Saving config to NVS");
   saveNetworkConfig(networkCfg);
   saveVpnConfig(vpnCfg);
   saveMqttConfig(mqttCfg);
@@ -1122,7 +1122,7 @@ void loop(void)
 
     if (mqttCfg.enable)
     {
-      mqttLoop();
+      //mqttLoop();
     }
   }
   if (vpnCfg.wgEnable && vars.vpnWgInit)

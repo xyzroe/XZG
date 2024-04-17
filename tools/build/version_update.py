@@ -10,6 +10,7 @@ VERSION_HEADER = "version.h"
 
 sys.path.append("./tools")
 from func import print_logo
+from func import print_colored
 
 print_logo()
 
@@ -41,4 +42,4 @@ else:
 with open(VERSION_HEADER, "w+") as FILE:
     FILE.write(HEADER_FILE)
 
-print("Build: {}".format(str(get_formatted_date(dateTimeBuild))))
+print_colored("Build: {}".format(str(get_formatted_date(dateTimeBuild))), "magenta")

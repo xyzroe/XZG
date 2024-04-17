@@ -1152,7 +1152,7 @@ class ESPLoader(object):
         # Figure out the crystal frequency from the UART clock divider
         # Returns a normalized value in integer MHz (40 or 26 are the only supported values)
         #
-        # The logic here is:
+        # The LOGDc here is:
         # - We know that our baud rate and the ESP UART baud rate are roughly the same, or we couldn't communicate
         # - We can read the UART clock divider register to know how the ESP derives this from the APB bus frequency
         # - Multiplying these two together gives us the bus frequency which is either the crystal frequency (ESP32)

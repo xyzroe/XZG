@@ -1,8 +1,7 @@
 {
-  "common": {
+  "c": {
     "cancel": "Anulować",
     "cc": "Skopiuj do schowka",
-    "close": "Zamknąć",
     "conn": "Połączony",
     "csp": "Prędkość połączenia",
     "cst": "Status połączenia",
@@ -21,10 +20,6 @@
     "proj": "Utworzono z ❤️ przez",
     "save": "Ratować",
     "sure": "jestem pewien",
-    "time": {
-      "end": "Koniec czasu",
-      "start": "Czas rozpoczęcia"
-    },
     "user": "Nazwa użytkownika",
     "ok": "OK",
     "connecting": "Złączony",
@@ -32,7 +27,12 @@
     "disconn": "Bezładny",
     "en": "Włączony",
     "err": "Błąd",
-    "nc": "Brak połączenia"
+    "nc": "Brak połączenia",
+    "cl": "Zamknąć",
+    "t": {
+      "e": "Koniec czasu",
+      "s": "Czas rozpoczęcia"
+    }
   },
   "md": {
     "esp": {
@@ -85,7 +85,7 @@
       "tt": "USTAWIENIA ZAPISANE"
     }
   },
-  "menu": {
+  "l": {
     "ab": "O",
     "ge": "Ogólny",
     "lo": "Wyloguj",
@@ -93,12 +93,12 @@
     "ne": "Sieć",
     "se": "Bezpieczeństwo",
     "st": "Status",
-    "tl": "Narzędzia",
+    "to": "Narzędzia",
     "vp": "VPN",
     "zi": "Zigbee"
   },
-  "pages": {
-    "general": {
+  "p": {
+    "ge": {
       "desc": "Ustawienia główne",
       "host": {
         "n": "Nazwa hosta",
@@ -135,12 +135,12 @@
         }
       }
     },
-    "login": {
+    "lo": {
       "btn": "Witać śpiewem",
       "lbl": "proszę, zaloguj się",
       "pt": "Zaloguj się - XZG"
     },
-    "mqtt": {
+    "mq": {
       "broker": {
         "n": "Pośrednik",
         "ph": "Nazwa domeny lub adres IP",
@@ -175,9 +175,14 @@
       "user": {
         "ph": "Nazwa użytkownika MQTT",
         "tt": "Wprowadź nazwę użytkownika otrzymaną od brokera"
+      },
+      "reconnect": {
+        "n": "Na nowo połączyć",
+        "ph": "Odstęp ponownego połączenia w sekundach",
+        "tt": "Wprowadź szybką próbę ponownego połączenia z brokerem (w sekundach)"
       }
     },
-    "net": {
+    "ne": {
       "descEth": "Konfiguracja Ethernetu",
       "descWifi": "Konfiguracja Wi-Fi",
       "dhcp": "DHCP",
@@ -197,7 +202,7 @@
         "nnf": "Nie znaleziono sieci Wi-Fi"
       }
     },
-    "root": {
+    "st": {
       "dic": {
         "cs": "rdzenie",
         "dm": "Model urządzenia",
@@ -214,7 +219,10 @@
         "zfv": "Wersja Zigbee FW",
         "zhv": "Wersja sprzętowa Zigbee",
         "efte": "zewnętrzny",
-        "efti": "wewnętrzny"
+        "efti": "wewnętrzny",
+        "efss": "System plików ESP32",
+        "ens": "Pamięć masowa ESP32 nv",
+        "ent": "wpisy"
       },
       "dsc": {
         "du": "Czas pracy urządzenia",
@@ -243,7 +251,7 @@
         "mcl": "Klient"
       }
     },
-    "sec": {
+    "se": {
       "desc": "Konfiguracja zabezpieczeń",
       "fw": {
         "desc": "Biała lista adresów IP dla gniazda",
@@ -254,7 +262,7 @@
         "dis": "Wyłącz serwer WWW, gdy gniazdo jest podłączone"
       }
     },
-    "tools": {
+    "to": {
       "cc": "Wyczyść konsolę",
       "cf": "Wybierz plik...",
       "csc": "Kontrola urządzeń peryferyjnych",
@@ -290,7 +298,7 @@
       "zfu": "Aktualizacja pliku Zigbee",
       "zu": "Aktualizacja Zigbee (w przygotowaniu)"
     },
-    "vpn": {
+    "vp": {
       "hn": {
         "du": "Adres URL panelu kontrolnego (pozostaw „domyślny”)",
         "hn": "Nazwa hosta dla Twojego urządzenia",
@@ -306,7 +314,7 @@
         "tt": "Konfiguracja WireGuarda"
       }
     },
-    "zgb": {
+    "zi": {
       "cfg": {
         "alarm": "Wygląda na to, że XZG działa w trybie punktu dostępowego (IP 192.168.1.1). \nAdres IP zmieni się po podłączeniu do sieci Ethernet lub Wi-Fi, po czym należy ponownie wygenerować konfigurację.",
         "dp": "INSERT_DEVICE_PATCH_HERE",

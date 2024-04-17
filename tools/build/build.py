@@ -11,6 +11,7 @@ import sys
 
 sys.path.append("./tools")
 from func import print_logo
+from func import print_colored
 
 VERSION_HEADER = "version.h"
 
@@ -48,13 +49,13 @@ def after_build(source, target, env):
     shutil.move("bin/firmware.bin", NEW_NAME_OTA)
 
     print("")
-    print("--------------------------------------------------------")
-    print("{} created !".format(str(NEW_NAME_FULL)))
-    print("{} created !".format(str(NEW_NAME_OTA)))
-    print("--------------------------------------------------------")
-    print("")
+    print_colored("--------------------------------------", "yellow")
+    print_colored("{} created !".format(str(NEW_NAME_FULL)), "blue")
+    print_colored("{} created !".format(str(NEW_NAME_OTA)), "magenta")
+    print_colored("--------------------------------------", "yellow")
     print_logo()
-    print("Build " + VERSION_NUMBER)
+    print_colored("Build " + VERSION_NUMBER, "cyan")
+    print("")
 
 env.AddPostAction("buildprog", after_build)
 

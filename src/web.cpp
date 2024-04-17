@@ -15,9 +15,9 @@
 #include "log.h"
 #include "etc.h"
 #include "zb.h"
-#include "zones.h"
-#include "keys.h"
-// #include "hw.h"
+#include "const/zones.h"
+#include "const/keys.h"
+// #include "const/hw.h"
 
 #include "webh/html/PAGE_VPN.html.gz.h"
 #include "webh/html/PAGE_MQTT.html.gz.h"
@@ -122,9 +122,9 @@ void checkFwHexTask(void *param)
     vTaskDelete(NULL);
 }
 
-void redirectLogin(String msg = "")
+void redirectLOGDn(String msg = "")
 {
-    String path = "/login";
+    String path = "/LOGDn";
     if (msg != "")
     {
         path = path + "?msg=" + msg;
@@ -143,7 +143,7 @@ void handleLoader()
     }
     if (!is_authenticated())
     {
-        redirectLogin();
+        redirectLOGDn();
         return;
     }
     sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
@@ -218,11 +218,11 @@ void initWebServer()
     serverWeb.on("/tools", handleLoader);
     serverWeb.on("/mqtt", handleLoader);
     serverWeb.on("/vpn", handleLoader);
-    serverWeb.on("/login", []()
+    serverWeb.on("/LOGDn", []()
                  { if (serverWeb.method() == HTTP_GET) {
-                        handleLoginGet();
+                        handleLOGDnGet();
                     } else if (serverWeb.method() == HTTP_POST) {
-                        handleLoginPost();
+                        handleLOGDnPost();
                     } });
     serverWeb.on("/logout", HTTP_GET, handleLogout);
     /* ----- PAGES | END -----*/
@@ -645,7 +645,7 @@ void handleApi()
 
     if (!is_authenticated())
     {
-        redirectLogin("Need to login");
+        redirectLOGDn("Need to LOGDn");
         return;
     }
 
@@ -681,7 +681,7 @@ void handleApi()
                     delay(25);
                     evWaitCount++;
                 }
-                // sendEvent(tag, eventLen, String("FW Url: ") + fwUrl);
+                // sendEvent(eventLen, String("FW Url: ") + fwUrl);
                 // setClock();
                 HTTPClient https;
                 WiFiClientSecure client;
@@ -689,7 +689,7 @@ void handleApi()
                 https.begin(client, fwUrl); // https://raw.githubusercontent.com/Tarik2142/devHost/main/coordinator_20211217.bin
                 https.addHeader("Content-Type", "application/octet-stream");
                 const int16_t httpsCode = https.GET();
-                // sendEvent(tag, eventLen, String("REQ result: ") + httpsCode);
+                // sendEvent(eventLen, String("REQ result: ") + httpsCode);
                 if (httpsCode == HTTP_CODE_OK)
                 {
                     const uint32_t fwSize = https.getSize();
@@ -830,12 +830,12 @@ void handleApi()
                             serverWeb.send(HTTP_CODE_OK, contTypeText, result);
                             if (ledNum == MODE_LED)
                             {
-                                LOGI(tag, "%s led %d", ledControl.modeLED.name, actNum);
+                                LOGD("%s led %d", ledControl.modeLED.name, actNum);
                                 ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
                             }
                             else if (ledNum == POWER_LED)
                             {
-                                LOGI(tag, "%s led %d", ledControl.powerLED.name, actNum);
+                                LOGD("%s led %d", ledControl.powerLED.name, actNum);
                                 ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
                             }
                         }
@@ -1155,7 +1155,7 @@ void updateWebTask(void *parameter)
         printEachKeyValuePair(root_data);
 
         // sendEvent("root_update", eventLen, String(root_data));
-        // LOGI("web_task", "%s", root_data);
+        // LOGD("web_task", "%s", root_data);
         // DEBUG_PRINTLN(root_data);
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(systemCfg.refreshLogs * 1000));
     }
@@ -1484,7 +1484,7 @@ else
 }
 }*/
 
-void handleLoginGet()
+void handleLOGDnGet()
 {
     if (!is_authenticated())
     {
@@ -1493,16 +1493,16 @@ void handleLoginGet()
     }
     else
     {
-        // DEBUG_PRINTLN("handleLoginGet else");
+        // DEBUG_PRINTLN("handleLOGDnGet else");
         serverWeb.sendHeader("Location", "/");
         serverWeb.sendHeader("Cache-Control", "no-cache");
         serverWeb.send(301);
         // sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
     }
 }
-void handleLoginPost()
+void handleLOGDnPost()
 {
-    // Serial.println("Handle login");
+    // Serial.println("Handle LOGDn");
     // String msg;
 
     /*if (serverWeb.hasHeader("Cookie"))
@@ -1531,7 +1531,7 @@ void handleLoginPost()
         }
         // msg = ;
         //  Serial.println("Log in Failed");
-        redirectLogin("Wrong credentials! Try again.");
+        redirectLOGDn("Wrong credentials! Try again.");
         return;
     }
 }
@@ -1541,7 +1541,7 @@ void handleLogout()
     // Serial.println("Disconnection");
     serverWeb.sendHeader("Set-Cookie", "XZG_UID=0");
     serverWeb.sendHeader("Authentication", "fail");
-    redirectLogin("Logged out");
+    redirectLOGDn("Logged out");
 
     // serverWeb.send_P(401, contTypeTextHtml, (const char *)PAGE_LOGOUT_html_gz, PAGE_LOGOUT_html_gz_len); });*/
 
@@ -1789,6 +1789,7 @@ void handleMqtt()
     doc["passMqtt"] = mqttCfg.pass;
     doc["topicMqtt"] = mqttCfg.topic;
     doc["intervalMqtt"] = mqttCfg.updateInt;
+    doc["mqttReconnect"] = mqttCfg.reconnectInt;
 
     if (mqttCfg.discovery)
     {
@@ -1835,73 +1836,38 @@ String getRootData(bool update)
     getReadableTime(readableTime, vars.socketTime);
     const char *connectedSocketStatus = "connectedSocketStatus";
     const char *connectedSocket = "connectedSocket";
-    // const char *notConnected = "Not connected";
-    // const char *yes = "Yes";
-    // const char *no = "No";
-    // const char *on = "On";
-    // const char *off = "Off";
     const char *noConn = "noConn";
 
-    /*
-    if (vars.connectedClients > 0)
-    {
-        if (vars.connectedClients > 1)
-        {
-            doc[connectedSocketStatus] = "Yes, " + String(vars.connectedClients) + "connection";
-            doc[connectedSocket] = readableTime;
-        }
-        else
-        {
-            doc[connectedSocketStatus] = "Yes, " + String(vars.connectedClients) + " connections";
-            doc[connectedSocket] = readableTime;
-        }
-    }
-    else
-    {
-        doc[connectedSocketStatus] = no;
-        doc[connectedSocket] = notConnected;
-    }
-    */
     doc[connectedSocketStatus] = vars.connectedClients;
     doc[connectedSocket] = vars.socketTime;
     doc["localTime"] = getTime();
-    // DEBUG_PRINTLN(getTime());
+
     if (!update)
     {
         char verArr[25];
         const char *env = STRINGIFY(BUILD_ENV_NAME);
 
-        // sprintf(verArr, "%s (%s)", VERSION, env);
-
         if (strcasestr(env, "debug") != NULL)
         {
-            // env содержит "debug" в любом регистре, выводим VERSION и env
             sprintf(verArr, "%s (%s)", VERSION, env);
         }
         else
         {
-            // env не содержит "debug", выводим только VERSION
             sprintf(verArr, "%s", VERSION);
         }
 
         doc["VERSION"] = String(verArr);
 
         const char *operationalMode = "operationalMode";
-
         doc[operationalMode] = systemCfg.workMode;
     }
 
     // ETHERNET TAB
-    // const char *ethDhcp = "ethDhcp";
-
     const char *ethConn = "ethConn";
-
     const char *ethMac = "ethMac";
     const char *ethSpd = "ethSpd";
-    // const char *ethIp = "ethIp";
-
     const char *ethDns = "ethDns";
-    //
+
     if (networkCfg.ethEnable)
     {
         if (!update)
@@ -1912,7 +1878,7 @@ String getRootData(bool update)
         doc[ethDhcpKey] = networkCfg.ethDhcp ? 1 : 0;
         if (vars.connectedEther)
         {
-            doc[ethSpd] = ETH.linkSpeed(); // + String(" Mbps");
+            doc[ethSpd] = ETH.linkSpeed();
             doc[ethIpKey] = ETH.localIP().toString();
             doc[ethMaskKey] = ETH.subnetMask().toString();
             doc[ethGateKey] = ETH.gatewayIP().toString();
@@ -1928,7 +1894,6 @@ String getRootData(bool update)
         }
     }
 
-    // getReadableTime(readableTime, 0);
     doc["uptime"] = millis(); // readableTime;
 
     float CPUtemp = getCPUtemp();
@@ -1947,11 +1912,11 @@ String getRootData(bool update)
         const char *espFlashType = "espFlashType";
         if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
         {
-            doc[espFlashType] = 1; //"embedded";
+            doc[espFlashType] = 1; 
         }
         else
         {
-            doc[espFlashType] = 2; //"external";
+            doc[espFlashType] = 2; 
         }
 
         doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
@@ -1991,17 +1956,9 @@ String getRootData(bool update)
     doc["espNvsUsed"] = used;
 
     // wifi
-    // const char *wifiSsid = "wifiSsid";
     const char *wifiRssi = "wifiRssi";
-    // const char *wifiIp = "wifiIp";
     const char *wifiConn = "wifiConn";
-    // const char *wifiMask = "wifiMask";
-    // const char *wifiGate = "wifiGate";
-    // const char *wifiEnabled = "wifiEnabled";
     const char *wifiMode = "wifiMode";
-    // const char *wifiModeAPStatus = "wifiModeAPStatus";
-    // const char *wifiModeAP = "wifiModeAP";
-    //  const char *wifiDhcp = "wifiDhcp";
     const char *wifiDns = "wifiDns";
 
     if (!update)
@@ -2011,15 +1968,13 @@ String getRootData(bool update)
 
     if (networkCfg.wifiEnable)
     {
-        // doc[wifiEnabled] = yes;
         doc[wifiMode] = 1; //"Client";
         doc[wifiDhcpKey] = networkCfg.wifiDhcp ? 1 : 0;
         if (WiFi.status() == WL_CONNECTED)
         { // STA connected
-            // String rssiWifi = String(WiFi.RSSI()) + String(" dBm");
             doc[wifiSsidKey] = WiFi.SSID();
-            doc[wifiRssi] = WiFi.RSSI(); // rssiWifi;
-            doc[wifiConn] = 1;           // "Connected to " + WiFi.SSID();
+            doc[wifiRssi] = WiFi.RSSI();
+            doc[wifiConn] = 1;
             doc[wifiIpKey] = WiFi.localIP().toString();
             doc[wifiMaskKey] = WiFi.subnetMask().toString();
             doc[wifiGateKey] = WiFi.gatewayIP().toString();
@@ -2027,7 +1982,6 @@ String getRootData(bool update)
         }
         else
         {
-            // const char *noConn = "Connecting...";
             doc[wifiSsidKey] = networkCfg.wifiSsid;
             doc[wifiRssi] = noConn;
             doc[wifiConn] = 0;
@@ -2037,27 +1991,11 @@ String getRootData(bool update)
             doc[wifiDns] = networkCfg.wifiDhcp ? noConn : WiFi.dnsIP().toString();
         }
     }
-    /*else
-    {
-        doc[wifiEnabled] = no;
-        doc[wifiConnected] = notConnected;
-        doc[wifiMode] = off;
-        doc[wifiSsid] = off;
-        doc[wifiIp] = off;
-        doc[wifiMask] = off;
-        doc[wifiGate] = off;
-        doc[wifiRssi] = off;
-        doc[wifiDhcp] = off;
-    }*/
+    
     if (vars.apStarted)
     { // AP active
         String AP_NameString;
-        // char apSsid[MAX_DEV_ID_LONG];
-        // getDeviceID(apSsid);
 
-        // char wifiSsidBuf[MAX_DEV_ID_LONG + 25];
-        // sprintf(wifiSsidBuf, "%s (no password)", vars.deviceId);
-        // doc[wifiSsidKey] = wifiSsidBuf;
         doc[wifiMode] = 2;
         doc[wifiConn] = 1;
         doc[wifiSsidKey] = vars.deviceId;
@@ -2065,17 +2003,9 @@ String getRootData(bool update)
         doc[wifiMaskKey] = "255.255.255.0 (Access point)";
         doc[wifiGateKey] = "192.168.1.1 (this device)";
         doc[wifiDhcpKey] = "On (Access point)";
-        // doc[wifiModeAPStatus] = "AP started";
         doc[wifiMode] = 2; //"AP";
-        // doc[wifiModeAP] = yes;
         doc[wifiRssi] = noConn; //"N/A";
     }
-    // else
-    //{
-    // doc[wifiModeAP] = no;
-    // doc[wifiModeAPStatus] = "Not started";
-    //  doc[wifiMode] = "Client";
-    //}
 
     // MQTT
     if (mqttCfg.enable)
