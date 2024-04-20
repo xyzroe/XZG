@@ -55,33 +55,38 @@ Flash or Find your device using next options:
 <br>Powered by <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a><br>
 
 <script>	
-document.addEventListener('DOMContentLoaded', function() {
+
+function loadFirmwareVersions() {
   fetch('https://api.github.com/repos/xyzroe/XZG/releases')
     .then(response => response.json())
     .then(data => {
       const select = document.getElementById('firmwareVersion');
+      select.innerHTML = '';
       data.forEach(release => {
         const option = document.createElement('option');
-        option.value = `https://github.com/xyzroe/XZG/releases/download/${release.tag_name}/manifest.json`; 
+        option.value = `https://github.com/xyzroe/XZG/releases/download/${release.tag_name}/manifest.json`;
         option.textContent = release.name || release.tag_name;
         select.appendChild(option);
       });
       updateManifestUrl();
     })
     .catch(error => console.error('Error fetching releases:', error));
-});
+}
 
 function updateManifestUrl() {
   var selectedManifest = document.getElementById('firmwareVersion').value;
   var installButton = document.querySelector('esp-web-install-button');
   installButton.setAttribute('manifest', selectedManifest);
 }
-	function showSerialHelp() {
-	  document.getElementById('coms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
-	  You might be missing the drivers for your board.<br>
-	  Here are drivers for one of the most popular chip:
-	  <a href="https://sparks.gogo.co.nz/ch340.html" target="_blank">CH340C</a><br><br>
-	  Make sure your USB cable supports data transfer.<br><br>
-	  `;
-	}
+
+function showSerialHelp() {
+  document.getElementById('coms').innerHTML = `Hit "Install" and select the correct COM port.<br><br>
+  You might be missing the drivers for your board.<br>
+  Here are drivers for one of the most popular chip:
+  <a href="https://sparks.gogo.co.nz/ch340.html" target="_blank">CH340C</a><br><br>
+  Make sure your USB cable supports data transfer.<br><br>
+  `;
+}
+
+loadFirmwareVersions();
 </script>
