@@ -52,7 +52,7 @@ jobs:
         id: get_commit_message
         run: |
           currentTag=${GITHUB_REF#refs/tags/}
-          badgeText=$'![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/'"$currentTag"'/total)\n\n'
+          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)\n\n"
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
           fullCommitMessage="$badgeText$commitMessage"
           echo "commitMessage<<EOF" >> $GITHUB_ENV
@@ -122,3 +122,5 @@ jobs:
           git add docs/assets/manifest/${{ steps.get_version.outputs.version }}/manifest.json
           git commit -m "Add manifest.json for version ${{ steps.get_version.outputs.version }}"
           git push origin mkdocs
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
