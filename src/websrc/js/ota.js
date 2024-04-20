@@ -9,7 +9,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-    var t = await fetch("https://api.github.com/repos/xyzroe/ZigStarGW-FW/releases");
+    var t = await fetch("https://api.github.com/repos/xyzroe/xzg/releases");
     if (t.ok) return await t.json();
     throw new Error("GitHub API request failed: " + t.statusText)
 }

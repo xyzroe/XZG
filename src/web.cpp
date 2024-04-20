@@ -789,7 +789,18 @@ void handleApi()
                     if (serverWeb.hasArg(argUrl))
                         getEspUpdate(serverWeb.arg(argUrl));
                     else
-                        getEspUpdate(UPD_FILE);
+                    {
+                        String link = fetchGitHubReleaseInfo();
+                        LOGD("%s", link.c_str());
+                        if (link)
+                        {
+                            getEspUpdate(link);
+                        }
+                        else
+                        {
+                            LOGW("Error getting link");
+                        }
+                    }
                     break;
                 case CMD_ZB_CHK_FW:
                     zbFwCheck();
@@ -1909,11 +1920,11 @@ String getRootData(bool update)
         const char *espFlashType = "espFlashType";
         if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
         {
-            doc[espFlashType] = 1; 
+            doc[espFlashType] = 1;
         }
         else
         {
-            doc[espFlashType] = 2; 
+            doc[espFlashType] = 2;
         }
 
         doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
@@ -1988,7 +1999,7 @@ String getRootData(bool update)
             doc[wifiDns] = networkCfg.wifiDhcp ? noConn : WiFi.dnsIP().toString();
         }
     }
-    
+
     if (vars.apStarted)
     { // AP active
         String AP_NameString;
@@ -2000,7 +2011,7 @@ String getRootData(bool update)
         doc[wifiMaskKey] = "255.255.255.0 (Access point)";
         doc[wifiGateKey] = "192.168.1.1 (this device)";
         doc[wifiDhcpKey] = "On (Access point)";
-        doc[wifiMode] = 2; //"AP";
+        doc[wifiMode] = 2;      //"AP";
         doc[wifiRssi] = noConn; //"N/A";
     }
 
@@ -2248,4 +2259,35 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     DEBUG_PRINTLN("Update success. Rebooting...");
     // Restart ESP32 to see changes
     ESP.restart();
+}
+
+String fetchGitHubReleaseInfo()
+{
+    HTTPClient http;
+    http.begin("https://api.github.com/repos/xyzroe/xzg/releases");
+    int httpCode = http.GET();
+
+    String browser_download_url = "";
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+        LOGD("payload: %s", payload);
+
+        DynamicJsonDocument doc(8192);
+        deserializeJson(doc, payload);
+        JsonArray releases = doc.as<JsonArray>();
+
+        if (releases.size() > 0 && releases[0]["assets"].size() > 1)
+        {
+            browser_download_url = releases[0]["assets"][1]["browser_download_url"].as<String>();
+        }
+    }
+    else
+    {
+        LOGD("Error on HTTP request");
+    }
+
+    http.end();                  
+    return browser_download_url; 
 }

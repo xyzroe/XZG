@@ -102,4 +102,23 @@ jobs:
           files: |
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
-            manifest.json
+
+      - name: Checkout mkdocs branch
+        uses: actions/checkout@v3
+        with:
+          ref: mkdocs
+          path: mkdocs
+
+      - name: Copy manifest.json to mkdocs branch
+        run: |
+          mkdir -p mkdocs/docs/assets/manifest/${{ steps.get_version.outputs.version }}
+          cp manifest.json mkdocs/docs/assets/manifest/${{ steps.get_version.outputs.version }}/manifest.json
+
+      - name: Commit and push manifest.json
+        run: |
+          cd mkdocs
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/assets/manifest/${{ steps.get_version.outputs.version }}/manifest.json
+          git commit -m "Add manifest.json for version ${{ steps.get_version.outputs.version }}"
+          git push origin mkdocs

@@ -1530,10 +1530,10 @@ function modalConstructor(type, params) {
 				action = 1
 				$(modalBody).html(i18next.t("md.esp.fu.lfm"));
 			}
-			else if (typeof params === 'string' && /^https?:\/\//.test(params)) {
-				console.log("URL received:", params);
-				action = 2
-				$(modalBody).html(i18next.t("md.esp.fu.gvm"));
+			else if (params && 'link' in params && typeof params.link === 'string' && /^https?:\/\/.*/.test(params.link)) {
+				console.log("URL received:", params.link);
+				action = 2;
+				$(modalBody).html(i18next.t("md.esp.fu.gvm", { ver: params.ver }));
 			} else {
 				action = 3
 				console.log("Else ? received:", params);
@@ -1750,12 +1750,14 @@ function modalConstructor(type, params) {
 				}).appendTo(buttonAndDownloadsContainer);
 
 				if (release.assets.length > 0) {
-					const downloadLink = release.assets[0].browser_download_url;
+					const downloadLink = release.assets[1].browser_download_url;
 					$('<a>', {
 						"class": "btn btn-outline-warning",
 						click: function () {
-							//closeModal();
-							modalConstructor("flashESP", downloadLink);
+							var params = {};
+							params['link'] = downloadLink;
+							params['ver'] = release.tag_name;
+							modalConstructor("flashESP", params);
 						},
 						"data-bs-toggle": "tooltip",
 						"title": i18next.t('c.inst') + " " + release.tag_name,

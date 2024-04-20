@@ -29,7 +29,7 @@
 
 #define BUFFER_SIZE 256
 
-#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
+//#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
 
 // CC2652 settings (FOR BSL VALIDATION!)
 #define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
