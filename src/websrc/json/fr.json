@@ -32,7 +32,8 @@
     "t": {
       "e": "Heure de fin",
       "s": "Heure de début"
-    }
+    },
+    "cerp": "Nombre maximal de tentatives de reconnexion aux événements atteint. \nActualisez la page pour continuer."
   },
   "md": {
     "esp": {
@@ -330,6 +331,40 @@
       "so": "Configuration série",
       "sp": "Port de prise",
       "ss": "Vitesse de prise"
+    },
+    "ab": {
+      "c": {
+        "l": "Référentiel de projet",
+        "m": "Rejoignez-nous pour améliorer la traduction, enrichir la documentation ou coder de nouvelles fonctionnalités. \n💻",
+        "t": "Contribuer"
+      },
+      "cm": {
+        "l": "Rejoindre le groupe Telegram",
+        "m": "Vos idées, vos commentaires et votre collaboration nous sont inestimables 🤝",
+        "t": "Communauté"
+      },
+      "f": {
+        "l": "Contacter l'auteur",
+        "m": "Si vous avez des idées, des suggestions ou souhaitez aider d'une autre manière, n'hésitez pas à : 📬",
+        "t": "Retour"
+      },
+      "l1": "Le micrologiciel XZG unifie les meilleures innovations de",
+      "l2": "les précédents projets de passerelle Zigbee en une solution unique et complète.",
+      "l3": "En concentrant les efforts de la communauté sur l'amélioration d'un produit, XZG vise à rationaliser le développement, améliorant ainsi les capacités et l'efficacité de vos passerelles Zigbee. \n🌍",
+      "r": {
+        "l": "Ouvrir un problème",
+        "m": "Pour signaler un bug ou demander une fonctionnalité, veuillez : 🐞",
+        "t": "Rapport"
+      },
+      "s": {
+        "m": "Soutenez ce projet de l'une des manières suivantes : 💖",
+        "t": "Soutien"
+      },
+      "w": {
+        "l": "Wiki officiel",
+        "m": "Pour en savoir plus sur le projet de firmware XZG, visitez notre : 📘",
+        "t": "Wikia"
+      }
     }
   },
   "ts": {

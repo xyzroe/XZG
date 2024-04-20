@@ -18,10 +18,10 @@
         <form action="/login" method="POST">
             <img class="mb-4" src="logo.svg" alt="Logo XZG" width="120" height="120">
             <h1 class="h3 mb-3 fw-normal" data-i18n="p.lo.lbl"></h1>
-            <input name="username" type="text" class="form-control" id="floatingUser" placeholder="Username" required=""
-                autofocus="">
+            <input name="username" type="text" class="form-control" id="floatingUser" required=""
+                autofocus="" data-i18n="c.user[placeholder]">
             <div class="input-group mb-4"> <!--aria-label="Password" -->
-                <input type="password" id="floatingPassword" class="form-control" placeholder="Password"
+                <input type="password" id="floatingPassword" class="form-control" data-i18n="c.pass[placeholder]"
                     aria-describedby="togglePassVisLog" name="password" required="">
                 <button class="btn inline_btn" type="button" id="togglePassVisLog" onclick="tglPassView(this)">
                     <svg viewBox="0 0 16 16" class="inline_icon">

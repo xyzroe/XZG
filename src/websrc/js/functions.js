@@ -826,10 +826,15 @@ function showCardDrawIcon(property, values) {
 		showDivById("ttWg");
 		let status;
 
-		if (values[property] === 1) {
+		const wgInit = values[property];
+		const wgConnect = values.wgConnect;
+
+		if (wgInit === 1 && wgConnect === 1) {
 			status = IconsStatusCodes.OK;
-		} else {
+		} else if (wgInit === wgInit) {
 			status = IconsStatusCodes.WARN;
+		} else {
+			status = IconsStatusCodes.ERROR;
 		}
 		setIconGlow('vpnIcon', status);
 	}
@@ -2291,7 +2296,6 @@ let languages = [
 	{ value: "uk", text: "🇺🇦 Українська" },
 	{ value: "zh", text: "🇨🇳 中文" },
 	{ value: "es", text: "🇪🇸 Español" },
-	{ value: "ar", text: "🇸🇦 العربية" },
 	{ value: "pt", text: "🇵🇹 Português" },
 	{ value: "ru", text: "🇷🇺 Русский" },
 	{ value: "fr", text: "🇫🇷 Français" },

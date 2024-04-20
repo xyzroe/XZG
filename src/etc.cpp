@@ -50,6 +50,8 @@ const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
 const char *configFileHw = "/configHw.json";
 
+uint16_t wgLocalPort = 33333;
+
 #include "mbedtls/md.h"
 
 String sha1(String payloadStr)
@@ -562,7 +564,7 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
       }
       else
       {
-        LOGP("Zigbee find - ERROR");
+        LOGI("Zigbee find - ERROR");
         brdOk = false;
       }
     }
@@ -573,7 +575,7 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
   }
   else
   {
-    LOGP("Config error with: %s", brdConfigs[i].board);
+    LOGI("Config error with: %s", brdConfigs[i].board);
     DynamicJsonDocument config(300);
     config["searchId"] = i + 1;
     writeDefaultConfig(configFileHw, config);
@@ -643,18 +645,27 @@ void wgBegin()
   if (!wg.is_initialized())
   {
     // printLogMsg(String("Initializing WireGuard interface..."));
-    auto subnet = IPAddress(255, 255, 255, 255);
+    auto subnet = IPAddress(255, 255, 255, 0);
     auto gateway = IPAddress(0, 0, 0, 0);
-    auto localport = 50000;
+    auto allowIP = IPAddress(0, 0, 0, 0);
+    auto allowMask = IPAddress(0, 0, 0, 0);
+    bool make_default = true;
+    const char preshaed_key[50] = "Gg2KjE8gRJRqkh+JMfw0iNgqa1AnCJ7peNdk1jjZj2M=";
+
+    // auto localport = 50000;
     if (!wg.begin(
             vpnCfg.wgLocalIP,
             subnet,
-            localport,
+            wgLocalPort,
             gateway,
             vpnCfg.wgLocalPrivKey,
             vpnCfg.wgEndAddr,
             vpnCfg.wgEndPubKey,
-            vpnCfg.wgEndPort))
+            vpnCfg.wgEndPort,
+            allowIP,
+            allowMask,
+            make_default,
+            preshaed_key))
     {
       printLogMsg(String("Failed to initialize WG"));
       vars.vpnWgInit = false;
@@ -662,6 +673,19 @@ void wgBegin()
     else
     {
       printLogMsg(String("WG was initialized"));
+      LOGD("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+           String(vpnCfg.wgLocalIP.toString().c_str()),
+           String(subnet.toString().c_str()),
+           String(wgLocalPort),
+           String(gateway.toString().c_str()),
+           String(vpnCfg.wgLocalPrivKey).c_str(),
+           String(vpnCfg.wgEndAddr),
+           String(vpnCfg.wgEndPubKey).c_str(),
+           String(vpnCfg.wgEndPort),
+           String(allowIP.toString().c_str()),
+           String(allowMask.toString().c_str()),
+           String(make_default),
+           String(preshaed_key).c_str());
       vars.vpnWgInit = true;
     }
   }
@@ -669,8 +693,7 @@ void wgBegin()
 
 void wgLoop()
 {
-  String tag = "WG";
-  uint16_t localport = 50000;
+
   // IPAddress ip = ;
 
   int checkPeriod = 5; // to do vpnCfg.checkTime;
@@ -690,12 +713,13 @@ void wgLoop()
       {
         // LOGD("check");
         vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
-        if (wg.is_peer_up(&lwip_ip, &localport))
+        if (wg.is_peer_up(&lwip_ip, &wgLocalPort))
         {
           vars.vpnWgPeerIp = (lwip_ip.u_addr.ip4.addr);
           if (!vars.vpnWgConnect)
           {
             LOGD("Peer with IP %s connect", vars.vpnWgPeerIp.toString().c_str());
+            // initWebServer();
           }
           vars.vpnWgConnect = true;
         }

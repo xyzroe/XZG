@@ -32,7 +32,8 @@
     "t": {
       "e": "Tempo scaduto",
       "s": "Ora di inizio"
-    }
+    },
+    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare."
   },
   "md": {
     "esp": {
@@ -330,6 +331,40 @@
       "so": "Configurazione seriale",
       "sp": "Porta presa",
       "ss": "Velocità della presa"
+    },
+    "ab": {
+      "c": {
+        "l": "Archivio dei progetti",
+        "m": "Unisciti a noi per migliorare la traduzione, migliorare la documentazione o codificare nuove funzionalità. \n💻",
+        "t": "Contribuire"
+      },
+      "cm": {
+        "l": "Unisciti al gruppo Telegram",
+        "m": "I tuoi approfondimenti, feedback e collaborazione sono preziosi per noi 🤝",
+        "t": "Comunità"
+      },
+      "f": {
+        "l": "Contatta l'autore",
+        "m": "Se hai idee, suggerimenti o desideri aiutare in altri modi, non esitare a: 📬",
+        "t": "Feedback"
+      },
+      "l1": "Il firmware XZG unisce le migliori innovazioni di",
+      "l2": "i precedenti progetti gateway Zigbee in un'unica soluzione completa.",
+      "l3": "Concentrando gli sforzi della comunità sul miglioramento di un prodotto, XZG mira a semplificare lo sviluppo, migliorando così le capacità e l'efficienza dei tuoi gateway Zigbee. \n🌍",
+      "r": {
+        "l": "Apri un problema",
+        "m": "Per segnalare un bug o richiedere una funzionalità, per favore: 🐞",
+        "t": "Rapporto"
+      },
+      "s": {
+        "m": "Sostieni questo progetto attraverso uno dei seguenti modi: 💖",
+        "t": "Supporto"
+      },
+      "w": {
+        "l": "Wiki ufficiale",
+        "m": "Per saperne di più sul progetto firmware XZG, visita il nostro: 📘",
+        "t": "Wiki"
+      }
     }
   },
   "ts": {

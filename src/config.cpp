@@ -839,7 +839,7 @@ bool loadFileConfigHW()
     }
     else
     {
-        LOGP("LOAD - ERROR");
+        LOGI("LOAD - ERROR");
 
         int searchId = 0;
         if (config["searchId"])
@@ -894,14 +894,14 @@ void fileReadError(String tag, DeserializationError error, const char *fileName)
     File configFile = LittleFS.open(fileName, FILE_READ);
     if (!configFile)
     {
-        LOGP("Failed to open file: %s", fileName);
+        LOGI("Failed to open file: %s", fileName);
         return;
     }
     while (configFile.available())
     {
         fileContent += (char)configFile.read();
     }
-    LOGP("%s - %s - %s", fileName, error.f_str(), fileContent.c_str());
+    LOGI("%s - %s - %s", fileName, error.f_str(), fileContent.c_str());
     configFile.close();
     if (error == DeserializationError::EmptyInput)
     {

@@ -37,55 +37,13 @@ Firmware is opensource, so feel free to improve it <br> by making a commit to th
 </table>
 <br> 
 
-## 🍓 KEY FIRMWARE FEATURES
+## 🍓 Firmware features
 
-<table align="center" width=60%>
-<tr>
-    <td><img src="https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?logo=visualstudiocode&logoColor=fff&style=plastic" alt="Visual Studio Code Badge"></td>
-    <td><img src="https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=fff&style=plastic" alt="npm Badge"></td>
-    <td><img src="https://img.shields.io/badge/Arduino-00878F?logo=arduino&logoColor=fff&style=plastic" alt="Arduino Badge"></td>
-    <td><img src="https://img.shields.io/badge/JSON-000?logo=json&logoColor=fff&style=plastic" alt="JSON Badge"></td>
-    <td><img src="https://img.shields.io/badge/gulp-CF4647?logo=gulp&logoColor=fff&style=plastic" alt="gulp Badge"></td>
-    <td><img src="https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff&style=plastic" alt="Bootstrap Badge"></td>
-    <td><img src="https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=fff&style=plastic" alt="jQuery Badge"></td>
-    <td><img src="https://img.shields.io/badge/i18next-26A69A?logo=i18next&logoColor=fff&style=plastic" alt="i18next Badge"></td>
-    <td><img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?logo=githubactions&logoColor=fff&style=plastic" alt="GitHub Actions Badge"></td>
-</tr>
-</table>
-<table align="center" width=80%>
-<tr><td colspan="4" align="center">Localized Translation</td></tr>
-<tr><td colspan="4" align="center">🇬🇧 | 🇺🇦 | 🇨🇳 | 🇪🇸 | 🇸🇦 | 🇵🇹 | 🇷🇺 | 🇫🇷 | 🇩🇪 | 🇯🇵 | 🇹🇷 | 🇮🇹 | 🇵🇱</td></tr>
-<tr><td colspan="4"></td></tr>
-<tr align="center"><td colspan="2">Light mode</td><td colspan="2">Dark mode</td></tr>
-<tr align="center"><td colspan="2">🌞</td><td colspan="2">🌑</td></tr>
-<tr align="center"><td colspan="2"></td><td colspan="2"></td></tr>
-<tr align="center"><td colspan="2"><b>Network mode</b></td><td colspan="2"><b>USB mode</b></td></tr>
-<tr align="center"><td>LAN</td><td>Wi-Fi</td><td>Zigbee</td><td>ESP32</td></tr>
-<tr align="center"><td colspan="2"><i><b>at the same time</b></i></td><td colspan="2"><i>selectable</i></td></tr>
-<tr><td colspan="4"></td></tr>
-<tr align="center"><td>NTP time</td><td>LED control</td><td>VPN access</td><td>MQTT client</td></tr>
-<tr align="center"><td>Check and install updates, LEDs control</td><td>Night mode, Manual control, Full disable</td><td>Full access via WireGuard</td><td>View gateway stats, change modes, control LEDs. <br> Home Assistant Auto Discovery.</td></tr>
-</table>
-
-
-- Change Ethernet/USB adapter mode through firmware or by physical button short press (Red LED On = USB mode, RED LED Off = Ethernet mode);
-- Adapter mode selector through web-interface: `Zigbee-to-Network` or `Zigbee-to-USB`;
-- Support mDNS autodiscovery in your network (go in the browser to `xzg.local`), in Zigbee2MQTT (set `port: mdns://xzg`), and in ZHA;
-- Secure LOGDn through username and password;
-- Zigbee2MQTT and ZHA config helper;
-
-- ESP32 (peripheral) and CC2652P (Zigbee) OTA updates, ESP32  and CC2652P restart;
-- Switch CC2652P (Zigbee) to flash mode;
-- Pairing mode for the adapter in router mode;
-  
-- Filter IP addresses for incoming connections to secure your network;
-- Fully responsive web interface based on the latest Bootstrap 5.3.
-- WireGuard VPN
-- MQTT client for gateway monitoring and control
+Visit [Wiki](https://xzg.xyzroe.cc/) to get information 
 
 ## 🚀 Installation
 
-For a quick setup, use [XZG Web Flasher](https://xzg.xyzroe.cc/) for an easy plug-and-flash experience.
+For a quick setup, use [XZG Web Flasher](https://xzg.xyzroe.cc/install) for an easy plug-and-flash experience.
 
 Please follow the installation guide tailored to your hardware.
 

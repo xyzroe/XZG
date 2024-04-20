@@ -47,7 +47,6 @@
 #include "webh/json/uk.json.gz.h"
 #include "webh/json/zh.json.gz.h"
 #include "webh/json/es.json.gz.h"
-#include "webh/json/ar.json.gz.h"
 #include "webh/json/pt.json.gz.h"
 #include "webh/json/ru.json.gz.h"
 #include "webh/json/fr.json.gz.h"
@@ -122,9 +121,9 @@ void checkFwHexTask(void *param)
     vTaskDelete(NULL);
 }
 
-void redirectLOGDn(String msg = "")
+void redirectLogin(String msg = "")
 {
-    String path = "/LOGDn";
+    String path = "/login";
     if (msg != "")
     {
         path = path + "?msg=" + msg;
@@ -143,7 +142,7 @@ void handleLoader()
     }
     if (!is_authenticated())
     {
-        redirectLOGDn();
+        redirectLogin();
         return;
     }
     sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
@@ -160,8 +159,6 @@ void initWebServer()
                  { sendGzip(contTypeJson, zh_json_gz, zh_json_gz_len); });
     serverWeb.on("/lg/es.json", []()
                  { sendGzip(contTypeJson, es_json_gz, es_json_gz_len); });
-    serverWeb.on("/lg/ar.json", []()
-                 { sendGzip(contTypeJson, ar_json_gz, ar_json_gz_len); });
     serverWeb.on("/lg/pt.json", []()
                  { sendGzip(contTypeJson, pt_json_gz, pt_json_gz_len); });
     serverWeb.on("/lg/ru.json", []()
@@ -218,11 +215,11 @@ void initWebServer()
     serverWeb.on("/tools", handleLoader);
     serverWeb.on("/mqtt", handleLoader);
     serverWeb.on("/vpn", handleLoader);
-    serverWeb.on("/LOGDn", []()
+    serverWeb.on("/login", []()
                  { if (serverWeb.method() == HTTP_GET) {
-                        handleLOGDnGet();
+                        handleLoginGet();
                     } else if (serverWeb.method() == HTTP_POST) {
-                        handleLOGDnPost();
+                        handleLoginPost();
                     } });
     serverWeb.on("/logout", HTTP_GET, handleLogout);
     /* ----- PAGES | END -----*/
@@ -645,7 +642,7 @@ void handleApi()
 
     if (!is_authenticated())
     {
-        redirectLOGDn("Need to LOGDn");
+        redirectLogin("Need to login");
         return;
     }
 
@@ -1484,7 +1481,7 @@ else
 }
 }*/
 
-void handleLOGDnGet()
+void handleLoginGet()
 {
     if (!is_authenticated())
     {
@@ -1493,16 +1490,16 @@ void handleLOGDnGet()
     }
     else
     {
-        // DEBUG_PRINTLN("handleLOGDnGet else");
+        // DEBUG_PRINTLN("handleLoginGet else");
         serverWeb.sendHeader("Location", "/");
         serverWeb.sendHeader("Cache-Control", "no-cache");
         serverWeb.send(301);
         // sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
     }
 }
-void handleLOGDnPost()
+void handleLoginPost()
 {
-    // Serial.println("Handle LOGDn");
+    // Serial.println("Handle Login");
     // String msg;
 
     /*if (serverWeb.hasHeader("Cookie"))
@@ -1531,7 +1528,7 @@ void handleLOGDnPost()
         }
         // msg = ;
         //  Serial.println("Log in Failed");
-        redirectLOGDn("Wrong credentials! Try again.");
+        redirectLogin("Wrong credentials! Try again.");
         return;
     }
 }
@@ -1541,7 +1538,7 @@ void handleLogout()
     // Serial.println("Disconnection");
     serverWeb.sendHeader("Set-Cookie", "XZG_UID=0");
     serverWeb.sendHeader("Authentication", "fail");
-    redirectLOGDn("Logged out");
+    redirectLogin("Logged out");
 
     // serverWeb.send_P(401, contTypeTextHtml, (const char *)PAGE_LOGOUT_html_gz, PAGE_LOGOUT_html_gz_len); });*/
 

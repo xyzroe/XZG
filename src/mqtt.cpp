@@ -20,6 +20,7 @@ extern struct NetworkConfigStruct networkCfg;
 extern struct MqttConfigStruct mqttCfg;
 
 extern struct SysVarsStruct vars;
+extern struct BrdConfigStruct hwConfig;
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -31,7 +32,211 @@ const char *homeAssistant = "homeassistant";
 const char *haSensor = "sensor";
 const char *haButton = "button";
 const char *haBinarySensor = "binary_sensor";
-const char *willMessage = "offline";
+const char *willMessage = "offline"; //to do
+
+const char *availabilityTopic = "/avty";
+const char *configTopic = "/config";
+const char *stateTopic = "/state";
+
+String getUptime() {
+    String readableTime;
+    getReadableTime(readableTime, 0);
+    return readableTime;
+}
+
+String getTemperature() {
+    float CPUtemp = getCPUtemp();
+    return String(CPUtemp);
+}
+
+String getWlanIp() {
+    return networkCfg.wifiDhcp ? WiFi.localIP().toString() : networkCfg.wifiIp.toString();
+}
+
+String getWlanSsid() {
+    return String(WiFi.SSID());
+}
+
+String getWlanRssi() {
+    return String(WiFi.RSSI());
+}
+
+String getLanIp() {
+    return networkCfg.ethDhcp ? ETH.localIP().toString() : networkCfg.ethIp.toString();
+}
+
+String getHostname() {
+    return systemCfg.hostname;
+}
+
+String getConnections() {
+    return String(vars.connectedClients);
+}
+
+String getZigbeeFWver() {
+    return String(zbVer.zbRev);
+}
+
+String getZigbeeHWrev() {
+    return String(zbVer.chipID);
+}
+
+String getWorkMode() {
+    switch (systemCfg.workMode)
+    {
+    case WORK_MODE_USB:
+        return "Zigbee-to-USB";
+        break;
+    case WORK_MODE_NETWORK:
+        return "Zigbee-to-Network";
+        break;
+    }
+    return "Error";
+}
+
+mqttTopicsConfig mqttTopicsConfigs[] = {
+    {
+        .name = "Restart ESP",
+        .sensorType = haButton,
+        .sensorId = "rst_esp",
+        .stateTopic = "/io/rst_esp",
+        .commandTopic = "/cmd",
+        .icon = "mdi:restore-alert",
+        .payloadPress = "{cmd:\"rst_esp\"}",
+        .deviceClass = "restart"
+    },
+    {
+        .name = "Restart Zigbee",
+        .sensorType = haButton,
+        .sensorId = "rst_zig",
+        .stateTopic = "/io/rst_zig",
+        .commandTopic = "/cmd",
+        .icon = "mdi:restart",
+        .payloadPress = "{cmd:\"rst_zig\"}",
+        .deviceClass = "restart"
+    },
+    {
+        .name = "Enable BSL",
+        .sensorType = haButton,
+        .sensorId = "enbl_bsl",
+        .stateTopic = "/io/enbl_bsl",
+        .commandTopic = "/cmd",
+        .icon = "mdi:flash",
+        .payloadPress = "{cmd:\"enbl_bsl\"}",
+        .deviceClass = "identify"
+    },
+    {
+        .name = "Socket",
+        .sensorType = haBinarySensor,
+        .sensorId = "socket",
+        .stateTopic = "/io/socket",
+        .deviceClass = "connectivity"
+    },
+    {
+        .name = "Uptime",
+        .sensorType = haSensor,
+        .sensorId = "uptime",
+        .stateTopic = stateTopic,
+        .icon = "mdi:clock",
+        .valueTemplate = "{{ value_json.uptime }}",
+        .deviceClass = "duration",
+        .getSensorValue = getUptime
+    },
+    {
+        .name = "WLAN IP",
+        .sensorType = haSensor,
+        .sensorId = "wlanIp",
+        .stateTopic = stateTopic,
+        .icon = "mdi:wifi-check",
+        .valueTemplate = "{{ value_json.wlanIp }}",
+        .getSensorValue = getWlanIp
+    },
+    {
+        .name = "WLAN SSID",
+        .sensorType = haSensor,
+        .sensorId = "wlanSsid",
+        .stateTopic = stateTopic,
+        .icon = "mdi:wifi-marker",
+        .valueTemplate = "{{ value_json.wlanSsid }}",
+        .getSensorValue = getWlanSsid
+    },
+    {
+        .name = "WLAN RSSI",
+        .sensorType = haSensor,
+        .sensorId = "wlanRssi",
+        .stateTopic = stateTopic,
+        .valueTemplate = "{{ value_json.wlanRssi }}",
+        .deviceClass = "signal_strength",
+        .unitOfMeasurement = "dBm",
+        .getSensorValue = getWlanRssi
+    },
+    {
+        .name = "LAN IP",
+        .sensorType = haSensor,
+        .sensorId = "lanIp",
+        .stateTopic = stateTopic,
+        .icon = "mdi:check-network",
+        .valueTemplate = "{{ value_json.lanIp }}",
+        .getSensorValue = getLanIp
+    },
+    {
+        .name = "ESP Temperature",
+        .sensorType = haSensor,
+        .sensorId = "temperature",
+        .stateTopic = stateTopic,
+        .icon = "mdi:coolant-temperature",
+        .valueTemplate = "{{ value_json.temperature }}",
+        .deviceClass = "temperature",
+        .unitOfMeasurement = "°C",
+        .getSensorValue = getTemperature
+    },
+    {
+        .name = "Hostname",
+        .sensorType = haSensor,
+        .sensorId = "hostname",
+        .stateTopic = stateTopic,
+        .icon = "mdi:account-network",
+        .valueTemplate = "{{ value_json.hostname }}",
+        .getSensorValue = getHostname
+    },
+    {
+        .name = "Socket Connections",
+        .sensorType = haSensor,
+        .sensorId = "connections",
+        .stateTopic = stateTopic,
+        .icon = "mdi:check-network-outline",
+        .valueTemplate = "{{ value_json.connections }}",
+        .getSensorValue = getConnections
+    },
+    {
+        .name = "Mode",
+        .sensorType = haSensor,
+        .sensorId = "mode",
+        .stateTopic = stateTopic,
+        .icon = "mdi:access-point-network",
+        .valueTemplate = "{{ value_json.mode }}",
+        .deviceClass = "enum",
+        .getSensorValue = getWorkMode
+    },
+    {
+        .name = "Zigbee FW version",
+        .sensorType = haSensor,
+        .sensorId = "zbfw",
+        .stateTopic = stateTopic,
+        .icon = "mdi:access-point",
+        .valueTemplate = "{{ value_json.zbfw }}",
+        .getSensorValue = getZigbeeFWver
+    },
+    {
+        .name = "Zigbee HW revision",
+        .sensorType = haSensor,
+        .sensorId = "zbhw",
+        .stateTopic = stateTopic,
+        .icon = "mdi:access-point",
+        .valueTemplate = "{{ value_json.zbhw }}",
+        .getSensorValue = getZigbeeHWrev
+    }
+};
 
 void mqttConnectSetup()
 {
@@ -74,6 +279,8 @@ void onMqttConnect(bool sessionPresent)
 
     mqttClient.subscribe((String(mqttCfg.topic) + "/cmd").c_str(), 2);
 
+    vars.mqttConn = true;
+
     mqttPublishDiscovery();
     
     mqttPublishIo("rst_esp", "OFF");
@@ -87,7 +294,10 @@ void onMqttConnect(bool sessionPresent)
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 {
-    LOGP("Disconnected from MQTT: %d", reason);
+    LOGI("Disconnected from MQTT: %d", reason);
+
+    vars.mqttConn = false;
+
     xTimerStart(mqttReconnectTimer, 0);
 }
 
@@ -153,253 +363,70 @@ void mqttPublishIo(const String &io, const String &state)
 
 void mqttPublishState()
 {
-    String topic = String(mqttCfg.topic) + "/state";
-    DynamicJsonDocument root(1024);
-
-    String readableTime;
-    getReadableTime(readableTime, 0);
-    root["uptime"] = readableTime;
-
-    float CPUtemp = getCPUtemp();
-    root["temperature"] = String(CPUtemp);
-    root["connections"] = vars.connectedClients;
-
-    String ip = networkCfg.wifiDhcp ? WiFi.localIP().toString() : networkCfg.wifiIp.toString();
-    root["ip"] = ip;
-
-    switch (systemCfg.workMode)
-    {
-    case WORK_MODE_USB:
-        root["mode"] = "Zigbee-to-USB";
-        break;
-    case WORK_MODE_NETWORK:
-        root["mode"] = "Zigbee-to-Network";
-        break;
+    DynamicJsonDocument buffJson(512);
+    for (const auto& item : mqttTopicsConfigs) {
+        if (item.getSensorValue != nullptr) {  
+            String sensorValue = item.getSensorValue();  
+            if (sensorValue.length() > 0) {  
+                buffJson[item.sensorId] = sensorValue;
+            }
+        }
     }
-
-    root["zbfw"] = String(zbVer.zbRev);
-    root["hostname"] = systemCfg.hostname;
-
+    String topic =  mqttCfg.topic + String(stateTopic);
     String mqttBuffer;
-    serializeJson(root, mqttBuffer);
+    serializeJson(buffJson, mqttBuffer);
 
     mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
-
 
     xTimerStart(mqttPubStateTimer, 0);
 }
 
-void mqttPublishDiscovery()
-{
-    String mtopic(mqttCfg.topic);
-    String deviceName = mtopic; // systemCfg.hostname;
+void mqttPublishDiscovery() {
+    DynamicJsonDocument devInfo(256);
+    devInfo["ids"] = vars.deviceId;
+    devInfo["name"] = hwConfig.board;
+    devInfo["mf"] = "XZG";
+    char verArr[25];
+    const char* env = STRINGIFY(BUILD_ENV_NAME);
+    sprintf(verArr, "%s (%s)", VERSION, env);
+    devInfo["sw"] = String(verArr);
 
-    String topic;
     DynamicJsonDocument buffJson(2048);
     String mqttBuffer;
 
-    DynamicJsonDocument via(150);
-    // char deviceIdArr[MAX_DEV_ID_LONG];
-    // getDeviceID(deviceIdArr);
-    via["ids"] = String(vars.deviceId);
+    for (const auto& item : mqttTopicsConfigs) {
+        buffJson["dev"] = devInfo;
+        buffJson["name"] = item.name;
+        buffJson["uniq_id"] = String(mqttCfg.topic) + "/" + item.sensorId;
+        buffJson["stat_t"] = mqttCfg.topic + item.stateTopic;
+        buffJson["avty_t"] = mqttCfg.topic + String(availabilityTopic);
+        if (!String(item.commandTopic).isEmpty()) {
+            buffJson["cmd_t"] = mqttCfg.topic + item.commandTopic;
+        }
 
-    String sensor_topic = String(homeAssistant) + "/" + String(haSensor) + "/";
-    String button_topic = String(homeAssistant) + "/" + String(haButton) + "/";
-    String binary_sensor_topic = String(homeAssistant) + "/" + String(haBinarySensor) + "/";
-    // int lastAutoMsg = 9;
-    // if (ConfigSettings.board == 2) lastAutoMsg--;
+        if (!String(item.icon).isEmpty()) {
+            buffJson["icon"] = item.icon;
+        }
+        if (!String(item.payloadPress).isEmpty()) {
+            buffJson["payload_press"] = item.payloadPress;
+        }
+        if (!String(item.valueTemplate).isEmpty()) {
+            buffJson["val_tpl"] = item.valueTemplate;
+        }
+        if (!String(item.jsonAttributeTopic).isEmpty()) {
+            buffJson["json_attr_t"] = mqttCfg.topic + item.jsonAttributeTopic;
+        }
+        if (!String(item.deviceClass).isEmpty()) {
+            buffJson["dev_cla"] = item.deviceClass;
+        }
+        if (!String(item.unitOfMeasurement).isEmpty()) {
+            buffJson["unit_of_meas"] = item.unitOfMeasurement;
+        }
 
-    for (int i = 0; i <= 99; i++)
-    {
-        switch (i)
-        {
-        case 0:
-        {
-            DynamicJsonDocument dev(256);
-            // char deviceIdArr[MAX_DEV_ID_LONG];
-            // getDeviceID(deviceIdArr);
-
-            dev["ids"] = String(vars.deviceId);
-            dev["name"] = systemCfg.hostname;
-            dev["mf"] = "Zig Star";
-            // dev["mdl"] = ConfigSettings.boardName;
-
-            char verArr[25];
-            const char *env = STRINGIFY(BUILD_ENV_NAME);
-            sprintf(verArr, "%s (%s)", VERSION, env);
-            dev["sw"] = String(verArr);
-
-            topic = button_topic + deviceName + "/rst_esp/config";
-            buffJson["name"] = "Restart ESP";
-            buffJson["uniq_id"] = deviceName + "/rst_esp";
-            buffJson["stat_t"] = mtopic + "/io/rst_esp";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:restore-alert";
-            buffJson["payload_press"] = "{cmd:\"rst_esp\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = dev;
-            break;
-        }
-        case 1:
-        {
-            topic = button_topic + deviceName + "/rst_zig/config";
-            buffJson["name"] = "Restart Zigbee";
-            buffJson["uniq_id"] = deviceName + "/rst_zig";
-            buffJson["stat_t"] = mtopic + "/io/rst_zig";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:restart";
-            buffJson["payload_press"] = "{cmd:\"rst_zig\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 2:
-        {
-            topic = button_topic + deviceName + "/enbl_bsl/config";
-            buffJson["name"] = "Enable BSL";
-            buffJson["uniq_id"] = deviceName + "/enbl_bsl";
-            buffJson["stat_t"] = mtopic + "/io/enbl_bsl";
-            buffJson["cmd_t"] = mtopic + "/cmd";
-            buffJson["icon"] = "mdi:flash";
-            buffJson["payload_press"] = "{cmd:\"enbl_bsl\"}";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 3:
-        {
-            topic = binary_sensor_topic + deviceName + "/socket/config";
-            buffJson["name"] = "Socket";
-            buffJson["uniq_id"] = deviceName + "/socket";
-            buffJson["stat_t"] = mtopic + "/io/socket";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["dev_cla"] = "connectivity";
-            buffJson["dev"] = via;
-            break;
-        }
-        // case 4:
-        //{
-        //     topic = binary_sensor_topic + deviceName + "/emrgncMd/config";
-        //     buffJson["name"] = "Emergency mode";
-        //     buffJson["uniq_id"] = deviceName + "/emrgncMd";
-        //     buffJson["stat_t"] = mtopic + "/state";
-        //     buffJson["avty_t"] = mtopic + "/avty";
-        //     buffJson["val_tpl"] = "{{ value_json.emergencyMode }}";
-        //     buffJson["json_attr_t"] = mtopic + "/state";
-        //     buffJson["dev_cla"] = "power";
-        //     buffJson["icon"] = "mdi:access-point-network";
-        //     buffJson["dev"] = via;
-        //     break;
-        // }
-        case 4:
-        {
-            topic = sensor_topic + deviceName + "/uptime/config";
-            buffJson["name"] = "Uptime";
-            buffJson["uniq_id"] = deviceName + "/uptime";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.uptime }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:clock";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 5:
-        {
-            topic = sensor_topic + deviceName + "/ip/config";
-            buffJson["name"] = "IP";
-            buffJson["uniq_id"] = deviceName + "/ip";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.ip }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:check-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 6:
-        {
-            topic = sensor_topic + deviceName + "/temperature/config";
-            buffJson["name"] = "ESP temperature";
-            buffJson["uniq_id"] = deviceName + "/temperature";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.temperature }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:coolant-temperature";
-            buffJson["dev"] = via;
-            buffJson["dev_cla"] = "temperature";
-            buffJson["stat_cla"] = "measurement";
-            buffJson["unit_of_meas"] = "°C";
-            break;
-        }
-        case 7:
-        {
-            topic = sensor_topic + deviceName + "/hostname/config";
-            buffJson["name"] = "Hostname";
-            buffJson["uniq_id"] = deviceName + "/hostname";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.hostname }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:account-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 8:
-        {
-            topic = sensor_topic + deviceName + "/connections/config";
-            buffJson["name"] = "Socket connections";
-            buffJson["uniq_id"] = deviceName + "/connections";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.connections }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:check-network-outline";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 9:
-        {
-            topic = sensor_topic + deviceName + "/mode/config";
-            buffJson["name"] = "Mode";
-            buffJson["uniq_id"] = deviceName + "/mode";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.mode }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:access-point-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        case 10:
-        {
-            topic = sensor_topic + deviceName + "/zbfw/config";
-            buffJson["name"] = "Zigbee fw rev";
-            buffJson["uniq_id"] = deviceName + "/zbfw";
-            buffJson["stat_t"] = mtopic + "/state";
-            buffJson["avty_t"] = mtopic + "/avty";
-            buffJson["val_tpl"] = "{{ value_json.zbfw }}";
-            buffJson["json_attr_t"] = mtopic + "/state";
-            buffJson["icon"] = "mdi:access-point-network";
-            buffJson["dev"] = via;
-            break;
-        }
-        default:
-            topic = "error";
-            break;
-        }
-        if (topic != "error")
-        {
-            serializeJson(buffJson, mqttBuffer);
-            mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
-
-            buffJson.clear();
-            mqttBuffer = "";
-        }
-        else
-        {
-            i = 100;
-        }
+        String topic = String(homeAssistant) + "/" + item.sensorType + "/" + mqttCfg.topic + "/" + item.sensorId + configTopic;
+        serializeJson(buffJson, mqttBuffer);
+        mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
+        buffJson.clear();
+        mqttBuffer.clear();
     }
 }

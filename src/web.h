@@ -2,8 +2,8 @@
 void handleEvents();
 void initWebServer();
 void webServerHandleClient();
-void handleLOGDnGet();
-void handleLOGDnPost();
+void handleLoginGet();
+void handleLoginPost();
 void handleLogout();
 bool is_authenticated();
 void handleGeneral();

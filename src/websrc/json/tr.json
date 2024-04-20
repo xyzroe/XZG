@@ -32,7 +32,8 @@
     "t": {
       "e": "Bitiş zamanı",
       "s": "Başlangıç ​​saati"
-    }
+    },
+    "cerp": "Etkinliklerin yeniden bağlanması için maksimum yeniden deneme sayısına ulaşıldı. \nDevam etmek için sayfayı yenileyin."
   },
   "md": {
     "esp": {
@@ -330,6 +331,40 @@
       "so": "Seri yapılandırma",
       "sp": "Soket Bağlantı Noktası",
       "ss": "Soket Hızı"
+    },
+    "ab": {
+      "c": {
+        "l": "Proje Havuzu",
+        "m": "Çeviriyi iyileştirmede, belgeleri geliştirmede veya yeni özellikleri kodlamada bize katılın. \n💻",
+        "t": "Katkı yapmak"
+      },
+      "cm": {
+        "l": "Telegram grubuna katılın",
+        "m": "Görüşleriniz, geri bildirimleriniz ve işbirliğiniz bizim için çok değerli 🤝",
+        "t": "Toplum"
+      },
+      "f": {
+        "l": "Yazarla iletişime geçin",
+        "m": "Herhangi bir fikriniz, öneriniz varsa veya başka şekillerde yardım etmek istiyorsanız lütfen çekinmeyin: 📬",
+        "t": "Geri bildirim"
+      },
+      "l1": "XZG Firmware, en iyi yenilikleri bir araya getiriyor",
+      "l2": "önceki Zigbee ağ geçidi projelerini tek ve kapsamlı bir çözüme dönüştürüyor.",
+      "l3": "XZG, topluluğun çabalarını tek bir ürünü geliştirmeye odaklayarak geliştirmeyi kolaylaştırmayı ve böylece Zigbee Ağ Geçitlerinizin yeteneklerini ve verimliliğini artırmayı amaçlamaktadır. \n🌍",
+      "r": {
+        "l": "Bir Sorun Aç",
+        "m": "Bir hatayı bildirmek veya bir özellik istemek için lütfen: 🐞",
+        "t": "Rapor"
+      },
+      "s": {
+        "m": "Bu projeyi aşağıdaki yollardan biriyle destekleyin: 💖",
+        "t": "Destek"
+      },
+      "w": {
+        "l": "Resmi Wiki",
+        "m": "XZG ürün yazılımı projesi hakkında daha fazla bilgi edinmek için şu adresimizi ziyaret edin: 📘",
+        "t": "Viki"
+      }
     }
   },
   "ts": {

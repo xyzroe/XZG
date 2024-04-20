@@ -6,21 +6,10 @@ languageIds:
 
 usageMatchRegex:
   - "[^\\w\\d]t\\(['\"`]({key})['\"`]"
-  - "data-i18n=['\"]({key})['\"]"
-  - "([^;'\"]*?)\\[placeholder\\]"
-  - "([^;'\"]*?)\\[title\\]"
+  - "['\";]({key})\\[placeholder\\]"
+  - "['\";]({key})\\[title\\]"
+  - "data-i18n=['\"]([^'\"]*?)['\"\\[]"
 
-
-
-
-
-scopeRangeRegex: "useTranslation\\(\\s*\\[?\\s*['\"`](.*?)['\"`]"
-
-# An array of strings containing refactor templates.
-# The "$1" will be replaced by the keypath specified.
-# Optional: uncomment the following two lines to use
-
-# refactorTemplates:
-#  - i18n.get("$1")
+#scopeRangeRegex: "useTranslation\\(\\s*\\[?\\s*['\"`](.*?)['\"`]"
 
 monopoly: true

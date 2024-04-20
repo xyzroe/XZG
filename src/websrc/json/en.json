@@ -244,6 +244,40 @@
       "pt": "Login - XZG",
       "lbl": "Please sign in",
       "btn": "Sing in"
+    },
+    "ab": {
+      "l1": "XZG Firmware unifies the best innovations from",
+      "l2": "previous Zigbee gateway projects into a single, comprehensive solution.",
+      "l3": "By focusing the community's efforts on enhancing one product, XZG aims to streamline development, thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍",
+      "w": {
+        "t": "Wiki",
+        "m": "To learn more about the XZG firmware project, visit our: 📘",
+        "l": "Official Wiki"
+      },
+      "f": {
+        "t": "Feedback",
+        "m": "If you have any ideas, suggestions, or wish to help in other ways, please don't hesitate to: 📬",
+        "l": "Contact the author"
+      },
+      "s": {
+        "m": "Support this project through one of the following ways: 💖",
+        "t": "Support"
+      },
+      "c": {
+        "t": "Contribute",
+        "m": "Join us in improving translating, enhancing documentation, or coding new features. 💻",
+        "l": "Project Repository"
+      },
+      "r": {
+        "t": "Report",
+        "m": "To report a bug or request a feature, please: 🐞",
+        "l": "Open an Issue"
+      },
+      "cm": {
+        "m": "Your insights, feedback, and collaboration are invaluable to us 🤝",
+        "t": "Community",
+        "l": "Join Telegram group"
+      }
     }
   },
   "c": {

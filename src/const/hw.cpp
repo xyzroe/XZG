@@ -1,7 +1,7 @@
 #include "const/hw.h"
 
 
-BrdConfigStruct brdConfigs[BOARD_CFG_CNT] = {
+BrdConfigStruct brdConfigs[] = { //BOARD_CFG_CNT
     {"UZG-01",
      {.addr = 0, .pwrPin = -1, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT, .pwrAltPin = 5},
      {.btnPin = 35, .btnPlr = 1, .uartSelPin = 33, .uartSelPlr = 1, .ledUsbPin = 12, .ledUsbPlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1},

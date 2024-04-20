@@ -276,7 +276,18 @@ body {
   width: 20px;
   height: 20px;
   fill: currentColor;
-  margin-right: 0.5em;
+  margin-right: 0.5em !important;
+}
+
+.about_icon {
+  width: 1.75em;
+  height: 1.75em;
+  fill: var(--link-color);
+  margin-right: 1rem !important;
+}
+
+.about_link {
+  color: var(--link-color) !important;
 }
 
 .file_icon {
@@ -450,8 +461,8 @@ body {
   color: #f39c12;
 }
 
-/*LOGDn page*/
-#LOGDnForm {
+/*Login page*/
+#LoginForm {
   display: flex;
   height: 100vh;
   align-items: center;
@@ -504,7 +515,7 @@ body {
   font-size: medium;
 }
 
-/*LOGDn page*/
+/*Login page*/
 
 .two_cols_checkbox {
   padding-left: 2.5rem !important;

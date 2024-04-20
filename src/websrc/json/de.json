@@ -32,7 +32,8 @@
     "t": {
       "e": "Endzeit",
       "s": "Startzeit"
-    }
+    },
+    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung von Ereignissen wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren."
   },
   "md": {
     "esp": {
@@ -330,6 +331,40 @@
       "so": "Serielle Konfiguration",
       "sp": "Socket-Anschluss",
       "ss": "Socket-Geschwindigkeit"
+    },
+    "ab": {
+      "c": {
+        "l": "Projekt-Repository",
+        "m": "Helfen Sie uns dabei, die Übersetzung zu verbessern, die Dokumentation zu verbessern oder neue Funktionen zu programmieren. \n💻",
+        "t": "Beitragen"
+      },
+      "cm": {
+        "l": "Treten Sie der Telegram-Gruppe bei",
+        "m": "Ihre Erkenntnisse, Ihr Feedback und Ihre Zusammenarbeit sind für uns von unschätzbarem Wert 🤝",
+        "t": "Gemeinschaft"
+      },
+      "f": {
+        "l": "Kontaktieren Sie den Autor",
+        "m": "Wenn Sie Ideen oder Vorschläge haben oder auf andere Weise helfen möchten, zögern Sie bitte nicht: 📬",
+        "t": "Rückmeldung"
+      },
+      "l1": "Die XZG-Firmware vereint die besten Innovationen von",
+      "l2": "frühere Zigbee-Gateway-Projekte in einer einzigen, umfassenden Lösung.",
+      "l3": "Indem XZG die Bemühungen der Community auf die Verbesserung eines Produkts konzentriert, zielt es darauf ab, die Entwicklung zu rationalisieren und dadurch die Fähigkeiten und Effizienz Ihrer Zigbee-Gateways zu verbessern. \n🌍",
+      "r": {
+        "l": "Öffnen Sie ein Problem",
+        "m": "Um einen Fehler zu melden oder eine Funktion anzufordern, gehen Sie bitte wie folgt vor: 🐞",
+        "t": "Bericht"
+      },
+      "s": {
+        "m": "Unterstützen Sie dieses Projekt auf eine der folgenden Arten: 💖",
+        "t": "Unterstützung"
+      },
+      "w": {
+        "l": "Offizielles Wiki",
+        "m": "Um mehr über das XZG-Firmware-Projekt zu erfahren, besuchen Sie unsere: 📘",
+        "t": "Wiki"
+      }
     }
   },
   "ts": {

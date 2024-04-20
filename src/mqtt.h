@@ -11,3 +11,20 @@ void mqttPublishAvail();
 void mqttPublishIo(const String &io, const String &state);
 void mqttPublishState();
 void mqttPublishDiscovery();
+
+typedef String (*SensorValueFunction)();
+
+struct mqttTopicsConfig {
+    String name;
+    String sensorType;
+    String sensorId;
+    String stateTopic;
+    String commandTopic;
+    String icon;
+    String payloadPress;
+    String valueTemplate;
+    String jsonAttributeTopic;
+    String deviceClass;
+    String unitOfMeasurement;
+    SensorValueFunction getSensorValue;
+};

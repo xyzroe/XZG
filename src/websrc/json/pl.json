@@ -32,7 +32,8 @@
     "t": {
       "e": "Koniec czasu",
       "s": "Czas rozpoczęcia"
-    }
+    },
+    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować."
   },
   "md": {
     "esp": {
@@ -330,6 +331,40 @@
       "so": "Konfiguracja szeregowa",
       "sp": "Gniazdo gniazda",
       "ss": "Szybkość gniazda"
+    },
+    "ab": {
+      "c": {
+        "l": "Repozytorium projektu",
+        "m": "Dołącz do nas w ulepszaniu tłumaczenia, ulepszaniu dokumentacji lub kodowaniu nowych funkcji. \n💻",
+        "t": "Brać w czymś udział"
+      },
+      "cm": {
+        "l": "Dołącz do grupy na Telegramie",
+        "m": "Twoje spostrzeżenia, opinie i współpraca są dla nas bezcenne 🤝",
+        "t": "Wspólnota"
+      },
+      "f": {
+        "l": "Skontaktuj się z autorem",
+        "m": "Jeśli masz jakieś pomysły, sugestie lub chcesz pomóc w inny sposób, nie wahaj się: 📬",
+        "t": "Informacja zwrotna"
+      },
+      "l1": "XZG Firmware łączy najlepsze innowacje z",
+      "l2": "poprzednie projekty bramek Zigbee w jedno, kompleksowe rozwiązanie.",
+      "l3": "Koncentrując wysiłki społeczności na udoskonalaniu jednego produktu, XZG ma na celu usprawnienie rozwoju, poprawiając w ten sposób możliwości i wydajność bramek Zigbee. \n🌍",
+      "r": {
+        "l": "Otwórz problem",
+        "m": "Aby zgłosić błąd lub poprosić o funkcję, prosimy: 🐞",
+        "t": "Raport"
+      },
+      "s": {
+        "m": "Wesprzyj ten projekt na jeden z poniższych sposobów: 💖",
+        "t": "Wsparcie"
+      },
+      "w": {
+        "l": "Oficjalna Wiki",
+        "m": "Aby dowiedzieć się więcej o projekcie oprogramowania sprzętowego XZG, odwiedź naszą stronę: 📘",
+        "t": "Wiki"
+      }
     }
   },
   "ts": {

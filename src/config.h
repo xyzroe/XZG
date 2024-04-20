@@ -98,7 +98,7 @@ struct SysVarsStruct
   unsigned long vpnWgCheckTime;
 
   bool vpnHnInit = false;
-  bool mqttConn = true;
+  bool mqttConn = false;
   unsigned long mqttReconnectTime;
   unsigned long mqttHeartbeatTime;
 
@@ -145,7 +145,7 @@ struct VpnConfigStruct
   char wgLocalPrivKey[50];
   char wgEndAddr[50];
   char wgEndPubKey[50];
-  int wgEndPort;
+  uint16_t wgEndPort;
   // Husarnet
   bool hnEnable;
   char hnJoinCode[80];
@@ -283,8 +283,9 @@ uint8_t temprature_sens_read();
 
 // Define log levels
 #define LOG_LEVEL_NONE 0
-#define LOG_LEVEL_PROD 1
-#define LOG_LEVEL_DEBUG 2
+#define LOG_LEVEL_WARN 1
+#define LOG_LEVEL_INFO 2
+#define LOG_LEVEL_DEBUG 3
 
 #ifdef DEBUG
 
@@ -297,7 +298,7 @@ uint8_t temprature_sens_read();
 #else
 
 // Set the current logging level here
-#define CURRENT_LOG_LEVEL LOG_LEVEL_PROD
+#define CURRENT_LOG_LEVEL LOG_LEVEL_INFO
 
 #define DEBUG_PRINT(x)
 #define DEBUG_PRINTLN(x)
@@ -307,19 +308,26 @@ uint8_t temprature_sens_read();
 
 // Define ANSI color codes
 #define ANSI_COLOR_PURPLE "\x1b[35m"
+#define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
 // Conditional logging macros
-#if CURRENT_LOG_LEVEL >= LOG_LEVEL_PROD
-#define LOGP(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] "ANSI_COLOR_RESET ANSI_COLOR_GREEN format ANSI_COLOR_RESET "\n", millis(), __func__, ##__VA_ARGS__)
+#if CURRENT_LOG_LEVEL >= LOG_LEVEL_WARN
+#define LOGW(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
 #else
-#define LOGP(format, ...) // Nothing
+#define LOGW(format, ...) // Nothing
+#endif
+
+#if CURRENT_LOG_LEVEL >= LOG_LEVEL_INFO
+#define LOGI(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#else
+#define LOGI(format, ...) // Nothing
 #endif
 
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_DEBUG
-#define LOGD(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] "ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#define LOGD(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
 #else
 #define LOGD(format, ...) // Nothing
 #endif

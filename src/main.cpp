@@ -83,7 +83,7 @@ void initLan()
 
   if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode, hwConfig.eth.pwrAltPin))
   {
-     LOGD("LAN start ok");
+    LOGD("LAN start ok");
     if (!networkCfg.ethDhcp)
     {
       LOGD("ETH STATIC");
@@ -92,7 +92,7 @@ void initLan()
     }
     else
     {
-       LOGD("ETH DHCP");
+      LOGD("ETH DHCP");
     }
   }
   else
@@ -204,13 +204,10 @@ void startSocketServer()
 
 void startServers(bool usb = false)
 {
-  initWebServer();
 
-  startAP(false);
-  mDNS_start();
-  zbFwCheck();
   if (!vars.apStarted)
   {
+    xTaskCreate(setClock, "setClock", 2048, NULL, 9, NULL);
     if (!usb)
     {
       startSocketServer();
@@ -223,9 +220,21 @@ void startServers(bool usb = false)
     {
       mqttConnectSetup();
     }
-    xTaskCreate(setClock, "setClock", 2048, NULL, 9, NULL);
   }
+  mDNS_start();
+  initWebServer();
 
+  startAP(false);
+
+  zbFwCheck();
+  
+  if (!vars.apStarted)
+  {
+    if (vpnCfg.wgEnable)
+    {
+      wgBegin();
+    }
+  }
   /* //not available now
   if (vpnCfg.hnEnable)
   {
@@ -241,17 +250,17 @@ void handleTmrNetworkOverseer()
   case WORK_MODE_NETWORK:
     if (!networkCfg.wifiEnable && !networkCfg.ethEnable)
     {
-      DEBUG_PRINTLN(F("Both interfaces disabled. Start AP"));
+      LOGD("Both interfaces disabled. Start AP");
       startAP(true);
       connectWifi();
     }
     if (networkCfg.wifiEnable)
     {
-      DEBUG_PRINT(F("WiFi.status = "));
-      DEBUG_PRINTLN(WiFi.status());
+      LOGD("WiFi.status = %s", String(WiFi.status()));
+
       if (WiFi.isConnected())
       {
-        DEBUG_PRINTLN(F("WIFI CONNECTED"));
+        LOGD("WIFI CONNECTED");
         startServers();
         tmrNetworkOverseer.stop();
       }
@@ -259,7 +268,7 @@ void handleTmrNetworkOverseer()
       {
         if (tmrNetworkOverseer.counter() > overseerMaxRetry)
         {
-          DEBUG_PRINTLN(F("WIFI counter overflow"));
+          LOGD("WIFI counter overflow");
           startAP(true);
           connectWifi();
         }
@@ -271,7 +280,7 @@ void handleTmrNetworkOverseer()
     {
       if (vars.connectedEther)
       {
-        DEBUG_PRINTLN(F("LAN CONNECTED"));
+        LOGD("LAN CONNECTED");
         startServers();
         tmrNetworkOverseer.stop();
       }
@@ -279,7 +288,7 @@ void handleTmrNetworkOverseer()
       {
         if (tmrNetworkOverseer.counter() > overseerMaxRetry)
         {
-          DEBUG_PRINTLN(F("LAN counter overflow"));
+          LOGD("LAN counter overflow");
           startAP(true);
         }
       }
@@ -337,7 +346,7 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
 
-    LOGD("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps", ethKey,
+    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps", ethKey,
          ETH.macAddress().c_str(),
          ETH.localIP().toString().c_str(),
          ETH.subnetMask().toString().c_str(),
@@ -383,7 +392,7 @@ void NetworkEvent(WiFiEvent_t event)
     DEBUG_PRINTLN(WiFi.gatewayIP().toString());
     */
 
-    LOGD("%s MAC: %s, IP: %s, Mask: %s, Gw: %s", wifiKey,
+    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s", wifiKey,
          WiFi.macAddress().c_str(),
          WiFi.localIP().toString().c_str(),
          WiFi.subnetMask().toString().c_str(),
@@ -649,10 +658,10 @@ void setupCoordinatorMode()
 {
   if (systemCfg.workMode > 2 || systemCfg.workMode < 0)
   {
-    DEBUG_PRINTLN(F("WRONG MODE DETECTED, set to LAN"));
+    LOGW("WRONG MODE DETECTED, set to LAN");
     systemCfg.workMode = WORK_MODE_NETWORK;
   }
-  LOGD("setupCoordinatorMode", "Mode is: %d", systemCfg.workMode);
+  LOGI("try: %d", systemCfg.workMode);
 
   if (systemCfg.workMode != WORK_MODE_USB || systemCfg.keepWeb)
   { // start network overseer
@@ -665,7 +674,7 @@ void setupCoordinatorMode()
   switch (systemCfg.workMode)
   {
   case WORK_MODE_USB:
-    DEBUG_PRINTLN(F("Coordinator USB mode"));
+    // LOGD("Coordinator USB mode");
     ledControl.modeLED.mode = LED_ON;
     delay(500);
     if (vars.hwUartSelIs)
@@ -682,7 +691,7 @@ void setupCoordinatorMode()
     // break;
 
   case WORK_MODE_NETWORK:
-    DEBUG_PRINTLN(F("Coordinator NETWORK mode"));
+    // LOGD("Coordinator NETWORK mode");
     ledControl.powerLED.mode = LED_BLINK_1Hz;
     if (networkCfg.ethEnable)
       initLan();
@@ -896,7 +905,6 @@ void setup()
   }
   */
 }
-
 
 WiFiClient client[10];
 
@@ -1122,7 +1130,7 @@ void loop(void)
 
     if (mqttCfg.enable)
     {
-      //mqttLoop();
+      // mqttLoop();
     }
   }
   if (vpnCfg.wgEnable && vars.vpnWgInit)
