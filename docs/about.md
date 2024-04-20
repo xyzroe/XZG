@@ -15,7 +15,7 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 ## Community
 Your insights, feedback, and collaboration are invaluable to us 🤝
 
- - :fontawesome-solid-paper-plane: [Join Telegram chat](https://t.me/XZG)
+ - :fontawesome-solid-paper-plane: [Join Telegram chat](https://t.me/xzg_fw)
 
 ## Report
 To report a bug or request a feature, please: 
@@ -30,7 +30,7 @@ Join us in improving translating, enhancing documentation, or coding new feature
 ## Support
 Support this project through one of the following ways: 💖
 
--  :fontawesome-brands-github: [GitHub](https://github.com/xyzroe/)
+-  :fontawesome-brands-github: [GitHub](https://github.com/xyzroe)
 -  :fontawesome-brands-paypal: [PayPal](https://www.paypal.com/paypalme/xyzroe)
 -  :material-coffee: [Buy Me a Coffee](https://www.buymeacoffee.com/xyzroe)
 
