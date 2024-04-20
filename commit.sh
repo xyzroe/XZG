@@ -1,4 +1,3 @@
 git add .
 git commit
-print "OK"
-#git push -u origin mkdocs
+git push -u origin mkdocs
