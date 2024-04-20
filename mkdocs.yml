@@ -4,7 +4,7 @@ site_url: https://xzg.xyzroe.cc
 site_description: XZG Firmware - Wiki
 repo_url: https://github.com/xyzroe/xzg
 repo_name: XZG Firmware
-edit_uri: https://github.com/xyzroe/xzg/edit/docs/docs/
+edit_uri: https://github.com/xyzroe/xzg/edit/mkdocs/docs
 copyright: >
   Created with ❤️ by <a href="https://github.com/xyzroe">xyzroe</a> &copy; 2024 <a href="https://opensource.org/licenses/GPL-3.0">GPL-3.0 License</a> 
 theme:
