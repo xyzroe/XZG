@@ -43,6 +43,8 @@ Flash or Find your device using next options:
   </select>
 </div>
 
+<script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
+
 <esp-web-install-button manifest="" class="button-connect">
   <button slot="activate" class="md-button md-button--primary">INSTALL</button>
   <span slot="unsupported">Use Chrome Desktop</span>
