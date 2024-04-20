@@ -1,0 +1,169 @@
+site_name: XZG Firmware
+site_author: xyzroe
+site_url: https://xzg.xyzroe.cc
+site_description: XZG Firmware - Wiki
+repo_url: https://github.com/xyzroe/xzg
+repo_name: XZG Firmware
+edit_uri: https://github.com/xyzroe/xzg/edit/docs/docs/
+copyright: >
+  Created with ❤️ by <a href="https://github.com/xyzroe">xyzroe</a> &copy; 2024 <a href="https://opensource.org/licenses/GPL-3.0">GPL-3.0 License</a> 
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - scheme: slate
+      primary: orange
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+  custom_dir: overrides
+  static_templates:
+    - 404.html
+  language: en
+  logo: assets/images/logo.svg
+  favicon: assets/images/logo.svg
+  features:
+    ##Setting up navigation
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+#    - navigation.path
+    - navigation.prune
+    - toc.follow
+    - toc.integrate
+    - navigation.top
+    ##Search
+    - search.suggest
+    - search.highlight
+    - search.share
+    ##Setting up the header
+    - header.autohide
+    - announce.dismiss
+    ##Navigation footer
+    - navigation.footer
+    ##Content tabs
+    - content.tabs.link
+    - content.code.select
+    - content.code.copy
+    - content.tooltips
+    - content.action.edit
+    - content.action.view
+
+# Extensions
+markdown_extensions:
+  #General
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  #Admonitions
+  - admonition
+  - pymdownx.details
+  #Annotations/Buttons
+  - attr_list
+  - md_in_html
+  - def_list
+  #Footnotes
+  - footnotes
+  #Data tables
+  - tables
+  - abbr
+  #Code Blocks
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  #Content Tabs
+  - pymdownx.tabbed:
+      alternate_style: true 
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  #Formating
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  #Emoji
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  #Lists
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true
+  #Table of Contents
+  - toc:
+      permalink: true
+  #BetterEm
+  - pymdownx.betterem:
+      smart_enable: all
+  #SmartSymbols
+  - pymdownx.smartsymbols
+  #Neoteroi
+  - neoteroi.cards
+  - neoteroi.timeline
+
+# Plugins
+plugins:
+  - tags
+  - offline:
+      enabled: false
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - external-markdown
+  - minify:
+      minify_html: true
+  - glightbox:
+       touchNavigation: true
+       loop: true
+       effect: zoom
+       slide_effect: slide
+       width: 100%
+       height: auto
+       zoomable: true
+       draggable: true
+       auto_caption: true
+       caption_position: bottom
+       skip_classes:
+        - skip-lightbox
+  - section-index
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/xyzroe
+    - icon: fontawesome/solid/paper-plane
+      link: https://t.me/xyzroe
+
+extra_javascript:
+    - https://cdn.jsdelivr.net/npm/tablesort@5.3.0/src/tablesort.min.js
+    - assets/javascripts/tables.js
+
+extra_css:
+    - assets/stylesheets/custom.css
+    - https://cdn.jsdelivr.net/gh/rod2ik/cdn@main/mkdocs/css/massilia-columns.css
+
+nav:
+  - Home: index.md
+  - Capabilities: capabilities.md
+  - Web Installer: install.md
+  - Wiki:
+    - Quick start: quick-start.md
+    - Lifehacks: lifehacks.md
+    - FAQ: faq.md
+  - About: 
+    - about.md
+ 

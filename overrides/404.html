@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block tabs %}
+<style>
+  .not_found {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 3em;
+  }
+
+  .nf-container {
+    background-color: var(--md-primary-fg-color);
+    padding-top: 1rem
+  }
+</style>
+<section class="mdx-container">
+  <div class="not_found">
+    <h1>404 - Not found</h1>
+    <img src="/assets/images/404.svg" alt="404" width="360" />
+
+  </div>
+
+</section>
+{% endblock %}
+
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
