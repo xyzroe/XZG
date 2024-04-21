@@ -1,15 +1,15 @@
 # XZG Firmware
 <div align="center"> 
 <a href="https://github.com/xyzroe/xzg/releases">
-  <img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version">
+<img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version">
 </a>
 <img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_release_push" alt="GitHub Actions Workflow Status">
 <a href="https://github.com/xyzroe/xzg/releases/latest">
-  <img src="https://img.shields.io/github/downloads/xyzroe/xzg/total.svg" alt="GitHub download">
+<img src="https://img.shields.io/github/downloads/xyzroe/xzg/total.svg" alt="GitHub download">
 </a>
 <img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests">
 <a href="LICENSE">
-  <img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License">
+<img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License">
 </a>
 </div>
 <div align="center"> 

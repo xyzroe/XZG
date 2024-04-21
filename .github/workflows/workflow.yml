@@ -1,4 +1,4 @@
-name: Build, release, push
+name: Build, release, push firmware
 
 permissions:
   contents: write
@@ -53,9 +53,12 @@ jobs:
         run: |
           currentTag=${GITHUB_REF#refs/tags/}
           badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)\n\n"
+          echo "Debug: ${badgeText}"
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
+          echo "Debug: ${commitMessage}"
           fullCommitMessage="$badgeText$commitMessage"
-          echo "commitMessage<<EOF" >> $GITHUB_ENV
+          echo "Debug: ${fullCommitMessage}"
+          echo "releaseMessage<<EOF" >> $GITHUB_ENV
           echo "$fullCommitMessage" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
         env:
@@ -77,18 +80,18 @@ jobs:
           {
             "name": "XZG Firmware",
             "version": "${{ steps.get_version.outputs.version }}",
-            "files": [
+            "builds": [
               {
-                "path": "XZG_${{ steps.get_version.outputs.version }}.full.bin",
-                "type": "app",
-                "lzma": false,
-                "address": "0x0",
-                "sha256": "${{ steps.sha256_hash.outputs.sha256 }}",
-                "size": ${{ steps.firmware_size.outputs.size }},
-                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.version }}/XZG_${{ steps.get_version.outputs.version }}.full.bin"
+                "chipFamily": "ESP32",
+                "improv": false,
+                "parts": [
+                  {
+                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_version.outputs.version }}/XZG_${{ steps.get_version.outputs.version }}.full.bin",
+                    "offset": 0
+                  }
+                ]
               }
-            ],
-            "chipFamily": "ESP32"
+            ]
           }
           EOF
           echo "Manifest file created."
@@ -98,29 +101,47 @@ jobs:
         with:
           generate_release_notes: false
           name: "${{ steps.get_version.outputs.version }}"
-          body: ${{ env.commitMessage }}
+          body: ${{ env.releaseMessage }}
           files: |
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
-      - name: Checkout mkdocs branch
+      - name: Setup Git
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
+      - name: Checkout releases branch
         uses: actions/checkout@v3
         with:
-          ref: mkdocs
-          path: mkdocs
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Copy manifest.json to mkdocs branch
+      - name: Create and checkout releases branch if not exists
         run: |
-          mkdir -p mkdocs/docs/assets/manifest/${{ steps.get_version.outputs.version }}
-          cp manifest.json mkdocs/docs/assets/manifest/${{ steps.get_version.outputs.version }}/manifest.json
+          if ! git rev-parse --verify --quiet origin/releases; then
+            git checkout --orphan releases
+            git reset --hard
+            git commit --allow-empty -m "Initial commit for releases branch"
+            git push origin releases
+          else
+            git checkout releases
+          fi
+        working-directory: ./releases
 
-      - name: Commit and push manifest.json
+      - name: Copy files to releases branch
         run: |
-          cd mkdocs
+          mkdir -p releases/${{ steps.get_version.outputs.version }}
+          cp bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
+          cp manifest.json releases/${{ steps.get_version.outputs.version }}/
+          echo "Files copied to releases branch."
+
+      - name: Commit and push files to releases branch
+        run: |
+          cd releases
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add docs/assets/manifest/${{ steps.get_version.outputs.version }}/manifest.json
-          git commit -m "Add manifest.json for version ${{ steps.get_version.outputs.version }}"
-          git push origin mkdocs
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          git add ${{ steps.get_version.outputs.version }}
+          git commit -m "Add firmware and manifest for version ${{ steps.get_version.outputs.version }}"
+          git push
+
