@@ -120,7 +120,7 @@ jobs:
       - name: Copy files to releases directory
         run: |
           mkdir -p releases/${{ steps.get_version.outputs.version }}
-          cp bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
+          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
           cp manifest.json releases/${{ steps.get_version.outputs.version }}/
           echo "Files copied to releases directory."
 
