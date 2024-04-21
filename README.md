@@ -8,7 +8,7 @@
 </div>
 <div align="center"> 
 <br><br>
-<a href="xzg.xyzroe.cc"><img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo"></a>
+<a href="https://xzg.xyzroe.cc"><img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo"></a>
 <br><br>
 This repository contains the firmware for various, ESP32 based, Zigbee gateways.<br><br>
 Firmware is opensource, so feel free to improve it <br> by making a commit to this repository. 
