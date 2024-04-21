@@ -1,5 +1,8 @@
 name: Process Releases
 
+permissions:
+  contents: write
+  
 on:
   workflow_dispatch:
 
@@ -29,12 +32,10 @@ jobs:
             echo -e "{\n  \"name\": \"XZG Firmware\",\n  \"version\": \"$version\",\n  \"builds\": [\n    {\n      \"chipFamily\": \"ESP32\",\n      \"improv\": false,\n      \"parts\": [\n        {\n          \"path\": \"$file_path\",\n          \"offset\": 0\n        }\n      ]\n    }\n  ]\n}" > "$dir/manifest.json"
           done
 
-
-
       - name: Push changes
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add .
-          git commit -m "Update releases with new manifests"
+          git commit -m "Update releases with new manifests and FW files"
           git push
