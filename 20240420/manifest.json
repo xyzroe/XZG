@@ -7,7 +7,7 @@
       "improv": false,
       "parts": [
         {
-          "path": "20240420/XZG_20240420.full.bin",
+          "path": "https://raw.githubusercontent.com/xyzroe/XZG/releases/20240420/XZG_20240420.full.bin",
           "offset": 0
         }
       ]
