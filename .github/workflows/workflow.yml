@@ -52,14 +52,12 @@ jobs:
         id: get_commit_message
         run: |
           currentTag=${GITHUB_REF#refs/tags/}
-          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)\n\n"
-          echo "Debug: ${badgeText}"
+          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)"
+          printf -v badgeTextWithNewlines "%s\n\n" "$badgeText" 
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
-          echo "Debug: ${commitMessage}"
-          fullCommitMessage="$badgeText$commitMessage"
-          echo "Debug: ${fullCommitMessage}"
+          fullCommitMessage="${badgeTextWithNewlines}${commitMessage}"
           echo "releaseMessage<<EOF" >> $GITHUB_ENV
-          echo "$fullCommitMessage" >> $GITHUB_ENV
+          printf "%s\n" "$fullCommitMessage" >> $GITHUB_ENV 
           echo "EOF" >> $GITHUB_ENV
         env:
           GITHUB_REF: ${{ github.ref }}
@@ -138,8 +136,8 @@ jobs:
       - name: Copy files to releases directory
         run: |
           mkdir -p ./releases/${{ steps.get_version.outputs.version }}
-          cp ./main/bin/XZG_${{ steps.get_version.outputs.version }}.full.bin ./releases/${{ steps.get_version.outputs.version }}/
-          cp ./main/manifest.json ./releases/${{ steps.get_version.outputs.version }}/
+          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin ./releases/${{ steps.get_version.outputs.version }}/
+          cp ./manifest.json ./releases/${{ steps.get_version.outputs.version }}/
           echo "Files copied to releases directory."
 
       - name: Commit and push files to releases branch
