@@ -26,10 +26,13 @@ jobs:
           done
 
       - name: Create manifests
+        env:
+          GITHUB_REPO: ${{ github.repository }}
         run: |
+          base_url="https://raw.githubusercontent.com/${GITHUB_REPO}/releases"
           for dir in *; do
             version=$(basename "$dir")
-            file_path="$dir/XZG_${version}.full.bin"
+            file_path="${base_url}/${dir}/XZG_${version}.full.bin"
             echo -e "{\n  \"name\": \"XZG Firmware\",\n  \"version\": \"$version\",\n  \"builds\": [\n    {\n      \"chipFamily\": \"ESP32\",\n      \"improv\": false,\n      \"parts\": [\n        {\n          \"path\": \"$file_path\",\n          \"offset\": 0\n        }\n      ]\n    }\n  ]\n}" > "$dir/manifest.json"
           done
 
