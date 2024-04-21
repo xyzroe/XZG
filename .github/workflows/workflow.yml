@@ -94,23 +94,6 @@ jobs:
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
-      - name: Setup Git
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
-      - name: Create clean branch if it doesn't exist
-        run: |
-          if ! git rev-parse --verify --quiet origin/releases; then
-            git checkout --orphan releases
-            git rm -rf .
-            git clean -fdx
-            git commit --allow-empty -m "Initial commit for releases"
-            git push origin releases
-          else
-            echo "Branch already exists!"
-          fi
-          
       - name: Checkout releases branch
         uses: actions/checkout@v3
         with:
