@@ -110,6 +110,8 @@ jobs:
       - name: Commit and push files to releases branch
         run: |
           cd releases
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add .
           git commit -m "Add firmware and manifest for version ${{ steps.get_version.outputs.version }}"
           git push origin releases
