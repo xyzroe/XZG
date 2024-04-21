@@ -1,0 +1,59 @@
+name: Process Releases
+
+on:
+  workflow_dispatch:
+
+jobs:
+  process_releases:
+    runs-on: ubuntu-latest
+    steps:
+      # Шаг 1: Клонирование ветки releases текущего репозитория
+      - name: Checkout releases branch
+        uses: actions/checkout@v3
+        with:
+          ref: releases
+
+      # Шаг 2: Скачивание релизов из другого репозитория
+      - name: Download release assets
+        run: |
+          curl -s https://api.github.com/repos/xyzroe/XZG/releases | jq -r '.[1:] | .[] | .assets[] | select(.name | test("XZG_\\d{8}.full.bin")) | .browser_download_url' | while read url; do
+            file_name=$(basename "$url")
+            version=${file_name%.full.bin}
+            mkdir -p "releases/$version"
+            wget -O "releases/$version/$file_name" "$url"
+          done
+
+      # Шаг 3: Создание manifest.json для каждого файла
+      - name: Create manifests
+        run: |
+          for dir in releases/*; do
+            version=$(basename "$dir")
+            file_path="$dir/XZG_${version}.full.bin"
+            cat << EOF > "$dir/manifest.json"
+            {
+              "name": "XZG Firmware",
+              "version": "$version",
+              "builds": [
+                {
+                  "chipFamily": "ESP32",
+                  "improv": false,
+                  "parts": [
+                    {
+                      "path": "$file_path",
+                      "offset": 0
+                    }
+                  ]
+                }
+              ]
+            }
+            EOF
+          done
+
+      # Шаг 4: Загрузка изменений в ветку releases
+      - name: Push changes
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add .
+          git commit -m "Update releases with new manifests"
+          git push
