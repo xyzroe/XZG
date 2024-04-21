@@ -111,37 +111,42 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
 
-      - name: Checkout releases branch
+      - name: Ensure releases directory exists
+        run: mkdir -p releases
+
+      - name: Checkout releases branch if exists
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          ref: releases
+          path: releases
           token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Continue if the branch does not exist
 
-      - name: Create and checkout releases branch if not exists
+      - name: Initialize releases branch if it doesn't exist
         run: |
-          if ! git rev-parse --verify --quiet origin/releases; then
+          cd releases
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin https://${{ secrets.GITHUB_TOKEN }}@${{ github.server_url }}/${{ github.repository }}
             git checkout --orphan releases
-            git reset --hard
+            git rm -rf .
+            git clean -fdx
             git commit --allow-empty -m "Initial commit for releases branch"
             git push origin releases
-          else
-            git checkout releases
           fi
-        working-directory: ./releases
 
-      - name: Copy files to releases branch
+      - name: Copy files to releases directory
         run: |
-          mkdir -p releases/${{ steps.get_version.outputs.version }}
-          cp bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
-          cp manifest.json releases/${{ steps.get_version.outputs.version }}/
-          echo "Files copied to releases branch."
+          mkdir -p ./releases/${{ steps.get_version.outputs.version }}
+          cp ./main/bin/XZG_${{ steps.get_version.outputs.version }}.full.bin ./releases/${{ steps.get_version.outputs.version }}/
+          cp ./main/manifest.json ./releases/${{ steps.get_version.outputs.version }}/
+          echo "Files copied to releases directory."
 
       - name: Commit and push files to releases branch
         run: |
           cd releases
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ${{ steps.get_version.outputs.version }}
+          git add .
           git commit -m "Add firmware and manifest for version ${{ steps.get_version.outputs.version }}"
-          git push
+          git push origin releases
+
 
