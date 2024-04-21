@@ -62,16 +62,6 @@ jobs:
         env:
           GITHUB_REF: ${{ github.ref }}
 
-      - name: Calculate SHA-256 hash of the firmware
-        id: sha256_hash
-        run: |
-          echo "sha256=$(sha256sum bin/XZG_${{ steps.get_version.outputs.version }}.full.bin | awk '{print $1}')" >> $GITHUB_OUTPUT
-
-      - name: Get size of the firmware
-        id: firmware_size
-        run: |
-          echo "size=$(stat -c %s bin/XZG_${{ steps.get_version.outputs.version }}.full.bin)" >> $GITHUB_OUTPUT
-
       - name: Create manifest.json for ESP Web Tools
         run: |
           cat << EOF > manifest.json
@@ -104,40 +94,29 @@ jobs:
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
-      - name: Setup Git
+      - name: Create clean branch if it doesn't exist
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
-      - name: Ensure releases directory exists
-        run: mkdir -p releases
-
-      - name: Checkout releases branch if exists
+          if ! git rev-parse --verify --quiet origin/releases; then
+            git checkout --orphan releases
+            git rm -rf .
+            git clean -fdx
+            git commit --allow-empty -m "Initial commit for releases"
+            git push origin releases
+          else
+            echo "Branch already exists!"
+          fi
+          
+      - name: Checkout mkdocs branch
         uses: actions/checkout@v3
         with:
           ref: releases
           path: releases
-          token: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true  # Continue if the branch does not exist
-
-      - name: Initialize releases branch if it doesn't exist
-        run: |
-          cd releases
-          if [ ! -d .git ]; then
-            git init
-            git remote add origin https://${{ secrets.GITHUB_TOKEN }}@${{ github.server_url }}/${{ github.repository }}
-            git checkout --orphan releases
-            git rm -rf .
-            git clean -fdx
-            git commit --allow-empty -m "Initial commit for releases branch"
-            git push origin releases
-          fi
 
       - name: Copy files to releases directory
         run: |
-          mkdir -p ./releases/${{ steps.get_version.outputs.version }}
-          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin ./releases/${{ steps.get_version.outputs.version }}/
-          cp ./manifest.json ./releases/${{ steps.get_version.outputs.version }}/
+          mkdir -p releases/${{ steps.get_version.outputs.version }}
+          cp bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
+          cp manifest.json releases/${{ steps.get_version.outputs.version }}/
           echo "Files copied to releases directory."
 
       - name: Commit and push files to releases branch
@@ -146,5 +125,3 @@ jobs:
           git add .
           git commit -m "Add firmware and manifest for version ${{ steps.get_version.outputs.version }}"
           git push origin releases
-
-
