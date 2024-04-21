@@ -26,7 +26,7 @@ jobs:
           for dir in releases/*; do
             version=$(basename "$dir")
             file_path="$dir/XZG_${version}.full.bin"
-            cat <<EOF >"$dir/manifest.json"
+            cat << EOF > "$dir/manifest.json"
             {
               "name": "XZG Firmware",
               "version": "$version",
