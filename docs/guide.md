@@ -1,7 +1,7 @@
 # Device Operation Guide
 
 !!! question "Check your device"
-    Not all devices with this firmware support an LED and a button. These features are only available on devices that have them physically present.  
+    Not all devices with this firmware support LEDs and a button. These features are only available on devices that have them physically present.  
     If your device does not support these features, the corresponding options will not appear in the web interface.
 
 ## LED Indicators

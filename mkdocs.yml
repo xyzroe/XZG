@@ -147,14 +147,21 @@ extra:
       link: https://github.com/xyzroe
     - icon: fontawesome/solid/paper-plane
       link: https://t.me/xyzroe
+  analytics:
+    provider: google
+    property: G-VWB99VELNE
 
 extra_javascript:
     - https://cdn.jsdelivr.net/npm/tablesort@5.3.0/src/tablesort.min.js
     - assets/javascripts/tables.js
+    - assets/javascripts/google-translate.js
+    - https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js
+    - assets/javascripts/custom.js
 
 extra_css:
     - assets/stylesheets/custom.css
     - https://cdn.jsdelivr.net/gh/rod2ik/cdn@main/mkdocs/css/massilia-columns.css
+    - assets/stylesheets/google-translate.css
 
 nav:
   - Home: index.md
