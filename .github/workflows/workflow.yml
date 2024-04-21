@@ -94,6 +94,11 @@ jobs:
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
+      - name: Setup Git
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
       - name: Create clean branch if it doesn't exist
         run: |
           if ! git rev-parse --verify --quiet origin/releases; then
@@ -106,7 +111,7 @@ jobs:
             echo "Branch already exists!"
           fi
           
-      - name: Checkout mkdocs branch
+      - name: Checkout releases branch
         uses: actions/checkout@v3
         with:
           ref: releases
