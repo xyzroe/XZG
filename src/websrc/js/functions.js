@@ -1239,17 +1239,17 @@ function extractVersionFromReleaseTag(url) {
 	}
 }
 
-function espFlashGitWait(url) {
+function espFlashGitWait(params) {
 	//ESPfwStartEvents();
 
 	setTimeout(function () {
-		if (!url) {
+		if (!params.link) {
 			$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.lgds'));
 		}
 		else {
-			let version = extractVersionFromReleaseTag(url);
-			$.get(apiLink + api.actions.API_CMD + "&cmd=9&url=" + url, function (data) { });
+			let version = extractVersionFromReleaseTag(params.link);
+			$.get(apiLink + api.actions.API_CMD + "&cmd=9&url=" + params.link, function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.vgds', { ver: version }));
 		}
 		console.log("[git_flash] start");
@@ -1301,6 +1301,12 @@ function updateRootEvents(callback) {
 }
 
 function ESPfwStartEvents(callback) {
+	if (retryCount >= maxRetries) {
+		console.log(i18next.t('c.cerp'));
+		alert(i18next.t('c.cerp'));
+		return;
+	}
+
 	var source = new EventSource('/events', { withCredentials: false, timeout: 500 }); // Установка таймаута в 3 секунды
 	console.log("Events try to open");
 
@@ -1312,12 +1318,15 @@ function ESPfwStartEvents(callback) {
 	source.addEventListener('error', function (e) {
 		if (e.target.readyState != EventSource.OPEN) {
 			console.log("Events Err. Reconnecting...");
+			retryCount++;
 			// При возникновении ошибки, попробуйте переподключиться через некоторое время
 			setTimeout(function () {
+				source.close();
 				ESPfwStartEvents(callback); // Повторно вызываем функцию для повторной попытки подключения
 			}, 1000); // Пауза в 5 секунд перед повторной попыткой подключения
 		}
 	}, false);
+
 	source.addEventListener('ESP_FW_prgs', function (e) {
 
 		//const val = e.data + "%";
