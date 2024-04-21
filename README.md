@@ -1,16 +1,14 @@
 # XZG Firmware
 <div align="center"> 
 <a href="https://github.com/xyzroe/xzg/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
-<img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img>
+<a href="https://github.com/xyzroe/XZG/actions/workflows/build_fw.yml"><img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img></a>
 <a href="https://github.com/xyzroe/xzg/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/xzg/total.svg" alt="GitHub download"></img></a>
-<img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img>
-<a href="LICENSE">
-<img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License"></img>
-</a>
+<a href="https://github.com/xyzroe/XZG/issues"><img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License"></img></a>
 </div>
 <div align="center"> 
 <br><br>
-<img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo">
+<a href="xzg.xyzroe.cc"><img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo"></a>
 <br><br>
 This repository contains the firmware for various, ESP32 based, Zigbee gateways.<br><br>
 Firmware is opensource, so feel free to improve it <br> by making a commit to this repository. 
@@ -78,9 +76,8 @@ Thanks to all the developers and contributors who make this project possible:
 
 ### Our Awesome Contributors:
 
-<a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a><br>
-<a href="https://github.com/xyzroe/ZigStarGW-FW/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/ZigStarGW-FW" /></a><br>
-<a href="https://github.com/mercenaruss/uzg-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=mercenaruss/uzg-firmware" /></a><br>
+<a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
+<a href="https://github.com/xyzroe/ZigStarGW-FW/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/ZigStarGW-FW" /></a>
 <a href="https://github.com/smlight-dev/slzb-06-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=smlight-dev/slzb-06-firmware" /></a>
 
 
