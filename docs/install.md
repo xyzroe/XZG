@@ -50,7 +50,10 @@ Flash or Find your device using next options:
   <span slot="unsupported">Use Chrome Desktop</span>
   <span slot="not-allowed">Not allowed to use this on HTTP!</span>
 </esp-web-install-button>
-<a href="http://xzg.local/"><button class="md-button">OPEN DEVICE</button></a>
+<br>
+<div>
+<a href="http://xzg.local/" target="_blank"><button class="md-button">Open XZG web UI via local network</button></a>
+</div>
 
 <br>Powered by <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a><br>
 
