@@ -1,0 +1,48 @@
+name: Convert HEX to BIN
+
+on:
+  push:
+    branches:
+      - zb_fws  # Trigger on push to zb_fws branch
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest  # Run on the latest Ubuntu version
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3  # Use the latest version
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'  # Use the latest Python 3 version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Install hex2bin
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        git clone https://github.com/algodesigner/hex2bin.git
+        cd hex2bin
+        make
+        sudo make install
+
+    - name: Download and prepare files
+      run: |
+        mkdir -p downloads
+        cd downloads
+        python3 ../.github/scripts/process_and_convert.py
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Add converted BIN files"
+        git push
+
