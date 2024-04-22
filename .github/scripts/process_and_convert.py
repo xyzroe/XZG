@@ -31,8 +31,9 @@ for root, dirs, files in os.walk('downloads'):
             hex_path = os.path.join(root, file)
             bin_path = hex_path[:-4] + ".bin"
             try:
-                os.system(f"hex2bin -s {hex_path} {bin_path}")
+                # Использование srec_cat для конвертации
+                command = f"srec_cat {hex_path} -intel -o {bin_path} -binary"
+                os.system(command)
                 os.remove(hex_path)
             except Exception as e:
                 print(f"Error converting file {hex_path}: {e}")
-

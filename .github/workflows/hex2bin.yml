@@ -23,14 +23,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests
 
-    - name: Install hex2bin
+    - name: Install srecord
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential
-        git clone https://github.com/algodesigner/hex2bin.git
-        cd hex2bin
-        make
-        sudo make install
+        sudo apt-get install -y srecord
 
     - name: Download and prepare files
       run: |
