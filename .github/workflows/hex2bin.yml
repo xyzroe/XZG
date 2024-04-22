@@ -32,7 +32,7 @@ jobs:
 
     - name: Download and prepare files
       run: |
-        python3 ../.github/scripts/process_and_convert.py
+        python3 .github/scripts/process_and_convert.py
 
     - name: Commit and push changes
       run: |
