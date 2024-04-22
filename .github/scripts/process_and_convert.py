@@ -21,17 +21,16 @@ def download_and_extract(url, extract_to):
 with open('task.json', 'r') as f:
     tasks = json.load(f)
     for task in tasks:
-        dir_path = os.path.join('downloads', task['type'])
+        dir_path = os.path.join('ti', task['type'])
         os.makedirs(dir_path, exist_ok=True)
         download_and_extract(task['link'], dir_path)
 
-for root, dirs, files in os.walk('downloads'):
+for root, dirs, files in os.walk('ti'):
     for file in files:
         if file.endswith(".hex"):
             hex_path = os.path.join(root, file)
             bin_path = hex_path[:-4] + ".bin"
             try:
-                # Использование srec_cat для конвертации
                 command = f"srec_cat {hex_path} -intel -o {bin_path} -binary"
                 os.system(command)
                 os.remove(hex_path)
