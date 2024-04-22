@@ -1,9 +1,13 @@
 name: Convert HEX to BIN
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
       - zb_fws  # Trigger on push to zb_fws branch
+  workflow_dispatch:
 
 jobs:
   convert:
