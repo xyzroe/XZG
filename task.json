@@ -1,0 +1,5 @@
+[
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20230507.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P7_coordinator_20230507.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/6e3b68404136c8cf87979212665e6505bd9a0e3b/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220219.zip"}
+]
