@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3  # Use the latest version
+        with:
+          ref: zb_fws
 
     - name: Set up Python
       uses: actions/setup-python@v4
