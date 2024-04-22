@@ -32,8 +32,6 @@ jobs:
 
     - name: Download and prepare files
       run: |
-        mkdir -p downloads
-        cd downloads
         python3 ../.github/scripts/process_and_convert.py
 
     - name: Commit and push changes
