@@ -20,7 +20,7 @@ def download_and_extract(url, extract_to):
 
 def update_manifest(root, file, chip, version):
     manifest_path = os.path.join('ti', 'manifest.json')
-    link = f"https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/{root}/{file}"
+    link = f"https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/{root}/{file}"
     data = {
         chip: {
             file: {
@@ -58,6 +58,6 @@ for root, dirs, files in os.walk('ti'):
             bin_path = os.path.join(root, file)
             # Extract chip and version from the file name
             parts = file.split('_')
-            chip = '_'.join(parts[:-3])  # Assumes the chip name is all parts before the last three parts
-            version = parts[-2]  # Assumes the version is the second last part before '.bin'
+            chip = '_'.join(parts[:-1])  # Chip is everything before the date part
+            version = parts[-1].split('.')[0]  # Assuming the version is the last part before '.bin'
             update_manifest(root, file, chip, version)
