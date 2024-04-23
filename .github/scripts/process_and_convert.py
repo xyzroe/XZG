@@ -18,6 +18,33 @@ def download_and_extract(url, extract_to):
     except zipfile.BadZipFile as e:
         print(f"Error unpacking archive: {e}")
 
+def update_manifest(root, file, chip, version):
+    manifest_path = os.path.join('ti', 'manifest.json')
+    link = f"https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/{root}/{file}"
+    data = {
+        chip: {
+            file: {
+                "ver": version,
+                "link": link,
+                "notes": ""
+            }
+        }
+    }
+    if os.path.exists(manifest_path):
+        with open(manifest_path, 'r+') as f:
+            manifest = json.load(f)
+            if root not in manifest:
+                manifest[root] = {}
+            if chip not in manifest[root]:
+                manifest[root][chip] = {}
+            manifest[root][chip][file] = data[chip][file]
+            f.seek(0)
+            json.dump(manifest, f, indent=4)
+            f.truncate()
+    else:
+        with open(manifest_path, 'w') as f:
+            json.dump({root: data}, f, indent=4)
+
 with open('task.json', 'r') as f:
     tasks = json.load(f)
     for task in tasks:
@@ -27,12 +54,10 @@ with open('task.json', 'r') as f:
 
 for root, dirs, files in os.walk('ti'):
     for file in files:
-        if file.endswith(".hex"):
-            hex_path = os.path.join(root, file)
-            bin_path = hex_path[:-4] + ".bin"
-            try:
-                command = f"srec_cat {hex_path} -intel -o {bin_path} -binary"
-                os.system(command)
-                os.remove(hex_path)
-            except Exception as e:
-                print(f"Error converting file {hex_path}: {e}")
+        if file.endswith(".bin"):
+            bin_path = os.path.join(root, file)
+            # Extract chip and version from the file name
+            parts = file.split('_')
+            chip = '_'.join(parts[:-3])  # Assumes the chip name is all parts before the last three parts
+            version = parts[-2]  # Assumes the version is the second last part before '.bin'
+            update_manifest(root, file, chip, version)
