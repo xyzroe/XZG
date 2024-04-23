@@ -21,6 +21,7 @@ def download_and_extract(url, extract_to):
 def update_manifest(root, file, chip, version):
     manifest_path = os.path.join('ti', 'manifest.json')
     link = f"https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/{root}/{file}"
+    root = root.replace('ti/', '')
     data = {
         chip: {
             file: {
