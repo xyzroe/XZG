@@ -62,3 +62,12 @@ for root, dirs, files in os.walk('ti'):
             chip = '_'.join(parts[:-1])  # Chip is everything before the date part
             version = parts[-1].split('.')[0]  # Assuming the version is the last part before '.bin'
             update_manifest(root, file, chip, version)
+
+def clean_directory(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if not (file.endswith(".bin") or file == "manifest.json"):
+                os.remove(os.path.join(root, file))
+
+# Calling the clean_directory function to remove unwanted files
+clean_directory('ti')
