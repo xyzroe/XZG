@@ -38,7 +38,12 @@ def update_manifest(root, file, chip, version):
                 manifest[root] = {}
             if chip not in manifest[root]:
                 manifest[root][chip] = {}
-            manifest[root][chip][file] = data[chip][file]
+            if file not in manifest[root][chip]:
+                manifest[root][chip][file] = data[chip][file]
+            else:
+                manifest[root][chip][file]['ver'] = data[chip][file]['ver']
+                manifest[root][chip][file]['link'] = data[chip][file]['link']
+                manifest[root][chip][file].setdefault('notes', "")
             f.seek(0)
             json.dump(manifest, f, indent=4)
             f.truncate()
