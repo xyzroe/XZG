@@ -4,7 +4,7 @@
             "CC1352P2_CC2652P_launchpad_router_20221102.bin": {
                 "ver": "20221102",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_launchpad_router_20221102.bin",
-                "notes": ""
+                "notes": "Allow to set transmit power\nFix directly connected Xiaomi devices disconnecting\nSimpleLink SDK 6.30.00.84 (changelog)"
             }
         }
     },
@@ -39,7 +39,7 @@
             "CC1352P7_coordinator_20230507.bin": {
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507.bin",
-                "notes": ""
+                "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)\nIncrease message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)\nImprove performance with larger network\nOptimize table sizes\nIncrease stack_size from 1024 to 8192\nAdd firmware for CC1352P7 and CC2652R7\nSimpleLink SDK 7.10.00.98"
             }
         },
         "CC2652R7_coordinator": {
@@ -53,7 +53,7 @@
             "CC1352P2_CC2652P_launchpad_coordinator_20230507.bin": {
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20230507.bin",
-                "notes": ""
+                "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)\nIncrease message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)\nImprove performance with larger network\nOptimize table sizes\nIncrease stack_size from 1024 to 8192\nAdd firmware for CC1352P7 and CC2652R7\nSimpleLink SDK 7.10.00.98"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20240315.bin": {
                 "ver": "20240315",

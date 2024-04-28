@@ -4,6 +4,7 @@ import requests
 from zipfile import ZipFile
 
 def download_and_extract(url, extract_to):
+    print(url)
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -52,15 +53,32 @@ def update_manifest(root, file, chip, version):
             json.dump({root: data}, f, indent=4)
 
 with open('task.json', 'r') as f:
+    print('Read task.json')
     tasks = json.load(f)
     for task in tasks:
         dir_path = os.path.join('ti', task['type'])
         os.makedirs(dir_path, exist_ok=True)
         download_and_extract(task['link'], dir_path)
 
+print("hex2bin")
+for root, dirs, files in os.walk('ti'):
+    for file in files:
+        if file.endswith(".hex"):
+            print(file)
+            hex_path = os.path.join(root, file)
+            bin_path = hex_path[:-4] + ".bin"
+            try:
+                command = f"srec_cat {hex_path} -intel -o {bin_path} -binary"
+                os.system(command)
+                os.remove(hex_path)
+            except Exception as e:
+                print(f"Error converting file {hex_path}: {e}")
+                
+print("update manifest")
 for root, dirs, files in os.walk('ti'):
     for file in files:
         if file.endswith(".bin"):
+            print(file)
             bin_path = os.path.join(root, file)
             # Extract chip and version from the file name
             parts = file.split('_')
@@ -69,6 +87,7 @@ for root, dirs, files in os.walk('ti'):
             update_manifest(root, file, chip, version)
 
 def clean_directory(directory):
+    print("clean directory")
     for root, dirs, files in os.walk(directory):
         for file in files:
             if not (file.endswith(".bin") or file == "manifest.json"):

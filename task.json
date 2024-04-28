@@ -1,8 +1,12 @@
 [
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20230507.zip"},
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P7_coordinator_20230507.zip"},
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/6e3b68404136c8cf87979212665e6505bd9a0e3b/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220219.zip"},
-    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20221102.zip"},
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/files/15001944/20240315_20240316.zip"},
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/7398d834eb3a790876c280293c4181da96cc7114/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20221226.zip"}
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_coordinator_20230507/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20230507.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_coordinator_20230507/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20230507.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_coordinator_20230507/coordinator/Z-Stack_3.x.0/bin/CC1352P7_coordinator_20230507.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_coordinator_20221226/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20221226.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_coordinator_20221226/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20221226.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_Home_3.x.0_coordinator_20220219/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20220219.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_Home_3.x.0_coordinator_20220219/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20220219.zip"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_router_20221102/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20221102.zip"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_router_20221102/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_router_20221102.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/files/15001944/20240315_20240316.zip"}
 ]
