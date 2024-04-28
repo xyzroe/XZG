@@ -6,6 +6,13 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_launchpad_router_20221102.bin",
                 "notes": "Allow to set transmit power\nFix directly connected Xiaomi devices disconnecting\nSimpleLink SDK 6.30.00.84 (changelog)"
             }
+        },
+        "CC1352P2_CC2652P_other_router": {
+            "CC1352P2_CC2652P_other_router_20221102.bin": {
+                "ver": "20221102",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_other_router_20221102.bin",
+                "notes": ""
+            }
         }
     },
     "coordinator": {
@@ -13,6 +20,21 @@
             "CC1352P2_CC2652P_other_coordinator_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240315.bin",
+                "notes": ""
+            },
+            "CC1352P2_CC2652P_other_coordinator_20230507.bin": {
+                "ver": "20230507",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507.bin",
+                "notes": ""
+            },
+            "CC1352P2_CC2652P_other_coordinator_20221226.bin": {
+                "ver": "20221226",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20221226.bin",
+                "notes": ""
+            },
+            "CC1352P2_CC2652P_other_coordinator_20220219.bin": {
+                "ver": "20220219",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20220219.bin",
                 "notes": ""
             }
         },
@@ -63,6 +85,11 @@
             "CC1352P2_CC2652P_launchpad_coordinator_20220219.bin": {
                 "ver": "20220219",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20220219.bin",
+                "notes": ""
+            },
+            "CC1352P2_CC2652P_launchpad_coordinator_20221226.bin": {
+                "ver": "20221226",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226.bin",
                 "notes": ""
             }
         }
