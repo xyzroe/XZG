@@ -10,6 +10,9 @@
 			"src/websrc/json"
 		],
 		"cSpell.useGitignore": false,
+		"files.associations": {
+			"*.tpp": "cpp"
+		},
 	},
 	"extensions": {
 		"recommendations": [

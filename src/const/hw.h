@@ -18,8 +18,8 @@ struct MistConfig {
     int btnPlr;
     int uartSelPin;
     int uartSelPlr;
-    int ledUsbPin;
-    int ledUsbPlr;
+    int ledModePin;
+    int ledModePlr;
     int ledPwrPin;
     int ledPwrPlr;
 };

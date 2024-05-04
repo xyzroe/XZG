@@ -5,52 +5,44 @@
             <div class="card">
                 <div class="card-header fw-bold">
                     <svg viewBox="0 0 16 16" class="card_icon">
-                        <use xlink:href="icons.svg#link"></use>
-                    </svg><span data-i18n="p.st.dsc.tt"></span>
+                        <use xlink:href="icons.svg#activity"></use>
+                    </svg><span data-i18n="l.zi"></span>
                 </div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td data-i18n="p.st.dsc.op"></td>
-                                <td data-replace="operationalMode"></td>
-                            </tr>
-                            <!-- <tr>
-                                <td>Ethernet connected:</td>
-                                <td data-replace="connectedEther"></td>
-                            </tr> -->
-                            <tr>
-                                <td data-i18n="p.st.dsc.scc"></td>
-                                <td data-replace="connectedSocketStatus"></td>
-                            </tr>
-                            <!-- <tr>
-                                <td>WiFi Client enabled:</td>
-                                <td data-replace="wifiEnabled"></td>
+                                <td data-i18n="p.st.zbc.op"></td>
+                                <td data-r2v="operationalMode"></td>
                             </tr>
                             <tr>
-                                <td>WiFi Client status:</td>
-                                <td data-replace="wifiConnected"></td>
+                                <td data-i18n="p.st.zbc.scc"></td>
+                                <td data-r2v="connectedSocketStatus"></td>
                             </tr>
                             <tr>
-                                <td>WiFi Access Point enabled:</td>
-                                <td data-replace="wifiModeAP"></td>
+                                <td data-i18n="p.st.zbc.su"></td>
+                                <td data-r2v="connectedSocket"></td>
                             </tr>
                             <tr>
-                                <td>WiFi Access Point status:</td>
-                                <td data-replace="wifiModeAPStatus"></td>
-                            </tr> -->
-                            <tr>
-                                <td data-i18n="p.st.dsc.du"></td>
-                                <td data-replace="uptime"></td>
+                                <td data-i18n="p.st.c.fv"></td>
+                                <td data-r2v="zigbeeFwRev"></td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dsc.su"></td>
-                                <td data-replace="connectedSocket"></td>
+                                <td data-i18n="p.st.c.hv"></td>
+                                <td data-r2v="zigbeeHwRev"></td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dsc.lt"></td>
-                                <td data-replace="localTime"></td>
+                                <td data-i18n="p.st.zbc.zie"></td>
+                                <td data-r2v="zigbeeIeee"></td>
                             </tr>
+                            <tr>
+                                <td data-i18n="p.st.zbc.zfs"></td>
+                                <td>
+                                    <span data-r2v="zigbeeFlSize"></span>
+                                    <span data-i18n="p.st.dic.kb"></span>
+                                </td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -68,15 +60,15 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="p.st.dic.dm"></td>
-                                <td data-replace="hwRev"></td>
+                                <td data-r2v="hwRev"></td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dic.efv"></td>
-                                <td data-replace="VERSION"></td>
+                                <td data-i18n="p.st.c.fv"></td>
+                                <td data-r2v="VERSION"></td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dic.ehv"></td>
-                                <td data-replace="espModel"></td>
+                                <td data-i18n="p.st.c.hv"></td>
+                                <td data-r2v="espModel"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.et"></td>
@@ -86,15 +78,15 @@
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
                                         <div class="progress-text">
-                                            <span data-replace="deviceTemp"></span> °C
+                                            <span data-r2v="deviceTemp"></span> °C
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.ef"></td>
-                                <td><span data-replace="espCores"></span> <span data-i18n="p.st.dic.cs"></span> @
-                                    <span data-replace="espFreq"></span>
+                                <td><span data-r2v="espCores"></span> <span data-i18n="p.st.dic.cs"></span> @
+                                    <span data-r2v="espFreq"></span>
                                     <span data-i18n="p.st.dic.mhz"></span>
                                 </td>
                             </tr>
@@ -106,8 +98,7 @@
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
                                         <div class="progress-text">
-                                            <span data-replace="espHeapUsed"></span> / <span
-                                                data-replace="espHeapSize"></span>
+                                            <span data-r2v="espHeapUsed"></span> / <span data-r2v="espHeapSize"></span>
                                             <span data-i18n="p.st.dic.kb"></span>
                                         </div>
                                     </div>
@@ -115,20 +106,18 @@
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.efs"></td>
-                                <td><span data-replace="espFlashSize"></span> <span
-                                        data-i18n="p.st.dic.mb"></span>, <span data-replace="espFlashType"></span>
+                                <td><span data-r2v="espFlashSize"></span> <span data-i18n="p.st.dic.mb"></span>, <span
+                                        data-r2v="espFlashType"></span>
                                 </td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.ens"></td>
                                 <td>
                                     <div class="progress progress-div">
-                                        <div id="prgNvs"
-                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                        <div id="prgNvs" class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
                                         <div class="progress-text">
-                                            <span data-replace="espNvsUsed"></span> / <span
-                                                data-replace="espNvsSize"></span>
+                                            <span data-r2v="espNvsUsed"></span> / <span data-r2v="espNvsSize"></span>
                                             <span data-i18n="p.st.dic.ent"></span>
                                         </div>
                                     </div>
@@ -138,24 +127,22 @@
                                 <td data-i18n="p.st.dic.efss"></td>
                                 <td>
                                     <div class="progress progress-div">
-                                        <div id="prgFs"
-                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                        <div id="prgFs" class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
                                         <div class="progress-text">
-                                            <span data-replace="espFsUsed"></span> / <span
-                                                data-replace="espFsSize"></span>
+                                            <span data-r2v="espFsUsed"></span> / <span data-r2v="espFsSize"></span>
                                             <span data-i18n="p.st.dic.kb"></span>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dic.zfv"></td>
-                                <td data-replace="zigbeeFwRev"></td>
+                                <td data-i18n="p.st.dic.du"></td>
+                                <td data-r2v="uptime"></td>
                             </tr>
                             <tr>
-                                <td data-i18n="p.st.dic.zhv"></td>
-                                <td data-replace="zigbeeHwRev"></td>
+                                <td data-i18n="p.st.dic.lt"></td>
+                                <td data-r2v="localTime"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -174,35 +161,35 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="c.cst"></td>
-                                <td data-replace="ethConn"></td>
+                                <td data-r2v="ethConn"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.dhcp"></td>
-                                <td data-replace="ethDhcp"></td>
+                                <td data-r2v="ethDhcp"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.ip"></td>
-                                <td data-replace="ethIp"></td>
+                                <td data-r2v="ethIp"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.mask"></td>
-                                <td data-replace="ethMask"></td>
+                                <td data-r2v="ethMask"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.gw"></td>
-                                <td data-replace="ethGate"></td>
+                                <td data-r2v="ethGate"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.dns"></td>
-                                <td data-replace="ethDns"></td>
+                                <td data-r2v="ethDns"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="c.csp"></td>
-                                <td data-replace="ethSpd"></td>
+                                <td data-r2v="ethSpd"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="c.mac"></td>
-                                <td data-replace="ethMac"></td>
+                                <td data-r2v="ethMac"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -221,31 +208,31 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="c.mode"></td>
-                                <td data-replace="wifiMode"></td>
+                                <td data-r2v="wifiMode"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.wifi.ssid"></td>
-                                <td data-replace="wifiSsid"></td>
+                                <td data-r2v="wifiSsid"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.dhcp"></td>
-                                <td data-replace="wifiDhcp"></td>
+                                <td data-r2v="wifiDhcp"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.ip"></td>
-                                <td data-replace="wifiIp"></td>
+                                <td data-r2v="wifiIp"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.mask"></td>
-                                <td data-replace="wifiMask"></td>
+                                <td data-r2v="wifiMask"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.gw"></td>
-                                <td data-replace="wifiGate"></td>
+                                <td data-r2v="wifiGate"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.dns"></td>
-                                <td data-replace="wifiDns"></td>
+                                <td data-r2v="wifiDns"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.ne.wifi.rssi"></td>
@@ -255,14 +242,14 @@
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
                                         <div class="progress-text">
-                                            <span data-replace="wifiRssi"></span>
+                                            <span data-r2v="wifiRssi"></span>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td data-i18n="c.mac"></td>
-                                <td data-replace="wifiMac"></td>
+                                <td data-r2v="wifiMac"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -281,11 +268,11 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="c.conn"></td>
-                                <td data-replace="mqConnect"></td>
+                                <td data-r2v="mqConnect"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.mq.broker.n"></td>
-                                <td data-replace="mqBroker"></td>
+                                <td data-r2v="mqBroker"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -304,23 +291,23 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="c.init"></td>
-                                <td data-replace="wgInit"></td>
+                                <td data-r2v="wgInit"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="c.conn"></td>
-                                <td data-replace="wgConnect"></td>
+                                <td data-r2v="wgConnect"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.wgc.lip"></td>
-                                <td data-replace="wgDeviceAddr"></td>
+                                <td data-r2v="wgDeviceAddr"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.wgc.ed"></td>
-                                <td data-replace="wgRemoteAddr"></td>
+                                <td data-r2v="wgRemoteAddr"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.wgc.pip"></td>
-                                <td data-replace="wgRemoteIp"></td>
+                                <td data-r2v="wgRemoteIp"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -339,15 +326,15 @@
                         <tbody>
                             <tr>
                                 <td data-i18n="c.init"></td>
-                                <td data-replace="hnInit"></td>
+                                <td data-r2v="hnInit"></td>
                             </tr>
                             <tr>
                                 <td data-i18n="c.host"></td>
-                                <td data-replace="hnHostName"></td>
+                                <td data-r2v="hnHostName"></td>
                             </tr>
                             <!-- <tr>
                                 <td data-i18n=""></td>
-                                <td data-replace="hnDeviceAddr"></td>
+                                <td data-r2v="hnDeviceAddr"></td>
                             </tr> -->
                         </tbody>
                     </table>

@@ -9,6 +9,7 @@
 #include <FS.h>
 #include <WiFi.h>
 #include <Ticker.h>
+#include <CCTools.h>
 
 #include "config.h"
 #include "web.h"
@@ -34,7 +35,6 @@
 #include "webh/js/i18next.min.js.gz.h"
 #include "webh/js/i18nextHttpBackend.min.js.gz.h"
 #include "webh/js/functions.js.gz.h"
-#include "webh/js/ota.js.gz.h"
 #include "webh/js/bootstrap.bundle.min.js.gz.h"
 #include "webh/js/jquery-min.js.gz.h"
 #include "webh/js/masonry.js.gz.h"
@@ -65,7 +65,7 @@
 // #define HTTP_MAX_SEND_WAIT 10000 // ms to wait for data chunk to be ACKed
 // #define HTTP_MAX_CLOSE_WAIT 4000 // ms to wait for the client to close the connection
 
-extern struct zbVerStruct zbVer;
+extern CCTools CCTool;
 
 extern struct SysVarsStruct vars;
 extern struct BrdConfigStruct hwConfig;
@@ -95,7 +95,7 @@ const char *respTimeZonesName = "respTimeZones";
 const char *contTypeJson = "application/json";
 const char *contTypeText = "text/plain";
 
-const char *tempFile = "/config/fw.hex";
+const char *tempFile = "/fw.hex";
 
 bool opened = false;
 File fwFile;
@@ -113,18 +113,10 @@ void webServerHandleClient()
     serverWeb.handleClient();
 }
 
-void checkFwHexTask(void *param)
-{
-    const char *tempFile = static_cast<const char *>(param);
-    checkFwHex(tempFile);
-
-    vTaskDelete(NULL);
-}
-
-void redirectLogin(String msg = "")
+void redirectLogin(int msg = 0)
 {
     String path = "/login";
-    if (msg != "")
+    if (msg != 0)
     {
         path = path + "?msg=" + msg;
     }
@@ -187,8 +179,6 @@ void initWebServer()
                  { sendGzip(contTypeTextJs, masonry_js_gz, masonry_js_gz_len); });
     serverWeb.on("/js/functions.js", []()
                  { sendGzip(contTypeTextJs, functions_js_gz, functions_js_gz_len); });
-    serverWeb.on("/js/ota.js", []()
-                 { sendGzip(contTypeTextJs, ota_js_gz, ota_js_gz_len); });
     serverWeb.on("/js/jquery-min.js", []()
                  { sendGzip(contTypeTextJs, jquery_min_js_gz, jquery_min_js_gz_len); });
     serverWeb.on("/css/style.css", []()
@@ -238,7 +228,7 @@ void initWebServer()
 
     serverWeb.on("/update", HTTP_POST, handleUpdateRequest, handleEspUpdateUpload);
 
-    serverWeb.on("/updateZB", HTTP_POST, handleUpdateRequest, handleZbUpdateUpload);
+    // serverWeb.on("/updateZB", HTTP_POST, handleUpdateRequest, handleZbUpdateUpload);
 
     /*
         serverWeb.on(
@@ -305,97 +295,12 @@ void initWebServer()
                 }
             });*/
     /* ----- ESP32 OTA | END -----*/
-    /* ----- Zigbee OTA | START -----*/
-    /*serverWeb.on(
-        "/updateZB", HTTP_POST, []()
-        {
-            serverWeb.sendHeader("Connection", "close");
-            // serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
-            serverWeb.send(HTTP_CODE_OK, contTypeText, "Upload OK. Try to flash...");
-            // ESP.restart(); flash zigbee here
-        },
-        []()
-        {
-            HTTPUpload &upload = serverWeb.upload();
-            if (opened == false)
-            {
-                // LittleFS.end();
-                opened = true;
-                DEBUG_PRINTLN("Try to removed file " + String(tempFile));
-                if (LittleFS.remove(tempFile))
-                {
-                    DEBUG_PRINTLN(F("Removed file - OK"));
-                }
-                else
-                {
-                    DEBUG_PRINTLN(F("Error while removing file"));
-                }
-                delay(250);
-                fwFile = LittleFS.open(tempFile, FILE_WRITE);
 
-                if (!fwFile)
-                {
-                    DEBUG_PRINTLN(F("- failed to open file for writing"));
-                    return;
-                }
-            }
-
-            if (upload.status == UPLOAD_FILE_START)
-            {
-                if (!is_authenticated())
-                    return;
-                DEBUG_PRINTLN(String(millis()) + " Upload zigbee fw file: " + String(upload.filename.c_str()));
-                printLogMsg("[ZB_FW] upload: " + String(upload.filename.c_str()));
-                // DEBUG_PRINTLN("size: " + String(String(upload.totalSize).c_str()));
-                // printLogMsg("size:" + String(String(upload.totalSize).c_str()));
-            }
-            else if (upload.status == UPLOAD_FILE_WRITE)
-            {
-                // DEBUG_PRINT(".");
-                //*                //String temp;
-                                size_t size = upload.totalSize
-                            if (size)
-                            {
-                                // read up to 128 byte
-                                int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-                 //*
-
-                // for (int i = 0; i < sizeof(upload.buf); i++)
-                //{
-                //     char a = upload.buf[i];
-                //     Serial.write(a);
-                // }
-                // DEBUG_PRINTLN(temp);
-
-                fwFile.write(upload.buf, sizeof(upload.buf));
-            }
-            else if (upload.status == UPLOAD_FILE_END)
-            {
-                // DEBUG_PRINTLN(F("Finish!"));
-                delay(500);
-                fwFile.close();
-                delay(500);
-                DEBUG_PRINTLN(String(millis()) + "UPLOAD_FILE_END");
-                printLogMsg("[ZB_FW] upload finish!");
-                opened = false;
-
-                DEBUG_PRINTLN("Total file size: " + String(upload.totalSize));
-
-                // checkFwHex(tempFile);
-                xTaskCreate(checkFwHexTask,   // Функция задачи
-                            "CheckFWHex",     // Имя задачи для удобства отладки
-                            8192,             // Размер стека задачи (в байтах)
-                            (void *)tempFile, // Параметр, передаваемый в задачу
-                            3,                // Приоритет задачи
-                            NULL);            // Указатель на задачу (не используется)
-            }
-        });*/
-    /* ----- Zigbee OTA | END -----*/
     const char *headerkeys[] = {"Content-Length", "Cookie"};
     size_t headerkeyssize = sizeof(headerkeys) / sizeof(char *);
     serverWeb.collectHeaders(headerkeys, headerkeyssize);
     serverWeb.begin();
-    DEBUG_PRINTLN(F("webserver setup done"));
+    LOGD("done");
 }
 
 IPAddress apIP2(192, 168, 1, 1);
@@ -460,7 +365,6 @@ void handleUpdateRequest()
 
 void handleEspUpdateUpload()
 {
-    // Проверяем подлинность
     if (!is_authenticated())
     {
         return;
@@ -502,7 +406,7 @@ void handleEspUpdateUpload()
         }
     }
 }
-
+/*
 void handleZbUpdateUpload()
 {
     // Проверяем подлинность
@@ -550,28 +454,31 @@ void handleZbUpdateUpload()
         delay(500);
         fwFile.close();
         delay(500);
-        DEBUG_PRINTLN(String(millis()) + "UPLOAD_FILE_END");
         printLogMsg("[ZB_FW] upload finish!");
         opened = false;
 
-        DEBUG_PRINTLN("Total file size: " + String(upload.totalSize));
+        LOGD("Total file size: %s", String(upload.totalSize));
 
-        xTaskCreate(checkFwHexTask, "CheckFWHex", 8192, (void *)tempFile, 3, NULL);
+        //xTaskCreate(checkFwHexTask, "CheckFWHex", 8192, (void *)tempFile, 1, NULL);
     }
 }
+*/
 
 void handleEvents()
 {
-    eventsClient = serverWeb.client();
-    if (eventsClient)
-    { // send events header
-        eventsClient.println("HTTP/1.1 200 OK");
-        eventsClient.println("Content-Type: text/event-stream;");
-        eventsClient.println("Connection: close");
-        eventsClient.println("Access-Control-Allow-Origin: *");
-        eventsClient.println("Cache-Control: no-cache");
-        eventsClient.println();
-        eventsClient.flush();
+    if (is_authenticated())
+    {
+        eventsClient = serverWeb.client();
+        if (eventsClient)
+        { // send events header
+            eventsClient.println("HTTP/1.1 200 OK");
+            eventsClient.println("Content-Type: text/event-stream;");
+            eventsClient.println("Connection: close");
+            eventsClient.println("Access-Control-Allow-Origin: *");
+            eventsClient.println("Cache-Control: no-cache");
+            eventsClient.println();
+            eventsClient.flush();
+        }
     }
 }
 
@@ -630,8 +537,8 @@ void handleApi()
         API_SEND_HEX,
         API_WIFICONNECTSTAT,
         API_CMD,
-        API_GET_LOG,
-        API_FLASH_ZB
+        API_GET_LOG //,
+        // API_FLASH_ZB
     };
     const char *action = "action";
     const char *page = "page";
@@ -642,7 +549,7 @@ void handleApi()
 
     if (!is_authenticated())
     {
-        redirectLogin("Need to login");
+        redirectLogin(1);
         return;
     }
 
@@ -659,7 +566,7 @@ void handleApi()
         // DEBUG_PRINTLN(action);
         switch (action)
         {
-        case API_FLASH_ZB:
+        /*case API_FLASH_ZB:
         {
             vars.zbFlashing = 1;
             const char *fwurlArg = "fwurl";
@@ -723,7 +630,7 @@ void handleApi()
             }
             vars.zbFlashing = 0;
         }
-        break;
+        break;*/
         case API_GET_LOG:
         {
             String result;
@@ -741,15 +648,14 @@ void handleApi()
                 CMD_ESP_RES,
                 CMD_ADAP_LAN,
                 CMD_ADAP_USB,
-                CMD_LED_PWR_TOG,
-                CMD_LED_USB_TOG,
+                CMD_LED_ACT,
+                CMD_ZB_FLASH,
                 CMD_CLEAR_LOG,
                 CMD_ESP_UPD_URL,
                 CMD_ZB_CHK_FW,
                 CMD_ZB_CHK_HW,
                 CMD_ZB_LED_TOG,
-                CMD_ESP_FAC_RES,
-                CMD_LED_ACT
+                CMD_ESP_FAC_RES
             };
             String result = wrongArgs;
             const char *argCmd = "cmd";
@@ -757,6 +663,7 @@ void handleApi()
             const char *argConf = "conf";
             const char *argLed = "led";
             const char *argAct = "act";
+
             if (serverWeb.hasArg(argCmd))
             {
                 result = "ok";
@@ -857,6 +764,16 @@ void handleApi()
                         serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
                     }
                     break;
+                case CMD_ZB_FLASH:
+                    if (serverWeb.hasArg(argUrl))
+                    {
+                        flashZbUrl(serverWeb.arg(argUrl));
+                    }
+                    else
+                    {
+                        flashZbUrl("https://github.com/xyzroe/XZG/raw/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315.bin");
+                    }
+                    break;
                 default:
                     serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
                     break;
@@ -914,7 +831,7 @@ void handleApi()
                 if (!file)
                     return;
                 result = "";
-                while (file.available())
+                while (file.available() && result.length() < 500)
                 {
                     result += (char)file.read();
                 }
@@ -947,9 +864,13 @@ void handleApi()
                         resp = (String)systemCfg.workMode;
                     }
                 }
-                else if (serverWeb.arg(param) == "zbRev")
+                else if (serverWeb.arg(param) == "zbFwVer")
                 {
-                    resp = zbVer.zbRev > 0 ? (String)zbVer.zbRev : "Unknown";
+                    resp = String(CCTool.chip.fwRev);
+                }
+                else if (serverWeb.arg(param) == "zbHwVer")
+                {
+                    resp = String(CCTool.chip.hwRev);
                 }
                 else if (serverWeb.arg(param) == "espVer")
                 {
@@ -1156,341 +1077,11 @@ void updateWebTask(void *parameter)
     const uint8_t eventLen = 100;
     while (1)
     {
-
         String root_data = getRootData(true);
-
-        // Разделение строки
         printEachKeyValuePair(root_data);
-
-        // sendEvent("root_update", eventLen, String(root_data));
-        // LOGD("web_task", "%s", root_data);
-        // DEBUG_PRINTLN(root_data);
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(systemCfg.refreshLogs * 1000));
     }
 }
-/*
-String result;
-DynamicJsonDocument doc(512);
-const char *pageId = "pageId";
-const char *on = "on";
-File configFile;
-const uint8_t one = 1;
-const uint8_t zero = 0;
-if (serverWeb.hasArg(pageId))
-{
-    switch (serverWeb.arg(pageId).toInt())
-    {
-    case API_PAGE_GENERAL:
-    {
-
-        configFile = LittleFS.open(configFileGeneral, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-
-        if (serverWeb.hasArg(coordMode))
-        {
-            const uint8_t mode = serverWeb.arg(coordMode).toInt();
-            if (mode <= 2 && mode >= zero)
-            {
-                // vars.workMode = static_cast<WORK_MODE_t>(mode);
-                if (mode == 1)
-                    wifiWebSetupInProgress = true;
-                doc[coordMode] = static_cast<WORK_MODE_t>(mode);
-            }
-        }
-        const char *keepWeb = "keepWeb";
-        if (serverWeb.arg(keepWeb) == on)
-        {
-            doc[keepWeb] = one;
-        }
-        else
-        {
-            doc[keepWeb] = zero;
-        }
-        const char *disableLedPwr = "disableLedPwr";
-        if (serverWeb.arg(disableLedPwr) == on)
-        {
-            doc[disableLedPwr] = one;
-        }
-        else
-        {
-            doc[disableLedPwr] = zero;
-        }
-        const char *disableLedUSB = "disableLedUSB";
-        if (serverWeb.arg(disableLedUSB) == on)
-        {
-            doc[disableLedUSB] = one;
-        }
-        else
-        {
-            doc[disableLedUSB] = zero;
-        }
-        configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-    }
-    break;
-    case API_PAGE_ETHERNET:
-    {
-        configFile = LittleFS.open(configFileEther, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        doc["ip"] = serverWeb.arg("ipAddress");
-        doc["mask"] = serverWeb.arg("ipMask");
-        doc["gw"] = serverWeb.arg("ipGW");
-        const char *dhcp = "dhcp";
-        if (serverWeb.arg(dhcp) == "on")
-        {
-            doc[dhcp] = one;
-        }
-        else
-        {
-            doc[dhcp] = zero;
-            if (doc["mask"] == "")
-            {
-                doc["mask"] = "255.255.255.0";
-            }
-            if (doc["ip"] == "")
-            {
-                doc["ip"] = "192.168.0.1";
-            }
-            if (doc["gw"] == "")
-            {
-                doc["gw"] = "192.168.0.1";
-            }
-        }
-        // const char* disablePingCtrl = "disablePingCtrl";
-        // if (serverWeb.arg(disablePingCtrl) == on) {
-        //     doc[disablePingCtrl] = one;
-        // } else {
-        //     doc[disablePingCtrl] = zero;
-        // }
-        configFile = LittleFS.open(configFileEther, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-    }
-    case API_PAGE_MQTT:
-    {
-        configFile = LittleFS.open(configFileMqtt, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        doc["server"] = serverWeb.arg("MqttServer");
-        doc["port"] = serverWeb.arg("MqttPort");
-        doc["user"] = serverWeb.arg("MqttUser");
-        doc["pass"] = serverWeb.arg("MqttPass");
-        doc["topic"] = serverWeb.arg("MqttTopic");
-        doc["interval"] = serverWeb.arg("MqttInterval");
-
-        const char *enable = "enable";
-        if (serverWeb.arg("MqttEnable") == "on")
-        {
-            doc[enable] = one;
-        }
-        else
-        {
-            doc[enable] = zero;
-        }
-
-        const char *discovery = "discovery";
-        if (serverWeb.arg("MqttDiscovery") == "on")
-        {
-            doc[discovery] = one;
-        }
-        else
-        {
-            doc[discovery] = zero;
-        }
-
-        // const char* disablePingCtrl = "disablePingCtrl";
-        // if (serverWeb.arg(disablePingCtrl) == on) {
-        //     doc[disablePingCtrl] = one;
-        // } else {
-        //     doc[disablePingCtrl] = zero;
-        // }
-        configFile = LittleFS.open(configFileMqtt, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-        loadFileConfigMqtt();
-    }
-    break;
-    case API_PAGE_VPN:
-    {
-        configFile = LittleFS.open(configFileWg, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        doc["localAddr"] = serverWeb.arg("wgLocalIP");
-        doc["localIP"] = serverWeb.arg("wgLocalPrivKey");
-        doc["endAddr"] = serverWeb.arg("wgEndAddr");
-        doc["endPubKey"] = serverWeb.arg("wgEndPubKey");
-        doc["endPort"] = serverWeb.arg("wgEndPort");
-
-        const char *enable = "enable";
-        if (serverWeb.arg("wgEnable") == "on")
-        {
-            doc[enable] = one;
-        }
-        else
-        {
-            doc[enable] = zero;
-        }
-
-        configFile = LittleFS.open(configFileWg, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-        loadFileConfigWg();
-    }
-    break;
-    case API_PAGE_NETWORK:
-    {
-        configFile = LittleFS.open(configFileWifi, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        doc["ssid"] = serverWeb.arg("wifiSsid");
-        doc["pass"] = serverWeb.arg("wifiPass");
-        const char *dhcpWiFi = "dhcpWiFi";
-        if (serverWeb.arg(dhcpWiFi) == on)
-        {
-            doc[dhcpWiFi] = 1;
-        }
-        else
-        {
-            doc[dhcpWiFi] = 0;
-        }
-        doc["ip"] = serverWeb.arg("ipAddress");
-        doc["mask"] = serverWeb.arg("ipMask");
-        doc["gw"] = serverWeb.arg("ipGW");
-        configFile = LittleFS.open(configFileWifi, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-        WiFi.persistent(false);
-        if (vars.apStarted)
-        {
-            WiFi.mode(WIFI_AP_STA);
-        }
-        else
-        {
-            WiFi.mode(WIFI_STA);
-        }
-        WiFi.begin(serverWeb.arg("wifiSsid").c_str(), serverWeb.arg("wifiPass").c_str());
-    }
-    break;
-    case API_PAGE_ZIGBEE:
-    {
-        configFile = LittleFS.open(configFileSerial, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        const char *baud = "baud";
-        if (serverWeb.hasArg(baud))
-        {
-            doc[baud] = serverWeb.arg(baud);
-        }
-        else
-        {
-            doc[baud] = 115200;
-        }
-        const char *port = "port";
-        if (serverWeb.hasArg(baud))
-        {
-            doc[port] = serverWeb.arg(port);
-        }
-        else
-        {
-            doc[port] = 6638;
-        }
-        configFile = LittleFS.open(configFileSerial, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-    }
-    break;
-    case API_PAGE_SECURITY:
-    {
-        configFile = LittleFS.open(configFileSecurity, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        const char *disableWeb = "disableWeb";
-        if (serverWeb.arg(disableWeb) == on)
-        {
-            doc[disableWeb] = 1;
-        }
-        else
-        {
-            doc[disableWeb] = 0;
-        }
-        const char *webAuth = "webAuth";
-        if (serverWeb.arg(webAuth) == on)
-        {
-            doc[webAuth] = 1;
-        }
-        else
-        {
-            doc[webAuth] = 0;
-        }
-        const char *webUser = "webUser";
-        if (serverWeb.arg(webUser) != "")
-        {
-            doc[webUser] = serverWeb.arg(webUser);
-        }
-        else
-        {
-            doc[webUser] = "admin";
-        }
-        const char *fwEnabled = "fwEnabled";
-        if (serverWeb.arg(fwEnabled) == on)
-        {
-            doc[fwEnabled] = 1;
-        }
-        else
-        {
-            doc[fwEnabled] = 0;
-        }
-        const char *fwIp = "fwIp";
-        doc[fwIp] = serverWeb.arg(fwIp);
-        doc["webPass"] = serverWeb.arg("webPass");
-
-        configFile = LittleFS.open(configFileSecurity, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-    }
-    break;
-    case API_PAGE_TOOLS:
-    {
-        const char *refreshLogs = "refreshLogs";
-        const char *hostname = "hostname";
-        configFile = LittleFS.open(configFileGeneral, FILE_READ);
-        deserializeJson(doc, configFile);
-        configFile.close();
-        if (serverWeb.hasArg(refreshLogs))
-        {
-            systemCfg.refreshLogs = serverWeb.arg(refreshLogs).toInt();
-            doc[refreshLogs] = systemCfg.refreshLogs;
-        }
-        if (serverWeb.hasArg(hostname))
-        {
-            doc[hostname] = serverWeb.arg(hostname);
-            strlcpy(systemCfg.hostname, serverWeb.arg(hostname).c_str(), sizeof(systemCfg.hostname));
-        }
-        const char *timeZoneName = "timeZoneName";
-        if (serverWeb.hasArg(timeZoneName))
-        {
-            doc[timeZoneName] = serverWeb.arg(timeZoneName);
-        }
-        configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-        //configFile = LittleFS.open(configFileGeneral, FILE_WRITE);
-        serializeJson(doc, configFile);
-        configFile.close();
-    }
-    break;
-
-    default:
-        break;
-    }
-    serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
-}
-else
-{
-    serverWeb.send(500, contTypeText, "bad args");
-}
-}*/
 
 void handleLoginGet()
 {
@@ -1539,7 +1130,7 @@ void handleLoginPost()
         }
         // msg = ;
         //  Serial.println("Log in Failed");
-        redirectLogin("Wrong credentials! Try again.");
+        redirectLogin(2);
         return;
     }
 }
@@ -1549,7 +1140,7 @@ void handleLogout()
     // Serial.println("Disconnection");
     serverWeb.sendHeader("Set-Cookie", "XZG_UID=0");
     serverWeb.sendHeader("Authentication", "fail");
-    redirectLogin("Logged out");
+    redirectLogin(3);
 
     // serverWeb.send_P(401, contTypeTextHtml, (const char *)PAGE_LOGOUT_html_gz, PAGE_LOGOUT_html_gz_len); });*/
 
@@ -1558,45 +1149,26 @@ void handleLogout()
 // Check if header is present and correct
 bool is_authenticated()
 {
-    /*Serial.println("Received headers: ");
-    for (int i = 0; i < serverWeb.headers(); i++)
-    {
-        // Serial.print("Header name: ");
-        Serial.print(serverWeb.headerName(i));
-        Serial.print(", ");
-        // Serial.println(serverWeb.header(i));
-    }
-    Serial.println("");*/
-
     if (systemCfg.webAuth)
     {
-        // Serial.println("Enter is_authenticated");
-
         if (serverWeb.hasHeader("Cookie"))
         {
-            // Serial.print("Found cookie: ");
             String cookie = serverWeb.header("Cookie");
-            // Serial.println(cookie);
-
-            String token = sha1(String("admin") + ":" +
-                                String("pass") + ":" +
-                                serverWeb.client().remoteIP().toString());
-            //  token = sha1(token);
+            String token = sha1(String(systemCfg.webUser) + ":" + String(systemCfg.webPass) + ":" + serverWeb.client().remoteIP().toString());
 
             if (cookie.indexOf("XZG_UID=" + token) != -1)
             {
-                // Serial.println("Authentication Successful 1");
+                // LOGD("Successful");
                 serverWeb.sendHeader("Authentication", "ok");
                 return true;
             }
         }
-        // Serial.println("Authentication Failed");
+        // LOGD("Failed");
         serverWeb.sendHeader("Authentication", "fail");
         return false;
     }
     else
     {
-        // Serial.println("Authentication Successful 2");
         return true;
     }
 }
@@ -1818,10 +1390,20 @@ void handleVpn()
         doc[wgEnableKey] = checked;
     }
     doc[wgLocalIPKey] = vpnCfg.wgLocalIP.toString();
+    doc[wgLocalSubnetKey] = vpnCfg.wgLocalSubnet.toString();
+    doc[wgLocalPortKey] = vpnCfg.wgLocalPort;
+    doc[wgLocalGatewayKey] = vpnCfg.wgLocalGateway.toString();
     doc[wgLocalPrivKeyKey] = vpnCfg.wgLocalPrivKey;
     doc[wgEndAddrKey] = vpnCfg.wgEndAddr;
     doc[wgEndPubKeyKey] = vpnCfg.wgEndPubKey;
     doc[wgEndPortKey] = vpnCfg.wgEndPort;
+    doc[wgAllowedIPKey] = vpnCfg.wgAllowedIP.toString();
+    doc[wgAllowedMaskKey] = vpnCfg.wgAllowedMask.toString();
+    if (vpnCfg.wgMakeDefault)
+    {
+        doc[wgMakeDefaultKey] = checked;
+    }
+    doc[wgPreSharedKeyKey] = vpnCfg.wgPreSharedKey;
 
     if (vpnCfg.hnEnable)
     {
@@ -1929,22 +1511,14 @@ String getRootData(bool update)
 
         doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
 
-        if (zbVer.zbRev)
-        {
-            doc["zigbeeFwRev"] = String(zbVer.zbRev);
-        }
-        else
-        {
-            doc["zigbeeFwRev"] = 0; //"unknown";
-        }
-        if (zbVer.chipID)
-        {
-            doc["zigbeeHwRev"] = String(zbVer.chipID);
-        }
-        else
-        {
-            doc["zigbeeHwRev"] = 0; //"unknown";
-        }
+        doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+
+        doc["zigbeeHwRev"] = CCTool.chip.hwRev;
+
+        doc["zigbeeIeee"] = CCTool.chip.ieee;
+
+        doc["zigbeeFlSize"] = String(CCTool.chip.flashSize / 1024);
+
         unsigned int totalFs = LittleFS.totalBytes() / 1024;
         unsigned int usedFs = LittleFS.usedBytes() / 1024;
 
@@ -2161,6 +1735,7 @@ void printLogMsg(String msg)
         logPush(msg[j]);
     }
     logPush('\n');
+    LOGI("%s", msg.c_str());
 }
 
 void progressFunc(unsigned int progress, unsigned int total)
@@ -2272,7 +1847,6 @@ String fetchGitHubReleaseInfo()
     if (httpCode > 0)
     {
         String payload = http.getString();
-        LOGD("payload: %s", payload);
 
         DynamicJsonDocument doc(8192);
         deserializeJson(doc, payload);
@@ -2281,6 +1855,7 @@ String fetchGitHubReleaseInfo()
         if (releases.size() > 0 && releases[0]["assets"].size() > 1)
         {
             browser_download_url = releases[0]["assets"][1]["browser_download_url"].as<String>();
+            LOGD("browser_download_url: %s", browser_download_url.c_str());
         }
     }
     else
@@ -2288,6 +1863,17 @@ String fetchGitHubReleaseInfo()
         LOGD("Error on HTTP request");
     }
 
-    http.end();                  
-    return browser_download_url; 
+    http.end();
+    return browser_download_url;
+}
+
+String extractVersionFromURL(String url)
+{
+    int startPos = url.indexOf("/download/") + 10;
+    int endPos = url.indexOf("/", startPos);
+    if (startPos != -1 && endPos != -1)
+    {
+        return url.substring(startPos, endPos);
+    }
+    return "";
 }

@@ -42,7 +42,6 @@
         "tt": "AVERTISSEMENT DE RÉINITIALISATION D'USINE"
       },
       "fu": {
-        "bil": "Installer le dernier",
         "fri": "Récupération des informations sur le microLOGDciel...",
         "glm": "Mise à jour vers la dernière version de GitHub.",
         "gvm": "Mise à jour vers la version {{ver}} de GitHub.",
@@ -54,7 +53,8 @@
         "ucr": "Mise à jour terminée! \nRedémarrage !",
         "vgds": "Téléchargement de la version {{ver}} depuis GitHub...",
         "wdm": "En attente de l'appareil...",
-        "wm": "Cela déconnectera TOUTES les connexions de prise"
+        "wm": "Cela déconnectera TOUTES les connexions de prise",
+        "bil": "Installer le dernier"
       },
       "rst": {
         "msg": "Attente de redémarrage. \nSe fermera automatiquement.",
@@ -73,7 +73,17 @@
       "fu": {
         "vc": "Validez terminé !",
         "vt": "valider : {{per}} %"
-      }
+      },
+      "cfv": "Votre révision actuelle du micrologiciel : {{ver}}",
+      "dtc": "Coordinateur",
+      "dtr": "Routeur",
+      "efr": "Erreur lors de la récupération des informations sur le micrologiciel<br>Vérifiez votre réseau !",
+      "lcf": "Dernier firmware du coordinateur :",
+      "lrf": "Dernier firmware du routeur :",
+      "ncf": "Aucun micrologiciel du coordinateur disponible.",
+      "nrf": "Aucun firmware de routeur disponible.",
+      "ot": "Mise à jour Zigbee OTA",
+      "rfm": "Récupération des informations sur le micrologiciel..."
     },
     "kw": {
       "msg": "Cette fonction permet de laisser actif un des canaux de communication et d'avoir accès à l'interface web. \nL'appareil sélectionnera lui-même un canal disponible en fonction de la priorité : WIFI, ETHERNET, WIFI AP"
@@ -84,6 +94,17 @@
       "rn": "Redémarrer maintenant",
       "rr": "Certains paramètres nécessitent un redémarrage.",
       "tt": "PARAMÈTRES SAUVEGARDÉS"
+    },
+    "zgb": {
+      "fu": {}
+    },
+    "zg": {
+      "fu": {
+        "f": "Va flasher : {{file}}",
+        "fn": "Flashé avec succès !",
+        "nv": "Nouvelle version : {{ver}}",
+        "st": "Démarrage du flash CC2652..."
+      }
     }
   },
   "l": {
@@ -139,7 +160,10 @@
     "lo": {
       "btn": "Chantez",
       "lbl": "Veuillez vous connecter",
-      "pt": "Connexion - XZG"
+      "pt": "Connexion - XZG",
+      "mlo": "Déconnexion réussie",
+      "mnl": "Besoin de se connecter",
+      "mwc": "Mauvaises informations d'identification"
     },
     "mq": {
       "broker": {
@@ -207,35 +231,21 @@
       "dic": {
         "cs": "noyaux",
         "dm": "Modèle d'appareil",
-        "ef": "Processeur ESP32",
-        "efs": "Mémoire ESP32",
-        "efv": "Révision du microLOGDciel ESP32",
-        "ehs": "Tas ESP32",
-        "ehv": "Version matérielle ESP32",
-        "et": "Température ESP32",
+        "ef": "Processeur",
+        "efs": "Mémoire",
+        "ehs": "Tas",
+        "et": "Température",
         "kb": "Kio",
         "mb": "Mo",
         "mhz": "MHz",
         "tt": "Informations sur l'appareil",
-        "zfv": "Version du microLOGDciel Zigbee",
-        "zhv": "Révision du matériel Zigbee",
         "efte": "externe",
         "efti": "interne",
-        "efss": "Système de fichiers ESP32",
-        "ens": "Stockage ESP32 NV",
-        "ent": "entrées"
-      },
-      "dsc": {
+        "efss": "Système de fichiers",
+        "ens": "Stockage NV",
+        "ent": "entrées",
         "du": "Temps de disponibilité de l'appareil",
-        "op": "Mode opérationnel",
-        "scc": "Client de socket connecté",
-        "su": "Temps de disponibilité des prises",
-        "tt": "Statut du périphérique",
-        "lt": "Heure locale",
-        "opn": "Réseau Zigbee",
-        "opu": "Zigbee-USB",
-        "sccn": "Pas de connection",
-        "sccy": "Oui, {{count}} clients"
+        "lt": "Heure locale"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -250,6 +260,22 @@
       "wc": {
         "map": "PA",
         "mcl": "Client"
+      },
+      "zbc": {
+        "tt": "Statut du périphérique",
+        "op": "Mode opérationnel",
+        "opn": "Réseau Zigbee",
+        "opu": "Zigbee-USB",
+        "scc": "Client de socket connecté",
+        "sccn": "Pas de connection",
+        "su": "Temps de connexion",
+        "sccy": "Oui, {{count}} clients",
+        "zfs": "Taille du flash",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Révision du microLOGDciel",
+        "hv": "Version matérielle"
       }
     },
     "se": {
@@ -293,11 +319,14 @@
       "rst": "Redémarrage",
       "s": "Taille",
       "sc": "Controle du système",
-      "sri": "Sélectionnez la version",
       "usb": "USB",
       "zb": "Zigbee",
       "zfu": "Mise à jour du fichier Zigbee",
-      "zu": "Mise à jour Zigbee (en développement)"
+      "zu": "Mise à jour Zigbee (en développement)",
+      "saf": "Afficher les firmwares disponibles",
+      "clzv": "Vérifiez les derniers firmwares Zigbee",
+      "zgu": "Mise à jour Git CC2652",
+      "sri": "Sélectionnez la version"
     },
     "vp": {
       "hn": {
@@ -312,7 +341,13 @@
         "epk": "Clé publique du homologue du point de terminaison",
         "lip": "Adresse IP de l'interface locale",
         "lpk": "Clé privée de l'interface locale",
-        "tt": "Configuration WireGuard"
+        "tt": "Configuration WireGuard",
+        "aip": "IP autorisées",
+        "am": "Masque autorisé",
+        "lgw": "Passerelle locale",
+        "lsn": "Sous-réseau local",
+        "md": "Faire défaut",
+        "psk": "Clé Pré-Partagée"
       }
     },
     "zi": {

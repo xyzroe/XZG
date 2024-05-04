@@ -6,23 +6,23 @@
                 <div>
                     <div class="col-sm-12 col-md-6 mb-4">
                         <div class="form-check">
-                            <input type="checkbox" id="disableWeb" class="form-check-input" data-replace="disableWeb"
+                            <input type="checkbox" id="disableWeb" class="form-check-input" data-r2v="disableWeb"
                                 name="disableWeb">
                             <label class="form-label form-check-label" for="disableWeb"
                                 data-i18n="p.se.web.dis"></label>
                         </div>
                         <div class="form-check">
-                            <input type="checkbox" id="webAuth" class="form-check-input" data-replace="webAuth"
+                            <input type="checkbox" id="webAuth" class="form-check-input" data-r2v="webAuth"
                                 name="webAuth" onclick="SeqInputDsbl(!this.checked)">
                             <label class="form-label form-check-label" for="webAuth"
                                 data-i18n="p.se.web.auth"></label>
                             <div id="div_show1" style="display: none">
                                 <label class="form-label" for="webUser" data-i18n="c.user"></label>
-                                <input class="form-control" type="text" id="webUser" data-replace="webUser" disabled=""
+                                <input class="form-control" type="text" id="webUser" data-r2v="webUser" disabled=""
                                     name="webUser" required>
                                 <label class="form-label" for="webPass" data-i18n="c.pass"></label>
                                 <div class="input-group mb-3">
-                                    <input type="password" id="webPass" data-replace="webPass" class="form-control"
+                                    <input type="password" id="webPass" data-r2v="webPass" class="form-control"
                                         placeholder="Password" aria-label="Password"
                                         aria-describedby="tglPassViewVisibility" name="webPass" required>
                                     <button class="btn inline_btn" type="button" id="tglPassViewVisibility"
@@ -35,12 +35,12 @@
                             </div>
                         </div>
                         <div class="form-check"><input type="checkbox" id="fwEnabled" class="form-check-input"
-                                data-replace="fwEnabled" name="fwEnabled" onclick="SeqInputDsblFw(!this.checked)">
+                                data-r2v="fwEnabled" name="fwEnabled" onclick="SeqInputDsblFw(!this.checked)">
                             <label class="form-label form-check-label" for="fwEnabled"
                                 data-i18n="p.se.fw.desc"></label>
                             <div id="div_show2" style="display: none">
                                 <label class="form-label" for="fwIp" data-i18n="p.se.fw.ip"></label>
-                                <input class="form-control" type="text" id="fwIp" data-replace="fwIp" disabled=""
+                                <input class="form-control" type="text" id="fwIp" data-r2v="fwIp" disabled=""
                                     name="fwIp" placeholder="192.168.x.x" required>
                             </div>
                         </div>

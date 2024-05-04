@@ -42,10 +42,8 @@
                 <span class="text-center" data-i18n="p.to.zb"></span>
                 <button type='button' data-cmd="1" class='btn btn-outline-primary cmd_btn'
                   data-i18n="p.to.rst"></button>
-                <button type='button' data-cmd="2" class='btn btn-outline-primary cmd_btn'
-                  data-i18n="p.to.fm"></button>
-                <button type='button' data-cmd="0" class='btn btn-outline-accent2 cmd_btn'
-                  data-i18n="p.to.rr"></button>
+                <button type='button' data-cmd="2" class='btn btn-outline-primary cmd_btn' data-i18n="p.to.fm"></button>
+                <button type='button' data-cmd="0" class='btn btn-outline-accent2 cmd_btn' data-i18n="p.to.rr"></button>
               </div>
               <div class="row cmd_row">
                 <span class="mt-2 text-center" data-i18n="p.to.esp"></span>
@@ -71,9 +69,9 @@
               </div>
               <div class="row cmd_row">
                 <span class="mt-2 text-center" data-i18n="p.to.lt"></span>
-                <button type='button' data-cmd="14&led=0&act=2" class='btn btn-outline-success cmd_btn'
+                <button type='button' data-cmd="6&led=0&act=2" class='btn btn-outline-success cmd_btn'
                   data-i18n="p.to.pwr" id="pwrLedBtn" hidden></button>
-                <button type="button" data-cmd="14&led=1&act=2" class="btn btn-outline-success cmd_btn"
+                <button type="button" data-cmd="6&led=1&act=2" class="btn btn-outline-success cmd_btn"
                   data-i18n="p.to.mode" id="modeLedBtn" hidden></button>
                 <button type="button" data-cmd="12" class="btn btn-outline-success cmd_btn"
                   data-i18n="p.to.zb"></button>
@@ -150,10 +148,12 @@
             <div class='card-body'>
               <div class="row">
                 <div class="col">
-                  <label for="zbFirmware" class="form-label">Select firmware file</label>
-                  <input class="form-control" type="file" id="zbFirmware" accept=".hex">
-                  <button type="button" onclick="zbOta()" class="btn btn-warning col-sm-12 col-md-6">Update Zigbee
-                    firmware</button>
+                  <div class="mt-3">
+                    <label for="zbFirmware" class="form-label">Select firmware file</label>
+                    <input class="form-control" type="file" id="zbFirmware" accept=".hex">
+                    <button type="button" onclick="zbOta()" class="btn btn-warning col-sm-12 col-md-6">Update Zigbee
+                      firmware</button>
+                  </div>
                   <div class="mt-3">
                     <input class="form-control col-sm-6" id="sendHex" type="text" name="sendHex" value="" maxlength="50"
                       placeholder="Send hex to zigbee module">
@@ -180,11 +180,11 @@
               </svg><span data-i18n="p.to.egu"></span>
             </div>
             <div class='card-body card-body-update'>
-              <div class="container">
+              <div class="container" style="flex-direction: column; display: flex; align-items: center;">
                 <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-8 mb-2"
                   data-i18n="p.to.ilfg"></button>
                 <button type="button" id="info_esp_git" class="btn btn-outline-warning col-sm-8 mt-2"
-                  data-i18n="p.to.sri"></button>
+                  data-i18n="p.to.saf"></button>
               </div>
               </form>
             </div>
@@ -201,7 +201,7 @@
             <div class='card-body card-body-update' style="padding: 0 !important;">
               <form class="container fw_form" method='POST' action='#' enctype='multipart/form-data'
                 id='esp_upload_form'>
-                <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
+                <input type='file' name='update' id='file' onchange='sub_esp(this)' style=display:none accept='.bin'>
                 <label class='file-inputFW' id='file-input' for='file' data-i18n="p.to.cf"></label>
                 <button id="updButton" type="submit" class="btn btn-warning mt-1" disabled=""
                   data-i18n="c.inst"></button>
@@ -212,15 +212,19 @@
 
         <div class="col-sm-12 col-md-6 mb-4" hidden>
           <div class='card'>
-            <div class="card-header fw-bold" data-i18n="p.to.zu"></div>
-            <div class='card-body'>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#file" />
+              </svg><span data-i18n="p.to.zu"></span>
+            </div>
+            <div class='card-body card-body-update' style="padding: 0 !important;">
               <form class="container fw_form" method='POST' action='#' enctype='multipart/form-data'
                 id='upload_form_zb'>
                 <input type='file' name='update_zb' id='file_zb' onchange='sub_zb(this)' style=display:none
                   accept='.hex'>
                 <label class='file-inputFW' id='file-input_zb' for='file_zb' data-i18n="p.to.cf"> </label>
                 <button id="updButton_zb" type="submit" class="btn btn-primary mb-2" disabled=""
-                  data-i18n="p.to.zfu"></button>
+                  data-i18n="c.inst"></button>
                 <br>
                 <div class="container" style="max-width: 300px; margin-top: 30px;">
                   <div id='prg_zb'></div>
@@ -233,40 +237,25 @@
           </div>
         </div>
 
-        <!--data-cmd="9"  <div class="col-sm-12 col-md-6 mb-4">
-          <div class='card'>
-            <div class="card-header fw-bold">ESP32 OTA online update</div>
-            <div class='card-body'>
-              <div class="container" style="max-width: 400px;">
-                <div class="row">
-                  <button type="button" id="upd_esp_git" class="btn btn-warning col-sm-12 mb-2">Install latest from Github</button>
-                </div>
-                <div class="row">
-                  <button type="button" class="btn btn-outline-warning col-sm-12 flsh_esp mb-2">Show changelog</button>flsh_esp 
-                </div>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card card-update'>
+            <div class="card-header fw-bold">
+              <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#github" />
+              </svg><span data-i18n="p.to.zgu"></span>
+            </div>
+            <div class='card-body card-body-update'>
+              <div class="container">
+                  <button type="button" id="upd_zb_git" class="btn btn-primary col-sm-8 mb-2" data-i18n="p.to.saf"></button>
               </div>
             </div>
           </div>
-        </div> -->
-
-        <!-- <div class="col-sm-12 col-md-6 mb-4">
-          <div class='card'>
-            <div class="card-header fw-bold">Zigbee OTA online update</div>
-            <div class='card-body'>
-              <div class="container" style="max-width: 400px;">
-                <div class="row">
-                  <button type="button" class="btn btn-primary col-sm-12 flsh_zb mb-2">Check for updates</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> -->
+        </div>
 
       </div>
     </div>
 
     <script type='text/javascript' src='/js/masonry.js'></script>
     <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/marked/marked.min.js'></script>
-    <script type='text/javascript' src='/js/ota.js'></script>
 
   </div>

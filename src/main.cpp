@@ -51,8 +51,6 @@ MqttConfigStruct mqttCfg;
 
 SysVarsStruct vars;
 
-zbVerStruct zbVer;
-
 // volatile bool btnFlag = false;
 int btnFlag = false;
 bool updWeb = false;
@@ -102,100 +100,6 @@ void initLan()
   }
 }
 
-/*
-void initZb()
-{
-
-  const char *txPin = "txPin";
-  const char *rxPin = "rxPin";
-  const char *rstPin = "rstPin";
-  const char *bslPin = "bslPin";
-
-  File configFile = LittleFS.open(configFileHw, FILE_READ);
-
-  DynamicJsonDocument config(1024);
-  deserializeJson(config, configFile);
-  configFile.close();
-
-  ZbConfig hwConfig;
-  hwConfig.txPin = config[txPin];
-  hwConfig.rxPin = config[rxPin];
-  hwConfig.rstPin = config[rstPin];
-  hwConfig.bslPin = config[bslPin];
-
-  if (hwConfig.txPin && hwConfig.rxPin && hwConfig.rstPin && hwConfig.bslPin)
-  {
-    DEBUG_PRINTLN(F("Some ZB config found. Try to use"));
-
-    Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, hwConfig.rxPin, hwConfig.txPin); // start zigbee serial
-
-    int BSL_MODE = 0;
-
-    if (zbInit(hwConfig.rstPin, hwConfig.bslPin, BSL_MODE))
-    {
-      DEBUG_PRINTLN(F("Zigbee init - OK"));
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("Zigbee init - ERROR"));
-    }
-  }
-  else
-  {
-    // DynamicJsonDocument doc(512);
-    // doc[txPin] = 0;
-    // doc[rxPin] = 0;
-    // doc[rstPin] = 0;
-    // doc[bslPin] = 0;
-    // writeDefaultConfig(configFileHw, doc);
-    const char *pwrPin = "pwrPin";
-    const char *mdcPin = "mdcPin";
-    const char *mdiPin = "mdiPin";
-    const char *clkMode = "clkMode";
-    const char *pwrAltPin = "pwrAltPin";
-    eth_clock_mode_t clkModeEth = config[clkMode];
-
-    int clkPin;
-    if (clkModeEth == ETH_CLOCK_GPIO0_IN)
-      clkPin = 0;
-    if (clkModeEth == ETH_CLOCK_GPIO0_OUT)
-      clkPin = 0;
-    if (clkModeEth == ETH_CLOCK_GPIO16_OUT)
-      clkPin = 16;
-    if (clkModeEth == ETH_CLOCK_GPIO17_OUT)
-      clkPin = 17;
-
-    DEBUG_PRINTLN(F("NO ZB config in memory"));
-    ZbConfig *newConfig = findZbConfig(config[pwrPin], config[mdcPin], config[mdiPin], clkPin, config[pwrAltPin]);
-    if (newConfig)
-    {
-      DEBUG_PRINTLN(F("Saving ZB HW config"));
-
-      DynamicJsonDocument config(1024);
-      File configFile = LittleFS.open(configFileHw, FILE_READ);
-      deserializeJson(config, configFile);
-      configFile.close();
-
-      config[txPin] = newConfig->txPin;
-      config[rxPin] = newConfig->rxPin;
-      config[rstPin] = newConfig->rstPin;
-      config[bslPin] = newConfig->bslPin;
-
-      configFile = LittleFS.open(configFileHw, FILE_WRITE);
-      serializeJson(config, configFile);
-      configFile.close();
-      // delay(500);
-      DEBUG_PRINTLN(F("Restarting..."));
-      esp_restart();
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("findZbConfig - NO SUCCESS"));
-    }
-  }
-}
-*/
-
 void startSocketServer()
 {
   server.begin(systemCfg.socketPort);
@@ -227,7 +131,7 @@ void startServers(bool usb = false)
   startAP(false);
 
   zbFwCheck();
-  
+
   if (!vars.apStarted)
   {
     if (vpnCfg.wgEnable)
@@ -235,6 +139,8 @@ void startServers(bool usb = false)
       wgBegin();
     }
   }
+
+  checkEspUpdateAvail();
   /* //not available now
   if (vpnCfg.hnEnable)
   {
@@ -475,60 +381,60 @@ void connectWifi()
   static uint8_t timeout = 0;
   if (WiFi.status() == WL_IDLE_STATUS && timeout < 20)
   { // connection in progress
-    DEBUG_PRINTLN(F("[connectWifi] WL_IDLE_STATUS"));
+    LOGD("WL_IDLE_STATUS");
     timeout++;
     return;
   }
   else
   {
     timeout = 0;
-    DEBUG_PRINTLN(F("[connectWifi] timeout"));
+    LOGD("timeout");
   }
   WiFi.persistent(false);
   esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B);
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
-    DEBUG_PRINTLN(F("[connectWifi] Ok SSID & PASS"));
+    LOGD("Ok SSID & PASS");
     if (vars.apStarted)
     {
-      // DEBUG_PRINTLN(F("[connectWifi] WiFi.mode(WIFI_AP_STA)"));
+      // LOGD("WiFi.mode(WIFI_AP_STA)");
       // WiFi.mode(WIFI_AP_STA);
     }
     else
     {
-      DEBUG_PRINTLN(F("[connectWifi] WiFi.mode(WIFI_STA)"));
+      LOGD("WiFi.mode(WIFI_STA)");
       WiFi.mode(WIFI_STA);
     }
     delay(100);
 
     WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
     WiFi.setSleep(false);
-    DEBUG_PRINTLN(F("[connectWifi] WiFi.begin"));
+    LOGD("WiFi.begin");
 
     if (!networkCfg.wifiDhcp)
     {
       WiFi.config(networkCfg.wifiIp, networkCfg.wifiGate, networkCfg.wifiMask, networkCfg.wifiDns1, networkCfg.wifiDns2);
-      DEBUG_PRINTLN(F("[connectWifi] WiFi.config"));
+      LOGD("WiFi.config");
     }
     else
     {
-      DEBUG_PRINTLN(F("[connectWifi] Try DHCP"));
+      LOGD("Try DHCP");
     }
   }
   else
   {
     if (!(systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb))
     { // dont start ap in keepWeb
-      DEBUG_PRINT(F("[connectWifi] NO SSID & PASS "));
+      LOGD("NO SSID & PASS ");
       if (!vars.connectedEther)
       {
-        DEBUG_PRINTLN(F("and problem with LAN"));
+        LOGD("and problem with LAN");
         startAP(true);
-        DEBUG_PRINTLN(F("So [connectWifi] setupWifiAP"));
+        LOGD("so setupWifiAP");
       }
       else
       {
-        DEBUG_PRINTLN(F("but LAN is OK"));
+        LOGD("but LAN is OK");
       }
     }
   }
@@ -708,21 +614,6 @@ void setupCoordinatorMode()
     connectWifi(); // try 2 connect wifi
 }
 
-// void cmd2zigbee(const HardwareSerial serial, byte cmd[], const byte size){
-//   byte checksum;
-//   for (byte i = 1; i < size - 1; i++){
-//     checksum ^= cmd[i];
-//   }
-//   cmd[size] = checksum;
-//   serial.write(cmd, size);
-// }
-
-// void clearS2Buffer(){
-//   while (Serial2.available()){//clear buffer
-//     Serial2.read();
-//   }
-// }
-
 void setup()
 {
   Serial.begin(115200); // todo ifdef DEBUG
@@ -753,6 +644,22 @@ void setup()
 
   // LOAD System vars and create FS / end
 
+  // READ file to support migrate from old firmware
+  loadFileSystemVar();
+  loadFileConfigSerial();
+  loadFileConfigWifi();
+  loadFileConfigEther();
+  loadFileConfigGeneral();
+  loadFileConfigSecurity();
+  loadFileConfigMqtt();
+  loadFileConfigWg();
+  // READ file to support migrate from old firmware
+
+  LOGD("After READ OLD config");
+  // printConfig(networkCfg, vpnCfg, mqttCfg, systemCfg);
+  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
+  DEBUG_PRINTLN(cfg);
+
   // systemCfg.serialSpeed = 115200;
 
   loadFileConfigHW();
@@ -766,13 +673,13 @@ void setup()
     vars.hwBtnIs = true;
   }
 
-  if (hwConfig.mist.ledUsbPin > 0)
+  if (hwConfig.mist.ledModePin > 0)
   {
-    pinMode(hwConfig.mist.ledUsbPin, OUTPUT);
+    pinMode(hwConfig.mist.ledModePin, OUTPUT);
     vars.hwLedUsbIs = true;
 
     ledControl.modeLED.name = "Mode";
-    ledControl.modeLED.pin = hwConfig.mist.ledUsbPin;
+    ledControl.modeLED.pin = hwConfig.mist.ledModePin;
     ledControl.modeLED.active = true;
     ledControl.modeLED.mode = LED_OFF;
 
@@ -814,8 +721,11 @@ void setup()
     }
 
     Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, hwConfig.zb.rxPin, hwConfig.zb.txPin); // start zigbee serial
-
-    zbHwCheck();
+    int BSL_PIN_MODE = 0;
+    if (CCTool.begin(hwConfig.zb.rstPin, hwConfig.zb.bslPin, BSL_PIN_MODE))
+    {
+      zbHwCheck();
+    }
   }
 
   if (vars.hwBtnIs)
@@ -846,20 +756,9 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(hwConfig.mist.btnPin), btnInterrupt, FALLING);
   }
 
-  // READ file to support migrate from old firmware
-  loadFileSystemVar();
-  loadFileConfigSerial();
-  loadFileConfigWifi();
-  loadFileConfigEther();
-  loadFileConfigGeneral();
-  loadFileConfigSecurity();
-  loadFileConfigMqtt();
-  loadFileConfigWg();
-  // READ file to support migrate from old firmware
-
   LOGD("After full load config");
   // printConfig(networkCfg, vpnCfg, mqttCfg, systemCfg);
-  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
+  cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
   DEBUG_PRINTLN(cfg);
 
   // DEBUG_PRINTLN("systemCfg.disableLeds: ");
@@ -874,8 +773,9 @@ void setup()
   // DEBUG_PRINTLN(millis());
 
   // Serial2.updateBaudRate(systemCfg.serialSpeed); // set actual speed
-  printLogMsg("Setup done");
-  // delay(2000);
+
+  LOGD("done");
+
   xTaskCreate(updateWebTask, "update Web Task", 2048, NULL, 7, NULL);
 
   printNVSFreeSpace();
@@ -887,22 +787,6 @@ void setup()
   saveMqttConfig(mqttCfg);
   saveSystemConfig(systemCfg);
   printNVSFreeSpace();
-  */
-
-  // char deviceIdArr[MAX_DEV_ID_LONG];
-  // getDeviceID(deviceIdArr);
-
-  // DEBUG_PRINTLN(String(deviceIdArr));
-  // printLogMsg(String(deviceIdArr));
-
-  // Cron.create(const_cast<char *>("0 */1 * * * *"), ledsScheduler, false);
-
-  /*
-  cron_parse_expr(cronstring, &(Alarm[id].expr), &err);
-  if (err) {
-    memset(&(Alarm[id].expr), 0, sizeof(Alarm[id].expr));
-    return dtINVALID_ALARM_ID;
-  }
   */
 }
 
@@ -1128,10 +1012,10 @@ void loop(void)
       serial_bytes_read = 0;
     }
 
-    if (mqttCfg.enable)
+    /*if (mqttCfg.enable)
     {
       // mqttLoop();
-    }
+    }*/
   }
   if (vpnCfg.wgEnable && vars.vpnWgInit)
   {

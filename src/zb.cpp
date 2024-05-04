@@ -4,8 +4,9 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <ETH.h>
+#include <HTTPClient.h>
 
-#include <IntelHex.h>
+// #include <esp_task_wdt.h>
 #include <CCTools.h>
 
 #include "config.h"
@@ -13,8 +14,6 @@
 #include "log.h"
 #include "etc.h"
 #include "zb.h"
-
-extern struct zbVerStruct zbVer;
 
 extern struct SysVarsStruct vars;
 extern struct BrdConfigStruct hwConfig;
@@ -29,377 +28,242 @@ extern LEDControl ledControl;
 
 extern const char *tempFile;
 
-const byte cmdLed0 = 0x27;
-const byte cmdLed1 = 0x0A;
-const byte cmdLedIndex = 0x01; // for led 1
-const byte cmdLedStateOff = 0x00;
-const byte cmdLedStateOn = 0x01;
-const byte cmdFrameStart = 0xFE;
-const byte cmdLedLen = 0x02;
-
-const byte zigLed1Off[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedIndex, cmdLedStateOff, 0x2E}; // resp FE 01 67 0A 00 6C
-const byte zigLed1On[] = {cmdFrameStart, cmdLedLen, cmdLed0, cmdLed1, cmdLedIndex, cmdLedStateOn, 0x2F};
-const byte cmdLedResp[] = {0xFE, 0x01, 0x67, 0x0A, 0x00, 0x6C};
-
 size_t lastSize = 0;
 
 String tag_ZB = "[ZB]";
 
 extern CCTools CCTool;
 
-void clearS2Buffer()
-{
-    while (Serial2.available())
-    { // clear buffer
-        Serial2.read();
-    }
-}
-
 void zbFwCheck()
 {
-    zbVer.zbRev = 0;
-    const byte cmdFrameStart = 0xFE;
-    const byte zero = 0x00;
-    const byte cmd1 = 0x21;
-    const byte cmd2 = 0x02;
-    const byte cmdSysVersion[] = {cmdFrameStart, zero, cmd1, cmd2, 0x23};
-    for (uint8_t i = 0; i < 6; i++)
+    if (CCTool.checkFirmwareVersion())
     {
-        if (Serial2.read() != cmdFrameStart || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != cmd2)
-        {                    // check for packet start
-            clearS2Buffer(); // skip
-            Serial2.write(cmdSysVersion, sizeof(cmdSysVersion));
-            Serial2.flush();
-            delay(100);
-        }
-        else
-        {
-            const uint8_t zbVerLen = 11;
-            byte zbVerBuf[zbVerLen];
-            for (uint8_t i = 0; i < zbVerLen; i++)
-            {
-                zbVerBuf[i] = Serial2.read();
-            }
-            zbVer.zbRev = zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
-            zbVer.maintrel = zbVerBuf[4];
-            zbVer.minorrel = zbVerBuf[3];
-            zbVer.majorrel = zbVerBuf[2];
-            zbVer.product = zbVerBuf[1];
-            zbVer.transportrev = zbVerBuf[0];
-            printLogMsg(tag_ZB + " v: " + zbVer.zbRev + " Main: " + zbVer.maintrel + " Min: " + zbVer.minorrel + " Maj: " + zbVer.majorrel + " T: " + zbVer.transportrev + " P: " + zbVer.product);
-            clearS2Buffer();
-            break;
-        }
+        printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
     }
 }
 
 void zbHwCheck()
 {
-    int BSL_MODE = 0;
+    int BSL_PIN_MODE = 0;
     ledControl.modeLED.mode = LED_BLINK_1Hz;
-    if (zbInit(hwConfig.zb.rstPin, hwConfig.zb.bslPin, BSL_MODE))
+
+    if (CCTool.detectChipInfo())
     {
+        printLogMsg(tag_ZB + " Chip: " + CCTool.chip.hwRev);
+        printLogMsg(tag_ZB + " IEEE: " + CCTool.chip.ieee);
+        printLogMsg(tag_ZB + " Flash size: " + String(CCTool.chip.flashSize / 1024) + " KB");
+
+        vars.hwZigbeeIs = true;
         ledControl.modeLED.mode = LED_OFF;
-        printLogMsg("[ZBCHK] Connection OK");
     }
     else
     {
+        printLogMsg(tag_ZB + " No Zigbee chip!");
+        vars.hwZigbeeIs = false;
         ledControl.modeLED.mode = LED_BLINK_3Hz;
-        printLogMsg("[ZBCHK] Error");
-        zbVer.zbRev = 0;
     }
-    /*
-    // getZbChip();
-    //  Serial2.begin(115200, SERIAL_8N1, CC2652P_RXD, CC2652P_TXD); //start zigbee serial
-    bool respOk = false;
-    ledControl.modeLED.mode = LED_BLINK_1Hz;
-    for (uint8_t i = 0; i < 12; i++)
-    { // wait for zigbee start
-        if (respOk)
-            break;
-        clearS2Buffer();
-        Serial2.write(zigLed1On, sizeof(zigLed1On));
-        Serial2.flush();
-        delay(400);
-        for (uint8_t i = 0; i < 5; i++)
-        {
-            if (Serial2.read() != 0xFE)
-            {                   // check for packet start
-                Serial2.read(); // skip
-            }
-            else
-            {
-                for (uint8_t i = 1; i < 4; i++)
-                {
-                    if (Serial2.read() != cmdLedResp[i])
-                    { // check if resp ok
-                        respOk = false;
-                        break;
-                    }
-                    else
-                    {
-                        respOk = true;
-                    }
-                }
-            }
-        }
-
-        delay(500);
-        if (!respOk)
-        {
-            ledControl.modeLED.mode = LED_BLINK_3Hz;
-            printLogMsg("[ZBCHK] Wrong answer");
-            zbVer.zbRev = 0;
-        }
-        else
-        {
-            ledControl.modeLED.mode = LED_OFF;
-            Serial2.write(zigLed1Off, sizeof(zigLed1Off));
-            Serial2.flush();
-            delay(250);
-            clearS2Buffer();
-            printLogMsg("[ZBCHK] Connection OK");
-        }
-    }
-    */
+    CCTool.restart();
 }
 
 void zbLedToggle()
 {
-    bool respOk = false;
-    clearS2Buffer();
-    if (vars.zbLedState == 0)
+    if (CCTool.ledToggle())
     {
-        printLogMsg("[ZB] LED toggle ON");
-        Serial2.write(zigLed1On, sizeof(zigLed1On));
-    }
-    else
-    {
-        printLogMsg("[ZB] LED toggle OFF");
-        Serial2.write(zigLed1Off, sizeof(zigLed1Off));
-    }
-    Serial2.flush();
-    delay(400);
-    for (uint8_t i = 0; i < 5; i++)
-    {
-        if (Serial2.read() != 0xFE)
-        {                   // check for packet start
-            Serial2.read(); // skip
+        if (CCTool.ledState == 1)
+        {
+            printLogMsg("[ZB] LED toggle ON");
+            //vars.zbLedState = 1;
         }
         else
         {
-            for (uint8_t i = 1; i < 4; i++)
-            {
-                if (Serial2.read() != cmdLedResp[i])
-                { // check if resp ok
-                    respOk = false;
-                    break;
-                }
-                else
-                {
-                    respOk = true;
-                }
-            }
-        }
-    }
-    if (respOk)
-    {
-        printLogMsg("[ZB] LED toggle OK");
-        vars.zbLedState = !vars.zbLedState;
-    }
-}
-
-/*
-void getZbChip()
-{
-    zigbeeEnableBSL();
-    const byte cmdChipID[] = {0x03, 0x28, 0x28};
-    for (uint8_t i = 0; i < 6; i++)
-    {
-        if (Serial2.read() != 0x03 || Serial2.read() != 0x0a || Serial2.read() != 0x61 || Serial2.read() != 0x28)
-        {                    // check for packet start
-            clearS2Buffer(); // skip
-            Serial2.write(cmdChipID, sizeof(cmdChipID));
-            Serial2.flush();
-            delay(400);
-        }
-        else
-        {
-            const uint8_t zbChipLen = 20;
-            byte zbChipBuf[zbChipLen];
-            for (uint8_t i = 0; i < zbChipLen; i++)
-            {
-
-                zbChipBuf[i] = Serial2.read();
-                printLogMsg(String("[zbChipBuf]") + zbChipBuf[i]);
-            }
-            // uint32_t zbChipID = (zbChipBuf[2] << 8) | zbChipBuf[3];
-
-            // zbVer.zbRev =  zbVerBuf[5] | (zbVerBuf[6] << 8) | (zbVerBuf[7] << 16) | (zbVerBuf[8] << 24);
-
-            // printLogMsg(String("[ZB_Chip_ID]") + zbChipID);
-
-            clearS2Buffer();
-            break;
-            }
-        }
-        zigbeeRestart();
-    }
-*/
-
-void preParse()
-{
-    DEBUG_PRINTLN(String(millis()) + " Starting the parsing process");
-}
-
-void postParse()
-{
-    DEBUG_PRINTLN(String(millis()) + " Parsing complete");
-}
-
-void parseCallback(uint32_t address, uint8_t len, uint8_t *data, size_t currentPosition, size_t _totalSize)
-{
-    // DEBUG_PRINT(".");
-
-    /* // Print each parsed record for debugging purposes
-    DEBUG_PRINT("Address: 0x");
-    DEBUG_PRINT(String(address, HEX));
-    DEBUG_PRINT(", Length: 0x");
-    DEBUG_PRINTLN(String(len, HEX));
-
-    for (uint8_t i = 0; i < len; i++)
-    {
-        DEBUG_PRINT("0x");
-        DEBUG_PRINT(String(data[i], HEX));
-        DEBUG_PRINT(" ");
-    }
-    DEBUG_PRINTLN(""); */
-
-    if (currentPosition - lastSize > 12500)
-    {
-        lastSize = currentPosition;
-        const char *tagZB_FW_progress = "ZB_FW_prgs";
-        const uint8_t eventLen = 11;
-
-        float percent = ((float)currentPosition / _totalSize) * 100.0;
-
-        sendEvent(tagZB_FW_progress, eventLen, String(percent));
-        DEBUG_PRINTLN(String(tagZB_FW_progress) + String(" | ") + String(percent) + String("%"));
-    }
-    // sendEvent(tagESP_FW_progress, eventLen, String(percent));
-}
-
-void runFlash()
-{
-    // CCTools CCTools(Serial2, CC2652P_RST, CC2652P_FLASH);
-    /*
-        if (CCTool.begin())
-        {
-            CCTool.eraseFlash();
-            printLogMsg(String("[ZB_FLASH] | Chip erased"));
-            // zigbeeRestart();
-        }
-        else
-        {
-            String msg = "No connection with Zigbee";
-            printLogMsg(String("[ZBCHIP] ") + msg);
-            DEBUG_PRINTLN(msg);
-        }
-        */
-}
-
-void checkFwHex(const char *tempFile) // check Zigbee FW file using IntelHEX, than check BSL pin.
-{
-    IntelHex zb_hex(tempFile);
-
-    // zb_hex.validateChecksum();
-    // zb_hex.checkBSLConfiguration();
-
-    if (!zb_hex.parse(preParse, parseCallback, postParse))
-    {
-        String msg = ("Failed to parse the zb_hex HEX file. Corrupted file");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-    }
-
-    if (!zb_hex.fileParsed())
-    {
-        String msg = ("File not good");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-    }
-
-    u_int8_t local_chip_id = ALL_CHIP_ID;
-    if (zbVer.chipID == "CC2652P7")
-        local_chip_id = P7_CHIP_ID;
-
-    if (zb_hex.bslActive())
-    {
-        String msg = "BSL (" + String(zb_hex.bslAddr() ? "P7 and R7 chips" : "All chips") + ") pin " + String(zb_hex.bslPin()) + " level " + String(zb_hex.bslLevel() ? "HIGH" : "LOW");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-
-        if (zb_hex.bslAddr() == local_chip_id && zb_hex.bslPin() == NEED_BSL_PIN && zb_hex.bslLevel() == NEED_BSL_LEVEL) // All series DIO 15 LOW
-        {
-            zb_hex.setFileValidated(true);
-            String msg = ("BSL config OK");
-            DEBUG_PRINTLN(msg);
-            printLogMsg(msg);
-        }
-        else
-        {
-            String msg = ("BSL config incorect. Wrong chip, pin or level.");
-            DEBUG_PRINTLN(msg);
-            printLogMsg(msg);
+            printLogMsg("[ZB] LED toggle OFF");
+            //vars.zbLedState = 0;
         }
     }
     else
     {
-        String msg = ("BSL config error. Range not found or CCFG incorrect.");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-    }
-
-    if (!zb_hex.fileValidated())
-    {
-        String msg = ("Zigbee FW file INVALID - ERROR");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-    }
-    else
-    {
-        String msg = ("Zigbee FW file VALID - OK");
-        DEBUG_PRINTLN(msg);
-        printLogMsg(msg);
-        runFlash();
+        printLogMsg("[ZB] LED toggle ERROR");
     }
 }
 
-bool zbInit(int CC_RST_PIN, int CC_BSL_PIN, int BSL_MODE)
+bool zigbeeErase()
 {
-
-    if (CCTool.begin(CC_RST_PIN, CC_BSL_PIN, BSL_MODE))
+    if (CCTool.eraseFlash())
     {
-        // CCTool.cmdGetChipId();
-        String zb_chip = CCTool.detectChipInfo();
-        DEBUG_PRINTLN(zb_chip);
-        printLogMsg(tag_ZB + zb_chip);
-        zbVer.chipID = zb_chip;
-        // zigbeeRestart();
-        CCTool.restart();
-        // delay(5000);
-        DEBUG_PRINTLN(F("Zigbee init - OK"));
-        vars.hwZigbeeIs = true;
-        // zbFwCheck();
+        LOGD("magic");
         return true;
     }
+    return false;
+}
+
+void flashZbUrl(String url)
+{
+
+    float last_percent = 0;
+
+    const char *tagZB_FW_info = "ZB_FW_info";
+    const char *tagZB_FW_file = "ZB_FW_file";
+    const char *tagZB_FW_err = "ZB_FW_err";
+    const char *tagZB_FW_progress = "ZB_FW_prgs";
+    const uint8_t eventLen = 11;
+
+    auto progressShow = [last_percent](float percent) mutable
+    {
+        const char *tagZB_FW_progress = "ZB_FW_prgs";
+
+        if ((percent - last_percent) > 1 || percent < 0.1 || percent == 100)
+        {
+            // char buffer[100];
+            // snprintf(buffer, sizeof(buffer), "Flash progress: %.2f%%", percent);
+            // printLogMsg(String(buffer));
+            sendEvent(tagZB_FW_progress, eventLen, String(percent));
+            last_percent = percent;
+        }
+    };
+
+    printLogMsg("Start Zigbee flashing");
+    sendEvent(tagZB_FW_info, eventLen, String("start"));
+
+    zbFwCheck();
+
+    // CCTool.enterBSL();
+
+    printLogMsg("Installing from " + url);
+    sendEvent(tagZB_FW_file, eventLen, String(url));
+
+    if (eraseWriteZbUrl(url.c_str(), progressShow, CCTool))
+    {
+        sendEvent(tagZB_FW_info, eventLen, String("finish"));
+        printLogMsg("Flashing finished successfully");
+        zbFwCheck();
+        zbLedToggle();
+        delay(1000);
+        zbLedToggle();
+        sendEvent(tagZB_FW_file, eventLen, String(CCTool.chip.fwRev));
+    }
     else
     {
-        String msg = "No connection with Zigbee";
-        printLogMsg(tag_ZB + " " + msg);
-        DEBUG_PRINTLN(msg);
-        DEBUG_PRINTLN(F("Zigbee init - ERROR"));
-        vars.hwZigbeeIs = false;
+        printLogMsg("Failed to flash Zigbee");
+        sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
+    }
+}
+
+void printBufferAsHex(const byte *buffer, size_t length)
+{
+    const char *TAG = "BufferHex";
+    char hexStr[CCTool.TRANSFER_SIZE + 10];
+    std::string hexOutput;
+
+    for (size_t i = 0; i < length; ++i)
+    {
+        if (buffer[i] != 255)
+        {
+            sprintf(hexStr, "%02X ", buffer[i]);
+            hexOutput += hexStr;
+        }
+    }
+
+    LOGD("Buffer content:\n%s", hexOutput.c_str());
+}
+
+bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
+{
+    HTTPClient http;
+    WiFiClientSecure client;
+    client.setInsecure();
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/octet-stream");
+
+    int httpCode = http.GET();
+    if (httpCode != HTTP_CODE_OK)
+    {
+        char buffer[100];
+        snprintf(buffer, sizeof(buffer), "Failed to download file, HTTP code: %d\n", httpCode);
+        printLogMsg(buffer);
+
+        http.end();
         return false;
     }
+
+    CCTool.eraseFlash();
+    printLogMsg("Erase completed!");
+
+    int totalSize = http.getSize();
+
+    if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+    {
+        LOGI("error");
+        http.end();
+        return false;
+    }
+
+    byte buffer[CCTool.TRANSFER_SIZE];
+    WiFiClient *stream = http.getStreamPtr();
+    int loadedSize = 0;
+
+    while (http.connected() && loadedSize < totalSize)
+    {
+        size_t size = stream->available();
+        if (size)
+        {
+            int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
+            // printBufferAsHex(buffer, c);
+            CCTool.processFlash(buffer, c);
+            loadedSize += c;
+            float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+            progressShow(percent);
+        }
+        delay(1); // Yield to the WiFi stack
+    }
+
+    http.end();
+
+    CCTool.restart();
+    return true;
+}
+
+#include <FS.h>
+#include <LittleFS.h>
+
+bool eraseWriteZbFile(const char *filePath, std::function<void(float)> progressShow, CCTools &CCTool)
+{
+    File file = LittleFS.open(filePath, "r");
+    if (!file)
+    {
+        char buffer[100];
+        snprintf(buffer, sizeof(buffer), "Failed to open file: %s\n", filePath);
+        printLogMsg(buffer);
+        return false;
+    }
+
+    CCTool.eraseFlash();
+    printLogMsg("Erase completed!");
+
+    int totalSize = file.size();
+
+    if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+    {
+        file.close();
+        return false;
+    }
+
+    byte buffer[CCTool.TRANSFER_SIZE];
+    int loadedSize = 0;
+
+    while (file.available() && loadedSize < totalSize)
+    {
+        size_t size = file.available();
+        int c = file.readBytes(reinterpret_cast<char *>(buffer), std::min(size, sizeof(buffer)));
+        // printBufferAsHex(buffer, c);
+        CCTool.processFlash(buffer, c);
+        loadedSize += c;
+        float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+        progressShow(percent);
+        delay(1); // Yield to allow other processes
+    }
+
+    file.close();
+    CCTool.restart();
+    return true;
 }

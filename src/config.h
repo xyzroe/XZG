@@ -20,6 +20,7 @@
 #define DNS_SERV_1 "1.1.1.1"
 #define DNS_SERV_2 "8.8.8.8"
 #define NETWORK_MASK "255.255.255.0"
+#define NETWORK_ZERO "0.0.0.0"
 #define NM_START_TIME "23:00"
 #define NM_END_TIME "07:00"
 
@@ -29,11 +30,11 @@
 
 #define BUFFER_SIZE 256
 
-//#define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
+// #define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
 
 // CC2652 settings (FOR BSL VALIDATION!)
 #define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
-#define NEED_BSL_LEVEL 0 // 0-LOW 1-HIGH
+#define NEED_BSL_LEVEL 1 // 0-ERROR 1-LOW 2-HIGH
 
 const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
@@ -103,10 +104,12 @@ struct SysVarsStruct
   unsigned long mqttHeartbeatTime;
 
   bool disableLeds;
-  bool zbLedState;
-  bool zbFlashing;
+  // bool zbLedState;
+  // bool zbFlashing;
 
   char deviceId[MAX_DEV_ID_LONG];
+
+  bool updateEspAvail;
 };
 
 // Network configuration structure
@@ -142,10 +145,18 @@ struct VpnConfigStruct
   // Wireguard
   bool wgEnable;
   IPAddress wgLocalIP;
+  IPAddress wgLocalSubnet;
+  uint16_t wgLocalPort;
+  IPAddress wgLocalGateway;
   char wgLocalPrivKey[50];
   char wgEndAddr[50];
   char wgEndPubKey[50];
   uint16_t wgEndPort;
+  IPAddress wgAllowedIP;
+  IPAddress wgAllowedMask;
+  bool wgMakeDefault;
+  char wgPreSharedKey[50];
+
   // Husarnet
   bool hnEnable;
   char hnJoinCode[80];
@@ -161,9 +172,7 @@ void loadVpnConfig(VpnConfigStruct &config);
 struct MqttConfigStruct
 {
   bool enable;
-  // bool connect;
   char server[50];
-  // IPAddress serverIP;
   int port;
   char user[50];
   char pass[50];
@@ -227,25 +236,13 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj);
 
 void updateConfiguration(WebServer &server, SystemConfigStruct &configSys, NetworkConfigStruct &configNet, VpnConfigStruct &configVpn, MqttConfigStruct &configMqtt);
 
-struct zbVerStruct
-{
-  uint32_t zbRev;
-  uint8_t maintrel;
-  uint8_t minorrel;
-  uint8_t majorrel;
-  uint8_t product;
-  uint8_t transportrev;
-  String chipID;
-};
-
 typedef CircularBuffer<char, 8024> LogConsoleType;
-
-// #define WL_MAC_ADDR_LENGTH 6
 
 void initNVS();
 void getNvsStats(int *total, int *used);
 void printNVSFreeSpace();
 void eraseNVS();
+
 String makeJsonConfig(const NetworkConfigStruct *networkCfg = nullptr,
                       const VpnConfigStruct *vpnCfg = nullptr,
                       const MqttConfigStruct *mqttCfg = nullptr,

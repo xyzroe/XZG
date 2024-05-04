@@ -5,34 +5,69 @@
                 <div class="card-header fw-bold" data-i18n="p.vp.wg.tt"></div>
                 <div class="card-body">
                     <div class='mb-2 form-check form-switch'>
-                        <input data-replace="wgEnable" id="wgEnable" class='form-check-input' type='checkbox'
+                        <input data-r2v="wgEnable" id="wgEnable" class='form-check-input' type='checkbox'
                             role="switch" name='wgEnable' onclick="WgInputDsbl(!this.checked)">
                         <label class='form-check-label' for='wgEnable' data-i18n="c.enable"></label>
                     </div>
                     <div class='mb-2'>
                         <label for='wgLocalIP' data-i18n="p.vp.wg.lip"></label>
-                        <input data-replace="wgLocalIP" class='form-control' id='wgLocalIP' type='text'
+                        <input data-r2v="wgLocalIP" class='form-control' id='wgLocalIP' type='text'
                             name='wgLocalIP' placeholder="X.X.X.X">
                     </div>
                     <div class='mb-2'>
-                        <label for='localIP' data-i18n="p.vp.wg.lpk"></label>
-                        <input data-replace="wgLocalPrivKey" class='form-control' id='wgLocalPrivKey' type='text'
+                        <label for='wgLocalSubnet' data-i18n="p.vp.wg.lsn"></label>
+                        <input data-r2v="wgLocalSubnet" class='form-control' id='wgLocalSubnet' type='text'
+                            name='wgLocalSubnet' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgLocalPort' data-i18n="p.vp.wg.lp"></label>
+                        <input data-r2v="wgLocalPort" class='form-control' id='wgLocalPort' type='number'
+                            name='wgLocalPort' placeholder="12345" min="1" max="65535">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgLocalGateway' data-i18n="p.vp.wg.lgw"></label>
+                        <input data-r2v="wgLocalGateway" class='form-control' id='wgLocalGateway' type='text'
+                            name='wgLocalGateway' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgLocalPrivKey' data-i18n="p.vp.wg.lpk"></label>
+                        <input data-r2v="wgLocalPrivKey" class='form-control' id='wgLocalPrivKey' type='text'
                             name='wgLocalPrivKey' placeholder="">
                     </div>
                     <div class='mb-2'>
-                        <label for='endAddr' data-i18n="p.vp.wg.ea"></label>
-                        <input data-replace="wgEndAddr" class='form-control' id='wgEndAddr' type='text' name='wgEndAddr'
+                        <label for='wgEndAddr' data-i18n="p.vp.wg.ea"></label>
+                        <input data-r2v="wgEndAddr" class='form-control' id='wgEndAddr' type='text' name='wgEndAddr'
                             placeholder="Domain name or IP address">
                     </div>
                     <div class='mb-2'>
-                        <label for='endPubKey' data-i18n="p.vp.wg.epk"></label>
-                        <input data-replace="wgEndPubKey" class='form-control' id='wgEndPubKey' type='text'
+                        <label for='wgEndPubKey' data-i18n="p.vp.wg.epk"></label>
+                        <input data-r2v="wgEndPubKey" class='form-control' id='wgEndPubKey' type='text'
                             name='wgEndPubKey' placeholder="">
                     </div>
                     <div class='mb-2'>
-                        <label for='endPort' data-i18n="p.vp.wg.ep"></label>
-                        <input data-replace="wgEndPort" class='form-control' id='wgEndPort' type='number'
+                        <label for='wgEndPort' data-i18n="p.vp.wg.ep"></label>
+                        <input data-r2v="wgEndPort" class='form-control' id='wgEndPort' type='number'
                             name='wgEndPort' placeholder="12345" min="1" max="65535">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgAllowedIP' data-i18n="p.vp.wg.aip"></label>
+                        <input data-r2v="wgAllowedIP" class='form-control' id='wgAllowedIP' type='text'
+                            name='wgAllowedIP' placeholder="">
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgAllowedMask' data-i18n="p.vp.wg.am"></label>
+                        <input data-r2v="wgAllowedMask" class='form-control' id='wgAllowedMask' type='text'
+                            name='wgAllowedMask' placeholder="">
+                    </div>
+                    <div class='mb-2 form-check form-switch'>
+                        <input data-r2v="wgMakeDefault" id="wgMakeDefault" class='form-check-input' type='checkbox'
+                            role="switch" name='wgMakeDefault'>
+                        <label class='form-check-label' for='wgMakeDefault' data-i18n="p.vp.wg.md"></label>
+                    </div>
+                    <div class='mb-2'>
+                        <label for='wgPreSharedKey' data-i18n="p.vp.wg.psk"></label>
+                        <input data-r2v="wgPreSharedKey" class='form-control' id='wgPreSharedKey' type='text'
+                            name='wgPreSharedKey' placeholder="">
                     </div>
                 </div>
             </div>
@@ -42,23 +77,23 @@
                 <div class="card-header fw-bold" data-i18n="p.vp.hn.tt"></div>
                 <div class="card-body">
                     <div class='mb-2 form-check form-switch'>
-                        <input data-replace="hnEnable" id="hnEnable" class='form-check-input' type='checkbox'
+                        <input data-r2v="hnEnable" id="hnEnable" class='form-check-input' type='checkbox'
                             role="switch" name='hnEnable' onclick="HnInputDsbl(!this.checked)">
                         <label class='form-check-label' for='hnEnable' data-i18n="c.enable"></label>
                     </div>
                     <div class='mb-2'>
                         <label for='joinCode' data-i18n="p.vp.hn.jc"></label>
-                        <input data-replace="hnJoinCode" class='form-control' id='hnJoinCode' type='text'
+                        <input data-r2v="hnJoinCode" class='form-control' id='hnJoinCode' type='text'
                             name='hnJoinCode' placeholder="">
                     </div>
                     <div class='mb-2'>
                         <label for='hostName' data-i18n="p.vp.hn.hn"></label>
-                        <input data-replace="hnHostName" class='form-control' id='hnHostName' type='text'
+                        <input data-r2v="hnHostName" class='form-control' id='hnHostName' type='text'
                             name='hnHostName' placeholder="Domain name or IP address">
                     </div>
                     <div class='mb-2'>
                         <label for='dashUrl' data-i18n="p.vp.hn.du"></label>
-                        <input data-replace="hnDashUrl" class='form-control' id='hnDashUrl' type='text' name='hnDashUrl'
+                        <input data-r2v="hnDashUrl" class='form-control' id='hnDashUrl' type='text' name='hnDashUrl'
                             placeholder="">
                     </div>
                 </div>

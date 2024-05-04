@@ -42,7 +42,6 @@
         "tt": "OSTRZEŻENIE RESETOWANIA DO USTAWIEŃ FABRYCZNYCH"
       },
       "fu": {
-        "bil": "Zainstaluj najnowsze",
         "fri": "Pobieram informacje o oprogramowaniu sprzętowym...",
         "glm": "Aktualizacja do najnowszej wersji GitHub.",
         "gvm": "Aktualizuję do wersji {{ver}} GitHub.",
@@ -54,7 +53,8 @@
         "ucr": "Aktualizacja zakończona! \nPonowne uruchamianie!",
         "vgds": "Pobieram wersję {{ver}} z GitHub...",
         "wdm": "Oczekiwanie na urządzenie...",
-        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd"
+        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd",
+        "bil": "Zainstaluj najnowsze"
       },
       "rst": {
         "msg": "Czekając na ponowne uruchomienie. \nZamknie się automatycznie.",
@@ -73,7 +73,17 @@
       "fu": {
         "vc": "Weryfikacja zakończona!",
         "vt": "zatwierdź: {{per}}%"
-      }
+      },
+      "cfv": "Twoja aktualna wersja oprogramowania: {{ver}}",
+      "dtc": "Koordynator",
+      "dtr": "Routera",
+      "efr": "Błąd podczas pobierania informacji o oprogramowaniu sprzętowym<br>Sprawdź swoją sieć!",
+      "lcf": "Najnowsze oprogramowanie koordynatora:",
+      "lrf": "Najnowsze oprogramowanie routera:",
+      "ncf": "Brak dostępnego oprogramowania sprzętowego koordynatora.",
+      "nrf": "Brak dostępnego oprogramowania sprzętowego routera.",
+      "ot": "Aktualizacja Zigbee OTA",
+      "rfm": "Pobieram informacje o oprogramowaniu sprzętowym..."
     },
     "kw": {
       "msg": "Dzięki tej funkcji możesz pozostawić jeden z kanałów komunikacji aktywnym i mieć dostęp do interfejsu WWW. \nUrządzenie samo wybierze dostępny kanał według priorytetu: WIFI, ETHERNET, WIFI AP"
@@ -84,6 +94,17 @@
       "rn": "Zrestartuj teraz",
       "rr": "Niektóre ustawienia wymagają ponownego uruchomienia.",
       "tt": "USTAWIENIA ZAPISANE"
+    },
+    "zgb": {
+      "fu": {}
+    },
+    "zg": {
+      "fu": {
+        "f": "Zamierzam flashować: {{file}}",
+        "fn": "Flashowanie pomyślnie!",
+        "nv": "Nowa wersja: {{ver}}",
+        "st": "Uruchamianie lampy błyskowej CC2652..."
+      }
     }
   },
   "l": {
@@ -139,7 +160,10 @@
     "lo": {
       "btn": "Witać śpiewem",
       "lbl": "proszę, zaloguj się",
-      "pt": "Zaloguj się - XZG"
+      "pt": "Zaloguj się - XZG",
+      "mlo": "Wylogowanie zakończone sukcesem",
+      "mnl": "Musisz się zalogować",
+      "mwc": "Błędne dane uwierzytelniające"
     },
     "mq": {
       "broker": {
@@ -207,35 +231,21 @@
       "dic": {
         "cs": "rdzenie",
         "dm": "Model urządzenia",
-        "ef": "Procesor ESP32",
-        "efs": "Pamięć ESP32",
-        "efv": "Wersja oprogramowania sprzętowego ESP32",
-        "ehs": "Kopia ESP32",
-        "ehv": "Wersja sprzętowa ESP32",
-        "et": "Temperatura ESP32",
+        "ef": "Edytor",
+        "efs": "Pamięć",
+        "ehs": "Sterta",
+        "et": "Temperatura",
         "kb": "KiB",
         "mb": "Mb",
         "mhz": "MHz",
         "tt": "Informacje o urządzeniu",
-        "zfv": "Wersja Zigbee FW",
-        "zhv": "Wersja sprzętowa Zigbee",
         "efte": "zewnętrzny",
         "efti": "wewnętrzny",
-        "efss": "System plików ESP32",
-        "ens": "Pamięć masowa ESP32 nv",
-        "ent": "wpisy"
-      },
-      "dsc": {
+        "efss": "System plików",
+        "ens": "Magazyn NV",
+        "ent": "wpisy",
         "du": "Czas pracy urządzenia",
-        "op": "Tryb operacyjny",
-        "scc": "Klient gniazda podłączony",
-        "su": "Czas pracy gniazda",
-        "tt": "Status urządzenia",
-        "lt": "Czas lokalny",
-        "opn": "Sieć Zigbee",
-        "opu": "Zigbee-USB",
-        "sccn": "Brak połączenia",
-        "sccy": "Tak, {{count}} klientów"
+        "lt": "Czas lokalny"
       },
       "te": "Ethernetu",
       "tm": "MQTT",
@@ -250,6 +260,22 @@
       "wc": {
         "map": "AP",
         "mcl": "Klient"
+      },
+      "zbc": {
+        "tt": "Status urządzenia",
+        "op": "Tryb operacyjny",
+        "opn": "Sieć Zigbee",
+        "opu": "Zigbee-USB",
+        "scc": "Klient gniazda podłączony",
+        "sccn": "Brak połączenia",
+        "su": "czas połączenia",
+        "sccy": "Tak, {{count}} klientów",
+        "zfs": "Rozmiar Flasha",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Wersja oprogramowania sprzętowego",
+        "hv": "Wersja sprzętowa"
       }
     },
     "se": {
@@ -293,11 +319,14 @@
       "rst": "Uruchom ponownie",
       "s": "Rozmiar",
       "sc": "Kontrola systemu",
-      "sri": "Wybierz wersję",
       "usb": "USB",
       "zb": "Zigbee",
       "zfu": "Aktualizacja pliku Zigbee",
-      "zu": "Aktualizacja Zigbee (w przygotowaniu)"
+      "zu": "Aktualizacja Zigbee (w przygotowaniu)",
+      "saf": "Pokaż dostępne oprogramowanie sprzętowe",
+      "clzv": "Sprawdź najnowsze oprogramowanie sprzętowe Zigbee",
+      "zgu": "Aktualizacja Gita CC2652",
+      "sri": "Wybierz wersję"
     },
     "vp": {
       "hn": {
@@ -312,7 +341,13 @@
         "epk": "Klucz publiczny punktu końcowego",
         "lip": "Adres IP interfejsu lokalnego",
         "lpk": "Klucz prywatny interfejsu lokalnego",
-        "tt": "Konfiguracja WireGuarda"
+        "tt": "Konfiguracja WireGuarda",
+        "aip": "Dozwolone adresy IP",
+        "am": "Dozwolona maska",
+        "lgw": "Brama lokalna",
+        "lsn": "Podsieć lokalna",
+        "md": "Ustaw jako domyślne",
+        "psk": "Wstępnie udostępniony klucz"
       }
     },
     "zi": {

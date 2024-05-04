@@ -38,23 +38,23 @@ void printNVSFreeSpace()
 {
     int total, used;
     getNvsStats(&total, &used);
-    LOGD("Total Entries: %d, Used Entries: %d, Free Entries: %d", total, used, (total - used));
+    LOGI("Total: %d, Used: %d, Free: %d", total, used, (total - used));
 }
 
 void eraseNVS()
 {
-    LOGD("Going to erase NVS. It will factory reset device.");
+    LOGD("Going to erase NVS");
     int timeDelay = 3;
     for (int i = 0; i < timeDelay; i++)
     {
         LOGD("%d seconds left..", (timeDelay - i));
         delay(1000);
     }
-    LOGD("Erasing NVS. It will factory reset device!");
+    LOGD("Erasing NVS");
     ESP_ERROR_CHECK(nvs_flash_erase());
     esp_err_t ret = nvs_flash_init();
     ESP_ERROR_CHECK(ret);
-    LOGD("Erase complete!");
+    LOGD("Complete!");
 }
 
 void initNVS()
@@ -171,10 +171,17 @@ void saveVpnConfig(const VpnConfigStruct &config)
 
     preferences.putBool(wgEnableKey, config.wgEnable);
     preferences.putString(wgLocalIPKey, config.wgLocalIP.toString());
+    preferences.putString(wgLocalSubnetKey, config.wgLocalSubnet.toString());
+    preferences.putInt(wgLocalPortKey, config.wgLocalPort);
+    preferences.putString(wgLocalGatewayKey, config.wgLocalGateway.toString());
     preferences.putString(wgLocalPrivKeyKey, config.wgLocalPrivKey);
     preferences.putString(wgEndAddrKey, config.wgEndAddr);
     preferences.putString(wgEndPubKeyKey, config.wgEndPubKey);
     preferences.putInt(wgEndPortKey, config.wgEndPort);
+    preferences.putString(wgAllowedIPKey, config.wgAllowedIP.toString());
+    preferences.putString(wgAllowedMaskKey, config.wgAllowedMask.toString());
+    preferences.putBool(wgMakeDefaultKey, config.wgMakeDefault);
+    preferences.putString(wgPreSharedKeyKey, config.wgPreSharedKey);
 
     preferences.putBool(hnEnableKey, config.hnEnable);
     preferences.putString(hnJoinCodeKey, config.hnJoinCode);
@@ -190,10 +197,17 @@ void loadVpnConfig(VpnConfigStruct &config)
 
     config.wgEnable = preferences.getBool(wgEnableKey, false);
     config.wgLocalIP.fromString(preferences.getString(wgLocalIPKey));
+    config.wgLocalSubnet.fromString(preferences.getString(wgLocalSubnetKey, NETWORK_MASK));
+    config.wgLocalPort = preferences.getInt(wgLocalPortKey, 33333);
+    config.wgLocalGateway.fromString(preferences.getString(wgLocalGatewayKey, NETWORK_ZERO));
     strlcpy(config.wgLocalPrivKey, preferences.getString(wgLocalPrivKeyKey).c_str(), sizeof(config.wgLocalPrivKey));
     strlcpy(config.wgEndAddr, preferences.getString(wgEndAddrKey).c_str(), sizeof(config.wgEndAddr));
     strlcpy(config.wgEndPubKey, preferences.getString(wgEndPubKeyKey).c_str(), sizeof(config.wgEndPubKey));
     config.wgEndPort = preferences.getInt(wgEndPortKey);
+    config.wgAllowedIP.fromString(preferences.getString(wgAllowedIPKey, NETWORK_ZERO));
+    config.wgAllowedMask.fromString(preferences.getString(wgAllowedMaskKey, NETWORK_ZERO));
+    config.wgMakeDefault = preferences.getBool(wgMakeDefaultKey, true);
+    strlcpy(config.wgPreSharedKey, preferences.getString(wgPreSharedKeyKey).c_str(), sizeof(config.wgPreSharedKey));
 
     config.hnEnable = preferences.getBool(hnEnableKey, false);
     strlcpy(config.hnJoinCode, preferences.getString(hnJoinCodeKey).c_str(), sizeof(config.hnJoinCode));
@@ -596,49 +610,67 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         case API_PAGE_VPN:
         {
             configVpn.wgEnable = serverWeb.hasArg(wgEnableKey) == true;
-
             if (serverWeb.hasArg(wgLocalIPKey))
             {
                 configVpn.wgLocalIP.fromString(serverWeb.arg(wgLocalIPKey));
             }
-
+            if (serverWeb.hasArg(wgLocalSubnetKey))
+            {
+                configVpn.wgLocalSubnet.fromString(serverWeb.arg(wgLocalSubnetKey));
+            }
+            if (serverWeb.hasArg(wgLocalPortKey))
+            {
+                configVpn.wgLocalPort = serverWeb.arg(wgLocalPortKey).toInt();
+            }
+            if (serverWeb.hasArg(wgLocalGatewayKey))
+            {
+                configVpn.wgLocalGateway.fromString(serverWeb.arg(wgLocalGatewayKey));
+            }
             if (serverWeb.hasArg(wgLocalPrivKeyKey))
             {
                 strncpy(configVpn.wgLocalPrivKey, serverWeb.arg(wgLocalPrivKeyKey).c_str(), sizeof(configVpn.wgLocalPrivKey) - 1);
                 configVpn.wgLocalPrivKey[sizeof(configVpn.wgLocalPrivKey) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-
             if (serverWeb.hasArg(wgEndAddrKey))
             {
                 strncpy(configVpn.wgEndAddr, serverWeb.arg(wgEndAddrKey).c_str(), sizeof(configVpn.wgEndAddr) - 1);
                 configVpn.wgEndAddr[sizeof(configVpn.wgEndAddr) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-
             if (serverWeb.hasArg(wgEndPubKeyKey))
             {
                 strncpy(configVpn.wgEndPubKey, serverWeb.arg(wgEndPubKeyKey).c_str(), sizeof(configVpn.wgEndPubKey) - 1);
                 configVpn.wgEndPubKey[sizeof(configVpn.wgEndPubKey) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-
             if (serverWeb.hasArg(wgEndPortKey))
             {
                 configVpn.wgEndPort = serverWeb.arg(wgEndPortKey).toInt();
             }
+            if (serverWeb.hasArg(wgAllowedIPKey))
+            {
+                configVpn.wgAllowedIP.fromString(serverWeb.arg(wgAllowedIPKey));
+            }
+            if (serverWeb.hasArg(wgAllowedMaskKey))
+            {
+                configVpn.wgAllowedMask.fromString(serverWeb.arg(wgAllowedMaskKey));
+            }
+            configVpn.wgMakeDefault = serverWeb.hasArg(wgMakeDefaultKey) == true;
+            if (serverWeb.hasArg(wgPreSharedKeyKey))
+            {
+                strncpy(configVpn.wgPreSharedKey, serverWeb.arg(wgPreSharedKeyKey).c_str(), sizeof(configVpn.wgPreSharedKey) - 1);
+                configVpn.wgPreSharedKey[sizeof(configVpn.wgPreSharedKey) - 1] = '\0'; // Guarantee a null terminator at the end
+            }
 
             configVpn.hnEnable = serverWeb.hasArg(hnEnableKey) == true;
-
             if (serverWeb.hasArg(hnJoinCodeKey))
             {
                 strncpy(configVpn.hnJoinCode, serverWeb.arg(hnJoinCodeKey).c_str(), sizeof(configVpn.hnJoinCode) - 1);
                 configVpn.hnJoinCode[sizeof(configVpn.hnJoinCode) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-
             if (serverWeb.hasArg(hnHostNameKey))
             {
                 strncpy(configVpn.hnHostName, serverWeb.arg(hnHostNameKey).c_str(), sizeof(configVpn.hnHostName) - 1);
                 configVpn.hnHostName[sizeof(configVpn.hnHostName) - 1] = '\0'; // Guarantee a null terminator at the end
             }
-
             if (serverWeb.hasArg(hnDashUrlKey))
             {
                 strncpy(configVpn.hnDashUrl, serverWeb.arg(hnDashUrlKey).c_str(), sizeof(configVpn.hnDashUrl) - 1);
@@ -683,12 +715,21 @@ void serializeNetworkConfigToJson(const NetworkConfigStruct &config, JsonObject 
 // Serialization VpnConfigStruct into JSON
 void serializeVpnConfigToJson(const VpnConfigStruct &config, JsonObject obj)
 {
+    // WireGuard
     obj[wgEnableKey] = config.wgEnable;
     obj[wgLocalIPKey] = config.wgLocalIP.toString();
+    obj[wgLocalSubnetKey] = config.wgLocalSubnet.toString();
+    obj[wgLocalPortKey] = config.wgLocalPort;
+    obj[wgLocalGatewayKey] = config.wgLocalGateway.toString();
     obj[wgLocalPrivKeyKey] = config.wgLocalPrivKey;
     obj[wgEndAddrKey] = config.wgEndAddr;
     obj[wgEndPubKeyKey] = config.wgEndPubKey;
     obj[wgEndPortKey] = config.wgEndPort;
+    obj[wgAllowedIPKey] = config.wgAllowedIP.toString();
+    obj[wgAllowedMaskKey] = config.wgAllowedMask.toString();
+    obj[wgMakeDefaultKey] = config.wgMakeDefault;
+    obj[wgPreSharedKeyKey] = config.wgPreSharedKey;
+    // Husarnet
     obj[hnEnableKey] = config.hnEnable;
     obj[hnJoinCodeKey] = config.hnJoinCode;
     obj[hnHostNameKey] = config.hnHostName;
@@ -773,8 +814,8 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[mqttHeartbeatTimeKey] = vars.mqttHeartbeatTime;
 
     obj[disableLedsKey] = vars.disableLeds;
-    obj[zbLedStateKey] = vars.zbLedState;
-    obj[zbFlashingKey] = vars.zbFlashing;
+    // obj[zbLedStateKey] = vars.zbLedState;
+    // obj[zbFlashingKey] = vars.zbFlashing;
 
     obj[deviceIdKey] = vars.deviceId;
 }
@@ -791,9 +832,13 @@ bool loadFileConfigHW()
     const char *clkMode = "clkMode";
     const char *pwrAltPin = "pwrAltPin";
     const char *btnPin = "btnPin";
-    const char *uartChPin = "uartChPin";
-    const char *ledUsbPin = "ledUsbPin";
+    const char *btnPlr = "btnPlr";
+    const char *uartSelPin = "uartSelPin";
+    const char *uartSelPlr = "uartSelPlr";
+    const char *ledModePin = "ledModePin";
+    const char *ledModePlr = "ledModePlr";
     const char *ledPwrPin = "ledPwrPin";
+    const char *ledPwrPlr = "ledPwrPlr";
     const char *zbTxPin = "zbTxPin";
     const char *zbRxPin = "zbRxPin";
     const char *zbRstPin = "zbRstPin";
@@ -824,9 +869,13 @@ bool loadFileConfigHW()
     hwConfig.eth.clkMode = config[clkMode];
     hwConfig.eth.pwrAltPin = config[pwrAltPin];
     hwConfig.mist.btnPin = config[btnPin];
-    hwConfig.mist.uartSelPin = config[uartChPin];
-    hwConfig.mist.ledUsbPin = config[ledUsbPin];
+    hwConfig.mist.btnPlr = config[btnPlr];
+    hwConfig.mist.uartSelPin = config[uartSelPin];
+    hwConfig.mist.uartSelPlr = config[uartSelPlr];
+    hwConfig.mist.ledModePin = config[ledModePin];
+    hwConfig.mist.ledModePlr = config[ledModePlr];
     hwConfig.mist.ledPwrPin = config[ledPwrPin];
+    hwConfig.mist.ledPwrPlr = config[ledPwrPlr];
     hwConfig.zb.txPin = config[zbTxPin];
     hwConfig.zb.rxPin = config[zbRxPin];
     hwConfig.zb.rstPin = config[zbRstPin];
@@ -861,9 +910,13 @@ bool loadFileConfigHW()
             config[clkMode] = newConfig->eth.clkMode;
             config[pwrAltPin] = newConfig->eth.pwrAltPin;
             config[btnPin] = newConfig->mist.btnPin;
-            config[uartChPin] = newConfig->mist.uartSelPin;
-            config[ledUsbPin] = newConfig->mist.ledUsbPin;
+            config[btnPlr] = newConfig->mist.btnPlr;
+            config[uartSelPin] = newConfig->mist.uartSelPin;
+            config[uartSelPlr] = newConfig->mist.uartSelPlr;
+            config[ledModePin] = newConfig->mist.ledModePin;
+            config[ledModePlr] = newConfig->mist.ledModePlr;
             config[ledPwrPin] = newConfig->mist.ledPwrPin;
+            config[ledPwrPlr] = newConfig->mist.ledPwrPlr;
             config[zbTxPin] = newConfig->zb.txPin;
             config[zbRxPin] = newConfig->zb.rxPin;
             config[zbRstPin] = newConfig->zb.rstPin;
@@ -1070,7 +1123,7 @@ bool loadFileConfigGeneral()
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
     systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
     // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
-    strlcpy(systemCfg.timeZone, doc[timeZoneKey] | "", sizeof(systemCfg.timeZone));
+    strlcpy(systemCfg.timeZone, doc[timeZoneKey] | NTP_TIME_ZONE, sizeof(systemCfg.timeZone));
 
     configFile.close();
     LOGD("%s %s", configFileGeneral, msg_file_rm);

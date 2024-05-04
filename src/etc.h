@@ -45,3 +45,4 @@ void hnBegin();
 void ledTask(void *parameter);
 String getTime();
 
+void checkEspUpdateAvail();

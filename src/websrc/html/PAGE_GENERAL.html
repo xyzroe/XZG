@@ -9,7 +9,7 @@
                             <div class="row">
                                 <div class='mb-2'>
                                     <label for="hostname" data-i18n="p.ge.host.n"></label>
-                                    <input data-replace="hostname" class="form-control" id="hostname" type="text"
+                                    <input data-r2v="hostname" class="form-control" id="hostname" type="text"
                                         name="hostname" minlength="3" maxlength="50"
                                         pattern="^[a-zA-Z0-9]+([\-]?[a-zA-Z0-9]+)*$"
                                         data-i18n="p.ge.host.ph[placeholder];p.ge.host.tt[title]"
@@ -17,7 +17,7 @@
                                 </div>
                                 <div class='mb-2'>
                                     <label for="refreshLogs" data-i18n="p.ge.refresh.n"></label>
-                                    <input data-replace="refreshLogs" class='form-control' id="refreshLogs"
+                                    <input data-r2v="refreshLogs" class='form-control' id="refreshLogs"
                                         type="number" name="refreshLogs" min="1" max="30" step="1"
                                         data-i18n="p.ge.refresh.ph[placeholder];p.ge.refresh.tt[title]"
                                         required>
@@ -29,20 +29,20 @@
                                 <div class="col-sm-12 mb-3" onclick="KeepWebDsbl(!$('#usbMode').prop('checked'))">
                                     <span data-i18n="p.ge.work.mode.desc"></span>
                                     <div class="form-check">
-                                        <input data-replace="checkedLanMode" class="form-check-input" type="radio"
+                                        <input data-r2v="checkedLanMode" class="form-check-input" type="radio"
                                             name="coordMode" id="lanMode" value="0">
                                         <label class="form-check-label" for="lanMode"
                                             data-i18n="p.ge.work.mode.net"></label>
                                     </div>
                                     <div class="form-check">
-                                        <input data-replace="checkedUsbMode" class="form-check-input" type="radio"
+                                        <input data-r2v="checkedUsbMode" class="form-check-input" type="radio"
                                             name="coordMode" id="usbMode" value="2">
                                         <label class="form-check-label" for="usbMode"
                                             data-i18n="p.ge.work.mode.usb"></label>
                                     </div>
                                     <div class="form-check form-check-inline me-1">
                                         <input class="form-check-input" type="checkbox" id="keepWeb" name="keepWeb"
-                                            data-replace="keepWeb">
+                                            data-r2v="keepWeb">
                                         <label class="form-check-label" for="keepWeb"
                                             data-i18n="p.ge.kw"></label>
                                     </div>
@@ -68,7 +68,7 @@
                             <div class="row">
                                 <span data-i18n="p.ge.led.dis"></span>
                                 <div class="form-check pt-2 two_cols_checkbox">
-                                    <input data-replace="checkedDisableLedPwr" class="form-check-input"
+                                    <input data-r2v="checkedDisableLedPwr" class="form-check-input"
                                         id="disableLedPwr" type="checkbox" name="disableLedPwr">
                                     <label class="form-check-label" for="disableLedPwr"
                                         data-i18n="p.ge.led.pwr"></label>
@@ -79,7 +79,7 @@
                                     </label>
                                 </div>
                                 <div class="form-check pt-2 two_cols_checkbox">
-                                    <input data-replace="checkedDisableLedUSB" class="form-check-input"
+                                    <input data-r2v="checkedDisableLedUSB" class="form-check-input"
                                         id="disableLedUSB" type="checkbox" name="disableLedUSB">
                                     <label class="form-check-label" for="disableLedUSB"
                                         data-i18n="p.ge.led.mode"></label>
@@ -98,14 +98,14 @@
                                 <span data-i18n="p.ge.led.night"></span>
                                 <div class='form-check pt-2 form-switch two_cols_switch'>
                                     <input class='form-check-input' id='nightMode' type='checkbox' role="switch"
-                                        name='nightMode' data-replace="nightMode">
+                                        name='nightMode' data-r2v="nightMode">
                                     <label class='form-check-label' for='nightMode' data-i18n="c.enable"></label>
                                 </div>
                                 <div class="container">
                                     <div class="row align-items-center mt-3">
                                         <div class="col-6">
                                             <input type="time" class="form-control" id="startHour" name="startHour"
-                                                data-replace="startHour" />
+                                                data-r2v="startHour" />
                                         </div>
                                         <div class="col-6">
                                             <label for="startHour" data-i18n="c.t.s"></label>
@@ -114,7 +114,7 @@
                                     <div class="row align-items-center mt-3">
                                         <div class="col-6">
                                             <input type="time" class="form-control" id="endHour" name="endHour"
-                                                data-replace="endHour" />
+                                                data-r2v="endHour" />
                                         </div>
                                         <div class="col-6">
                                             <label for="endHour" data-i18n="c.t.e"></label>
@@ -133,19 +133,19 @@
                 <div class="card-body">
                     <div class='mb-2'>
                         <label for='timezone' data-i18n="p.ge.ntp.zone"></label>
-                        <select data-replace="timeZones" id="timeZoneId" class='form-control' name="timeZoneName">
+                        <select data-r2v="timeZones" id="timeZoneId" class='form-control' name="timeZoneName">
                         </select>
                     </div>
                     <div class='mb-2'>
                         <label for="ntpServ1"><span data-i18n="p.ge.ntp.server.n"></span> 1</label>
-                        <input data-replace="ntpServ1" class="form-control" id="ntpServ1" type="text" name="ntpServ1"
+                        <input data-r2v="ntpServ1" class="form-control" id="ntpServ1" type="text" name="ntpServ1"
                             pattern="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
                             data-i18n="p.ge.ntp.server.ph[placeholder];p.ge.ntp.server.tt[title]"
                             maxlength="50" required>
                     </div>
                     <div class='mb-2'>
                         <label for="ntpServ2"><span data-i18n="p.ge.ntp.server.n"></span> 2</label>
-                        <input data-replace="ntpServ2" class="form-control" id="ntpServ2" type="text" name="ntpServ2"
+                        <input data-r2v="ntpServ2" class="form-control" id="ntpServ2" type="text" name="ntpServ2"
                             pattern="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
                             data-i18n="p.ge.ntp.server.ph[placeholder];p.ge.ntp.server.tt[title]"
                             maxlength="50" required>

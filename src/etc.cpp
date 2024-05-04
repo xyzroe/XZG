@@ -50,8 +50,6 @@ const char *configFileMqtt = "/config/configMqtt.json";
 const char *configFileWg = "/config/configWg.json";
 const char *configFileHw = "/configHw.json";
 
-uint16_t wgLocalPort = 33333;
-
 #include "mbedtls/md.h"
 
 String sha1(String payloadStr)
@@ -296,7 +294,7 @@ void factoryReset()
     delay(1000);
   }
 
-  if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
+  if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)) // change to format anyway
   {
     LOGD("Error with LITTLEFS");
   }
@@ -326,7 +324,7 @@ void setClock(void *pvParameters)
 
   const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
 
-  LOGD("Waiting for NTP time sync: ");
+  LOGD("Waiting for NTP time sync");
   unsigned long startTryingTime = millis();
 
   time_t nowSecs = time(nullptr);
@@ -335,11 +333,11 @@ void setClock(void *pvParameters)
   while ((nowSecs < targetTime) && ((millis() - startTryingTime) < 300000))
   {
     delay(500);
-    DEBUG_PRINT(F("."));
+    // DEBUG_PRINT(F("."));
     yield();
     nowSecs = time(nullptr);
   }
-  DEBUG_PRINTLN();
+  // DEBUG_PRINTLN();
 
   struct tm timeinfo;
   if (localtime_r(&nowSecs, &timeinfo))
@@ -409,6 +407,8 @@ void setupCron()
 {
   // Cron.create(const_cast<char *>("0 */1 * * * *"), cronTest, false);
 
+  Cron.create(const_cast<char *>("0 0 */1 * * *"), checkEspUpdateAvail, false);
+
   if (systemCfg.nmEnable)
   {
 
@@ -464,7 +464,7 @@ void setupCron()
 void setTimezone(String timezone)
 {
   String tag = "TZ";
-  LOGD("Setting Timezone");
+  // LOGD("Setting Timezone");
   setenv("TZ", timezone.c_str(), 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
   tzset();
   time_t nowSecs = time(nullptr);
@@ -473,7 +473,6 @@ void setTimezone(String timezone)
 
   String timeNow = asctime(&timeinfo);
   timeNow.remove(timeNow.length() - 1);
-  LOGD("Local time: %s", timeNow.c_str());
   printLogMsg("Local time: " + timeNow);
 }
 
@@ -547,25 +546,62 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
   if (ETH.begin(brdConfigs[i].eth.addr, brdConfigs[i].eth.pwrPin, brdConfigs[i].eth.mdcPin, brdConfigs[i].eth.mdiPin, brdConfigs[i].eth.phyType, brdConfigs[i].eth.clkMode, brdConfigs[i].eth.pwrAltPin))
   {
     LOGD("Config found: %s", brdConfigs[i].board);
+    delay(1000);
     brdOk = true;
 
-    if (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0)
+    if (brdConfigs[i].mist.btnPin > 0)
+    {
+
+      pinMode(brdConfigs[i].mist.btnPin, INPUT);
+      int press = 0;
+      for (int y = 0; y < 10; y++)
+      {
+        int state = digitalRead(brdConfigs[i].mist.btnPin);
+        // LOGD("Read state: %d", state);
+        if (state != brdConfigs[i].mist.btnPlr)
+        {
+          press++;
+          // LOGD("Button press %d", press);
+        }
+        delay(100);
+      }
+      if (press > 5)
+      {
+        brdOk = false;
+        LOGD("Button pin ERROR");
+      }
+      else
+      {
+        LOGD("Button pin OK");
+      }
+    }
+
+    if (brdOk && (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0))
     {
       LOGD("Zigbee pins OK. Try to connect...");
       esp_task_wdt_reset();
       Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, brdConfigs[i].zb.rxPin, brdConfigs[i].zb.txPin); // start zigbee serial
 
       // CCTool.switchStream(Serial2);
-      int BSL_MODE = 0;
-      if (zbInit(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_MODE))
+      int BSL_PIN_MODE = 0;
+
+      if (CCTool.begin(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_PIN_MODE))
       {
-        LOGD("Zigbee find - OK");
-        brdOk = true;
+        if (CCTool.detectChipInfo())
+        {
+          LOGD("Zigbee find - OK");
+          brdOk = true;
+        }
+        else
+        {
+          LOGI("Zigbee find - ERROR");
+          brdOk = false;
+        }
       }
       else
       {
-        LOGI("Zigbee find - ERROR");
-        brdOk = false;
+        LOGI("Zigbee ERROR");
+        brdOk = true; // replace false!
       }
     }
   }
@@ -588,84 +624,36 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
     return nullptr;
   }
 }
-/*
-ZbConfig *findZbConfig(int ethPwrPin, int ethMdcPin, int ethMdiPin, int ethClkPin, int ethPwrAltPin)
-{
-  int zbConfigsSize = sizeof(zbConfigs) / sizeof(zbConfigs[0]);
-
-  for (int i = 0; i < zbConfigsSize; i++)
-  {
-    DEBUG_PRINT(F("Zigbee try "));
-    DEBUG_PRINT(zbConfigs[i].rxPin);
-    DEBUG_PRINT(F(" "));
-    DEBUG_PRINT(zbConfigs[i].txPin);
-    DEBUG_PRINT(F(" "));
-    DEBUG_PRINT(zbConfigs[i].rstPin);
-    DEBUG_PRINT(F(" "));
-    DEBUG_PRINTLN(zbConfigs[i].bslPin);
-
-    if (zbConfigs[i].rxPin == ethPwrPin || zbConfigs[i].rxPin == ethMdcPin || zbConfigs[i].rxPin == ethMdiPin || zbConfigs[i].rxPin == ethClkPin || zbConfigs[i].rxPin == ethPwrAltPin)
-      continue;
-    if (zbConfigs[i].txPin == ethPwrPin || zbConfigs[i].txPin == ethMdcPin || zbConfigs[i].txPin == ethMdiPin || zbConfigs[i].txPin == ethClkPin || zbConfigs[i].txPin == ethPwrAltPin)
-      continue;
-    if (zbConfigs[i].rstPin == ethPwrPin || zbConfigs[i].rstPin == ethMdcPin || zbConfigs[i].rstPin == ethMdiPin || zbConfigs[i].rstPin == ethClkPin || zbConfigs[i].rstPin == ethPwrAltPin)
-      continue;
-    if (zbConfigs[i].bslPin == ethPwrPin || zbConfigs[i].bslPin == ethMdcPin || zbConfigs[i].bslPin == ethMdiPin || zbConfigs[i].bslPin == ethClkPin || zbConfigs[i].bslPin == ethPwrAltPin)
-      continue;
-
-    DEBUG_PRINTLN(F("Zigbee no conflict with ETH"));
-
-    //Serial2.end();
-    //DEBUG_PRINTLN(F("Serial2.end"));
-
-    Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, zbConfigs[i].rxPin, zbConfigs[i].txPin); // start zigbee serial
-    DEBUG_PRINTLN(F("Serial2.begin"));
-
-    CCTool.switchStream(Serial2);
-
-    int BSL_MODE = 0;
-    delay(500);
-    if (zbInit(zbConfigs[i].rstPin, zbConfigs[i].bslPin, BSL_MODE))
-    {
-      DEBUG_PRINTLN(F("Zigbee find - OK"));
-      return &zbConfigs[i];
-    }
-    else
-    {
-      DEBUG_PRINTLN(F("Zigbee find - ERROR"));
-    }
-  }
-
-  return nullptr;
-}
-*/
 
 void wgBegin()
 {
   if (!wg.is_initialized())
   {
     // printLogMsg(String("Initializing WireGuard interface..."));
-    auto subnet = IPAddress(255, 255, 255, 0);
-    auto gateway = IPAddress(0, 0, 0, 0);
-    auto allowIP = IPAddress(0, 0, 0, 0);
-    auto allowMask = IPAddress(0, 0, 0, 0);
-    bool make_default = true;
-    const char preshaed_key[50] = "Gg2KjE8gRJRqkh+JMfw0iNgqa1AnCJ7peNdk1jjZj2M=";
+    //auto subnet = IPAddress(255, 255, 255, 0);
+    //auto gateway = IPAddress(0, 0, 0, 0);
+    //auto allowIP = IPAddress(0, 0, 0, 0);
+    //auto allowMask = IPAddress(0, 0, 0, 0);
 
-    // auto localport = 50000;
+    const char *wg_preshared_key = nullptr;
+    if (vpnCfg.wgPreSharedKey[0] != '\0') {
+      wg_preshared_key = vpnCfg.wgPreSharedKey;
+      LOGD("vpnCfg.wgPreSharedKey is used");
+    }
+
     if (!wg.begin(
             vpnCfg.wgLocalIP,
-            subnet,
-            wgLocalPort,
-            gateway,
+            vpnCfg.wgLocalSubnet,
+            vpnCfg.wgLocalPort,
+            vpnCfg.wgLocalGateway,
             vpnCfg.wgLocalPrivKey,
             vpnCfg.wgEndAddr,
             vpnCfg.wgEndPubKey,
             vpnCfg.wgEndPort,
-            allowIP,
-            allowMask,
-            make_default,
-            preshaed_key))
+            vpnCfg.wgAllowedIP,
+            vpnCfg.wgAllowedMask,
+            vpnCfg.wgMakeDefault,
+            wg_preshared_key))
     {
       printLogMsg(String("Failed to initialize WG"));
       vars.vpnWgInit = false;
@@ -673,19 +661,19 @@ void wgBegin()
     else
     {
       printLogMsg(String("WG was initialized"));
-      LOGD("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+      /*LOGD("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
            String(vpnCfg.wgLocalIP.toString().c_str()),
-           String(subnet.toString().c_str()),
-           String(wgLocalPort),
-           String(gateway.toString().c_str()),
+           String(vpnCfg.wgLocalSubnet.toString().c_str()),
+           String(vpnCfg.wgLocalPort),
+           String(vpnCfg.wgLocalGateway.toString().c_str()),
            String(vpnCfg.wgLocalPrivKey).c_str(),
-           String(vpnCfg.wgEndAddr),
+           String(vpnCfg.wgEndAddr).c_str(),
            String(vpnCfg.wgEndPubKey).c_str(),
            String(vpnCfg.wgEndPort),
-           String(allowIP.toString().c_str()),
-           String(allowMask.toString().c_str()),
-           String(make_default),
-           String(preshaed_key).c_str());
+           String(vpnCfg.wgAllowedIP.toString().c_str()),
+           String(vpnCfg.wgAllowedMask.toString().c_str()),
+           String(vpnCfg.wgMakeDefault),
+           String(wg_preshared_key).c_str());*/
       vars.vpnWgInit = true;
     }
   }
@@ -711,7 +699,7 @@ void wgLoop()
     {
       if (vars.vpnWgCheckTime <= millis())
       {
-        // LOGD("check");
+        uint16_t wgLocalPort = vpnCfg.wgLocalPort;
         vars.vpnWgCheckTime = millis() + 1000 * checkPeriod;
         if (wg.is_peer_up(&lwip_ip, &wgLocalPort))
         {
@@ -719,7 +707,6 @@ void wgLoop()
           if (!vars.vpnWgConnect)
           {
             LOGD("Peer with IP %s connect", vars.vpnWgPeerIp.toString().c_str());
-            // initWebServer();
           }
           vars.vpnWgConnect = true;
         }
@@ -832,4 +819,20 @@ void ledTask(void *parameter)
       break;
     }
   }
+}
+
+void checkEspUpdateAvail()
+{
+  String latestReleaseUrl = fetchGitHubReleaseInfo();
+  String latestVersion = extractVersionFromURL(latestReleaseUrl);
+
+  if (latestVersion.length() > 0 && latestVersion > VERSION)
+  {
+    vars.updateEspAvail = true;
+  }
+  else
+  {
+    vars.updateEspAvail = false;
+  }
+  LOGD("%s", String(vars.updateEspAvail));
 }

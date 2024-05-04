@@ -13,38 +13,24 @@
   },
   "p": {
     "st": {
-      "dsc": {
-        "tt": "Device status",
-        "op": "Operational mode",
-        "scc": "Socket client connected",
-        "du": "Device uptime",
-        "su": "Socket time",
-        "lt": "Device time",
-        "sccy": "Yes, {{count}} clients",
-        "sccn": "No connection",
-        "opn": "Zigbee-Network",
-        "opu": "Zigbee-USB"
-      },
       "dic": {
         "tt": "Device information",
         "dm": "Device model",
-        "efv": "ESP32 FW revision",
-        "ehv": "ESP32 HW version",
-        "et": "ESP32 temperature",
-        "ef": "ESP32 processor",
+        "et": "Temperature",
+        "ef": "Processor",
         "cs": "cores",
         "mhz": "MHz",
-        "efs": "ESP32 memory",
+        "efs": "Memory",
         "mb": "Mb",
-        "ehs": "ESP32 heap",
+        "ehs": "Heap",
         "kb": "KiB",
-        "zhv": "Zigbee HW revision",
-        "zfv": "Zigbee FW version",
         "efti": "internal",
         "efte": "external",
-        "ens": "ESP32 nv storage",
+        "ens": "NV storage",
         "ent": "entries",
-        "efss": "ESP32 file system"
+        "efss": "File system",
+        "du": "Device operating time",
+        "lt": "Local time"
       },
       "te": "Ethernet",
       "tw": "WiFi",
@@ -59,6 +45,22 @@
       "wc": {
         "mcl": "Client",
         "map": "AP"
+      },
+      "zbc": {
+        "op": "Operating mode",
+        "opn": "Zigbee-Network",
+        "opu": "Zigbee-USB",
+        "scc": "Socket client connected",
+        "sccn": "No connection",
+        "sccy": "Yes, {{count}} clients",
+        "su": "Connection time",
+        "tt": "Device status",
+        "zfs": "Flash size",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "FW revision",
+        "hv": "HW version"
       }
     },
     "ge": {
@@ -184,7 +186,14 @@
         "lpk": "Private key of the local interface",
         "ea": "Address of the endpoint peer",
         "epk": "Public key of the endpoint peer",
-        "ep": "Port of the endpoint peer"
+        "ep": "Port of the endpoint peer",
+        "lsn": "Local Subnet",
+        "lgw": "Local Gateway",
+        "aip": "Allowed IPs",
+        "am": "Allowed Mask",
+        "md": "Make default",
+        "psk": "Pre-shared key",
+        "lp": "Local port"
       },
       "hn": {
         "tt": "Husarnet config (in develope)",
@@ -238,12 +247,18 @@
       "ilfg": "Install latest",
       "sri": "Select version",
       "zu": "Zigbee update (in develop)",
-      "zfu": "Zigbee file update"
+      "zfu": "Zigbee file update",
+      "clzv": "Check the latest Zigbee firmware",
+      "saf": "Show available firmware",
+      "zgu": "Git CC2652 update"
     },
     "lo": {
       "pt": "Login - XZG",
       "lbl": "Please sign in",
-      "btn": "Sing in"
+      "btn": "Sing in",
+      "mnl": "Need to login",
+      "mwc": "Wrong credentials",
+      "mlo": "Logged out success"
     },
     "ab": {
       "l1": "XZG Firmware unifies the best innovations from",
@@ -354,7 +369,17 @@
       "fu": {
         "vt": "validate: {{per}} %",
         "vc": "Validate complete!"
-      }
+      },
+      "dtc": "Coordinator",
+      "cfv": "Current firmware: {{ver}}",
+      "dtr": "Router",
+      "efr": "Error while retrieving firmware information<br>Check the network!",
+      "lcf": "Latest coordinator firmware:",
+      "lrf": "Latest router firmware:",
+      "ncf": "The coordinator firmware is missing.",
+      "nrf": "The router firmware is missing.",
+      "ot": "Zigbee OTA update",
+      "rfm": "Getting information about the firmware..."
     },
     "ss": {
       "tt": "SETTINGS SAVED",
@@ -365,6 +390,14 @@
     },
     "kw": {
       "msg": "This function allows you to leave one of the communication channels active and have access to the web interface. The device itself will select an available channel according to priority: WIFI, ETHERNET, WIFI AP"
+    },
+    "zg": {
+      "fu": {
+        "f": "Going to flash: {{file}}",
+        "fn": "The firmware was successfully installed!",
+        "nv": "New version: {{ver}}",
+        "st": "CC2652 flash is starting..."
+      }
     }
   },
   "ts": {

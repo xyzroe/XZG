@@ -42,7 +42,6 @@
         "tt": "FABRİKA AYARLARINA DÖNÜŞ UYARISI"
       },
       "fu": {
-        "bil": "En Son Sürümü Yükle",
         "fri": "Ürün yazılımı bilgileri alınıyor...",
         "glm": "En son GitHub sürümüne güncelleniyor.",
         "gvm": "{{ver}} GitHub sürümüne güncelleniyor.",
@@ -54,7 +53,8 @@
         "ucr": "Güncelleme tamamlandı! \nYeniden başlatılıyor!",
         "vgds": "GitHub'dan {{ver}} sürümü indiriliyor...",
         "wdm": "Cihaz için bekliyor...",
-        "wm": "TÜM soket bağlantılarını kesecek"
+        "wm": "TÜM soket bağlantılarını kesecek",
+        "bil": "En Son Sürümü Yükle"
       },
       "rst": {
         "msg": "Yeniden başlatmak için bekliyor. \nOtomatik olarak kapanacaktır.",
@@ -73,7 +73,17 @@
       "fu": {
         "vc": "Doğrulama tamamlandı!",
         "vt": "doğrulama: %{{per}}"
-      }
+      },
+      "cfv": "Mevcut donanım yazılımı revizyonunuz: {{ver}}",
+      "dtc": "Koordinatör",
+      "dtr": "Yönlendirici",
+      "efr": "Ürün yazılımı bilgileri alınırken hata oluştu<br>Ağınızı kontrol edin!",
+      "lcf": "En son koordinatör yazılımı:",
+      "lrf": "En son yönlendirici ürün yazılımı:",
+      "ncf": "Koordinatör yazılımı mevcut değil.",
+      "nrf": "Yönlendirici ürün yazılımı mevcut değil.",
+      "ot": "Zigbee OTA güncellemesi",
+      "rfm": "Ürün yazılımı bilgileri alınıyor..."
     },
     "kw": {
       "msg": "Bu fonksiyon iletişim kanallarından birini aktif bırakıp web arayüzüne erişmenizi sağlar. \nCihazın kendisi önceliğe göre uygun bir kanal seçecektir: WIFI, ETHERNET, WIFI AP"
@@ -84,6 +94,17 @@
       "rn": "Şimdi yeniden başlat",
       "rr": "Bazı ayarlar yeniden başlatma gerektirir.",
       "tt": "AYARLAR KAYDEDİLDİ"
+    },
+    "zgb": {
+      "fu": {}
+    },
+    "zg": {
+      "fu": {
+        "f": "Flash'a gidiyor: {{file}}",
+        "fn": "Başarıyla yanıp söndü!",
+        "nv": "Yeni sürüm: {{ver}}",
+        "st": "CC2652 flaş başlangıç..."
+      }
     }
   },
   "l": {
@@ -139,7 +160,10 @@
     "lo": {
       "btn": "Şarkı söyle",
       "lbl": "Lütfen giriş yapın",
-      "pt": "Giriş - XZG"
+      "pt": "Giriş - XZG",
+      "mlo": "Başarıyla çıkış yapıldı",
+      "mnl": "Giriş yapmanız gerekiyor",
+      "mwc": "Yanlış kimlik bilgileri"
     },
     "mq": {
       "broker": {
@@ -207,35 +231,21 @@
       "dic": {
         "cs": "çekirdekler",
         "dm": "Cihaz modeli",
-        "ef": "ESP32 işlemci",
-        "efs": "ESP32 belleği",
-        "efv": "ESP32 Firmware revizyonu",
-        "ehs": "ESP32 yığını",
-        "ehv": "ESP32 Donanım sürümü",
-        "et": "ESP32 sıcaklığı",
+        "ef": "İşlemci",
+        "efs": "Hafıza",
+        "ehs": "Yığın",
+        "et": "Sıcaklık",
         "kb": "KiB",
         "mb": "MB",
         "mhz": "MHz",
         "tt": "Cihaz bilgisi",
-        "zfv": "Zigbee FW sürümü",
-        "zhv": "Zigbee Donanım revizyonu",
         "efte": "harici",
         "efti": "dahili",
-        "efss": "ESP32 dosya sistemi",
-        "ens": "ESP32 nv depolama",
-        "ent": "girdileri"
-      },
-      "dsc": {
+        "efss": "Dosya sistemi",
+        "ens": "NV depolama",
+        "ent": "girdileri",
         "du": "Cihaz Çalışma Süresi",
-        "op": "Operasyonel mod",
-        "scc": "Soket istemcisi bağlandı",
-        "su": "Soket çalışma süresi",
-        "tt": "Cihaz durumu",
-        "lt": "Yerel zaman",
-        "opn": "Zigbee Ağı",
-        "opu": "Zigbee-USB",
-        "sccn": "Bağlantı yok",
-        "sccy": "Evet, {{count}} müşteri"
+        "lt": "Yerel zaman"
       },
       "te": "ethernet",
       "tm": "MQTT",
@@ -250,6 +260,22 @@
       "wc": {
         "map": "Erişim noktası",
         "mcl": "Müşteri"
+      },
+      "zbc": {
+        "tt": "Cihaz durumu",
+        "op": "Operasyonel mod",
+        "opn": "Zigbee Ağı",
+        "opu": "Zigbee-USB",
+        "scc": "Soket istemcisi bağlandı",
+        "sccn": "Bağlantı yok",
+        "su": "bağlantı zamanı",
+        "sccy": "Evet, {{count}} müşteri",
+        "zfs": "Flaş boyutu",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Firmware revizyonu",
+        "hv": "Donanım sürümü"
       }
     },
     "se": {
@@ -293,11 +319,14 @@
       "rst": "Tekrar başlat",
       "s": "Boyut",
       "sc": "Sistem kontrolü",
-      "sri": "Sürümü seçin",
       "usb": "USB",
       "zb": "Zigbee",
       "zfu": "Zigbee dosya güncellemesi",
-      "zu": "Zigbee güncellemesi (geliştirilme aşamasında)"
+      "zu": "Zigbee güncellemesi (geliştirilme aşamasında)",
+      "saf": "Mevcut ürün yazılımlarını göster",
+      "clzv": "En yeni Zigbee yazılımlarını kontrol edin",
+      "zgu": "Git CC2652 güncellemesi",
+      "sri": "Sürümü seçin"
     },
     "vp": {
       "hn": {
@@ -312,7 +341,13 @@
         "epk": "Uç nokta eşinin ortak anahtarı",
         "lip": "Yerel arayüzün IP adresi",
         "lpk": "Yerel arayüzün özel anahtarı",
-        "tt": "WireGuard yapılandırması"
+        "tt": "WireGuard yapılandırması",
+        "aip": "İzin verilen IP'ler",
+        "am": "İzin Verilen Maske",
+        "lgw": "Yerel Ağ Geçidi",
+        "lsn": "Yerel Alt Ağ",
+        "md": "Varsayılan yap",
+        "psk": "Ön Paylaşımlı Anahtar"
       }
     },
     "zi": {

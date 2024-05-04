@@ -364,6 +364,7 @@ body {
 .tooltip {
   --bs-tooltip-color: var(--card-background-color) !important;
   --bs-tooltip-bg: var(--table-text-color) !important;
+  --bs-tooltip-max-width: 500px !important;
 }
 
 .progress-text {

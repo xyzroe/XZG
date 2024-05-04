@@ -19,7 +19,7 @@ void handleSavefile();
 void handleApi();
 void handleUpdateRequest();
 void handleEspUpdateUpload();
-void handleZbUpdateUpload();
+//void handleZbUpdateUpload();
 void handleNotFound();
 bool captivePortal();
 
@@ -37,6 +37,7 @@ void progressFunc(unsigned int progress, unsigned int total);
 void getEspUpdate(String esp_fw_url);
 void runEspUpdateFirmware(uint8_t *data, size_t len);
 String fetchGitHubReleaseInfo();
+String extractVersionFromURL(String url);
 
 void updateWebTask(void *parameter);
 

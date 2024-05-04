@@ -1,15 +1,22 @@
 {
     "name": "CCTools",
     "frameworks": "Arduino",
-    "keywords": "cc2652, zigbee, flash",
-    "description": "Work with TI CC(2538/1352/2652) series chips: read, write, verify firmware, get chip ID, etc.",
+    "keywords": "zigbee, flash, cc2538-bsl, bsl, cc1352, cc2652",
+    "description": "Work with TI CC(1352/2652) series chips: erase and flash firmware, get chip ID, restart, enter BSL mode, etc.",
     "url": "https://github.com/xyzroe/CCTools",
-    "authors": {
-        "name": "xyzroe"
-    },
+    "authors": [
+        {
+            "name": "xyzroe",
+            "url": "https://xyzroe.cc"
+        },
+        {
+            "name": "ChatGPT 4",
+            "url": "https://chat.openai.com"
+        }
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/xyzroe/CCTools"
     },
-    "version": "0.0.1"
+    "version": "0.0.5"
 }

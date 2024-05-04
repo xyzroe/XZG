@@ -18,7 +18,7 @@ const statusFail = $('<span>', {
 	"role": "status",
 }).css("margin-left", "10px").text("❌");
 
-const zbFwInfoUrl = "https://raw.githubusercontent.com/smlight-dev/slzb-06-firmware/dev/ota/fw.json";
+const zbFwInfoUrl = "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json";
 
 const headerText = ".modal-title";
 const headerBtnClose = ".modal-btn-close";
@@ -38,6 +38,23 @@ const pages = {
 	API_PAGE_VPN: { num: 9, str: "/vpn" }
 }
 
+const commands = {
+	CMD_ZB_ROUTER_RECON: 0,
+	CMD_ZB_RST: 1,
+	CMD_ZB_BSL: 2,
+	CMD_ESP_RES: 3,
+	CMD_ADAP_LAN: 4,
+	CMD_ADAP_USB: 5,
+	CMD_LED_ACT: 6,
+	CMD_ZB_FLASH: 7,
+	CMD_CLEAR_LOG: 8,
+	CMD_ESP_UPD_URL: 9,
+	CMD_ZB_CHK_FW: 10,
+	CMD_ZB_CHK_HW: 11,
+	CMD_ZB_LED_TOG: 12,
+	CMD_ESP_FAC_RES: 13
+}
+
 const api = {
 	actions: {
 		API_GET_PAGE: 0,
@@ -52,7 +69,8 @@ const api = {
 		API_GET_LOG: 9,
 		API_FLASH_ZB: 10
 	},
-	pages: pages
+	pages: pages,
+	commands: commands
 }
 
 const IconsStatusCodes = {
@@ -111,7 +129,7 @@ document.addEventListener("scroll", function () {
 document.addEventListener('DOMContentLoaded', function () {
 	setTimeout(updateRootEvents(function (connected) {
 		if (connected) {
-			console.log("ok");
+			//console.log("ok");
 		}
 	}), 300);
 	const savedLang = localStorage.getItem("selected-lang");
@@ -158,7 +176,7 @@ function identifyLed(event, element, led) {
 		led = 1;
 	}
 	if (led > -1) {*/
-	$.get(apiLink + api.actions.API_CMD + "&cmd=14&act=3&led=" + led, function (data) {
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_LED_ACT + "&act=3&led=" + led, function (data) {
 		blinkingText.textContent = i18next.t('p.to.lb');
 		toggleEmoji();
 	}).fail(function () {
@@ -175,9 +193,6 @@ function identifyLed(event, element, led) {
 $(document).ready(function () { //handle active nav
 	$("a[href='" + document.location.pathname + "']").parent().addClass('nav-active'); //handle sidenav page selection on first load
 	loadPage(document.location.pathname);
-	/*if (!(localStorage.getItem('refresh_tip_got') == 1)) {//toast localStorage.setItem('refresh_tip_got', 1)
-		toastConstructor("refreshTip");
-	}*/
 
 	if (isMobile()) {
 		if (!(localStorage.getItem('shv_sdnv_frst_t') == 1)) {//show sidenav first time
@@ -191,30 +206,9 @@ $(document).ready(function () { //handle active nav
 
 	handleResize();
 
-	$("a.nav-link").click(function (e) { //handle navigation
-		e.preventDefault();
-		const url = $(this).attr("href");
-		if (url == "/logout") {
-			window.location = "/logout";
-			return;
-		}
-		loadPage(url);
-		$(".nav-active").removeClass("nav-active");
-		$(this).parent().addClass("nav-active");
-		if (isMobile()) sidenavAutoclose(true);
-	});
+	handleClicks();
 
-	$('#logo').click(function () {
-		$('#sidenav').toggleClass('sidenav-active');
-	});
-	$('#pageContent').click(function () {
-		$('#sidenav').removeClass('sidenav-active');
-	});
-	$('#sidenav').click(function (e) {
-		if (!$(e.target).closest('.ui_set').length) {
-			$('#sidenav').removeClass('sidenav-active');
-		}
-	});
+	handleMsg();
 });
 
 function name(params) {
@@ -368,7 +362,11 @@ function setIconGlow(iconId, state, show = true) {
 }
 
 function loadPage(url) {
-	window.history.pushState("", document.title, url); //fake location
+
+	
+	if (window.location.pathname !== url) {
+        window.history.pushState("", document.title, url); 
+    }
 	//console.log("[loadPage] url: " + url);
 
 
@@ -502,7 +500,7 @@ function loadPage(url) {
 }
 
 function espReboot() {
-	$.get(apiLink + api.actions.API_CMD + "&cmd=3");
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_RES);
 }
 
 function localizeTitle(url) {
@@ -537,8 +535,8 @@ function localizeTitle(url) {
 			page_title = i18next.t('l.ab');
 			break;
 	}
-	$("[data-replace='pageName']").text(page_title);//update page name
-	$("title[data-replace='pageName']").text(page_title + " - XZG");//update page title
+	$("[data-r2v='pageName']").text(page_title);//update page name
+	$("title[data-r2v='pageName']").text(page_title + " - XZG");//update page title
 }
 
 function apiGetPage(page, doneCall, loader = true) {
@@ -729,8 +727,7 @@ function getReadableTime(beginTime) {
 	return readableTime;
 }
 
-function setTitleAndActivateTooltip(elementId, newTitle) {
-	let element = document.getElementById(elementId);
+function setTitleAndActivateTooltip(element, newTitle) {
 	if (element) {
 		element.setAttribute('data-bs-original-title', newTitle);
 
@@ -853,16 +850,17 @@ function showCardDrawIcon(property, values) {
 
 function updateTooltips() {
 	//console.log("updateTooltips");
-	//title = i18next.t("p.st.dsc.scc");
+	//title = i18next.t("p.st.zbc.scc");
 	let valueToSet = "";
 	if (updateValues.connectedSocketStatus > 0) {
-		valueToSet = i18next.t('p.st.dsc.sccy', { count: updateValues.connectedSocketStatus });
+		valueToSet = i18next.t('p.st.zbc.sccy', { count: updateValues.connectedSocketStatus });
 	}
 	else {
-		valueToSet = i18next.t('p.st.dsc.sccn');
+		valueToSet = i18next.t('p.st.zbc.sccn');
 	}
 	valueToSet = valueToSet + "<br><i>" + getReadableTime(updateValues.uptime - updateValues.connectedSocket) + "</i>"
-	setTitleAndActivateTooltip('socketIcon', '<b>' + valueToSet + '</b>');
+	let element = document.getElementById('socketIcon');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
 	if (updateValues.ethConn) {
 		valueToSet = i18next.t('c.conn');
@@ -871,7 +869,8 @@ function updateTooltips() {
 	else {
 		valueToSet = i18next.t('c.disconn');
 	}
-	setTitleAndActivateTooltip('ethIcon', '<b>' + valueToSet + '</b>');
+	element = document.getElementById('ethIcon');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
 	if (updateValues.wifiConn) {
 		valueToSet = i18next.t('c.conn');
@@ -881,7 +880,8 @@ function updateTooltips() {
 	else {
 		valueToSet = i18next.t('c.disconn');
 	}
-	setTitleAndActivateTooltip('wifiIcon', '<b>' + valueToSet + '</b>');
+	element = document.getElementById('wifiIcon');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
 	if (updateValues.mqConnect) {
 		valueToSet = i18next.t('c.conn');
@@ -890,7 +890,8 @@ function updateTooltips() {
 	else {
 		valueToSet = i18next.t('c.disconn');
 	}
-	setTitleAndActivateTooltip('mqttIcon', '<b>' + valueToSet + '</b>');
+	element = document.getElementById('mqttIcon');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
 	if (updateValues.wgConnect) {
 		valueToSet = i18next.t('c.conn');
@@ -899,11 +900,13 @@ function updateTooltips() {
 	else {
 		valueToSet = i18next.t('c.disconn');
 	}
-	setTitleAndActivateTooltip('vpnIcon', '<b>' + valueToSet + '</b>');
+	element = document.getElementById('vpnIcon');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
-	valueToSet = i18next.t('p.st.dsc.du');
+	valueToSet = i18next.t('p.st.dic.du');
 	valueToSet = valueToSet + "<br><i>" + getReadableTime(updateValues.uptime) + "</i>";
-	setTitleAndActivateTooltip('clock', '<b>' + valueToSet + '</b>');
+	element = document.getElementById('clock');
+	setTitleAndActivateTooltip(element, '<b>' + valueToSet + '</b>');
 
 
 }
@@ -927,9 +930,9 @@ function dataReplace(values, navOnly = false) {
 	var baseSelector;
 
 	if (navOnly) {
-		baseSelector = "nav.navbar [data-replace='";
+		baseSelector = "nav.navbar [data-r2v='";
 	} else {
-		baseSelector = "[data-replace='";
+		baseSelector = "[data-r2v='";
 	}
 
 	for (const property in values) {
@@ -951,10 +954,10 @@ function dataReplace(values, navOnly = false) {
 			switch (property) {
 				case "connectedSocketStatus": //clients
 					if (valueToSet) {
-						valueToSet = i18next.t('p.st.dsc.sccy', { count: valueToSet });
+						valueToSet = i18next.t('p.st.zbc.sccy', { count: valueToSet });
 					}
 					else {
-						valueToSet = i18next.t('p.st.dsc.sccn');
+						valueToSet = i18next.t('p.st.zbc.sccn');
 					}
 					break;
 				case "espHeapSize":
@@ -1000,10 +1003,10 @@ function dataReplace(values, navOnly = false) {
 					updateValues[property] = values[property];
 					switch (valueToSet) {
 						case 0:
-							valueToSet = i18next.t('p.st.dsc.opn');
+							valueToSet = i18next.t('p.st.zbc.opn');
 							break;
 						case 1:
-							valueToSet = i18next.t('p.st.dsc.opu');
+							valueToSet = i18next.t('p.st.zbc.opu');
 							break;
 					}
 					break;
@@ -1111,22 +1114,6 @@ function tglPassView(button) {
 	}
 }
 
-/*
-function updateRoot() {
-	/*$.get(apiLink + api.actions.API_GET_PARAM + "&param=update_root", function (data) {
-		const values = JSON.parse(data);
-		dataReplace(values);
-		if (window.location.pathname == "/") {
-			intervalIdUpdateRoot = setTimeout(updateRoot, intervalTimeUpdateRoot);
-		}
-	});
-	updateRootEvents(function (connected) {
-		if (connected) {
-			console.log("ok");
-		}
-	});
-}*/
-
 function showPreloader(state) {
 	if (state) {
 		$("#xzgPreloader").removeClass(classHide);
@@ -1179,7 +1166,7 @@ function toastConstructor(params, text) {
 				"class": "btn btn-warning",
 				text: i18next.t("ts.esp.beta.cnt"),
 				click: function () {
-					var url = "https://t.me/XZG_firmware";
+					var url = "https://t.me/xzg_fw";
 					window.open(url, '_blank');
 					//$('.toast').toast('hide');
 				}
@@ -1225,16 +1212,11 @@ function restartWait() {
 }
 
 function extractVersionFromReleaseTag(url) {
-	// Создаем регулярное выражение для поиска номера версии в теге релиза
 	const regex = /\/releases\/download\/([\d.]+)\//;
-	// Ищем совпадение с регулярным выражением
 	const match = url.match(regex);
-	// Если совпадение найдено
 	if (match) {
-		// Возвращаем номер версии
 		return match[1];
 	} else {
-		// Если совпадение не найдено, возвращаем null или можно обработать ошибку иначе
 		return null;
 	}
 }
@@ -1244,12 +1226,12 @@ function espFlashGitWait(params) {
 
 	setTimeout(function () {
 		if (!params.link) {
-			$.get(apiLink + api.actions.API_CMD + "&cmd=9", function (data) { });
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL, function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.lgds'));
 		}
 		else {
 			let version = extractVersionFromReleaseTag(params.link);
-			$.get(apiLink + api.actions.API_CMD + "&cmd=9&url=" + params.link, function (data) { });
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL + "&url=" + params.link, function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.vgds', { ver: version }));
 		}
 		console.log("[git_flash] start");
@@ -1263,6 +1245,11 @@ let retryCount = 0;
 const maxRetries = 30;
 
 function updateRootEvents(callback) {
+
+	if (window.location.pathname.startsWith('/login')) {
+		return;
+	}
+
 	if (retryCount >= maxRetries) {
 		console.log(i18next.t('c.cerp'));
 		alert(i18next.t('c.cerp'));
@@ -1298,115 +1285,85 @@ function updateRootEvents(callback) {
 			updateTooltips();
 		}
 	});
-}
 
-function ESPfwStartEvents(callback) {
-	if (retryCount >= maxRetries) {
-		console.log(i18next.t('c.cerp'));
-		alert(i18next.t('c.cerp'));
-		return;
-	}
-
-	var source = new EventSource('/events', { withCredentials: false, timeout: 500 }); // Установка таймаута в 3 секунды
-	console.log("Events try to open");
-
-	source.addEventListener('open', function (e) {
-		console.log("Events Connected");
-		callback(true); // Вызываем callback с аргументом true при успешном подключении
+	source.addEventListener('ZB_FW_prgs', function (e) {
+		//console.log(val);
+		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
+		$("#zbFlshPrgs").css("width", e.data + '%');
 	}, false);
 
-	source.addEventListener('error', function (e) {
-		if (e.target.readyState != EventSource.OPEN) {
-			console.log("Events Err. Reconnecting...");
-			retryCount++;
-			// При возникновении ошибки, попробуйте переподключиться через некоторое время
-			setTimeout(function () {
-				source.close();
-				ESPfwStartEvents(callback); // Повторно вызываем функцию для повторной попытки подключения
-			}, 1000); // Пауза в 5 секунд перед повторной попыткой подключения
+	source.addEventListener('ZB_FW_info', function (e) {
+		let data = e.data.replaceAll("`", "<br>");
+		console.log(data);
+
+		if (e.data == "start") {
+			$("#zbFlshPrgs").removeClass("progress-bar-animated");
+			data = i18next.t('md.zg.fu.st');
 		}
+
+		if (e.data == "finish") {
+			data = i18next.t('md.zg.fu.fn');
+			$(".progress").addClass(classHide);
+			$(modalBody).css("color", "green");
+			setTimeout(() => {
+				$(modalBtns).html("");
+				modalAddClose();
+
+			}, 1000);
+		}
+
+		$("#zbFlshPgsTxt").html(data);
+
 	}, false);
+
+	source.addEventListener('ZB_FW_file', function (e) {
+		let fileName = fileFromUrl(e.data);
+		if (fileName) {
+			data = i18next.t('md.zg.fu.f', { file: fileName });
+		}
+		else {
+			data = i18next.t('md.zg.fu.nv', { ver: e.data });
+		}
+		$("#zbFlshPgsTxt").html(data);
+	}, false);
+
+	source.addEventListener('ZB_FW_err', function (e) {
+		const data = e.data.replaceAll("`", "<br>");
+		$(modalBtns).html("");
+		$("#zbFlshPgsTxt").html(data);
+		$(".progress").addClass(classHide);
+		$(modalBody).html(e.data).css("color", "red");
+		modalAddClose();
+	}, false);
+
 
 	source.addEventListener('ESP_FW_prgs', function (e) {
 
-		//const val = e.data + "%";
-		//console.log(val);
-
-		//$('#prg').html(i18next.t('md.esp.fu.prgs', { per: Math.round(e.data) }));
-		//$('#bar').css('width', Math.round(e.data) + '%');
-		$('#prg').css('width', Math.round(e.data) + '%');
-		$('#bar').html(i18next.t('md.esp.fu.prgs', { per: Math.round(e.data) }));
+		$('#prg').css('width', e.data + '%');
+		$('#bar').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#prg").removeClass("progress-bar-animated");
 
 		if (Math.round(e.data) > 99) {
 			setTimeout(function () {
 				$('#bar').html(i18next.t('md.esp.fu.ucr')).css("color", "green");
-				//$(modalBody).text("").css("color", "");
 
 				setTimeout(function () {
-					//$('#prg').html(i18next.t('md.esp.fu.ucr'));
-					//$('#bar').html(i18next.t('md.esp.fu.ucr'));
-					//window.location.href = '/';
 					localStorage.setItem('update_notify', 0);
-					source.close();
 					restartWait();
 
 				}, 1000);
 			}, 500);
 		}
 
-		//const data = e.data.replaceAll("`", "<br>");
-		//$(modalBtns).html("");
-		//$("#zbFlshPgsTxt").html(data);
-		//$(".progress").addClass(classHide);
-		//$(modalBody).html(e.data).css("color", "red");
-		//modalAddClose();
-
-
 	}, false);
-	//console.log("Events return");
-	//console.log(state);
-	//return state;
 }
 
-function ZBfwStartEvents() {
-	var source = new EventSource('/events');
-	console.log("Events try");
-
-	source.addEventListener('open', function (e) {
-		console.log("Events Connected");
-	}, false);
-
-	source.addEventListener('error', function (e) {
-		if (e.target.readyState != EventSource.OPEN) {
-			console.log("Events Err");
-		}
-	}, false);
-
-	source.addEventListener('ZB_FW_prgs', function (e) {
-
-		const val = e.data + "%";
-		console.log(val);
-
-		$('#prg_zb').html(i18next.t('md.zb.fu.vt', { per: Math.round(e.data) }));
-		$('#bar_zb').css('width', Math.round(e.data) + '%');
-
-		if (Math.round(e.data) > 99.5) {
-			setTimeout(function () {
-				$('#prg_zb').html(i18next.t('md.zb.fu.vc'));
-				//window.location.href = '/';
-				//restartWait();
-			}, 250);
-		}
-		//const data = e.data.replaceAll("`", "<br>");
-		//$(modalBtns).html("");
-		//$("#zbFlshPgsTxt").html(data);
-		//$(".progress").addClass(classHide);
-		//$(modalBody).html(e.data).css("color", "red");
-		//modalAddClose();
-
-
-	}, false);
+function fileFromUrl(url) {
+	const urlParts = url.split('/');
+	if (urlParts.length > 1) {
+		return urlParts[urlParts.length - 1];
+	}
+	return null;
 }
 
 function modalAddSpiner() {
@@ -1419,69 +1376,60 @@ function modalAddSpiner() {
 	}).appendTo(modalBtns);
 }
 
-function startEvents() {
+function startZbFlash(link) {
 	$(modalBtns).html("");
-	modalAddSpiner();
 	$(modalBody).html("");
+
 	$("<div>", {
-		id: "zbFlshPgsTxt",
-		text: "Waiting for device..."
+		text: i18next.t("md.esp.fu.wm"),
+		class: "my-1 text-sm-center text-danger"
 	}).appendTo(modalBody);
-	$("<div>", {
-		"class": "progress",
-		append: $("<div>", {
-			"class": "progress-bar progress-bar-striped progress-bar-animated",
-			id: "zbFlshPrgs",
-			style: "width: 100%;"
-		})
-	}).appendTo(modalBody);
-	var source = new EventSource('/events');
-	source.addEventListener('open', function (e) {
-		console.log("Events Connected");
-	}, false);
 
-	source.addEventListener('error', function (e) {
-		if (e.target.readyState != EventSource.OPEN) {
-			console.log("Events Err");
+	modalAddCancel();
+	$('<button>', {
+		type: "button",
+		"class": "btn btn-warning",
+		text: i18next.t('c.sure'),
+		title: i18next.t("md.esp.fu.wm"),
+		click: function () {
+
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ZB_FLASH + "&url=" + link);
+			$(modalBtns).html("");
+			modalAddSpiner();
+			$(modalBody).html("");
+			$("<div>", {
+				id: "zbFlshPgsTxt",
+				text: i18next.t("md.esp.fu.wdm"),
+				class: "mb-2 text-sm-center"
+			}).appendTo(modalBody);
+			$("<div>", {
+				"class": "progress",
+				append: $("<div>", {
+					"class": "progress-bar progress-bar-striped progress-bar-animated",
+					id: "zbFlshPrgs",
+					style: "width: 100%; background-color: var(--link-color);"
+				})
+			}).appendTo(modalBody);
 		}
-	}, false);
-
-	source.addEventListener('ZB_FW_prgs', function (e) {
-		const val = e.data + "%";
-		$("#zbFlshPrgs").text(val);
-		$("#zbFlshPrgs").css("width", val);
-	}, false);
-
-	source.addEventListener('ZB_FW_info', function (e) {
-		const data = e.data.replaceAll("`", "<br>");
-		if (data == "[start]") $("#zbFlshPrgs").removeClass("progress-bar-animated");
-		$("#zbFlshPgsTxt").html(data);
-		if (e.data.indexOf("Update done!") > 0) {
-			$(".progress").addClass(classHide);
-			$(modalBody).css("color", "green");
-			setTimeout(() => {
-				$(modalBtns).html("");
-				modalAddClose();
-				source.close();
-			}, 1000);
-		}
-	}, false);
-
-	source.addEventListener('ZB_FW_err', function (e) {
-		const data = e.data.replaceAll("`", "<br>");
-		$(modalBtns).html("");
-		$("#zbFlshPgsTxt").html(data);
-		$(".progress").addClass(classHide);
-		$(modalBody).html(e.data).css("color", "red");
-		modalAddClose();
-	}, false);
+	}).appendTo(modalBtns);
 }
 
 function modalAddClose() {
 	$('<button>', {
 		type: "button",
 		"class": "btn btn-primary",
-		text: "Close",
+		text: i18next.t('c.cl'),
+		click: function () {
+			closeModal();
+		}
+	}).appendTo(modalBtns);
+}
+
+function modalAddCancel() {
+	$('<button>', {
+		type: "button",
+		"class": "btn btn-primary",
+		text: i18next.t('c.cancel'),
 		click: function () {
 			closeModal();
 		}
@@ -1518,8 +1466,117 @@ function updateProgressBar(id, current, min, max) {
 	//progressBar.textContent = width.toFixed(0) + '%';  // Отображаем проценты внутри прогресс бара
 }
 
+function findLatestVersions(data, deviceName) {
+	const categories = ['router', 'coordinator'];
+	const result = {};
+
+	categories.forEach(category => {
+		if (data[category]) {
+			Object.keys(data[category]).forEach(subCategory => {
+				if (subCategory.startsWith(deviceName)) {
+					Object.keys(data[category][subCategory]).forEach(file => {
+						const fileInfo = data[category][subCategory][file];
+						if (!result[category] || result[category].ver < fileInfo.ver) {
+							result[category] = {
+								file: file,
+								ver: fileInfo.ver,
+								link: fileInfo.link,
+								notes: fileInfo.notes
+							};
+						}
+					});
+				}
+			});
+		}
+	});
+
+	return result;
+}
+
+function findAllVersionsSorted(data, deviceName) {
+	const categories = ['router', 'coordinator'];
+	const result = {};
+
+	categories.forEach(category => {
+		if (data[category]) {
+			Object.keys(data[category]).forEach(subCategory => {
+				if (subCategory.startsWith(deviceName)) {
+					Object.keys(data[category][subCategory]).forEach(file => {
+						const fileInfo = data[category][subCategory][file];
+						if (!result[category]) {
+							result[category] = [];
+						}
+						result[category].push({
+							file: file,
+							ver: fileInfo.ver,
+							link: fileInfo.link,
+							notes: fileInfo.notes
+						});
+					});
+				}
+			});
+		}
+	});
+
+	for (const category in result) {
+		result[category].sort((a, b) => b.ver - a.ver);
+	}
+
+	return result;
+}
+
+// Function definition outside the switch-case
+function createReleaseBlock(file, deviceType) {
+
+	let deviceName;
+	let deviceIcon;
+	let buttonClass;
+
+	if (deviceType == 1) {
+		deviceName = i18next.t('md.zb.dtc');
+		buttonClass = "btn btn-outline-success";
+		deviceIcon = "📡";
+	} else if (deviceType == 2) {
+		deviceName = i18next.t('md.zb.dtr');
+		buttonClass = "btn btn-outline-danger";
+		deviceIcon = "🛰️";
+	}
+
+	const releaseBlock = $("<div>", { "class": "release-block", "style": "margin-bottom: 20px;" });
+	const headerAndButtonContainer = $('<div>', { "class": "d-flex justify-content-between align-items-start" }).appendTo(releaseBlock);
+
+	const emojiBlock = $('<span>', { "text": deviceIcon }).css('margin-right', '5px').appendTo(headerAndButtonContainer);
+	const header = $("<h5>", { "class": "mb-0", "text": file.ver }).appendTo(headerAndButtonContainer);
+
+	setTitleAndActivateTooltip(emojiBlock[0], deviceName);
+
+	let fileName = fileFromUrl(file.link);
+
+	const buttonContainer = $('<div>', { "class": "d-flex align-items-start" }).appendTo(headerAndButtonContainer);
+	const button = $('<a>', {
+		"class": buttonClass,
+		"click": function () {
+			startZbFlash(file.link);
+			let tooltipInstance = bootstrap.Tooltip.getInstance(this);
+			if (tooltipInstance) {
+				tooltipInstance.hide();
+			}
+		},
+		"data-bs-toggle": "tooltip",
+		"title": fileName,
+		"text": i18next.t('c.inst'),
+		"role": "button"
+	}).css("white-space", "nowrap").appendTo(buttonContainer);
+
+	setTitleAndActivateTooltip(button[0], file.link);
+
+	$("<div>", { "class": "mt-2 release-description", "html": file.notes }).appendTo(releaseBlock);
+	$("<hr>").appendTo(releaseBlock);
+	return releaseBlock;
+}
+
+
 function modalConstructor(type, params) {
-	console.log("[modalConstructor] start");
 	const headerText = ".modal-title";
 	const headerBtnClose = ".modal-btn-close";
 	const modalBody = ".modal-body";
@@ -1553,24 +1610,13 @@ function modalConstructor(type, params) {
 				class: "my-1 text-sm-center text-danger"
 			}).appendTo(modalBody);
 
-
-			$('<button>', {
-				type: "button",
-				"class": "btn btn-primary",
-				text: i18next.t('c.cancel'),
-				click: function () {
-					closeModal();
-				}
-			}).appendTo(modalBtns);
+			modalAddCancel();
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
 				text: i18next.t('c.sure'),
 				title: i18next.t("md.esp.fu.wm"),
 				click: function () {
-					//$.get(apiLink + api.actions.API_CMD + "&cmd=13&conf=1", function () {
-					//});
-					//modalConstructor("restartWait");
 					$(modalBtns).html("");
 					modalAddSpiner();
 					$(modalBody).html("");
@@ -1587,36 +1633,29 @@ function modalConstructor(type, params) {
 							style: "width: 100%; background-color: var(--link-color);"
 						})
 					}).appendTo(modalBody);
-					ESPfwStartEvents(function (connected) {
-						if (connected) {
-							if (action == 1) {
-								$.ajax({
-									url: "/update",
-									type: "POST",
-									data: params,
-									contentType: false,
-									processData: false,
-									xhr: function () {
-										return new window.XMLHttpRequest();
-									},
-									success: function (data, textStatus, jqXHR) {
-										console.log("Success!");
-									},
-									error: function (jqXHR, textStatus, errorThrown) {
-										console.log("Error:", errorThrown);
-									}
-								});
+					if (action == 1) {
+						$.ajax({
+							url: "/update",
+							type: "POST",
+							data: params,
+							contentType: false,
+							processData: false,
+							xhr: function () {
+								return new window.XMLHttpRequest();
+							},
+							success: function (data, textStatus, jqXHR) {
+								console.log("Success!");
+							},
+							error: function (jqXHR, textStatus, errorThrown) {
+								console.log("Error:", errorThrown);
 							}
-							else if (action == 2) {
-								espFlashGitWait(params);
-							} else if (action == 3) {
-								espFlashGitWait();
-							}
-						} else {
-							console.log("ESPfwStartEvents returned false. Aborting update");
-							closeModal();
-						}
-					});
+						});
+					}
+					else if (action == 2) {
+						espFlashGitWait(params);
+					} else if (action == 3) {
+						espFlashGitWait();
+					}
 				}
 			}).appendTo(modalBtns);
 			break;
@@ -1634,102 +1673,57 @@ function modalConstructor(type, params) {
 			})
 			break;
 		case "flashZB":
-			$(headerText).text("Zigbee OTA update");
-			$(modalBody).html("Fetching firmware information...");
+			$(headerText).text(i18next.t('md.zb.ot')).css("color", "red");
+
+
+			$(modalBody).html(i18next.t('md.zb.rfm'));
 			modalAddSpiner();
-			$.get(zbFwInfoUrl, function (data) {
-				const fw = JSON.parse(data);
-				const flashZBrow = "#flashZBrow";
-				const rows = 5;
-				$.get(apiLink + api.actions.API_GET_PARAM + "&param=zbRev", function (curZbVer) {
-					const cl = "col-sm-12 mb-2 ";
-					$(modalBody).html("");
-					$(modalBtns).html("");
-					modalAddClose();
-					$('<div>', {
-						"class": "container",
-						style: "max-width : 400px",
-						append: $("<div>", {
-							"class": "row",
-							id: "flashZBrow"
-						})
-					}).appendTo(modalBody);
-					$("<span>", {
-						"class": cl,
-						text: "Your current firmware revision: " + curZbVer
-					}).appendTo(flashZBrow);
-					$("<hr>", {
-						"class": "border border-dark border-top"
-					}).appendTo(flashZBrow);
-					$("<span>", {
-						"class": cl,
-						text: "Awaiable coordinator firmware:"
-					}).appendTo(flashZBrow);
-					$("<textarea>", {
-						"class": cl + "form-control",
-						text: "Revision: " + fw.coordinator.rev + "\nRelease notes:\n" + fw.coordinator.notes,
-						rows: rows,
-						disabled: ""
-					}).appendTo(flashZBrow);
-					$("<button>", {
-						"class": cl + "btn btn-warning",
-						text: "Flash Coordinator " + fw.coordinator.rev,
-						click: function () {
-							startEvents();
-							$.get(apiLink + api.actions.API_FLASH_ZB + "&fwurl=" + fw.coordinator.link, function () {
 
-							});
-						}
-					}).appendTo(flashZBrow);
-
-					$("<hr>", {
-						"class": "border border-dark border-top"
-					}).appendTo(flashZBrow);
-					$("<span>", {
-						"class": cl,
-						text: "Awaiable router firmware:"
-					}).appendTo(flashZBrow);
-					$("<textarea>", {
-						"class": cl + "form-control",
-						text: "Revision: " + fw.router.rev + "\nRelease notes:\n" + fw.router.notes,
-						rows: rows,
-						disabled: ""
-					}).appendTo(flashZBrow);
-					$("<button>", {
-						"class": cl + "btn btn-warning",
-						text: "Flash Router " + fw.router.rev,
-						click: function () {
-							startEvents();
-							$.get(apiLink + api.actions.API_FLASH_ZB + "&fwurl=" + fw.router.link, function () {
-
-							});
-						}
-					}).appendTo(flashZBrow);
+			$.get(zbFwInfoUrl).then(data => {
+				const json = JSON.parse(data);
+				return $.get(apiLink + api.actions.API_GET_PARAM + "&param=zbHwVer").then(chip => {
+					const chipMap = { "CC2652P": "CC1352P2_CC2652P_launchpad", "CC2652P7": "CC1352P7" };
+					const fwNameChip = chipMap[chip];
+					if (!fwNameChip) throw new Error("Unsupported chip type or fwNameChip not set.");
+					return findAllVersionsSorted(json, fwNameChip);
 				});
-
-			}).fail(function () {
-				$(modalBody).html("Error fetching firmware information<br>Check your network!").css("color", "red");
+			}).then(fw => {
+				$(modalBody).html("");
 				$(modalBtns).html("");
 				modalAddClose();
+
+				// Check if there are any coordinators and append them
+				if (fw.coordinator && fw.coordinator.length > 0) {
+					fw.coordinator.forEach(file => createReleaseBlock(file, 1).appendTo(".modal-body"));
+				} else {
+					$("<div>", { "text": i18next.t('md.zb.ncf'), "class": "alert alert-warning" }).appendTo(".modal-body");
+				}
+
+				// Check if there are any routers and append them
+				if (fw.router && fw.router.length > 0) {
+					fw.router.forEach(file => createReleaseBlock(file, 2).appendTo(".modal-body"));
+				} else {
+					$("<div>", { "text": i18next.t('md.zb.nrf'), "class": "alert alert-warning" }).appendTo(".modal-body");
+				}
+
+			}).fail(error => {
+				$(modalBody).html(i18next.t('md.zb.efr')).css("color", "red");
+				$(modalBtns).html("");
+				modalAddClose();
+				console.error(error);
 			});
+
 			break;
 		case "factoryResetWarning":
 			$(headerText).text(i18next.t('md.esp.fr.tt')).css("color", "red");
 			$(modalBody).text(i18next.t('md.esp.fr.msg')).css("color", "red");
-			$('<button>', {
-				type: "button",
-				"class": "btn btn-success",
-				text: i18next.t('c.cancel'),
-				click: function () {
-					closeModal();
-				}
-			}).appendTo(modalBtns);
+			modalAddCancel();
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-danger",
 				text: i18next.t('c.sure'),
 				click: function () {
-					$.get(apiLink + api.actions.API_CMD + "&cmd=13&conf=1", function () {
+					$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_FAC_RES + "&conf=1", function () {
 					});
 					modalConstructor("restartWait");
 				}
@@ -1747,16 +1741,9 @@ function modalConstructor(type, params) {
 					"text": release.tag_name
 				}).appendTo(headerAndButtonContainer);
 
-				const buttonAndDownloadsContainer = $('<div>', {
+				const buttonContainer = $('<div>', {
 					"class": "d-flex align-items-start"
 				}).appendTo(headerAndButtonContainer);
-
-				let totalDownloads = release.assets.reduce((acc, asset) => acc + asset.download_count, 0);
-
-				$('<span>', {
-					"class": "text-muted me-2",
-					"text": totalDownloads
-				}).appendTo(buttonAndDownloadsContainer);
 
 				if (release.assets.length > 0) {
 					const downloadLink = release.assets[1].browser_download_url;
@@ -1773,7 +1760,7 @@ function modalConstructor(type, params) {
 						"text": i18next.t('c.inst'),
 						"role": "button"
 					}).css("white-space", "nowrap")
-						.appendTo(buttonAndDownloadsContainer);
+						.appendTo(buttonContainer);
 				}
 				const releaseDescriptionHtml = marked.parse(release.body);
 				$("<div>", {
@@ -1783,18 +1770,19 @@ function modalConstructor(type, params) {
 				$("<hr>").appendTo(releaseBlock);
 				releaseBlock.appendTo(".modal-body");
 			});
-			$('<button>', {
+			/*$('<button>', {
 				type: "button",
 				"class": "btn btn-primary",
 				text: i18next.t('c.cl'),
 				click: function () {
 					closeModal();
 				}
-			}).appendTo(modalBtns);
+			}).appendTo(modalBtns);*/
+			modalAddClose();
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t('md.esp.fu.bil'),
+				text: i18next.t('p.to.ilfg'),
 				click: function () {
 					//closeModal();
 					//localStorage.setItem('update_notify', 0);
@@ -2110,15 +2098,6 @@ function EthDhcpDsbl(state) {
 	$("#ethGate").prop(disbl, state);
 	$("#ethDns1").prop(disbl, state);
 	$("#ethDns2").prop(disbl, state);
-
-	/*$('input[name="ipAddress"]').prop(disbl, state);
-	$('input[name="ipMask"]').prop(disbl, state);
-	$('input[name="ipGW"]').prop(disbl, state);
-	$('input[name="ethDns1"]').prop(disbl, state);
-	$('input[name="ethDns2"]').prop(disbl, state);*/
-
-
-	//$('#div_show3').toggle(this.checked);
 }
 
 function MqttInputDsbl(state) {
@@ -2130,23 +2109,27 @@ function MqttInputDsbl(state) {
 	$("#MqttInterval").prop(disbl, state);
 	$("#MqttDiscovery").prop(disbl, state);
 	$("#mqttReconnect").prop(disbl, state);
-	//$('#div_show4').toggle(this.checked);
 }
 
 function WgInputDsbl(state) {
 	$("#wgLocalIP").prop(disbl, state);
+	$("#wgLocalSubnet").prop(disbl, state);
+	$("#wgLocalPort").prop(disbl, state);
+	$("#wgLocalGateway").prop(disbl, state);
 	$("#wgLocalPrivKey").prop(disbl, state);
 	$("#wgEndAddr").prop(disbl, state);
 	$("#wgEndPubKey").prop(disbl, state);
 	$("#wgEndPort").prop(disbl, state);
-	//$('#div_show5').toggle(this.checked);
+	$("#wgAllowedIP").prop(disbl, state);
+	$("#wgAllowedMask").prop(disbl, state);
+	$("#wgMakeDefault").prop(disbl, state);
+	$("#wgPreSharedKey").prop(disbl, state);
 }
 
 function HnInputDsbl(state) {
 	$("#hnJoinCode").prop(disbl, state);
 	$("#hnHostName").prop(disbl, state);
 	$("#hnDashUrl").prop(disbl, state);
-	//$('#div_show6').toggle(this.checked);
 }
 
 function SeqInputDsbl(state) {
@@ -2172,7 +2155,7 @@ function readfile(file) {
 function logRefresh(ms) {
 	var logUpd = setInterval(() => {
 		$.get(apiLink + api.actions.API_GET_LOG, function (data) {
-			if ($("#console").length) {//elem exists
+			if ($("#console").length) {
 				$("#console").val(data);
 			} else {
 				clearInterval(logUpd);
@@ -2405,6 +2388,134 @@ function getURLParameter(sParam) {
 	}
 }
 
-if (getURLParameter("msg")) {
-	document.getElementById("messageTxt").innerText = decodeURI(getURLParameter("msg"));
+function sub_esp(t) {
+	t = t.value.split("\\\\");
+	"" != t ? ($("#updButton").removeAttr("disabled"), localStorage.setItem("beta_feedback", 0)) : $("#updButton").prop(disbl, 1), document.getElementById("file-input").innerHTML = "   " + t[t.length - 1]
+}
+
+function sub_zb(t) {
+	t = t.value.split("\\\\");
+	"" != t ? $("#updButton_zb").removeAttr("disabled") : $("#updButton_zb").prop(disbl, 1), document.getElementById("file-input_zb").innerHTML = "   " + t[t.length - 1]
+}
+
+async function fetchReleaseData() {
+	var t = await fetch("https://api.github.com/repos/xyzroe/xzg/releases");
+	if (t.ok) return await t.json();
+	throw new Error("GitHub API request failed: " + t.statusText)
+}
+
+function handleClicks() {
+
+	$("a.nav-link").click(function (e) { //handle navigation
+		e.preventDefault();
+		const url = $(this).attr("href");
+		if (url == "/logout") {
+			window.location = "/logout";
+			return;
+		}
+		loadPage(url);
+		$(".nav-active").removeClass("nav-active");
+		$(this).parent().addClass("nav-active");
+		if (isMobile()) sidenavAutoclose(true);
+	});
+
+	$('#logo').click(function () {
+		$('#sidenav').toggleClass('sidenav-active');
+	});
+
+	$('#pageContent').click(function () {
+		$('#sidenav').removeClass('sidenav-active');
+	});
+
+	$('#sidenav').click(function (e) {
+		if (!$(e.target).closest('.ui_set').length) {
+			$('#sidenav').removeClass('sidenav-active');
+		}
+	});
+
+	$(document).on('submit', '#esp_upload_form', function (e) {
+		e.preventDefault();
+		var formData = new FormData(this);
+		modalConstructor("flashESP", formData);
+	});
+
+	$(document).on('click', '#upd_esp_git', function () {
+		console.log("Update from Git started... Just be patient!");
+		localStorage.setItem("update_notify", 0);
+		modalConstructor("flashESP");
+	});
+
+	$(document).on('click', '#info_esp_git', function () {
+		modalConstructor("fetchGitReleases");
+	});
+
+	$(document).on('click', '#upd_zb_git', function () {
+		modalConstructor("flashZB");
+	});
+
+	$(document).on('submit', '#upload_form_zb', function (e) {
+		e.preventDefault();
+		var formData = new FormData(this);
+		/*ZBfwStartEvents(), $.ajax({
+			url: "/updateZB",
+			type: "POST",
+			data: formData,
+			contentType: false,
+			processData: false,
+			xhr: function () {
+				var xhr = new window.XMLHttpRequest();
+				xhr.upload.addEventListener("progress", function (event) {
+					if (event.lengthComputable) {
+						var percentComplete = event.loaded / event.total;
+						$("#prg_zb").html("upload: " + Math.round(100 * percentComplete) + "%");
+						$("#bar_zb").css("width", Math.round(100 * percentComplete) + "%");
+					}
+				}, false);
+				return xhr;
+			},
+			success: function (data, textStatus) {
+				console.log("success!"), $("#prg_zb").html("Upload completed! <br>Start validating...");
+				$("#bar_zb").css("width", "0%");
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				console.log("Error:", errorThrown);
+			}
+		});*/
+	});
+
+	var lastEscTime = 0;
+	var doublePressInterval = 300;
+
+	$(document).on('keydown', function (e) {
+		if (e.keyCode === 27) { // 27 - Esc
+			var currentTime = new Date().getTime();
+			if (currentTime - lastEscTime < doublePressInterval) {
+				console.log("Double ESC press detected.");
+				closeModal();
+				lastEscTime = 0;
+			} else {
+				lastEscTime = currentTime;
+			}
+		}
+	});
+}
+
+function handleMsg() {
+	if (getURLParameter("msg")) {
+		let msg_txt = "";
+		msg_id = parseInt(decodeURI(getURLParameter("msg")));
+		switch (msg_id) {
+			case 1:
+				msg_txt = "p.lo.mnl";
+				break;
+			case 2:
+				msg_txt = "p.lo.mwc";
+			
+				break;
+			case 3:
+				msg_txt = "p.lo.mlo";
+				break;
+		}
+		document.getElementById("messageTxt").setAttribute("data-i18n", msg_txt);
+	}
 }

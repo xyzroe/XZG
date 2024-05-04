@@ -42,7 +42,6 @@
         "tt": "WARNUNG ZURÜCKSETZEN AUF WERKSEINSTELLUNG"
       },
       "fu": {
-        "bil": "Neueste installieren",
         "fri": "Firmware-Informationen werden abgerufen...",
         "glm": "Aktualisierung auf die neueste GitHub-Version.",
         "gvm": "Aktualisierung auf {{ver}} GitHub-Version.",
@@ -54,7 +53,8 @@
         "ucr": "Aktualisierung abgeschlossen! \nNeustart!",
         "vgds": "Veröffentlichung {{ver}} wird von GitHub heruntergeladen...",
         "wdm": "Warten auf Gerät...",
-        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt"
+        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt",
+        "bil": "Neueste installieren"
       },
       "rst": {
         "msg": "Warten auf Neustart. \nWird automatisch geschlossen.",
@@ -73,7 +73,17 @@
       "fu": {
         "vc": "Validierung abgeschlossen!",
         "vt": "validieren: {{per}} %"
-      }
+      },
+      "cfv": "Ihre aktuelle Firmware-Revision: {{ver}}",
+      "dtc": "Koordinator",
+      "dtr": "Router",
+      "efr": "Fehler beim Abrufen der Firmware-Informationen<br>Überprüfen Sie Ihr Netzwerk!",
+      "lcf": "Neueste Koordinator-Firmware:",
+      "lrf": "Neueste Router-Firmware:",
+      "ncf": "Keine Koordinator-Firmware verfügbar.",
+      "nrf": "Keine Router-Firmware verfügbar.",
+      "ot": "Zigbee OTA-Update",
+      "rfm": "Firmware-Informationen werden abgerufen..."
     },
     "kw": {
       "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät selbst wählt je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"
@@ -84,6 +94,17 @@
       "rn": "Jetzt neustarten",
       "rr": "Einige Einstellungen erfordern einen Neustart.",
       "tt": "EINSTELLUNGEN GESPEICHERT"
+    },
+    "zgb": {
+      "fu": {}
+    },
+    "zg": {
+      "fu": {
+        "f": "Wird geflasht: {{file}}",
+        "fn": "Erfolgreich geflasht!",
+        "nv": "Neue Version: {{ver}}",
+        "st": "CC2652-Blitz startet..."
+      }
     }
   },
   "l": {
@@ -139,7 +160,10 @@
     "lo": {
       "btn": "Singt mit",
       "lbl": "Bitte einloggen",
-      "pt": "Anmelden - XZG"
+      "pt": "Anmelden - XZG",
+      "mlo": "Erfolgreich abgemeldet",
+      "mnl": "Anmeldung erforderlich",
+      "mwc": "Falsche Anmeldeinformationen"
     },
     "mq": {
       "broker": {
@@ -207,35 +231,21 @@
       "dic": {
         "cs": "Kerne",
         "dm": "Gerätemodell",
-        "ef": "ESP32-Prozessor",
-        "efs": "ESP32-Speicher",
-        "efv": "ESP32 FW-Revision",
-        "ehs": "ESP32-Heap",
-        "ehv": "ESP32 HW-Version",
-        "et": "ESP32-Temperatur",
+        "ef": "Prozessor",
+        "efs": "Erinnerung",
+        "ehs": "Haufen",
+        "et": "Temperatur",
         "kb": "KiB",
         "mb": "Mb",
         "mhz": "MHz",
         "tt": "Geräteinformation",
-        "zfv": "Zigbee FW-Version",
-        "zhv": "Zigbee HW-Revision",
         "efte": "extern",
         "efti": "intern",
-        "efss": "ESP32-Dateisystem",
-        "ens": "ESP32 NV-Speicher",
-        "ent": "Einträge"
-      },
-      "dsc": {
+        "efss": "Dateisystem",
+        "ens": "NV-Speicher",
+        "ent": "Einträge",
         "du": "Geräteverfügbarkeit",
-        "op": "Betriebsmodus",
-        "scc": "Socket-Client verbunden",
-        "su": "Socket-Verfügbarkeit",
-        "tt": "Gerätestatus",
-        "lt": "Ortszeit",
-        "opn": "Zigbee-Netzwerk",
-        "opu": "Zigbee-USB",
-        "sccn": "Keine Verbindung",
-        "sccy": "Ja, {{count}} Kunden"
+        "lt": "Ortszeit"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -250,6 +260,22 @@
       "wc": {
         "map": "AP",
         "mcl": "Klient"
+      },
+      "zbc": {
+        "tt": "Gerätestatus",
+        "op": "Betriebsmodus",
+        "opn": "Zigbee-Netzwerk",
+        "opu": "Zigbee-USB",
+        "scc": "Socket-Client verbunden",
+        "sccn": "Keine Verbindung",
+        "su": "Verbindungszeit",
+        "sccy": "Ja, {{count}} Kunden",
+        "zie": "IEEE",
+        "zfs": "Flash-Größe"
+      },
+      "c": {
+        "fv": "FW-Revision",
+        "hv": "HW-Version"
       }
     },
     "se": {
@@ -293,11 +319,14 @@
       "rst": "Neu starten",
       "s": "Größe",
       "sc": "Systemkontrolle",
-      "sri": "Version auswählen",
       "usb": "USB",
       "zb": "Zigbee",
       "zfu": "Aktualisierung der Zigbee-Datei",
-      "zu": "Zigbee-Update (in Entwicklung)"
+      "zu": "Zigbee-Update (in Entwicklung)",
+      "saf": "Verfügbare Firmwares anzeigen",
+      "clzv": "Überprüfen Sie die neuesten Zigbee-Firmwares",
+      "zgu": "Git CC2652-Update",
+      "sri": "Version auswählen"
     },
     "vp": {
       "hn": {
@@ -312,7 +341,13 @@
         "epk": "Öffentlicher Schlüssel des Endpunkt-Peers",
         "lip": "IP-Adresse der lokalen Schnittstelle",
         "lpk": "Privater Schlüssel der lokalen Schnittstelle",
-        "tt": "WireGuard-Konfiguration"
+        "tt": "WireGuard-Konfiguration",
+        "aip": "Erlaubte IPs",
+        "am": "Erlaubte Maske",
+        "lgw": "Lokales Gateway",
+        "lsn": "Lokales Subnetz",
+        "md": "Machen Standard",
+        "psk": "Geteilter Schlüssel"
       }
     },
     "zi": {
