@@ -13,6 +13,20 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_other_router_20221102.bin",
                 "notes": "Allow to set transmit power<br>Fix directly connected Xiaomi devices disconnecting<br>SimpleLink SDK 6.30.00.84 (changelog)"
             }
+        },
+        "router_CC2652P_E72_sdk_5_10_00_48": {
+            "router_CC2652P_E72_sdk_5_10_00_48_20210812.bin": {
+                "ver": "20210812",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_E72_sdk_5_10_00_48_20210812.bin",
+                "notes": ""
+            }
+        },
+        "router_CC2652P_RFS_sdk_5_10_00_48": {
+            "router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin": {
+                "ver": "20210812",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin",
+                "notes": ""
+            }
         }
     },
     "coordinator": {
@@ -91,6 +105,20 @@
                 "ver": "20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226.bin",
                 "notes": "Improve performance/reliability for larger network (100+ devices)<br>Increase request retry attempts<br>Increase routing table sizes<br>SimpleLink SDK 6.10.01.01 (changelog)"
+            }
+        },
+        "znp_CC1352P_E72": {
+            "znp_CC1352P_E72_20220301.bin": {
+                "ver": "20220301",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_E72_20220301.bin",
+                "notes": ""
+            }
+        },
+        "znp_CC1352P_RFS": {
+            "znp_CC1352P_RFS_20220302.bin": {
+                "ver": "20220302",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_RFS_20220302.bin",
+                "notes": ""
             }
         }
     }
