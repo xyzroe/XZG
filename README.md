@@ -40,6 +40,9 @@ From documentation folder run next commands:
 mkdocs serve
 ```
 
+For run without venv use `python3 -m mkdocs serve -w ./`
+
+
 ## Requirements:
 
 - Python 3.8+
