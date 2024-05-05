@@ -1,8 +1,8 @@
-# 🌐 XZG Firmware Repository (zb_fws Branch)
+# XZG 📁 Firmware zb_fws Branch
 
 Welcome to the **zb_fws** branch of the XZG Firmware repository! This branch is dedicated to storing files necessary for flashing Zigbee chips in the required format, primarily focusing on coordinators and routers.
 
-## 📋 Repository Structure
+## 🗂 Directory Structure
 
 - **task.json**: Contains a structured list of tasks related to the available firmware files and their types (e.g., coordinator, router).
 - **manifest.json**: Maps specific firmware versions to their devices and provides detailed notes about each firmware update.
@@ -13,10 +13,16 @@ Welcome to the **zb_fws** branch of the XZG Firmware repository! This branch is 
   - **coordinator**: Contains `.bin` firmware files for coordinator devices like `CC1352P2`, `CC2652P`, `CC2652R7`, etc.
   - **router**: Contains `.bin` firmware files for router devices like `CC1352P2_CC2652P_other_router_20221102`.
 
-## ⚙️ How to Use
+## 🛠 How to Use
 
 All firmware files and scripts in this branch are intended to be used with the XZG Firmware Repository. Please refer to the main repository for more detailed information and instructions.
 
-## 🚀 Contributions and Feedback
+## 🤝 Contributing
 
 Contributions are always welcome! Feel free to submit a pull request or create an issue for any updates, fixes, or improvements.
+
+---
+
+<div align="center"> Created with &#x2764;&#xFE0F; by <a href="https://xyzroe.cc/">xyzroe</a> © 2024</div>
+
+---
