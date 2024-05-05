@@ -27,8 +27,6 @@ AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
 TimerHandle_t mqttPubStateTimer;
 
-String tagMQTT = "MQTT";
-
 const char *homeAssistant = "homeassistant";
 const char *haSensor = "sensor";
 const char *haButton = "button";
@@ -38,6 +36,14 @@ const char *willMessage = "offline"; // to do
 const char *availabilityTopic = "/avty";
 const char *configTopic = "/config";
 const char *stateTopic = "/state";
+
+#if ASYNC_TCP_SSL_ENABLED
+#define MQTT_SECURE true
+#define MQTT_SERVER_FINGERPRINT                                                                                                \
+    {                                                                                                                          \
+        0xAA, 0xD4, 0x06, 0x67, 0x05, 0xF2, 0xD3, 0x2E, 0xDD, 0x91, 0x76, 0x6F, 0xBE, 0xD5, 0xFB, 0xEC, 0x0A, 0x34, 0xC3, 0xBE \
+    }
+#endif
 
 String getUptime()
 {
@@ -250,8 +256,26 @@ void mqttConnectSetup()
         LOGD("Failed to create mqttPubStateTimer");
     }
 
-    mqttClient.setServer(mqttCfg.server, mqttCfg.port);
+    uint16_t keepAlive = mqttCfg.updateInt + 10;
+    mqttClient.setKeepAlive(keepAlive);
+
+    const char* clientId = vars.deviceId;
+    mqttClient.setClientId(clientId);
+
     mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
+
+    String topic = String(mqttCfg.topic) + "/avty";
+    //mqttClient.setWill(topic.c_str(), 1, true, "offline");
+
+    mqttClient.setServer(mqttCfg.server, mqttCfg.port);
+
+#if ASYNC_TCP_SSL_ENABLED
+    mqttClient.setSecure(MQTT_SECURE);
+    if (MQTT_SECURE)
+    {
+        mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
+    }
+#endif
 
     mqttClient.onConnect(onMqttConnect);
     mqttClient.onDisconnect(onMqttDisconnect);
@@ -266,11 +290,8 @@ void mqttConnectSetup()
 
 void connectToMqtt()
 {
-    if (!vars.mqttConn)
-    {
-        LOGD("Connecting to MQTT...");
-        mqttClient.connect();
-    }
+    LOGD("Connecting to MQTT...");
+    mqttClient.connect();
 }
 
 void onMqttConnect(bool sessionPresent)

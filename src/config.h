@@ -161,7 +161,7 @@ struct VpnConfigStruct
   bool hnEnable;
   char hnJoinCode[80];
   char hnHostName[30];
-  char hnDashUrl[30];
+  char hnDashUrl[60];
 };
 
 // Function prototypes for VpnConfigStruct
@@ -172,9 +172,9 @@ void loadVpnConfig(VpnConfigStruct &config);
 struct MqttConfigStruct
 {
   bool enable;
-  char server[50];
+  char server[60];
   int port;
-  char user[50];
+  char user[30];
   char pass[50];
   char topic[50];
   // bool retain; // commented as per the structure definition
