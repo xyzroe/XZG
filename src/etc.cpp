@@ -37,8 +37,8 @@ extern LEDControl ledControl;
 
 extern CCTools CCTool;
 
-const char *coordMode = "coordMode";         // coordMode node name ?? not name but text field with mode
-const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name ?? not name but text field with mode
+const char *coordMode = "coordMode"; // coordMode node name ?? not name but text field with mode
+// const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name ?? not name but text field with mode
 
 const char *configFileSystem = "/config/system.json";
 const char *configFileWifi = "/config/configWifi.json";
@@ -139,11 +139,9 @@ float readTemperature(bool clear)
 
 float getCPUtemp(bool clear)
 {
-  // DEBUG_PRINTLN(F("getCPUtemp"));
   float CPUtemp = 0.0;
   if (WiFi.getMode() == WIFI_MODE_NULL || WiFi.getMode() == WIFI_OFF)
   {
-    // DEBUG_PRINTLN(F("enable wifi to enable temp sensor"));
     WiFi.mode(WIFI_STA); // enable wifi to enable temp sensor
     CPUtemp = readTemperature(clear);
     WiFi.disconnect();
@@ -159,62 +157,45 @@ float getCPUtemp(bool clear)
 void zigbeeRouterRejoin()
 {
   printLogMsg("Router rejoin begin");
-  DEBUG_PRINTLN(F("Router rejoin begin"));
   CCTool.routerRejoin();
   printLogMsg("Router in join mode!");
-  DEBUG_PRINTLN(F("Router in join mode!"));
 }
 
 void zigbeeEnableBSL()
 {
   printLogMsg("ZB enable BSL");
-  DEBUG_PRINTLN(F("ZB enable BSL"));
   CCTool.enterBSL();
   printLogMsg("Now you can flash CC2652!");
-  DEBUG_PRINTLN(F("Now you can flash CC2652!"));
 }
 
 void zigbeeRestart()
 {
   printLogMsg("ZB RST begin");
-  DEBUG_PRINTLN(F("ZB RST begin"));
   CCTool.restart();
   printLogMsg("ZB restart was done");
-  DEBUG_PRINTLN(F("ZB restart was done"));
 }
 
-void adapterModeUSB()
+void usbModeSet(usbMode mode)
 {
   if (vars.hwUartSelIs)
   {
-    printLogMsg("Switched XZG to USB mode");
-    DEBUG_PRINTLN(F("Switched XZG to USB mode"));
-    if (vars.hwUartSelIs)
+    String modeStr = (mode == ZIGBEE) ? "ZIGBEE" : "ESP";
+    bool pinValue = (mode == ZIGBEE) ? HIGH : LOW;
+    String msg = "Switched USB to " + modeStr + "";
+    printLogMsg(msg);
+    digitalWrite(hwConfig.mist.uartSelPin, pinValue);
+    if (pinValue)
     {
-      digitalWrite(hwConfig.mist.uartSelPin, 1);
-      DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 1) - HIGH"));
+      ledControl.modeLED.mode = LED_ON;
     }
-    ledControl.modeLED.mode = LED_ON;
+    else
+    {
+      ledControl.modeLED.mode = LED_OFF;
+    }
   }
   else
   {
-    DEBUG_PRINTLN(F("NO vars.hwUartSelIs. NO mode USB"));
-  }
-}
-
-void adapterModeLAN()
-{
-  if (vars.hwUartSelIs)
-  {
-    printLogMsg("Switched XZG to LAN mode");
-    DEBUG_PRINTLN(F("Switched XZG to LAN mode"));
-    digitalWrite(hwConfig.mist.uartSelPin, 0);
-    DEBUG_PRINTLN(F("digitalWrite(hwConfig.mist.uartSelPin, 0) - LOW"));
-    ledControl.modeLED.mode = LED_OFF;
-  }
-  else
-  {
-    DEBUG_PRINTLN(F("NO vars.hwUartSelIs. NO mode LAN"));
+    LOGD("NO vars.hwUartSelIs");
   }
 }
 
@@ -253,22 +234,21 @@ void getDeviceID(char *arr)
 
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
-  DEBUG_PRINT(F("Write defaults to "));
-  DEBUG_PRINTLN(path);
+  LOGD("Write defaults to %s", path);
   serializeJsonPretty(doc, Serial);
   File configFile = LittleFS.open(path, FILE_WRITE);
   if (!configFile)
   {
-    DEBUG_PRINTLN(F("Failed Write"));
+    LOGD("Failed Write");
     if (LittleFS.mkdir(path))
     {
-      DEBUG_PRINTLN(F("Config dir created"));
+      LOGD("Config dir created");
       delay(500);
       ESP.restart();
     }
     else
     {
-      DEBUG_PRINTLN(F("mkdir failed"));
+      LOGD("mkdir failed");
     }
     // return false;
   }
@@ -333,16 +313,14 @@ void setClock(void *pvParameters)
   while ((nowSecs < targetTime) && ((millis() - startTryingTime) < 300000))
   {
     delay(500);
-    // DEBUG_PRINT(F("."));
     yield();
     nowSecs = time(nullptr);
   }
-  // DEBUG_PRINTLN();
 
   struct tm timeinfo;
   if (localtime_r(&nowSecs, &timeinfo))
   {
-    LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
+    //LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
 
     char *zoneToFind = const_cast<char *>("Europe/Kiev");
     if (systemCfg.timeZone)
@@ -393,13 +371,13 @@ void setLedsDisable(bool all)
 
 void nmActivate()
 {
-  LOGD("NM", "start");
+  LOGD("start");
   setLedsDisable(true);
 }
 
 void nmDeactivate()
 {
-  LOGD("NM", "end");
+  LOGD("end");
   setLedsDisable();
 }
 
@@ -519,11 +497,6 @@ char *convertTimeToCron(const String &time)
   return formattedTime;
 }
 
-void ledsScheduler()
-{
-  DEBUG_PRINTLN(F("LEDS Scheduler"));
-}
-
 BrdConfigStruct customConfig;
 
 BrdConfigStruct *findBrdConfig(int searchId = 0)
@@ -557,7 +530,6 @@ BrdConfigStruct *findBrdConfig(int searchId = 0)
       for (int y = 0; y < 10; y++)
       {
         int state = digitalRead(brdConfigs[i].mist.btnPin);
-        // LOGD("Read state: %d", state);
         if (state != brdConfigs[i].mist.btnPlr)
         {
           press++;
@@ -630,13 +602,14 @@ void wgBegin()
   if (!wg.is_initialized())
   {
     // printLogMsg(String("Initializing WireGuard interface..."));
-    //auto subnet = IPAddress(255, 255, 255, 0);
-    //auto gateway = IPAddress(0, 0, 0, 0);
-    //auto allowIP = IPAddress(0, 0, 0, 0);
-    //auto allowMask = IPAddress(0, 0, 0, 0);
+    // auto subnet = IPAddress(255, 255, 255, 0);
+    // auto gateway = IPAddress(0, 0, 0, 0);
+    // auto allowIP = IPAddress(0, 0, 0, 0);
+    // auto allowMask = IPAddress(0, 0, 0, 0);
 
     const char *wg_preshared_key = nullptr;
-    if (vpnCfg.wgPreSharedKey[0] != '\0') {
+    if (vpnCfg.wgPreSharedKey[0] != '\0')
+    {
       wg_preshared_key = vpnCfg.wgPreSharedKey;
       LOGD("vpnCfg.wgPreSharedKey is used");
     }

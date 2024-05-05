@@ -223,78 +223,13 @@ void initWebServer()
 
     serverWeb.on("/events", handleEvents);
     /* ----- MIST CMDs | END -----*/
-    /* ----- ESP32 OTA | START -----*/
-    /*handling uploading esp32 firmware file */
+
+    /* ----- OTA | START -----*/
 
     serverWeb.on("/update", HTTP_POST, handleUpdateRequest, handleEspUpdateUpload);
-
     // serverWeb.on("/updateZB", HTTP_POST, handleUpdateRequest, handleZbUpdateUpload);
 
-    /*
-        serverWeb.on(
-            "/update", HTTP_POST, []()
-            {
-                // eventOK = eventsClient.connected();
-                // if (eventOK) { // Проверка наличия активного подключения к серверу на события
-                serverWeb.sendHeader("Connection", "close");
-                serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
-                //} else {
-                // Если нет активного подключения, отправляем ошибку или игнорируем запрос
-                //  serverWeb.send(400, "text/plain", "No active connection to events. Update not allowed.");
-                //}
-            },
-            []()
-            {
-                HTTPUpload &upload = serverWeb.upload();
-                static long contentLength = 0;
-                if (upload.status == UPLOAD_FILE_START)
-                {
-
-                    if (!is_authenticated())
-                        return;
-
-                    DEBUG_PRINTLN("hostHeader: " + serverWeb.hostHeader());
-                    // DEBUG_PRINTLN("header Content-Length: " + serverWeb.header("Content-Length"));
-                    contentLength = serverWeb.header("Content-Length").toInt();
-                    DEBUG_PRINTLN("contentLength: " + String(contentLength));
-
-                    DEBUG_PRINTLN("Update ESP from file " + String(upload.filename.c_str()) + " size: " + String(upload.totalSize));
-                    DEBUG_PRINTLN("upload.currentSize " + String(upload.currentSize));
-                    if (!Update.begin(contentLength))
-                    { // start with max available size
-                        Update.printError(Serial);
-                    }
-                    Update.onProgress(progressFunc);
-                }
-                else if (upload.status == UPLOAD_FILE_WRITE)
-                {
-                    flashing firmware to ESP
-                    if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
-                    {
-                        Update.printError(Serial);
-                    }
-                    // DEBUG_PRINT(".");
-                    // DEBUG_PRINT(upload.currentSize);
-                }
-                else if (upload.status == UPLOAD_FILE_END)
-                {
-                    // DEBUG_PRINTLN("Finish...");
-                    if (Update.end(true))
-                    { // true to set the size to the current progress
-                        // DEBUG_PRINTLN("");
-                        // DEBUG_PRINTLN("Update Success: " + upload.totalSize);
-                        DEBUG_PRINTLN("Update success. Rebooting...");
-                        ESP.restart();
-                        // serverWeb.send(HTTP_CODE_OK, contTypeText, (Update.hasError()) ? "FAIL" : "OK");
-                    }
-                    else
-                    {
-                        DEBUG_PRINTLN("Update error: ");
-                        Update.printError(Serial);
-                    }
-                }
-            });*/
-    /* ----- ESP32 OTA | END -----*/
+    /* ----- OTA | END -----*/
 
     const char *headerkeys[] = {"Content-Length", "Cookie"};
     size_t headerkeyssize = sizeof(headerkeys) / sizeof(char *);
@@ -310,7 +245,7 @@ bool captivePortal()
     IPAddress ip;
     if (!ip.fromString(serverWeb.hostHeader()))
     {
-        Serial.println("Request redirected to captive portal");
+        LOGD("Request redirected to captive portal");
         serverWeb.sendHeader("Location", String("http://") + apIP2.toString(), true);
         serverWeb.send(302, "text/plain", "");
         serverWeb.client().stop();
@@ -374,11 +309,11 @@ void handleEspUpdateUpload()
     static long contentLength = 0;
     if (upload.status == UPLOAD_FILE_START)
     {
-        DEBUG_PRINTLN("hostHeader: " + serverWeb.hostHeader());
+        LOGD("hostHeader: %s", serverWeb.hostHeader());
         contentLength = serverWeb.header("Content-Length").toInt();
-        DEBUG_PRINTLN("contentLength: " + String(contentLength));
-        DEBUG_PRINTLN("Update ESP from file " + String(upload.filename.c_str()) + " size: " + String(upload.totalSize));
-        DEBUG_PRINTLN("upload.currentSize " + String(upload.currentSize));
+        LOGD("contentLength: %s", String(contentLength));
+        LOGD("Update ESP from file %s size: %s", String(upload.filename.c_str()), String(upload.totalSize));
+        LOGD("upload.currentSize %s", String(upload.currentSize));
         if (!Update.begin(contentLength))
         {
             Update.printError(Serial);
@@ -396,12 +331,12 @@ void handleEspUpdateUpload()
     {
         if (Update.end(true))
         {
-            DEBUG_PRINTLN("Update success. Rebooting...");
+            LOGD("Update success. Rebooting...");
             ESP.restart();
         }
         else
         {
-            DEBUG_PRINTLN("Update error: ");
+            LOGD("Update error: ");
             Update.printError(Serial);
         }
     }
@@ -419,7 +354,7 @@ void handleZbUpdateUpload()
     if (opened == false)
     {
         opened = true;
-        DEBUG_PRINTLN("Try to remove file " + String(tempFile));
+        LOGD("Try to remove file " + String(tempFile));
         if (LittleFS.remove(tempFile))
         {
             DEBUG_PRINTLN(F("Removed file - OK"));
@@ -555,15 +490,11 @@ void handleApi()
 
     if (serverWeb.argName(0) != action)
     {
-        DEBUG_PRINT(F("[handleApi] wrong arg 'action' "));
-        DEBUG_PRINTLN(serverWeb.argName(0));
         serverWeb.send(500, contTypeText, wrongArgs);
     }
     else
     {
         const uint8_t action = serverWeb.arg(action).toInt();
-        // DEBUG_PRINT(F("[handleApi] arg 0 is: "));
-        // DEBUG_PRINTLN(action);
         switch (action)
         {
         /*case API_FLASH_ZB:
@@ -619,7 +550,7 @@ void handleApi()
                 }
                 else
                 {
-                    DEBUG_PRINTLN("REQ error: http_code " + String(httpsCode));
+                    LOGD("REQ error: http_code " + String(httpsCode));
                     serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, String(httpsCode));
                     sendEvent(tagZB_FW_err, eventLen, "REQ error: http_code " + String(httpsCode));
                 }
@@ -687,10 +618,10 @@ void handleApi()
                     ESP.restart();
                     break;
                 case CMD_ADAP_LAN:
-                    adapterModeLAN();
+                    usbModeSet(XZG);
                     break;
                 case CMD_ADAP_USB:
-                    adapterModeUSB();
+                    usbModeSet(ZIGBEE);
                     break;
                 case CMD_ESP_UPD_URL:
                     if (serverWeb.hasArg(argUrl))
@@ -950,8 +881,7 @@ void handleApi()
         case API_GET_PAGE:
             if (!serverWeb.arg(page).length() > 0)
             {
-                DEBUG_PRINTLN(F("[handleApi] wrong arg 'page'"));
-                DEBUG_PRINTLN(serverWeb.argName(1));
+                LOGW("wrong arg 'page' %s", serverWeb.argName(1));
                 serverWeb.send(500, contTypeText, wrongArgs);
                 return;
             }
@@ -1026,7 +956,7 @@ void handleApi()
         }
 
         default:
-            DEBUG_PRINTLN(F("[handleApi] switch (action) err"));
+            LOGW("switch (action) err");
             break;
         }
     }
@@ -1087,12 +1017,12 @@ void handleLoginGet()
 {
     if (!is_authenticated())
     {
-        // DEBUG_PRINTLN("handleLoginGet !is_authenticated");
+        // LOGD("handleLoginGet !is_authenticated");
         sendGzip(contTypeTextHtml, PAGE_LOGIN_html_gz, PAGE_LOGIN_html_gz_len);
     }
     else
     {
-        // DEBUG_PRINTLN("handleLoginGet else");
+        // LOGD("handleLoginGet else");
         serverWeb.sendHeader("Location", "/");
         serverWeb.sendHeader("Cache-Control", "no-cache");
         serverWeb.send(301);
@@ -1178,50 +1108,40 @@ void handleGeneral()
     DynamicJsonDocument doc(1024);
     String result;
 
-    // doc["pageName"] = "General";
-    //  DEBUG_PRINTLN(ConfigSettings.usbMode);
-
     doc[hwBtnIsKey] = vars.hwBtnIs;
     doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
+
     switch (systemCfg.workMode)
     {
     case WORK_MODE_USB:
         doc["checkedUsbMode"] = checked;
         break;
-    /*case COORDINATOR_MODE_WIFI:
-        doc["checkedWifiMode"] = checked;
-        break;*/
     case WORK_MODE_NETWORK:
         doc["checkedLanMode"] = checked;
         break;
-
     default:
         break;
     }
-    // DEBUG_PRINTLN(systemCfg.disableLedPwr);
+
     if (systemCfg.keepWeb)
     {
         doc[keepWebKey] = checked;
     }
+
     if (systemCfg.disableLedPwr)
     {
         doc["checkedDisableLedPwr"] = checked;
     }
-    // DEBUG_PRINTLN(systemCfg.disableLedUSB);
     if (systemCfg.disableLedUSB)
     {
         doc["checkedDisableLedUSB"] = checked;
     }
-    // serializeJson(doc, result);
-    // serverWeb.sendHeader(respHeaderName, result);
-
-    // String result;
-    // DynamicJsonDocument doc(512);
 
     doc[hostnameKey] = systemCfg.hostname;
     doc[refreshLogsKey] = systemCfg.refreshLogs;
+
     if (systemCfg.timeZone)
     {
         doc[timeZoneNameKey] = systemCfg.timeZone;
@@ -1251,6 +1171,7 @@ void handleGeneral()
     serializeJson(zones, results);
     serverWeb.sendHeader(respTimeZonesName, results);
 }
+
 void handleSecurity()
 {
     String result;
@@ -1669,25 +1590,25 @@ void handleSavefile()
     }
     else
     {
-        String filename = "/config/" + serverWeb.arg(0);
+        String filename = "/" + serverWeb.arg(0);
         String content = serverWeb.arg(1);
         File file = LittleFS.open(filename, "w");
+        LOGD("try %s", filename.c_str());
+
         if (!file)
         {
-            DEBUG_PRINT(F("Failed to open file for reading\r\n"));
+            LOGW("Failed to open file for reading");
             return;
         }
 
         int bytesWritten = file.print(content);
-
         if (bytesWritten > 0)
         {
-            DEBUG_PRINTLN(F("File was written"));
-            DEBUG_PRINTLN(bytesWritten);
+            LOGD("File was written, %d", bytesWritten);
         }
         else
         {
-            DEBUG_PRINTLN(F("File write failed"));
+            LOGW("File write failed");
         }
 
         file.close();
@@ -1752,7 +1673,7 @@ void progressFunc(unsigned int progress, unsigned int total)
 #ifdef DEBUG
     if (int(percent) % 5 == 0)
     {
-        DEBUG_PRINTLN("Update ESP32 progress: " + String(progress) + " of " + String(total) + " | " + String(percent) + "%");
+        LOGD("Update ESP32 progress: %s of %s | %s%", String(progress), String(total), String(percent));
     }
 #endif
 };
@@ -1762,8 +1683,8 @@ int currentLength = 0; // current size of written firmware
 
 void getEspUpdate(String esp_fw_url)
 {
-    DEBUG_PRINTLN("getEspUpdate: " + esp_fw_url);
-    // setClock();
+    LOGI("getEspUpdate: %s", esp_fw_url);
+
     HTTPClient clientWeb;
     WiFiClientSecure client;
     client.setInsecure(); // the magic line, use with caution
@@ -1773,7 +1694,7 @@ void getEspUpdate(String esp_fw_url)
 
     // Get file, just to check if each reachable
     int resp = clientWeb.GET();
-    DEBUG_PRINTLN("Response: " + resp);
+    LOGD("Response: %s", resp);
     // If file is reachable, start downloading
     if (resp == HTTP_CODE_OK)
     {
@@ -1784,15 +1705,13 @@ void getEspUpdate(String esp_fw_url)
         // this is required to start firmware update process
         Update.begin(totalLength);
         Update.onProgress(progressFunc);
-        DEBUG_PRINT("FW Size: ");
-
-        DEBUG_PRINTLN(totalLength);
+        LOGI("FW Size: %s", String(totalLength));
         // create buffer for read
         uint8_t buff[128] = {0};
         // get tcp stream
         WiFiClient *stream = clientWeb.getStreamPtr();
         // read all data from server
-        DEBUG_PRINTLN("Updating firmware...");
+        LOGI("Updating firmware...");
         while (clientWeb.connected() && (len > 0 || len == -1))
         {
             // get available data size
@@ -1801,22 +1720,18 @@ void getEspUpdate(String esp_fw_url)
             {
                 // read up to 128 byte
                 int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-                // pass to function tagZB_FW_progress
+                // pass to function
                 runEspUpdateFirmware(buff, c);
-
                 if (len > 0)
                 {
                     len -= c;
                 }
             }
-            // DEBUG_PRINT("Bytes left to flash ");
-            // DEBUG_PRINTLN(len);
-            // delay(1);
         }
     }
     else
     {
-        DEBUG_PRINTLN("Cannot download firmware file.");
+        LOGI("Cannot download firmware file.");
     }
     clientWeb.end();
 }
@@ -1831,7 +1746,7 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
         return;
     // only if currentLength == totalLength
     Update.end(true);
-    DEBUG_PRINTLN("Update success. Rebooting...");
+    LOGD("Update success. Rebooting...");
     // Restart ESP32 to see changes
     ESP.restart();
 }

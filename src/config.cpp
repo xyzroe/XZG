@@ -682,7 +682,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         break;
         }
         // String cfg = makeJsonConfig(&configNet, &configVpn, &configMqtt, &configSys);
-        // DEBUG_PRINTLN(cfg);
+        // LOGD("\n%s",cfg.c_str());
         serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
     }
     else
@@ -779,23 +779,14 @@ void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject ob
     obj[workModeKey] = static_cast<int>(config.workMode);
 }
 
+// Serializing system variables to JSON
 void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
 {
-    // Serializing system variables to JSON
     obj[hwBtnIsKey] = vars.hwBtnIs;
     obj[hwLedUsbIsKey] = vars.hwLedUsbIs;
     obj[hwLedPwrIsKey] = vars.hwLedPwrIs;
     obj[hwUartSelIsKey] = vars.hwUartSelIs;
     obj[hwZigbeeIsKey] = vars.hwZigbeeIs;
-
-    // Assuming WORK_MODE_t can be directly cast to int for serialization
-    // obj[workModeKey] = static_cast<int>(systemCfg.workMode);
-
-    // Serializing an array of connectedSocket
-    /*JsonArray connectedSocketArray = obj.createNestedArray(connectedSocket);
-    for (bool socket : vars.connectedSocket) {
-        connectedSocketArray.add(socket);
-    }*/
 
     obj[connectedClientsKey] = vars.connectedClients;
     obj[socketTimeKey] = vars.socketTime;
@@ -805,7 +796,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
 
     obj[vpnWgInitKey] = vars.vpnWgInit;
     obj[vpnWgConnectKey] = vars.vpnWgConnect;
-    obj[vpnWgPeerIpKey] = vars.vpnWgPeerIp.toString(); // Assuming IPAddress can be converted to string
+    obj[vpnWgPeerIpKey] = vars.vpnWgPeerIp.toString();
     obj[vpnWgCheckTimeKey] = vars.vpnWgCheckTime;
     obj[vpnHnInitKey] = vars.vpnHnInit;
 
@@ -857,7 +848,6 @@ bool loadFileConfigHW()
     DynamicJsonDocument config(1024);
     deserializeJson(config, configFile);
 
-    DEBUG_PRINTLN(configFile.readString());
     configFile.close();
 
     strlcpy(hwConfig.board, config[board] | "", sizeof(hwConfig.board));
@@ -938,16 +928,15 @@ bool loadFileConfigHW()
 
 /* Previous firmware read config support. start */
 
-const char *msg_file_rm = "OK. Remove old format file";
-const char *msg_open_f = "open failed";
+const char *msg_file_rm = "OK. Remove old file";
+const char *msg_open_f = "Error. open failed";
 
-void fileReadError(String tag, DeserializationError error, const char *fileName)
+void fileReadError(DeserializationError error, const char *fileName)
 {
     String fileContent = "";
     File configFile = LittleFS.open(fileName, FILE_READ);
     if (!configFile)
     {
-        LOGI("Failed to open file: %s", fileName);
         return;
     }
     while (configFile.available())
@@ -965,8 +954,6 @@ void fileReadError(String tag, DeserializationError error, const char *fileName)
 
 bool loadFileSystemVar()
 {
-    String tag = "FL_CFG";
-
     File configFile = LittleFS.open(configFileSystem, FILE_READ);
     if (!configFile)
     {
@@ -980,7 +967,7 @@ bool loadFileSystemVar()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileSystem);
+        fileReadError(error, configFileSystem);
         return false;
     }
 
@@ -995,8 +982,6 @@ bool loadFileSystemVar()
 
 bool loadFileConfigWifi()
 {
-    String tag = "FL_CFG";
-
     const char *enableWiFi = "enableWiFi";
     const char *ssid = "ssid";
     const char *dhcpWiFi = "dhcpWiFi";
@@ -1017,7 +1002,7 @@ bool loadFileConfigWifi()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileWifi);
+        fileReadError(error, configFileWifi);
         return false;
     }
 
@@ -1038,8 +1023,6 @@ bool loadFileConfigWifi()
 
 bool loadFileConfigEther()
 {
-    String tag = "FL_CFG";
-
     const char *dhcp = "dhcp";
     const char *ip = "ip";
     const char *mask = "mask";
@@ -1058,7 +1041,7 @@ bool loadFileConfigEther()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileEther);
+        fileReadError(error, configFileEther);
         return false;
     }
 
@@ -1076,10 +1059,6 @@ bool loadFileConfigEther()
 
 bool loadFileConfigGeneral()
 {
-    String tag = "FL_CFG";
-
-    // const char *hostname = "hostname";
-
     File configFile = LittleFS.open(configFileGeneral, FILE_READ);
     if (!configFile)
     {
@@ -1093,7 +1072,7 @@ bool loadFileConfigGeneral()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileGeneral);
+        fileReadError(error, configFileGeneral);
         return false;
     }
 
@@ -1105,24 +1084,15 @@ bool loadFileConfigGeneral()
     {
         systemCfg.refreshLogs = (int)doc[refreshLogsKey] / 1000;
     }
-    // DEBUG_PRINT(F("[loadFileConfigGeneral] 'doc[coordMode]' res is: "));
-    // DEBUG_PRINTLN(String((uint8_t)doc[coordMode]));
 
     strlcpy(systemCfg.hostname, doc[hostnameKey] | "", sizeof(systemCfg.hostname));
 
     systemCfg.workMode = static_cast<WORK_MODE_t>((uint8_t)doc[coordMode]);
-    // systemCfg.prevWorkMode = static_cast<WORK_MODE_t>((uint8_t)doc[prevCoordMode]);
-    //  DEBUG_PRINT(F("[loadFileConfigGeneral] 'vars.workMode' res is: "));
-    //  DEBUG_PRINTLN(String(vars.workMode));
 
     systemCfg.disableLedPwr = (uint8_t)doc[disableLedPwrKey];
-    // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLedPwr"));
     systemCfg.disableLedUSB = (uint8_t)doc[disableLedUSBKey];
-    // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLedUSB"));
     vars.disableLeds = (uint8_t)doc[disableLedsKey];
-    // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
     systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
-    // DEBUG_PRINTLN(F("[loadFileConfigGeneral] disableLeds"));
     strlcpy(systemCfg.timeZone, doc[timeZoneKey] | NTP_TIME_ZONE, sizeof(systemCfg.timeZone));
 
     configFile.close();
@@ -1134,8 +1104,6 @@ bool loadFileConfigGeneral()
 
 bool loadFileConfigSecurity()
 {
-    String tag = "FL_CFG";
-
     File configFile = LittleFS.open(configFileSecurity, FILE_READ);
     if (!configFile)
     {
@@ -1149,7 +1117,7 @@ bool loadFileConfigSecurity()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileSecurity);
+        fileReadError(error, configFileSecurity);
         return false;
     }
 
@@ -1169,8 +1137,6 @@ bool loadFileConfigSecurity()
 
 bool loadFileConfigSerial()
 {
-    String tag = "FL_CFG";
-
     const char *baud = "baud";
 
     File configFile = LittleFS.open(configFileSerial, FILE_READ);
@@ -1186,7 +1152,7 @@ bool loadFileConfigSerial()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileSerial);
+        fileReadError(error, configFileSerial);
         return false;
     }
 
@@ -1202,8 +1168,6 @@ bool loadFileConfigSerial()
 
 bool loadFileConfigMqtt()
 {
-    String tag = "FL_CFG";
-
     File configFile = LittleFS.open(configFileMqtt, FILE_READ);
     if (!configFile)
     {
@@ -1217,7 +1181,7 @@ bool loadFileConfigMqtt()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileMqtt);
+        fileReadError(error, configFileMqtt);
         return false;
     }
 
@@ -1240,8 +1204,6 @@ bool loadFileConfigMqtt()
 
 bool loadFileConfigWg()
 {
-    String tag = "FL_CFG";
-
     const char *localAddr = "localAddr";
     const char *localPrivKey = "localIP";
     const char *endAddr = "endAddr";
@@ -1261,7 +1223,7 @@ bool loadFileConfigWg()
     if (error)
     {
         configFile.close();
-        fileReadError(tag, error, configFileWg);
+        fileReadError(error, configFileWg);
         return false;
     }
 

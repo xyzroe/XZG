@@ -53,16 +53,16 @@ enum LED_t : uint8_t
   ZB_LED
 };
 
-enum MODE_t : uint8_t
+/*enum MODE_t : uint8_t
 {
   OFF,
   ON,
   TOGGLE,
   BLINK
-};
+};*/
 
-extern const char *coordMode;     // coordMode node name
-extern const char *prevCoordMode; // prevCoordMode node name
+extern const char *coordMode; // coordMode node name
+// extern const char *prevCoordMode; // prevCoordMode node name
 extern const char *configFileSystem;
 extern const char *configFileWifi;
 extern const char *configFileEther;
@@ -356,4 +356,10 @@ struct LEDControl
 {
   LEDSettings modeLED;
   LEDSettings powerLED;
+};
+
+enum usbMode
+{
+  XZG,
+  ZIGBEE
 };

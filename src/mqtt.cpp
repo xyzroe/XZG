@@ -242,12 +242,14 @@ void mqttConnectSetup()
 
     if (mqttReconnectTimer == NULL)
     {
-        LOGD("Failed to create timer");
+        LOGD("Failed to create mqttReconnectTimer");
     }
-    else
+
+    if (mqttPubStateTimer == NULL)
     {
-        LOGD("Timer created successfully");
+        LOGD("Failed to create mqttPubStateTimer");
     }
+
     mqttClient.setServer(mqttCfg.server, mqttCfg.port);
     mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
 
@@ -264,8 +266,11 @@ void mqttConnectSetup()
 
 void connectToMqtt()
 {
-    Serial.println("Connecting to MQTT...");
-    mqttClient.connect();
+    if (!vars.mqttConn)
+    {
+        LOGD("Connecting to MQTT...");
+        mqttClient.connect();
+    }
 }
 
 void onMqttConnect(bool sessionPresent)
@@ -278,13 +283,12 @@ void onMqttConnect(bool sessionPresent)
 
     mqttPublishDiscovery();
 
-    mqttPublishIo("rst_esp", "OFF");
-    mqttPublishIo("rst_zig", "OFF");
-    mqttPublishIo("enbl_bsl", "OFF");
-    String socket_state = vars.connectedClients ? "ON" : "OFF";
+    mqttPublishIo("rst_esp", 0);
+    mqttPublishIo("rst_zig", 0);
+    mqttPublishIo("enbl_bsl", 0);
+    bool socket_state = vars.connectedClients ? 1 : 0;
     mqttPublishIo("socket", socket_state);
-    String update_avail = vars.updateEspAvail ? "ON" : "OFF";
-    mqttPublishIo("update_esp", update_avail);
+    mqttPublishIo("update_esp", vars.updateEspAvail);
     mqttPublishState();
 
     mqttPublishAvail();
@@ -349,8 +353,9 @@ void mqttPublishAvail()
     mqttClient.publish(topic.c_str(), 1, true, "online");
 }
 
-void mqttPublishIo(const String &io, const String &state)
+void mqttPublishIo(const String &io, bool st)
 {
+    String state = st ? "ON" : "OFF";
     if (mqttClient.connected())
     {
         String topic = String(mqttCfg.topic) + "/io/" + io;
@@ -376,6 +381,8 @@ void mqttPublishState()
     String topic = mqttCfg.topic + String(stateTopic);
     String mqttBuffer;
     serializeJson(buffJson, mqttBuffer);
+
+    LOGD("%s", mqttBuffer.c_str());
 
     mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
 

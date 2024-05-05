@@ -15,8 +15,7 @@ void zigbeeRouterRejoin();
 void zigbeeEnableBSL();
 void zigbeeRestart();
 
-void adapterModeUSB();
-void adapterModeLAN();
+void usbModeSet(usbMode mode);
 
 void getDeviceID(char *arr);
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
@@ -34,8 +33,6 @@ void setClock(void *pvParameters);
 void setTimezone(String timezone);
 const char *getGmtOffsetForZone(const char *zone);
 char* convertTimeToCron(const String& time);
-
-void ledsScheduler();
 
 void wgBegin();
 void wgLoop();
