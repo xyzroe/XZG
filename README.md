@@ -35,6 +35,7 @@ From documentation folder run next commands:
 # Enter in virtual enviroment
 . venv/bin/activate ##For Linux
 . venv/Scripts/activate  ## For windows
+. source venv/bin/activate ## For Mac OS
 # Run mkdocs serve command to generate live preview
 mkdocs serve
 ```
