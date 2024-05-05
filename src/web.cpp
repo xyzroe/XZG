@@ -1683,7 +1683,7 @@ int currentLength = 0; // current size of written firmware
 
 void getEspUpdate(String esp_fw_url)
 {
-    LOGI("getEspUpdate: %s", esp_fw_url);
+    LOGI("getEspUpdate: %s", esp_fw_url.c_str());
 
     HTTPClient clientWeb;
     WiFiClientSecure client;
@@ -1694,7 +1694,7 @@ void getEspUpdate(String esp_fw_url)
 
     // Get file, just to check if each reachable
     int resp = clientWeb.GET();
-    LOGD("Response: %s", resp);
+    LOGD("Response: %s", String(resp));
     // If file is reachable, start downloading
     if (resp == HTTP_CODE_OK)
     {
