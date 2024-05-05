@@ -8,5 +8,9 @@
     {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_Home_3.x.0_coordinator_20220219/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20220219.zip"},
     {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_router_20221102/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_router_20221102.zip"},
     {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/Z-Stack_3.x.0_router_20221102/router/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_router_20221102.zip"},
-    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/files/15001944/20240315_20240316.zip"}
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/files/15001944/20240315_20240316.zip"},
+    {"type": "coordinator", "link": "https://github.com/egony/cc2652p_cc1352p_RF-STAR/raw/main/firmware/coordinator/znp_CC1352P_RFS_20220302.zip"},
+    {"type": "router", "link": "https://github.com/egony/cc2652p_cc1352p_RF-STAR/raw/main/firmware/router/router_CC2652P_RFS_20210812.zip"},
+    {"type": "coordinator", "link": "https://github.com/egony/cc2652p_E72-2G4M20S1E/raw/master/firmware/coordinator/znp_CC1352P_E72_20220301.zip"},
+    {"type": "router", "link": "https://github.com/egony/cc2652p_E72-2G4M20S1E/raw/master/firmware/router/router_CC2652P_E72_20210812.zip"}
 ]
