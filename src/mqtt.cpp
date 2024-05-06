@@ -5,7 +5,6 @@
 #include <WebServer.h>
 #include <FS.h>
 #include <LittleFS.h>
-#include <AsyncMqttClient.h>
 
 #include "config.h"
 #include "web.h"
@@ -23,7 +22,9 @@ extern struct MqttConfigStruct mqttCfg;
 extern struct SysVarsStruct vars;
 extern struct BrdConfigStruct hwConfig;
 
+#include <AsyncMqttClient.h>
 AsyncMqttClient mqttClient;
+
 TimerHandle_t mqttReconnectTimer;
 TimerHandle_t mqttPubStateTimer;
 
@@ -37,6 +38,7 @@ const char *availabilityTopic = "/avty";
 const char *configTopic = "/config";
 const char *stateTopic = "/state";
 
+/* NO SSL SUPPORT in current SDK
 #if ASYNC_TCP_SSL_ENABLED
 #define MQTT_SECURE true
 #define MQTT_SERVER_FINGERPRINT                                                                                                \
@@ -44,6 +46,7 @@ const char *stateTopic = "/state";
         0xAA, 0xD4, 0x06, 0x67, 0x05, 0xF2, 0xD3, 0x2E, 0xDD, 0x91, 0x76, 0x6F, 0xBE, 0xD5, 0xFB, 0xEC, 0x0A, 0x34, 0xC3, 0xBE \
     }
 #endif
+*/
 
 String getUptime()
 {
@@ -264,11 +267,12 @@ void mqttConnectSetup()
 
     mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
 
-    String topic = String(mqttCfg.topic) + "/avty";
+    //String topic = String(mqttCfg.topic) + "/avty";
     //mqttClient.setWill(topic.c_str(), 1, true, "offline");
 
     mqttClient.setServer(mqttCfg.server, mqttCfg.port);
 
+/* NO SSL SUPPORT in current SDK
 #if ASYNC_TCP_SSL_ENABLED
     mqttClient.setSecure(MQTT_SECURE);
     if (MQTT_SECURE)
@@ -276,6 +280,7 @@ void mqttConnectSetup()
         mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
     }
 #endif
+*/
 
     mqttClient.onConnect(onMqttConnect);
     mqttClient.onDisconnect(onMqttDisconnect);

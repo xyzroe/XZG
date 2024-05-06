@@ -2,3 +2,6 @@
 	path = lib/WireGuard
 	url = https://github.com/Tinkerforge/WireGuard-ESP32-Arduino
 	branch = main
+[submodule "lib/ESPAsyncTCP"]
+	path = lib/ESPAsyncTCP
+	url = https://github.com/me-no-dev/ESPAsyncTCP

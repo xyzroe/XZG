@@ -1,7 +1,6 @@
 #include <WiFi.h>
 // #include <WiFiClient.h>
 // #include <WiFiClientSecure.h>
-//#define ASYNC_TCP_SSL_ENABLED 1
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include <FS.h>
@@ -15,6 +14,9 @@
 #include <CCTools.h>
 #include <WireGuard-ESP32.h>
 #include <CronAlarms.h>
+
+// NO SSL SUPPORT in current SDK
+//#define ASYNC_TCP_SSL_ENABLED 1 
 
 #include "config.h"
 #include "web.h"
