@@ -28,18 +28,6 @@
                 "notes": "Alex Egony build based on Koenkk patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Built for CC2652P1F chip variant (not for CC1352P1F)<br>Default TX power: 20dBm<br>LEDs are supported, but not used<br>SDK 5.10.00.48"
             }
         },
-        "CC2652P": {
-            "router_CC2652P_E72_sdk_5_10_00_48_20210812.bin": {
-                "ver": "20210812",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_E72_sdk_5_10_00_48_20210812.bin",
-                "notes": "Alex Egony build based on Koenkk patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Built for CC2652P1F chip variant (not for CC1352P1F)<br>Default TX power: 20dBm<br>LEDs are supported, but not used<br>SDK 5.10.00.48"
-            },
-            "router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin": {
-                "ver": "20210812",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin",
-                "notes": "Alex Egony build based on Koenkk patches for Z-Stack_3.x.0<br>Built for CC2652P1F chip variant (not for CC1352P1F)<br>Default TX power: 20dBm<br>LEDs are supported, but not used<br>SDK 5.10.00.48"
-            }
-        },
         "CC2652P2_other": {
             "CC1352P2_CC2652P_other_router_20221102.bin": {
                 "ver": "20221102",
@@ -49,7 +37,7 @@
             "router_CC2652P_E72_sdk_5_10_00_48_20210812.bin": {
                 "ver": "20210812",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_E72_sdk_5_10_00_48_20210812.bin",
-                "notes": ""
+                "notes": "Alex Egony build based on Koenkk patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Built for CC2652P1F chip variant (not for CC1352P1F)<br>Default TX power: 20dBm<br>LEDs are supported, but not used<br>SDK 5.10.00.48"
             }
         },
         "CC2652P2_launchpad": {
@@ -61,7 +49,7 @@
             "router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin": {
                 "ver": "20210812",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin",
-                "notes": ""
+                "notes": "Alex Egony build based on Koenkk patches for Z-Stack_3.x.0<br>Built for CC2652P1F chip variant (not for CC1352P1F)<br>Default TX power: 20dBm<br>LEDs are supported, but not used<br>SDK 5.10.00.48"
             }
         }
     },
@@ -143,20 +131,6 @@
                 "notes": "Improve performance/reliability for larger network (100+ devices)<br>Increase request retry attempts<br>Increase routing table sizes<br>SimpleLink SDK 6.10.01.01"
             }
         },
-        "znp_CC1352P_E72": {
-            "znp_CC1352P_E72_20220301.bin": {
-                "ver": "20220301",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_E72_20220301.bin",
-                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40"
-            }
-        },
-        "znp_CC1352P_RFS": {
-            "znp_CC1352P_RFS_20220302.bin": {
-                "ver": "20220302",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_RFS_20220302.bin",
-                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40"
-            }
-        },
         "CC2652RB": {
             "CC2652RB_coordinator_20240315.bin": {
                 "ver": "20240315",
@@ -232,18 +206,11 @@
         }
     },
     "thread": {
-        "CC2652P": {
-            "rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin": {
-                "ver": "20240506",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin",
-                "notes": "Special build from @mercenaruss"
-            }
-        },
         "CC2652P2_launchpad": {
             "rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin": {
                 "ver": "20240506",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin",
-                "notes": ""
+                "notes": "Special build from @mercenaruss"
             }
         }
     }
