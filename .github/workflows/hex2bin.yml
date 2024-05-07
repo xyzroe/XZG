@@ -6,7 +6,12 @@ permissions:
 on:
   push:
     branches:
-      - zb_fws  # Trigger on push to zb_fws branch
+      - zb_fws
+    paths:
+      - "ti/**"     
+      - "task.json"  
+    paths-ignore:
+      - "ti/manifest.json"
   workflow_dispatch:
 
 jobs:
