@@ -564,3 +564,63 @@ body {
 .modal {
   --bs-modal-width: 600px !important;
 }
+
+.zb_cards {
+  --thread-color: 0, 0, 255;
+  --router-color: 0, 255, 0;
+  --coordinator-color: 255, 0, 0;
+  --default-opacity: 0.25;
+  --selected-opacity: 1.0;
+}
+
+.selectable-card {
+  cursor: pointer;
+  width: 100%;
+  padding-bottom: 100%;
+  position: relative;
+  border: 3px solid var(--card-background-color) !important;
+  border-radius: 1.2em !important;
+  transition: background-color 0.5s, border-color 0.25s;
+}
+
+.selectable-card .card-body {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.large-icon {
+  width: 3em;
+  height: 3em;
+  margin-bottom: 1em;
+}
+
+.card-label {
+  display: block;
+  font-size: 1.2em;
+  font-weight: bolder;
+}
+
+.selectable-card.selected, .selectable-card:hover {
+  border: 3px solid var(--text-color) !important;
+}
+
+.zfs_thread {
+  background-color: rgba(var(--thread-color), var(--default-opacity)) !important; 
+}
+.zfs_thread.selected, .zfs_thread:hover {
+  background-color: rgba(var(--thread-color), var(--selected-opacity)) !important;
+}
+.zfs_router {
+  background-color: rgba(var(--router-color), var(--default-opacity)) !important; 
+}
+.zfs_router.selected, .zfs_router:hover {
+  background-color: rgba(var(--router-color), var(--selected-opacity)) !important; 
+}
+.zfs_coordinator {
+  background-color: rgba(var(--coordinator-color), var(--default-opacity)) !important; 
+}
+.zfs_coordinator.selected, .zfs_coordinator:hover {
+  background-color: rgba(var(--coordinator-color), var(--selected-opacity)) !important; 
+}

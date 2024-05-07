@@ -135,6 +135,10 @@
         "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
         "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
         "dp": "INSERT_DEVICE_PATCH_HERE"
+      },
+      "fws": {
+        "tt": "Role",
+        "alarm": "Changing the firmware on a running network cause the network break down!"
       }
     },
     "mq": {
@@ -379,7 +383,9 @@
       "ncf": "The coordinator firmware is missing.",
       "nrf": "The router firmware is missing.",
       "ot": "Zigbee OTA update",
-      "rfm": "Getting information about the firmware..."
+      "rfm": "Getting information about the firmware...",
+      "ntf": "The Thread firmware is missing.",
+      "dtt": "OpenThread"
     },
     "ss": {
       "tt": "SETTINGS SAVED",
@@ -414,6 +420,11 @@
       "ane": {
         "tt": "Network Config Error",
         "msg": "No network interfaces are enabled. Please activate at least one interface to continue."
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "No firmware found"
       }
     }
   }

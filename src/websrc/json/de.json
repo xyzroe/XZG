@@ -83,7 +83,9 @@
       "ncf": "Keine Koordinator-Firmware verfügbar.",
       "nrf": "Keine Router-Firmware verfügbar.",
       "ot": "Zigbee OTA-Update",
-      "rfm": "Firmware-Informationen werden abgerufen..."
+      "rfm": "Firmware-Informationen werden abgerufen...",
+      "dtt": "OpenThread",
+      "ntf": "Die Thread-Firmware fehlt."
     },
     "kw": {
       "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät selbst wählt je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Serielle Konfiguration",
       "sp": "Socket-Anschluss",
-      "ss": "Socket-Geschwindigkeit"
+      "ss": "Socket-Geschwindigkeit",
+      "fws": {
+        "alarm": "Das Ändern der Firmware in einem laufenden Netzwerk führt zum Netzwerkausfall!",
+        "tt": "Rolle"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "Neue Firmware ({{ver}}) wurde auf GitHub gefunden. \nEs wurde {{count}} Mal heruntergeladen.",
         "tt": "ESP32-Update verfügbar 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Keine Firmware gefunden"
       }
     }
   }

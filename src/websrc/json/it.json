@@ -83,7 +83,9 @@
       "ncf": "Nessun firmware del coordinatore disponibile.",
       "nrf": "Nessun firmware del router disponibile.",
       "ot": "Aggiornamento Zigbee OTA",
-      "rfm": "Recupero informazioni firmware..."
+      "rfm": "Recupero informazioni firmware...",
+      "dtt": "OpenThread",
+      "ntf": "Manca il firmware del thread."
     },
     "kw": {
       "msg": "Questa funzione permette di lasciare attivo uno dei canali di comunicazione e di avere accesso all'interfaccia web. \nIl dispositivo stesso selezionerà un canale disponibile in base alla priorità: WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Configurazione seriale",
       "sp": "Porta presa",
-      "ss": "Velocità della presa"
+      "ss": "Velocità della presa",
+      "fws": {
+        "alarm": "La modifica del firmware su una rete in esecuzione causa un guasto della rete!",
+        "tt": "Ruolo"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "Il nuovo firmware ({{ver}}) è stato trovato su GitHub. \nÈ stato scaricato {{count}} volte.",
         "tt": "Aggiornamento ESP32 disponibile 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Nessun firmware trovato"
       }
     }
   }

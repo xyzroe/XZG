@@ -83,7 +83,9 @@
       "ncf": "Brak dostępnego oprogramowania sprzętowego koordynatora.",
       "nrf": "Brak dostępnego oprogramowania sprzętowego routera.",
       "ot": "Aktualizacja Zigbee OTA",
-      "rfm": "Pobieram informacje o oprogramowaniu sprzętowym..."
+      "rfm": "Pobieram informacje o oprogramowaniu sprzętowym...",
+      "dtt": "Otwórz wątek",
+      "ntf": "Brak oprogramowania sprzętowego Thread."
     },
     "kw": {
       "msg": "Dzięki tej funkcji możesz pozostawić jeden z kanałów komunikacji aktywnym i mieć dostęp do interfejsu WWW. \nUrządzenie samo wybierze dostępny kanał według priorytetu: WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Konfiguracja szeregowa",
       "sp": "Gniazdo gniazda",
-      "ss": "Szybkość gniazda"
+      "ss": "Szybkość gniazda",
+      "fws": {
+        "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci powoduje awarię sieci!",
+        "tt": "Rola"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "W GitHubie znaleziono nowe oprogramowanie sprzętowe ({{ver}}). \nZostał pobrany {{count}} razy.",
         "tt": "Dostępna aktualizacja ESP32 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Nie znaleziono oprogramowania sprzętowego"
       }
     }
   }

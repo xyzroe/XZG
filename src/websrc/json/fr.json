@@ -83,7 +83,9 @@
       "ncf": "Aucun micrologiciel du coordinateur disponible.",
       "nrf": "Aucun firmware de routeur disponible.",
       "ot": "Mise à jour Zigbee OTA",
-      "rfm": "Récupération des informations sur le micrologiciel..."
+      "rfm": "Récupération des informations sur le micrologiciel...",
+      "dtt": "Fil ouvert",
+      "ntf": "Le firmware Thread est manquant."
     },
     "kw": {
       "msg": "Cette fonction permet de laisser actif un des canaux de communication et d'avoir accès à l'interface web. \nL'appareil sélectionnera lui-même un canal disponible en fonction de la priorité : WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Configuration série",
       "sp": "Port de prise",
-      "ss": "Vitesse de prise"
+      "ss": "Vitesse de prise",
+      "fws": {
+        "alarm": "Changer le micrologiciel sur un réseau en cours d'exécution entraîne une panne du réseau !",
+        "tt": "Rôle"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "Un nouveau firmware ({{ver}}) a été trouvé sur GitHub. \nIl a été téléchargé {{count}} fois.",
         "tt": "Mise à jour ESP32 disponible 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Aucun firmware trouvé"
       }
     }
   }

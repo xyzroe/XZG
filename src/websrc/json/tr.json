@@ -83,7 +83,9 @@
       "ncf": "Koordinatör yazılımı mevcut değil.",
       "nrf": "Yönlendirici ürün yazılımı mevcut değil.",
       "ot": "Zigbee OTA güncellemesi",
-      "rfm": "Ürün yazılımı bilgileri alınıyor..."
+      "rfm": "Ürün yazılımı bilgileri alınıyor...",
+      "dtt": "OpenThread",
+      "ntf": "Thread ürün yazılımı eksik."
     },
     "kw": {
       "msg": "Bu fonksiyon iletişim kanallarından birini aktif bırakıp web arayüzüne erişmenizi sağlar. \nCihazın kendisi önceliğe göre uygun bir kanal seçecektir: WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Seri yapılandırma",
       "sp": "Soket Bağlantı Noktası",
-      "ss": "Soket Hızı"
+      "ss": "Soket Hızı",
+      "fws": {
+        "alarm": "Çalışan bir ağda ürün yazılımını değiştirmek ağın bozulmasına neden olur!",
+        "tt": "Rol"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "GitHub'da yeni donanım yazılımı ({{ver}}) bulundu. \n{{count}} kez indirildi.",
         "tt": "ESP32 güncellemesi mevcut 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Firmware bulunamadı"
       }
     }
   }

@@ -83,7 +83,9 @@
       "ncf": "No hay firmware del coordinador disponible.",
       "nrf": "No hay firmware del enrutador disponible.",
       "ot": "Actualización Zigbee OTA",
-      "rfm": "Obteniendo información del firmware..."
+      "rfm": "Obteniendo información del firmware...",
+      "dtt": "hilo abierto",
+      "ntf": "Falta el firmware de Thread."
     },
     "kw": {
       "msg": "Esta función le permite dejar activo uno de los canales de comunicación y tener acceso a la interfaz web. \nEl propio dispositivo seleccionará un canal disponible según la prioridad: WIFI, ETHERNET, WIFI AP"
@@ -366,7 +368,11 @@
       },
       "so": "Configuración en serie",
       "sp": "Puerto de enchufe",
-      "ss": "Velocidad del zócalo"
+      "ss": "Velocidad del zócalo",
+      "fws": {
+        "alarm": "¡Cambiar el firmware en una red en funcionamiento provoca que la red se averíe!",
+        "tt": "Role"
+      }
     },
     "ab": {
       "c": {
@@ -417,6 +423,11 @@
       "upd": {
         "msg": "Se encontró nuevo firmware ({{ver}}) en GitHub. \nSe descargó {{count}} veces.",
         "tt": "Actualización ESP32 disponible 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "No se encontró firmware"
       }
     }
   }

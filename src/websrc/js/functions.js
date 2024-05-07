@@ -1172,7 +1172,6 @@ function toastConstructor(params, text) {
 				click: function () {
 					var url = "https://t.me/xzg_fw";
 					window.open(url, '_blank');
-					//$('.toast').toast('hide');
 				}
 			}).appendTo("#toastButtons");
 			$('<button>', {
@@ -1196,6 +1195,21 @@ function toastConstructor(params, text) {
 					$('.toast').toast('hide');
 				}
 			}).appendTo("#toastButtons");
+			break;
+		case "noZbFw":
+			$("#toastHeaderText").text(i18next.t("ts.zb.nzfa.tt"));
+			$("#toastBody").text(text); //		$("#toastBody").text(i18next.t("ts.zb.nzfa.msg"));
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-outline-primary",
+				text: i18next.t("c.cl"),
+				click: function () {
+					$('.toast').toast('hide');
+				}
+			}).appendTo("#toastButtons");
+			setTimeout(function () {
+				$('.toast').toast('hide');
+			}, 10000);
 			break;
 		default:
 			break;
@@ -1389,6 +1403,12 @@ function startZbFlash(link) {
 		class: "my-1 text-sm-center text-danger"
 	}).appendTo(modalBody);
 
+	let fileName = fileFromUrl(link);
+	$("<div>", {
+		text: fileName,
+		class: "my-1 text-sm-center"
+	}).appendTo(modalBody);
+
 	modalAddCancel();
 	$('<button>', {
 		type: "button",
@@ -1497,14 +1517,18 @@ function findLatestVersions(data, deviceName) {
 	return result;
 }
 
-function findAllVersionsSorted(data, deviceName) {
-	const categories = ['router', 'coordinator'];
+function findAllVersionsSorted(data, chip) {
+	const categories = ['router', 'coordinator', 'thread'];
 	const result = {};
+
+	const chipMap = { "CC2652P": "CC2652P2_launchpad", "CC2652P7": "CC2652P7", "CC2652RB": "CC2652RB" };
+	const deviceName = chipMap[chip];
+	if (!deviceName) throw new Error("Unsupported chip type or deviceName not set.");
 
 	categories.forEach(category => {
 		if (data[category]) {
 			Object.keys(data[category]).forEach(subCategory => {
-				if (subCategory.startsWith(deviceName)) {
+				if (subCategory == deviceName) {
 					Object.keys(data[category][subCategory]).forEach(file => {
 						const fileInfo = data[category][subCategory][file];
 						if (!result[category]) {
@@ -1538,12 +1562,16 @@ function createReleaseBlock(file, deviceType) {
 
 	if (deviceType == 1) {
 		deviceName = i18next.t('md.zb.dtc');
-		buttonClass = "btn btn-outline-success";
+		buttonClass = "btn btn-outline-danger";
 		deviceIcon = "📡";
 	} else if (deviceType == 2) {
 		deviceName = i18next.t('md.zb.dtr');
-		buttonClass = "btn btn-outline-danger";
+		buttonClass = "btn btn-outline-success";
 		deviceIcon = "🛰️";
+	} else if (deviceType == 3) {
+		deviceName = i18next.t('md.zb.dtt');
+		buttonClass = "btn btn-outline-primary";
+		deviceIcon = "🚀";
 	}
 
 	const releaseBlock = $("<div>", { "class": "release-block", "style": "margin-bottom: 20px;" });
@@ -1676,9 +1704,12 @@ function modalConstructor(type, params) {
 				console.error("Failed to fetch release data:", t)
 			})
 			break;
+		case "flashZBM":
+			$(headerText).text(i18next.t('md.zb.ot')).css("color", "red");
+			break;
+
 		case "flashZB":
 			$(headerText).text(i18next.t('md.zb.ot')).css("color", "red");
-
 
 			$(modalBody).html(i18next.t('md.zb.rfm'));
 			modalAddSpiner();
@@ -1686,28 +1717,29 @@ function modalConstructor(type, params) {
 			$.get(zbFwInfoUrl).then(data => {
 				const json = JSON.parse(data);
 				return $.get(apiLink + api.actions.API_GET_PARAM + "&param=zbHwVer").then(chip => {
-					const chipMap = { "CC2652P": "CC1352P2_CC2652P_launchpad", "CC2652P7": "CC1352P7" };
-					const fwNameChip = chipMap[chip];
-					if (!fwNameChip) throw new Error("Unsupported chip type or fwNameChip not set.");
-					return findAllVersionsSorted(json, fwNameChip);
+					return findAllVersionsSorted(json, chip);
 				});
 			}).then(fw => {
 				$(modalBody).html("");
 				$(modalBtns).html("");
 				modalAddClose();
 
-				// Check if there are any coordinators and append them
 				if (fw.coordinator && fw.coordinator.length > 0) {
 					fw.coordinator.forEach(file => createReleaseBlock(file, 1).appendTo(".modal-body"));
 				} else {
 					$("<div>", { "text": i18next.t('md.zb.ncf'), "class": "alert alert-warning" }).appendTo(".modal-body");
 				}
 
-				// Check if there are any routers and append them
 				if (fw.router && fw.router.length > 0) {
 					fw.router.forEach(file => createReleaseBlock(file, 2).appendTo(".modal-body"));
 				} else {
 					$("<div>", { "text": i18next.t('md.zb.nrf'), "class": "alert alert-warning" }).appendTo(".modal-body");
+				}
+
+				if (fw.thread && fw.thread.length > 0) {
+					fw.thread.forEach(file => createReleaseBlock(file, 3).appendTo(".modal-body"));
+				} else {
+					$("<div>", { "text": i18next.t('md.zb.ntf'), "class": "alert alert-warning" }).appendTo(".modal-body");
 				}
 
 			}).fail(error => {
@@ -2172,7 +2204,7 @@ function readFile(event, file) {
 function delFile(event, file) {
 	event.preventDefault();
 	$("#config_file").val("Deleted file: " + file);
-	$.get(apiLink + api.actions.API_DEL_FILE + "&filename=" + file, function (data) {});
+	$.get(apiLink + api.actions.API_DEL_FILE + "&filename=" + file, function (data) { });
 }
 
 function logRefresh(ms) {
