@@ -121,5 +121,14 @@
                 "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40"
             }
         }
+    },
+    "thread": {
+        "rcp_LP_CC2652PSIP_tirtos7": {
+            "rcp_LP_CC2652PSIP_tirtos7_ticlang.bin": {
+                "ver": "ticlang",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang.bin",
+                "notes": ""
+            }
+        }
     }
 }
