@@ -472,8 +472,9 @@ void handleApi()
         API_SEND_HEX,
         API_WIFICONNECTSTAT,
         API_CMD,
-        API_GET_LOG //,
-        // API_FLASH_ZB
+        API_GET_LOG,
+        API_DEL_FILE,
+        API_FLASH_ZB
     };
     const char *action = "action";
     const char *page = "page";
@@ -767,6 +768,19 @@ void handleApi()
                     result += (char)file.read();
                 }
                 file.close();
+            }
+            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+        }
+        break;
+        case API_DEL_FILE:
+        {
+            String result = wrongArgs;
+            const char *argFilename = "filename";
+            if (serverWeb.hasArg(argFilename))
+            {
+                String filename = "/" + serverWeb.arg(argFilename);
+                LOGW("Remove file %s", filename.c_str());
+                LittleFS.remove(filename);
             }
             serverWeb.send(HTTP_CODE_OK, contTypeText, result);
         }

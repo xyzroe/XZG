@@ -347,7 +347,8 @@
         "lgw": "Puerta de enlace local",
         "lsn": "Subred local",
         "md": "Hacer por defecto",
-        "psk": "Clave previamente compartida"
+        "psk": "Clave previamente compartida",
+        "lp": "Puerto local"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "Contacto 🧧",
-        "msg": "¡Gracias por probar la nueva versión! \n🎢 No olvides darnos tu opinión 💌",
+        "msg": "¡Gracias por probar la nueva versión! 🎢\nNo olvides darnos tu opinión 💌",
         "tt": "Comentarios sobre la versión beta del firmware"
       },
       "upd": {

@@ -419,8 +419,9 @@ void mqttPublishDiscovery()
 {
     DynamicJsonDocument devInfo(256);
     devInfo["ids"] = vars.deviceId;
-    devInfo["name"] = hwConfig.board;
+    devInfo["name"] = systemCfg.hostname;
     devInfo["mf"] = "XZG";
+    devInfo["mdl"] = hwConfig.board;
     char verArr[25];
     const char *env = STRINGIFY(BUILD_ENV_NAME);
     sprintf(verArr, "%s (%s)", VERSION, env);

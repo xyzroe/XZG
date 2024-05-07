@@ -347,7 +347,8 @@
         "lgw": "Lokales Gateway",
         "lsn": "Lokales Subnetz",
         "md": "Machen Standard",
-        "psk": "Geteilter Schlüssel"
+        "psk": "Geteilter Schlüssel",
+        "lp": "Lokaler Hafen"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "Kontakt 🧧",
-        "msg": "Vielen Dank, dass Sie die neue Version getestet haben! \n🎢 Vergessen Sie nicht, Feedback zu geben 💌",
+        "msg": "Vielen Dank, dass Sie die neue Version getestet haben! 🎢\nVergessen Sie nicht, Feedback zu geben 💌",
         "tt": "Feedback zur FW-Beta"
       },
       "upd": {

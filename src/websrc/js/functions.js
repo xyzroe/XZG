@@ -67,7 +67,8 @@ const api = {
 		API_WIFICONNECTSTAT: 7,
 		API_CMD: 8,
 		API_GET_LOG: 9,
-		API_FLASH_ZB: 10
+		API_DEL_FILE: 10,
+		API_FLASH_ZB: 11
 	},
 	pages: pages,
 	commands: commands
@@ -314,12 +315,15 @@ serial:
 }
 
 function fillFileTable(files) {
-	const icon = `<svg class="card_icon file_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#file" /></svg>`;
+	const icon_file = `<svg class="card_icon file_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#file" /></svg>`;
+	const icon_del = `<svg class="card_icon del_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#magic" /></svg>`;
 	files.forEach((elem) => { //.slice(0, files.length - 1)
 		if (elem.size > 0) {
 			let $row = $("<tr>").appendTo("#filelist")
-			$("<td>" + icon + "<a href='#config_file' onClick=\"readfile('" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
+			$("<td class='col-min-width'>" + icon_file + "</td>").appendTo($row);
+			$("<td><a href='#config_file' onClick=\"readFile(event, '" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
 			$("<td>" + elem.size + "B</td>").appendTo($row);
+			$("<td class='text-end col-min-width'><a href='' onClick=\"delFile(event, '" + elem.filename + "');\">" + icon_del + "</a></td>").appendTo($row);
 		}
 	});
 }
@@ -363,10 +367,10 @@ function setIconGlow(iconId, state, show = true) {
 
 function loadPage(url) {
 
-	
+
 	if (window.location.pathname !== url) {
-        window.history.pushState("", document.title, url); 
-    }
+		window.history.pushState("", document.title, url);
+	}
 	//console.log("[loadPage] url: " + url);
 
 
@@ -1225,14 +1229,14 @@ function espFlashGitWait(params) {
 	//ESPfwStartEvents();
 
 	setTimeout(function () {
-		if (!params.link) {
-			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL, function (data) { });
-			$('#bar').html(i18next.t('md.esp.fu.lgds'));
-		}
-		else {
+		if (typeof params !== 'undefined' && params !== null && typeof params.link !== 'undefined') {
 			let version = extractVersionFromReleaseTag(params.link);
 			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL + "&url=" + params.link, function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.vgds', { ver: version }));
+		}
+		else {
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL, function (data) { });
+			$('#bar').html(i18next.t('md.esp.fu.lgds'));
 		}
 		console.log("[git_flash] start");
 
@@ -1801,15 +1805,27 @@ function modalConstructor(type, params) {
 					"class": classHide
 				})
 			}).appendTo(modalBtns);
-			var waitTmr = setInterval(function (params) {
-				$.get("/", function () {
-					clearInterval(waitTmr);
-					clearTimeout(timeoutTmr);
-					closeModal();
-					//console.log("[restartWait] hide modal");
-					window.location = "/";
+			var waitTmr = setInterval(function () {
+				$.ajax({
+					url: "/",
+					method: "GET",
+					cache: false,
+					timeout: 2000,
+					success: function () {
+						clearInterval(waitTmr);
+						clearTimeout(timeoutTmr);
+						closeModal();
+						window.location = "/";
+					},
+					error: function (jqXHR, textStatus) {
+						if (textStatus === "timeout") {
+							console.log("Request timed out.");
+						} else {
+							console.log("Error:", textStatus);
+						}
+					}
 				});
-			}, 2000);
+			}, 3000);
 			var timeoutTmr = setTimeout(function () {
 				clearInterval(waitTmr);
 				$(modalBtns).html("");
@@ -1822,7 +1838,7 @@ function modalConstructor(type, params) {
 						closeModal();
 					}
 				}).appendTo(modalBtns);
-			}, 20000);
+			}, 60000);
 			break;
 		case "saveOk":
 			$.get(apiLink + api.actions.API_GET_PARAM + "&param=wifiEnable", function (wifiEnable) {
@@ -2143,13 +2159,20 @@ function SeqInputDsblFw(state) {
 	$('#div_show2').toggle(this.checked);
 }
 
-function readfile(file) {
+function readFile(event, file) {
+	event.preventDefault();
 	$("#config_file").val("Loading file: " + file);
 	$.get(apiLink + api.actions.API_GET_FILE + "&filename=" + file, function (data) {
 		$("#title").text(file);
 		$("#filename").val(file);
 		$("#config_file").val(data);
 	});
+}
+
+function delFile(event, file) {
+	event.preventDefault();
+	$("#config_file").val("Deleted file: " + file);
+	$.get(apiLink + api.actions.API_DEL_FILE + "&filename=" + file, function (data) {});
 }
 
 function logRefresh(ms) {
@@ -2510,7 +2533,7 @@ function handleMsg() {
 				break;
 			case 2:
 				msg_txt = "p.lo.mwc";
-			
+
 				break;
 			case 3:
 				msg_txt = "p.lo.mlo";

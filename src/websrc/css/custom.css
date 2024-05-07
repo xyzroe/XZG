@@ -296,6 +296,10 @@ body {
   color: var(--link-color);
 }
 
+.del_icon {
+  color: red;
+}
+
 .status_icon {
   width: 25px;
   height: 25px;

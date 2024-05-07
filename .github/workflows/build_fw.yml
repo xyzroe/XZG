@@ -94,6 +94,18 @@ jobs:
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
+      - name: Send Telegram Notification about release
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d parse_mode="MarkdownV2" \
+          -d message_thread_id=14 \
+          -d text="[${{ steps.get_version.outputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})" \
+          -d link_preview_options='{
+            "show_above_text": true,
+            "prefer_large_media": false
+          }'
+
       - name: Checkout releases branch
         uses: actions/checkout@v3
         with:

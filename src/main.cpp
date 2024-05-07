@@ -16,7 +16,7 @@
 #include <CronAlarms.h>
 
 // NO SSL SUPPORT in current SDK
-//#define ASYNC_TCP_SSL_ENABLED 1 
+// #define ASYNC_TCP_SSL_ENABLED 1
 
 #include "config.h"
 #include "web.h"
@@ -138,7 +138,6 @@ void startServers(bool usb = false)
     }
   }
 
-  
   /* //not available now
   if (vpnCfg.hnEnable)
   {
@@ -165,7 +164,6 @@ void handleTmrNetworkOverseer()
       if (WiFi.isConnected())
       {
         LOGD("WIFI CONNECTED");
-        startServers();
         tmrNetworkOverseer.stop();
       }
       else
@@ -185,7 +183,6 @@ void handleTmrNetworkOverseer()
       if (vars.connectedEther)
       {
         LOGD("LAN CONNECTED");
-        startServers();
         tmrNetworkOverseer.stop();
       }
       else
@@ -247,7 +244,7 @@ void NetworkEvent(WiFiEvent_t event)
     LOGD("%s Connected", ethKey);
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
-
+    startServers();
     LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps", ethKey,
          ETH.macAddress().c_str(),
          ETH.localIP().toString().c_str(),
@@ -278,7 +275,7 @@ void NetworkEvent(WiFiEvent_t event)
     }
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
-
+    startServers();
     LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s", wifiKey,
          WiFi.macAddress().c_str(),
          WiFi.localIP().toString().c_str(),
@@ -378,14 +375,13 @@ void connectWifi()
     }
     else
     {
+      WiFi.setHostname(systemCfg.hostname);
       LOGD("WiFi.mode(WIFI_STA)");
       WiFi.mode(WIFI_STA);
     }
     delay(100);
 
-    WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
     WiFi.setSleep(false);
-    LOGD("WiFi.begin");
 
     if (!networkCfg.wifiDhcp)
     {
@@ -394,8 +390,11 @@ void connectWifi()
     }
     else
     {
+      WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
       LOGD("Try DHCP");
     }
+    WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
+    LOGD("WiFi.begin");
   }
   else
   {
@@ -430,7 +429,7 @@ void mDNS_start()
   {
     LOGD("mDNS responder started");
     //----- WEB ------
-    mDNS.addService(http, tcp, 80); 
+    mDNS.addService(http, tcp, 80);
     //--zeroconf zha--
     mDNS.addService(host, tcp, systemCfg.socketPort);
     mDNS.addServiceTxt(host, tcp, "version", "1.0");
@@ -452,13 +451,17 @@ void setupCoordinatorMode()
   String workModeString = systemCfg.workMode ? "USB" : "Network";
   LOGI("%s", workModeString);
 
-  if (systemCfg.workMode != WORK_MODE_USB || systemCfg.keepWeb)
+  if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
   { // start network overseer
     if (tmrNetworkOverseer.state() == STOPPED)
     {
       tmrNetworkOverseer.start();
     }
     WiFi.onEvent(NetworkEvent);
+    if (networkCfg.ethEnable)
+      initLan();
+    if (networkCfg.wifiEnable)
+      connectWifi();
   }
 
   switch (systemCfg.workMode)
@@ -470,16 +473,12 @@ void setupCoordinatorMode()
     break;
   case WORK_MODE_NETWORK:
     ledControl.powerLED.mode = LED_BLINK_1Hz;
-    if (networkCfg.ethEnable)
-      initLan();
-    if (networkCfg.wifiEnable)
-      connectWifi();
     break;
   default:
     break;
   }
 
-  if (!systemCfg.disableWeb && (systemCfg.workMode != WORK_MODE_USB || systemCfg.keepWeb))
+  if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
     updWeb = true; // handle web server
   if (systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb)
     connectWifi(); // try 2 connect wifi

@@ -347,7 +347,8 @@
         "lgw": "Brama lokalna",
         "lsn": "Podsieć lokalna",
         "md": "Ustaw jako domyślne",
-        "psk": "Wstępnie udostępniony klucz"
+        "psk": "Wstępnie udostępniony klucz",
+        "lp": "Port lokalny"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "Skontaktuj się 🧧",
-        "msg": "Dziękujemy za przetestowanie nowej wersji! \n🎢 Nie zapomnij podzielić się swoją opinią 💌",
+        "msg": "Dziękujemy za przetestowanie nowej wersji! 🎢\nNie zapomnij podzielić się swoją opinią 💌",
         "tt": "Opinia o wersji beta FW"
       },
       "upd": {

@@ -347,7 +347,8 @@
         "lgw": "Gateway local",
         "lsn": "Sub-rede local",
         "md": "Tornar padrão",
-        "psk": "Chave Pré-Compartilhada"
+        "psk": "Chave Pré-Compartilhada",
+        "lp": "Porta local"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "Contato 🧧",
-        "msg": "Obrigado por testar a nova versão! \n🎢 Não se esqueça de dar feedback 💌",
+        "msg": "Obrigado por testar a nova versão! 🎢\nNão se esqueça de dar feedback 💌",
         "tt": "Feedback beta do firmware"
       },
       "upd": {

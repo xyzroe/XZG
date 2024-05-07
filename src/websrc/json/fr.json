@@ -347,7 +347,8 @@
         "lgw": "Passerelle locale",
         "lsn": "Sous-réseau local",
         "md": "Faire défaut",
-        "psk": "Clé Pré-Partagée"
+        "psk": "Clé Pré-Partagée",
+        "lp": "Port local"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "Contacter 🧧",
-        "msg": "Merci d'avoir testé la nouvelle version ! \n🎢 N'oubliez pas de donner votre avis 💌",
+        "msg": "Merci d'avoir testé la nouvelle version! 🎢\nN'oubliez pas de donner votre avis 💌",
         "tt": "Commentaires sur la version bêta du firmware"
       },
       "upd": {

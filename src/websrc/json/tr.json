@@ -347,7 +347,8 @@
         "lgw": "Yerel Ağ Geçidi",
         "lsn": "Yerel Alt Ağ",
         "md": "Varsayılan yap",
-        "psk": "Ön Paylaşımlı Anahtar"
+        "psk": "Ön Paylaşımlı Anahtar",
+        "lp": "Yerel liman"
       }
     },
     "zi": {
@@ -410,7 +411,7 @@
       },
       "beta": {
         "cnt": "İletişim 🧧",
-        "msg": "Yeni sürümü test ettiğiniz için teşekkür ederiz! \n🎢Geri bildirimde bulunmayı unutmayın 💌",
+        "msg": "Yeni sürümü test ettiğiniz için teşekkür ederiz! 🎢\nGeri bildirimde bulunmayı unutmayın 💌",
         "tt": "Yazılım Yazılımı beta geri bildirimi"
       },
       "upd": {
