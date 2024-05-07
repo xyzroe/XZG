@@ -80,9 +80,11 @@ for root, dirs, files in os.walk("ti"):
             chip_mapping = {
                 "CC2652P_launchpad": "CC2652P2_launchpad",
                 "1352P_RFS": "CC2652P2_launchpad",
+                "2652P_RFS": "CC2652P2_launchpad",
                 "CC2652PSIP": "CC2652P2_launchpad",
                 "2652P_other": "CC2652P2_other",
                 "1352P_E72": "CC2652P2_other",
+                "2652P_E72": "CC2652P2_other",
                 "1352P7_": "CC2652P7",
                 "2652RB_": "CC2652RB",
             }
