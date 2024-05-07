@@ -82,7 +82,24 @@ for root, dirs, files in os.walk('ti'):
             bin_path = os.path.join(root, file)
             # Extract chip and version from the file name
             parts = file.split('_')
-            chip = '_'.join(parts[:-1])  # Chip is everything before the date part
+            chip_mapping = {
+                "2652P_": "CC2652P",
+                "1352P_": "CC2652P",
+                "1352P7_": "CC2652P7",
+                "2652RB_": "CC2652RB"
+            }
+
+            current_chip = '_'.join(parts[:-1])  # Chip is everything before the date part
+
+            chip = None
+            for key, value in chip_mapping.items():
+                if key in current_chip:
+                    chip = value
+                    break
+                
+            if chip is None:
+                chip = current_chip
+                
             version = parts[-1].split('.')[0]  # Assuming the version is the last part before '.bin'
             update_manifest(root, file, chip, version)
 
