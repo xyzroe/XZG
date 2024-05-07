@@ -72,7 +72,7 @@ protected:
         }
     }
 
-    const char *_getChipDescription(uint32_t chip_id, uint32_t wafer_id, uint8_t pg_rev)
+    const char *_getChipDescription(uint32_t chip_id, uint32_t wafer_id, uint8_t pg_rev, uint8_t mode_cfg)
     {
 
         if (chip_id == 0xb964 || chip_id == 0xb965)
@@ -98,9 +98,17 @@ protected:
         {
             return "CC2652P7";
         }
+        else if (chip_id == 0x3202 && wafer_id == 0xBB41 && pg_rev == 0x3 && mode_cfg == 0xC1)
+        {
+            return "CC2652P2_launchpad";
+        }
+        else if (chip_id == 0x3202 && wafer_id == 0xBB41 && pg_rev == 0x3 && mode_cfg == 0xFA)
+        {
+            return "CC2652P2_other";
+        }
         else if (chip_id == 0x3202 && wafer_id == 0xBB41 && pg_rev == 0x3)
         {
-            return "CC2652P";
+            return "CC2652P2_?";
         }
         else if (chip_id == 0x3102 && wafer_id == 0xBB41 && pg_rev == 0x3)
         {
@@ -109,8 +117,8 @@ protected:
         else
         {
             static char unknownDescription[50];
-            sprintf(unknownDescription, "Unknown (C: %X, W: %X, P: %X)",
-                    chip_id, wafer_id, pg_rev);
+            sprintf(unknownDescription, "Unknown (C: %X, W: %X, P: %X, M: %X)",
+                    chip_id, wafer_id, pg_rev, mode_cfg);
             return unknownDescription;
         }
     }

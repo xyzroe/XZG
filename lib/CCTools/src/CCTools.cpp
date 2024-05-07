@@ -476,7 +476,7 @@ bool CCTools::begin(int CC_RST_PIN, int CC_BSL_PIN, int BSL_PIN_MODE)
 
     if (!_sendSynch())
     {
-        //DEBUG_PRINT("NO BEGIN ANSWER");
+        // DEBUG_PRINT("NO BEGIN ANSWER");
         return false;
     }
 
@@ -598,14 +598,36 @@ bool CCTools::detectChipInfo()
 
     String chip_str;
     if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
-    {
-        chip.hwRev = _getChipDescription(chip_id, wafer_id, pg_rev);
+    {   
+        uint32_t test = 360372;
+        //Serial.print(test, HEX);
+        byte *b_val = _cmdMemRead(test);
+
+        chip.hwRev = _getChipDescription(chip_id, wafer_id, pg_rev, b_val[1]);
         int page_size = 4096;
         if (chip.hwRev.indexOf("P7"))
         {
             page_size = page_size * 2;
         }
         chip.flashSize = flash_size[0] * page_size;
+
+        test = chip.flashSize - 88 + 0xC;
+        Serial.print(test, HEX);
+        b_val = _cmdMemRead(test);
+        Serial.print(" MODE_CONF: ");
+        Serial.print(b_val[0], HEX);
+        Serial.print(b_val[1], HEX);
+        Serial.print(b_val[2], HEX);
+        Serial.println(b_val[3], HEX);
+
+        uint32_t bsl_adr = chip.flashSize - 88 + 0x30;
+        Serial.print(bsl_adr, HEX);
+        byte *bsl_val = _cmdMemRead(bsl_adr);
+        Serial.print(" bsl_val: ");
+        Serial.print(bsl_val[0], HEX);
+        Serial.print(bsl_val[1], HEX);
+        Serial.print(bsl_val[2], HEX);
+        Serial.println(bsl_val[3], HEX);
 
         return true;
     }

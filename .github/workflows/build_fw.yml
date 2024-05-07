@@ -48,10 +48,17 @@ jobs:
           value=$(grep '#define VERSION' src/version.h | awk -F '"' '{print $2}')
           echo "version=$value" >> $GITHUB_OUTPUT
 
+      - name: Get Release tag
+        id: get_tag
+        shell: bash
+        run: |
+          value=${GITHUB_REF#refs/tags/}
+          echo "tag=$value" >> $GITHUB_OUTPUT
+
       - name: Get last commit message
         id: get_commit_message
         run: |
-          currentTag=${GITHUB_REF#refs/tags/}
+          currentTag=${{ steps.get_tag.outputs.tag }}
           badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)"
           printf -v badgeTextWithNewlines "%s\n\n" "$badgeText" 
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
@@ -100,7 +107,7 @@ jobs:
           -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
           -d parse_mode="MarkdownV2" \
           -d message_thread_id=14 \
-          -d text="[${{ steps.get_version.outputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})" \
+          -d text="[${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})" \
           -d link_preview_options='{
             "show_above_text": true,
             "prefer_large_media": false

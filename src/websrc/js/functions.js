@@ -1521,7 +1521,7 @@ function findAllVersionsSorted(data, chip) {
 	const categories = ['router', 'coordinator', 'thread'];
 	const result = {};
 
-	const chipMap = { "CC2652P": "CC2652P2_launchpad", "CC2652P7": "CC2652P7", "CC2652RB": "CC2652RB" };
+	const chipMap = { "CC2652P2_launchpad": "CC2652P2_launchpad", "CC2652P2_other": "CC2652P2_other", "CC2652P7": "CC2652P7", "CC2652RB": "CC2652RB" };
 	const deviceName = chipMap[chip];
 	if (!deviceName) throw new Error("Unsupported chip type or deviceName not set.");
 
