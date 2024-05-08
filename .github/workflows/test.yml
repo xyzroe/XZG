@@ -1,0 +1,15 @@
+name: test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_release_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram Notification about release
+        uses: appleboy/telegram-action@master
+        with:
+          to: "${{ secrets.TELEGRAM_CHAT_ID }}&message_thread_id=14"
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
