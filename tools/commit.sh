@@ -7,8 +7,9 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Ask for confirmation to pull changes
-echo -e "${YELLOW}Do you want to pull the latest changes from the repository? 🔄 (y/n)${NC}"
+echo -e "${YELLOW}Do you want to pull the latest changes from the repository? 🔄 (Y/n)${NC}"
 read -r response
+response=${response:-y} # default 'yes' if empty
 if [[ "$response" =~ ^[Yy]$ ]]; then
     git pull
     echo -e "${GREEN}Changes pulled successfully. ✔️${NC}"
@@ -35,14 +36,18 @@ version=$(grep '#define VERSION' "$VERSION_HEADER" | awk -F '"' '{print $2}')
 
 # Checking for commit message file
 if [ -f "$COMMIT_MESSAGE_FILE" ]; then
-    echo -e "${YELLOW}Commit message file found. Do you want to use the existing commit message? (Y/n) 📝${NC}"
+    echo -e "${YELLOW}Commit message file found. Do you want to use the existing commit message? (y/N) 📝${NC}"
     read -r useExistingMessage
-    useExistingMessage=${useExistingMessage:-y} # default 'yes' if empty
+    useExistingMessage=${useExistingMessage:-n} # default 'no' if empty
     if [[ "$useExistingMessage" =~ ^[Yy]$ ]]; then
         commitMessage=$(cat "$COMMIT_MESSAGE_FILE")
         # Prepend version to the commit message with a newline for separation
         formattedCommitMessage="${version}
         ${commitMessage}"
+        # Cleaning up the commit message file, if used
+        if [ -f "$COMMIT_MESSAGE_FILE" ]; then
+            tools/clean_file.sh "$COMMIT_MESSAGE_FILE"
+        fi
     else
         echo -e "${YELLOW}Please enter your commit message: 📝${NC}"
         read -r commitMessage
@@ -59,8 +64,9 @@ git commit -m "$formattedCommitMessage"
 echo -e "${GREEN}Changes committed with version prepended to message: ✔️${NC}"
 
 # Tagging process
-echo -e "${YELLOW}Do you want to create a new release by publishing a tag? 🏷️ (y/n)${NC}"
+echo -e "${YELLOW}Do you want to create a new release by publishing a tag? 🏷️ (y/N)${NC}"
 read -r tagCommit
+tagCommit=${tagCommit:-n} # default 'no' if empty
 if [[ "$tagCommit" =~ ^[Yy]$ ]]; then
     tag=$version
     suffix=0
@@ -70,10 +76,11 @@ if [[ "$tagCommit" =~ ^[Yy]$ ]]; then
     done
     git tag "$tag"
     echo -e "${GREEN}Tag assigned: $tag 🏷️${NC}"
-
+    
     # Pushing changes and tag
-    echo -e "${YELLOW}Do you want to push the changes and the new tag to the remote repository? 🚀 (y/n)${NC}"
+    echo -e "${YELLOW}Do you want to push the changes and the new tag to the remote repository? 🚀 (Y/n)${NC}"
     read -r pushChanges
+    pushChanges=${pushChanges:-y} # default 'yes' if empty
     if [[ "$pushChanges" =~ ^[Yy]$ ]]; then
         git push
         git push origin "$tag"
@@ -82,8 +89,9 @@ if [[ "$tagCommit" =~ ^[Yy]$ ]]; then
         echo -e "${RED}Push of changes and tag skipped. ❌${NC}"
     fi
 else
-    echo -e "${YELLOW}No new release will be created. Do you still want to push the changes? (y/n) 🚀${NC}"
+    echo -e "${YELLOW}No new release will be created. Do you still want to push the changes? (Y/n) 🚀${NC}"
     read -r pushChanges
+    pushChanges=${pushChanges:-y} # default 'yes' if empty
     if [[ "$pushChanges" =~ ^[Yy]$ ]]; then
         git push
         echo -e "${GREEN}Changes pushed successfully without creating a new release. ✔️${NC}"
@@ -92,7 +100,3 @@ else
     fi
 fi
 
-# Cleaning up the commit message file, if used
-if [ -f "$COMMIT_MESSAGE_FILE" ]; then
-    tools/clean_file.sh "$COMMIT_MESSAGE_FILE"
-fi
