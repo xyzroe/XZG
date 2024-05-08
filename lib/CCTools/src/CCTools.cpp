@@ -13,6 +13,22 @@
 #endif
 #endif
 
+namespace
+{
+    uint16_t findTableEnd(uint16_t value)
+    {
+        for (int i = 0; i < sizeof(NWK_NVID_TABLES) / sizeof(NWK_NVID_TABLES[0]); ++i)
+        {
+            if (value == NWK_NVID_TABLES[i].first)
+            {
+                return NWK_NVID_TABLES[i].second;
+            }
+        }
+        return false;
+    }
+
+}
+
 CommandInterface::CommandInterface(Stream &serial) : _stream(serial) {}
 
 void CommandInterface::_cleanBuffer()
@@ -56,6 +72,39 @@ bool CommandInterface::_wait_for_ack(unsigned long timeout = 1)
     }
     Serial.println("Timeout waiting for ACK/NACK");
     return false;
+}
+
+byte *CommandInterface::_receive_SRSP(unsigned long timeout = 500)
+{
+    unsigned long startMillis = millis();
+    while (millis() - startMillis < timeout)
+    {
+        if (_stream.available() >= 1)
+        {
+            if (_stream.read() == cmdFrameStart)
+            {
+                uint8_t size = _stream.read();
+                byte *data = new byte[size + 3];
+                if (!_stream.readBytes(data, size + 3))
+                {
+                    delete[] data;
+                    return nullptr;
+                }
+                else
+                {
+                    // DEBUG_PRINT("Success ");
+                    return data;
+                }
+            }
+            else
+            {
+                DEBUG_PRINT("Wrong answer ");
+                return nullptr;
+            }
+        }
+    }
+    DEBUG_PRINT("Timeout ");
+    return nullptr;
 }
 
 uint32_t CommandInterface::_cmdGetChipId()
@@ -423,6 +472,155 @@ bool CommandInterface::_ledToggle(bool ledState)
     return false;
 }
 
+bool CommandInterface::_nvram_osal_delete(uint16_t nvid)
+{
+    // DEBUG_PRINT("Checking OsalNvIds ID: ");
+    // Serial.print(nvid, HEX);
+    // DEBUG_PRINT(" - ");
+
+    const uint8_t cmd1 = 0x21;
+    uint8_t cmd2 = 0x13;
+    uint8_t lng = 0x02;
+
+    uint8_t highByte = (nvid >> 8) & 0xFF; // Старший байт (верхние 8 бит)
+    uint8_t lowByte = nvid & 0xFF;         // Младший байт (нижние 8 бит)
+
+    uint8_t fcs = 0;
+
+    _stream.write(cmdFrameStart);
+
+    _stream.write(lng);
+    fcs ^= lng;
+    _stream.write(cmd1);
+    fcs ^= cmd1;
+    _stream.write(cmd2);
+    fcs ^= cmd2;
+    _stream.write(lowByte);
+    fcs ^= lowByte;
+    _stream.write(highByte);
+    fcs ^= highByte;
+
+    _stream.write(fcs);
+
+    _stream.flush();
+
+    // Serial.println("");
+    // Serial.println("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(fcs, HEX));
+
+    std::unique_ptr<byte[]> data(_receive_SRSP());
+    if (!data)
+    {
+        return false;
+    }
+    // Serial.println("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(data[4], HEX));
+
+    if (data[2] > 0 || data[3] > 0)
+    {
+        /*
+        DEBUG_PRINT("* Deleting OsalNvIds ID: ");
+        Serial.print(nvid, HEX);
+        DEBUG_PRINT(" - ");
+        */
+
+        fcs = 0;
+        cmd2 = 0x12;
+        lng = 0x04;
+
+        _stream.write(cmdFrameStart);
+
+        _stream.write(lng);
+        fcs ^= lng;
+        _stream.write(cmd1);
+        fcs ^= cmd1;
+        _stream.write(cmd2);
+        fcs ^= cmd2;
+        _stream.write(lowByte);
+        fcs ^= lowByte;
+        _stream.write(highByte);
+        fcs ^= highByte;
+        _stream.write(data[2]);
+        fcs ^= data[2];
+        _stream.write(data[3]);
+        fcs ^= data[3];
+
+        _stream.write(fcs);
+
+        _stream.flush();
+
+        // Serial.println("");
+        // Serial.println("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(fcs, HEX));
+
+        std::unique_ptr<byte[]> data(_receive_SRSP());
+        if (!data)
+        {
+            return false;
+        }
+        // Serial.println("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX));
+    }
+    return true;
+}
+
+bool CommandInterface::_nvram_ex_delete(uint16_t nvid, uint16_t subID)
+{
+    /*
+    DEBUG_PRINT("Deleting ExNvIds sub ID: ");
+
+    Serial.print(nvid, HEX);
+    DEBUG_PRINT(" ");
+    Serial.print(subID, HEX);
+    DEBUG_PRINT(" - ");
+    */
+    const uint8_t cmd1 = 0x21;
+    uint8_t cmd2 = 0x31;
+    uint8_t lng = 0x05;
+    const uint8_t sysID = 1;
+
+    uint8_t highByte = (nvid >> 8) & 0xFF;
+    uint8_t lowByte = nvid & 0xFF;
+
+    uint8_t subIDhighByte = (subID >> 8) & 0xFF;
+    uint8_t subIDlowByte = subID & 0xFF;
+
+    uint8_t fcs = 0;
+
+    _stream.write(cmdFrameStart);
+
+    _stream.write(lng);
+    fcs ^= lng;
+    _stream.write(cmd1);
+    fcs ^= cmd1;
+    _stream.write(cmd2);
+    fcs ^= cmd2;
+    _stream.write(sysID);
+    fcs ^= sysID;
+    _stream.write(lowByte);
+    fcs ^= lowByte;
+    _stream.write(highByte);
+    fcs ^= highByte;
+    _stream.write(subIDlowByte);
+    fcs ^= subIDlowByte;
+    _stream.write(subIDhighByte);
+    fcs ^= subIDhighByte;
+
+    _stream.write(fcs);
+
+    _stream.flush();
+
+    std::unique_ptr<byte[]> data(_receive_SRSP());
+    if (!data)
+    {
+        return false;
+    }
+    // Serial.println(String(data[2], HEX));
+
+    if (data[2] == 0x0A)
+    { // error
+        return false;
+    }
+
+    return true;
+}
+
 CommandInterface::zbInfoStruct CommandInterface::_checkFwVer()
 {
     zbInfoStruct chip;
@@ -492,13 +690,13 @@ void CCTools::enterBSL()
         digitalWrite(_CC_RST_PIN, LOW);
         digitalWrite(_CC_BSL_PIN, LOW);
         // DEBUG_PRINTLN(F("Zigbee RST & BSL pin ON"));
-        delay(250);
+        delay(50);
         digitalWrite(_CC_RST_PIN, HIGH);
         // DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
-        delay(1000);
+        delay(500);
         digitalWrite(_CC_BSL_PIN, HIGH);
         // DEBUG_PRINTLN(F("Zigbee BSL pin OFF"));
-        delay(1000);
+        delay(500);
     }
     bslActive = 1;
 }
@@ -507,10 +705,10 @@ void CCTools::restart()
 {
     digitalWrite(_CC_RST_PIN, LOW);
     // DEBUG_PRINTLN(F("Zigbee RST pin ON"));
-    delay(250);
+    delay(50);
     digitalWrite(_CC_RST_PIN, HIGH);
     // DEBUG_PRINTLN(F("Zigbee RST pin OFF"));
-    delay(1000);
+    delay(500);
     bslActive = 0;
 }
 
@@ -599,9 +797,9 @@ bool CCTools::detectChipInfo()
 
     String chip_str;
     if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
-    {   
+    {
         uint32_t test = 360372;
-        //Serial.print(test, HEX);
+        // Serial.print(test, HEX);
         byte *b_val = _cmdMemRead(test);
 
         chip.hwRev = _getChipDescription(chip_id, wafer_id, pg_rev, b_val[1]);
@@ -703,4 +901,73 @@ bool CCTools::ledToggle()
         return true;
     }
     return false;
+}
+
+bool CCTools::nvram_reset(void (*logFunction)(String))
+{
+    bool success = true;
+
+    // The legacy items are shared by all Z-Stack versions
+    bool tableFinish = false;
+    for (int i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i)
+    {
+        uint16_t table_end = findTableEnd(keys[i]);
+        if (table_end != 0)
+        {
+            tableFinish = true;
+            uint16_t table_start = keys[i];
+            for (uint16_t id = table_start; id <= table_end; id++)
+            {
+                String msg = "Nv [T] ID: " + String(id, HEX);
+                logFunction(msg);
+
+                if (!_nvram_osal_delete(id))
+                {
+                    success = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (!tableFinish)
+            {
+                String msg = "Nv [K] ID:" + String(keys[i], HEX);
+                logFunction(msg);
+
+                if (!_nvram_osal_delete(keys[i]))
+                {
+                    success = false;
+                }
+            }
+            else
+            {
+                tableFinish = false;
+            }
+        }
+    }
+
+    // znp.version >= 3.30:
+    for (int i = 0; i < sizeof(exIds) / sizeof(exIds[0]); ++i)
+    {
+        if (exIds[i] != ExNvIds::LEGACY) // Skip the LEGACY items, we did them above
+        {
+            for (uint16_t sub_id = 0; sub_id < 65536; ++sub_id)
+            {
+                String msg = "Nv [E] ID: " + String(exIds[i], HEX) + ", sub: " + String(sub_id, HEX);
+                logFunction(msg);
+
+                if (!_nvram_ex_delete(exIds[i], sub_id))
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    logFunction("NVRAM erase finish. Restarting...");
+
+    restart();
+
+    return success;
 }

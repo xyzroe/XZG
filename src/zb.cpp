@@ -104,6 +104,12 @@ bool zigbeeErase()
     return false;
 }
 
+void zbEraseNV(void *pvParameters)
+{
+    CCTool.nvram_reset(printLogMsg);
+    vTaskDelete(NULL);
+}
+
 void flashZbUrl(String url)
 {
 

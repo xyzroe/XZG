@@ -254,7 +254,8 @@
       "zfu": "Zigbee file update",
       "clzv": "Check the latest Zigbee firmware",
       "saf": "Show available firmware",
-      "zgu": "Git CC2652 update"
+      "zgu": "Git CC2652 update",
+      "eznr": "Erase NVRAM"
     },
     "lo": {
       "pt": "Login - XZG",
