@@ -128,9 +128,9 @@ jobs:
 
       - name: Send Telegram Notification about release
         run: |
-          escaped_tag=$(echo "${{ steps.get_tag.outputs.tag }}" | sed -E 's/([._*[\]()~`>#+-=|{}.!])/\\\1/g')
+          escaped_tag=$(echo "${{ steps.get_tag.outputs.tag }}" | sed -e 's/_/\\_/g' -e 's/\*/\\*/g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' -e 's/(/\\(/g' -e 's/)/\\)/g' -e 's/~/\\~/g' -e 's/\`/\\\`/g' -e 's/>/\\>/g' -e 's/#/\\#/g' -e 's/\+/\\+/g' -e 's/-/\\-/g' -e 's/=/\\=/g' -e 's/|/\\|/g' -e 's/{/\\{/g' -e 's/}/\\}/g' -e 's/\./\\./g' -e 's/!/\\!/g'
 
-          escaped_commit_message=$(echo "${{ env.commitMessage }}" | sed -E 's/([._*[\]()~`>#+-=|{}.!])/\\\1/g')
+          escaped_commit_message=$(echo "${{ env.commitMessage }}" | sed -e 's/_/\\_/g' -e 's/\*/\\*/g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' -e 's/(/\\(/g' -e 's/)/\\)/g' -e 's/~/\\~/g' -e 's/\`/\\\`/g' -e 's/>/\\>/g' -e 's/#/\\#/g' -e 's/\+/\\+/g' -e 's/-/\\-/g' -e 's/=/\\=/g' -e 's/|/\\|/g' -e 's/{/\\{/g' -e 's/}/\\}/g' -e 's/\./\\./g' -e 's/!/\\!/g'
 
           message_text="[${escaped_tag}](https://github.com/${{ github.repository }}/releases/tag/${escaped_tag})\n\n${escaped_commit_message}"
 

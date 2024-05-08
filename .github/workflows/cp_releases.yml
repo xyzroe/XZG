@@ -15,25 +15,19 @@ jobs:
         with:
           ref: releases
 
-      - name: Download release assets
-        run: |
-          curl -s https://api.github.com/repos/xyzroe/XZG/releases | jq -r '.[1:] | .[] | .assets[] | select(.name | test("XZG_\\d{8}.full.bin")) | .browser_download_url' | while read url; do
-            file_name=$(basename "$url")
-            version=${file_name%.full.bin}
-            version=${version:4}
-            mkdir -p "$version"
-            wget -O "$version/$file_name" "$url"
-          done
-
-      - name: Create manifests
-        env:
-          GITHUB_REPO: ${{ github.repository }}
+      - name: Download release assets and create manifest.json
         run: |
           base_url="https://raw.githubusercontent.com/${GITHUB_REPO}/releases"
-          for dir in *; do
-            version=$(basename "$dir")
-            file_path="${base_url}/${dir}/XZG_${version}.full.bin"
-            echo -e "{\n  \"name\": \"XZG Firmware\",\n  \"version\": \"$version\",\n  \"builds\": [\n    {\n      \"chipFamily\": \"ESP32\",\n      \"improv\": false,\n      \"parts\": [\n        {\n          \"path\": \"$file_path\",\n          \"offset\": 0\n        }\n      ]\n    }\n  ]\n}" > "$dir/manifest.json"
+          curl -s https://api.github.com/repos/xyzroe/XZG/releases | jq -r '
+          .[] | 
+          {tag_name, url: .assets[] | select(.name | test("XZG_\\d{8}.full.bin")).browser_download_url} |
+          "\(.tag_name);\(.url)"
+          ' | while IFS=';' read -r tag_name url; do
+            file_name=$(basename "$url")
+            mkdir -p "$tag_name"
+            wget -O "$tag_name/$file_name" "$url"
+            file_path="${base_url}/${tag_name}/${file_name}"
+            echo -e "{\n  \"name\": \"XZG Firmware\",\n  \"version\": \"$tag_name\",\n  \"builds\": [\n    {\n      \"chipFamily\": \"ESP32\",\n      \"improv\": false,\n      \"parts\": [\n        {\n          \"path\": \"$file_path\",\n          \"offset\": 0\n        }\n      ]\n    }\n  ]\n}" > "$tag_name/manifest.json"
           done
 
       - name: Push changes
