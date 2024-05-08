@@ -571,6 +571,8 @@ body {
   --coordinator-color: 255, 0, 0;
   --default-opacity: 0.25;
   --selected-opacity: 1.0;
+  margin: 0 auto !important;
+  max-width: 700px !important;
 }
 
 .selectable-card {
@@ -600,6 +602,23 @@ body {
   display: block;
   font-size: 1.2em;
   font-weight: bolder;
+}
+
+@media (max-width: 768px) {
+  .card-label {
+    font-size: 1em;
+  }
+
+  .large-icon {
+    width: 2em;
+    height: 2em;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-label {
+    font-size: 0.7em;
+  }
 }
 
 .selectable-card.selected, .selectable-card:hover {

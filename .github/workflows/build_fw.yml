@@ -66,6 +66,9 @@ jobs:
           echo "releaseMessage<<EOF" >> $GITHUB_ENV
           printf "%s\n" "$fullCommitMessage" >> $GITHUB_ENV 
           echo "EOF" >> $GITHUB_ENV
+          echo "commitMessage<<EOF" >> $GITHUB_ENV
+          printf "%s\n" "$commitMessage" >> $GITHUB_ENV 
+          echo "EOF" >> $GITHUB_ENV
         env:
           GITHUB_REF: ${{ github.ref }}
 
@@ -74,14 +77,14 @@ jobs:
           cat << EOF > manifest.json
           {
             "name": "XZG Firmware",
-            "version": "${{ steps.get_version.outputs.version }}",
+            "version": "${{ steps.get_tag.outputs.tag }}",
             "builds": [
               {
                 "chipFamily": "ESP32",
                 "improv": false,
                 "parts": [
                   {
-                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_version.outputs.version }}/XZG_${{ steps.get_version.outputs.version }}.full.bin",
+                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_version.outputs.version }}.full.bin",
                     "offset": 0
                   }
                 ]
@@ -101,18 +104,6 @@ jobs:
             bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
             bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
 
-      - name: Send Telegram Notification about release
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-          -d parse_mode="MarkdownV2" \
-          -d message_thread_id=14 \
-          -d text="[${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})" \
-          -d link_preview_options='{
-            "show_above_text": true,
-            "prefer_large_media": false
-          }'
-
       - name: Checkout releases branch
         uses: actions/checkout@v3
         with:
@@ -121,9 +112,9 @@ jobs:
 
       - name: Copy files to releases directory
         run: |
-          mkdir -p releases/${{ steps.get_version.outputs.version }}
-          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_version.outputs.version }}/
-          cp manifest.json releases/${{ steps.get_version.outputs.version }}/
+          mkdir -p releases/${{ steps.get_tag.outputs.tag }}
+          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_tag.outputs.tag }}/
+          cp manifest.json releases/${{ steps.get_tag.outputs.tag }}/
           echo "Files copied to releases directory."
 
       - name: Commit and push files to releases branch
@@ -132,5 +123,23 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Add firmware and manifest for version ${{ steps.get_version.outputs.version }}"
+          git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
           git push origin releases
+
+      - name: Send Telegram Notification about release
+        run: |
+          escaped_tag=$(echo "${{ steps.get_tag.outputs.tag }}" | sed -E 's/([._*[\]()~`>#+-=|{}.!])/\\\1/g')
+
+          escaped_commit_message=$(echo "${{ env.commitMessage }}" | sed -E 's/([._*[\]()~`>#+-=|{}.!])/\\\1/g')
+
+          message_text="[${escaped_tag}](https://github.com/${{ github.repository }}/releases/tag/${escaped_tag})\n\n${escaped_commit_message}"
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d parse_mode="MarkdownV2" \
+          -d message_thread_id=14 \
+          -d text="[${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${escaped_tag})" \
+          -d link_preview_options='{
+            "show_above_text": true,
+            "prefer_large_media": true
+          }'

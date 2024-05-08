@@ -3,121 +3,6 @@
         <div class='card'>
             <div class="card-header fw-bold">
                 <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="icons.svg#exclamation-triangle" />
-                </svg>
-                <span data-i18n="p.zi.fws.tt"></span>
-            </div>
-            <div class='card-body'>
-                <div class='col-sm-12'>
-                    <div class="alert alert-danger" role="alert" id="apAlert" data-i18n="p.zi.fws.alarm">
-                    </div>
-                    <div class="row justify-content-center my-4 zb_cards">
-                        <div class="col-2">
-                            <div class="card selectable-card zfs_coordinator">
-                                <div class="card-body text-center card-label">
-                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
-                                        <use xlink:href="icons.svg#zigbee" />
-                                    </svg>
-                                    <span>Coordinator</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-1"></div>
-                        <div class="col-2">
-                            <div class="card selectable-card zfs_router">
-                                <div class="card-body text-center card-label">
-                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
-                                        <use xlink:href="icons.svg#zigbee" />
-                                    </svg>
-                                    <span>Router</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-1"></div>
-                        <div class="col-2">
-                            <div class="card selectable-card zfs_thread">
-                                <div class="card-body text-center card-label">
-                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
-                                        <use xlink:href="icons.svg#thread" />
-                                    </svg>
-                                    <span>OpenThread</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <button class="btn btn-warning col-6" id="zbMode" onclick="getSelectedCard()" data-i18n="c.sure"
-                        disabled></button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        document.querySelectorAll('.selectable-card').forEach(card => {
-            card.addEventListener('click', function () {
-                document.querySelectorAll('.selectable-card').forEach(card => card.classList.remove('selected'));
-                this.classList.add('selected');
-
-                const zbModeButton = document.getElementById('zbMode');
-                if (zbModeButton) {
-                    zbModeButton.disabled = false;
-                }
-            });
-        });
-
-        function getSelectedCard() {
-            const selectedCard = document.querySelector('.selectable-card.selected');
-            if (!selectedCard) {
-                console.log("No card selected.");
-                return;
-            }
-
-            const classToFwMap = {
-                "coordinator": "coordinator",
-                "router": "router",
-                "thread": "thread"
-            };
-
-            const classToErrorMessage = {
-                "coordinator": i18next.t('md.zb.ncf'),
-                "router": i18next.t('md.zb.nrf'),
-                "thread": i18next.t('md.zb.ntf')
-            };
-
-            $.get(zbFwInfoUrl)
-                .then(data => JSON.parse(data))
-                .then(json => {
-                    return $.get(apiLink + api.actions.API_GET_PARAM + "&param=zbHwVer")
-                        .then(chip => findAllVersionsSorted(json, chip));
-                })
-                .then(fw => {
-                    const matchedClass = Object.keys(classToFwMap).find(cls => selectedCard.className.includes(cls));
-
-                    if (matchedClass && fw[classToFwMap[matchedClass]] && fw[classToFwMap[matchedClass]].length > 0) {
-                        const fileLink = fw[classToFwMap[matchedClass]][0].link;
-                        console.log(fileLink);
-                        modalConstructor("flashZBM");
-                        startZbFlash(fileLink);
-                    } else {
-                        const errorMessage = classToErrorMessage[matchedClass] || "No matching firmware available.";
-                        console.log(errorMessage);
-                        toastConstructor("noZbFw", errorMessage);
-                    }
-                })
-                .fail(error => {
-                    toastConstructor("noZbFw", "Error retrieving firmware data.");
-                    console.error(error);
-                });
-        }
-
-
-
-    </script>
-    <div class="col-12 cardPadding">
-        <div class='card'>
-            <div class="card-header fw-bold">
-                <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
                     <use xlink:href="icons.svg#magic" />
                 </svg><span data-i18n="p.zi.cfg.tt"></span>
             </div>
@@ -195,5 +80,114 @@
             </div>
         </form>
     </div>
+    <div class="col-12 cardPadding">
+        <div class='card'>
+            <div class="card-header fw-bold">
+                <svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                    <use xlink:href="icons.svg#exclamation-triangle" />
+                </svg>
+                <span data-i18n="p.zi.fws.tt"></span>
+            </div>
+            <div class='card-body'>
+                <div class='col-sm-12'>
+                    <div class="alert alert-danger" role="alert" id="apAlert" data-i18n="p.zi.fws.alarm">
+                    </div>
+                    <div class="row justify-content-center my-4 zb_cards">
+                        <div class="col-4">
+                            <div class="card selectable-card zfs_coordinator">
+                                <div class="card-body text-center card-label">
+                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#zigbee" />
+                                    </svg>
+                                    <span>Coordinator</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card selectable-card zfs_router">
+                                <div class="card-body text-center card-label">
+                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#zigbee" />
+                                    </svg>
+                                    <span>Router</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card selectable-card zfs_thread">
+                                <div class="card-body text-center card-label">
+                                    <svg class="large-icon" fill="currentColor" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#thread" />
+                                    </svg>
+                                    <span>OpenThread</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <button class="btn btn-warning col-6" id="zbMode" onclick="getSelectedCard()" data-i18n="c.sure"
+                        disabled></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.selectable-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.selectable-card').forEach(card => card.classList.remove('selected'));
+                this.classList.add('selected');
 
+                const zbModeButton = document.getElementById('zbMode');
+                if (zbModeButton) {
+                    zbModeButton.disabled = false;
+                }
+            });
+        });
+
+        function getSelectedCard() {
+            const selectedCard = document.querySelector('.selectable-card.selected');
+            if (!selectedCard) {
+                console.log("No card selected.");
+                return;
+            }
+
+            const classToFwMap = {
+                "coordinator": "coordinator",
+                "router": "router",
+                "thread": "thread"
+            };
+
+            const classToErrorMessage = {
+                "coordinator": i18next.t('md.zb.ncf'),
+                "router": i18next.t('md.zb.nrf'),
+                "thread": i18next.t('md.zb.ntf')
+            };
+
+            $.get(zbFwInfoUrl)
+                .then(data => JSON.parse(data))
+                .then(json => {
+                    return $.get(apiLink + api.actions.API_GET_PARAM + "&param=zbHwVer")
+                        .then(chip => findAllVersionsSorted(json, chip));
+                })
+                .then(fw => {
+                    const matchedClass = Object.keys(classToFwMap).find(cls => selectedCard.className.includes(cls));
+
+                    if (matchedClass && fw[classToFwMap[matchedClass]] && fw[classToFwMap[matchedClass]].length > 0) {
+                        const fileLink = fw[classToFwMap[matchedClass]][0].link;
+                        console.log(fileLink);
+                        modalConstructor("flashZBM");
+                        startZbFlash(fileLink);
+                    } else {
+                        const errorMessage = classToErrorMessage[matchedClass] || "No matching firmware available.";
+                        console.log(errorMessage);
+                        toastConstructor("noZbFw", errorMessage);
+                    }
+                })
+                .fail(error => {
+                    toastConstructor("noZbFw", "Error retrieving firmware data.");
+                    console.error(error);
+                });
+        }
+    </script>
 </div>
