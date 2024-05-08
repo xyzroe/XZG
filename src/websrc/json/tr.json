@@ -105,7 +105,8 @@
         "f": "Flash'a gidiyor: {{file}}",
         "fn": "Başarıyla yanıp söndü!",
         "nv": "Yeni sürüm: {{ver}}",
-        "st": "CC2652 flaş başlangıç..."
+        "st": "CC2652 flaş başlangıç...",
+        "er": "Silme tamamlandı"
       }
     }
   },

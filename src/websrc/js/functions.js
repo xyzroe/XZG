@@ -621,15 +621,15 @@ function apiGetPage(page, doneCall, loader = true) {
 							if (cmd == 3) {
 								modalConstructor("restartWait");
 							}
-						}, 1000, jbtn);
+						}, 2000, jbtn);
 					}).fail(function () {
 						spiner.remove();
 						jbtn.prop("disabled", false);
 						statusFail.appendTo(jbtn);
 						setTimeout(function (jbtn) {
 							statusFail.remove();
-						}, 1000, jbtn);
-						alert(i18next.t('c.ercn'));
+						}, 2000, jbtn);
+						//alert(i18next.t('c.ercn'));
 					});
 				}
 			});
@@ -1319,6 +1319,10 @@ function updateRootEvents(callback) {
 			data = i18next.t('md.zg.fu.st');
 		}
 
+		if (e.data == "erase") {
+			data = i18next.t('md.zg.fu.er');
+		}
+
 		if (e.data == "finish") {
 			data = i18next.t('md.zg.fu.fn');
 			$(".progress").addClass(classHide);
@@ -1340,7 +1344,15 @@ function updateRootEvents(callback) {
 			data = i18next.t('md.zg.fu.f', { file: fileName });
 		}
 		else {
-			data = i18next.t('md.zg.fu.nv', { ver: e.data });
+			let ver = "Unknown";
+			if (e.data != 0) {
+				ver = e.data;
+			}
+			data = i18next.t('md.zg.fu.nv', { ver: ver });
+			setTimeout(function () {
+				espReboot();
+				restartWait();
+			}, 2000);
 		}
 		$("#zbFlshPgsTxt").html(data);
 	}, false);
@@ -1490,45 +1502,23 @@ function updateProgressBar(id, current, min, max) {
 	//progressBar.textContent = width.toFixed(0) + '%';  // Отображаем проценты внутри прогресс бара
 }
 
-function findLatestVersions(data, deviceName) {
-	const categories = ['router', 'coordinator'];
-	const result = {};
-
-	categories.forEach(category => {
-		if (data[category]) {
-			Object.keys(data[category]).forEach(subCategory => {
-				if (subCategory.startsWith(deviceName)) {
-					Object.keys(data[category][subCategory]).forEach(file => {
-						const fileInfo = data[category][subCategory][file];
-						if (!result[category] || result[category].ver < fileInfo.ver) {
-							result[category] = {
-								file: file,
-								ver: fileInfo.ver,
-								link: fileInfo.link,
-								notes: fileInfo.notes
-							};
-						}
-					});
-				}
-			});
-		}
-	});
-
-	return result;
-}
 
 function findAllVersionsSorted(data, chip) {
 	const categories = ['router', 'coordinator', 'thread'];
 	const result = {};
 
 	const chipMap = { "CC2652P2_launchpad": "CC2652P2_launchpad", "CC2652P2_other": "CC2652P2_other", "CC2652P7": "CC2652P7", "CC2652RB": "CC2652RB" };
-	const deviceName = chipMap[chip];
-	if (!deviceName) throw new Error("Unsupported chip type or deviceName not set.");
+	let deviceName = chipMap[chip];
+	if (!deviceName) {
+		//throw new Error("Unsupported chip type or deviceName not set.");
+		console.error("error with ZB chip detect");
+		deviceName = chip;
+	}
 
 	categories.forEach(category => {
 		if (data[category]) {
 			Object.keys(data[category]).forEach(subCategory => {
-				if (subCategory == deviceName) {
+				if (subCategory.startsWith(deviceName)) {
 					Object.keys(data[category][subCategory]).forEach(file => {
 						const fileInfo = data[category][subCategory][file];
 						if (!result[category]) {

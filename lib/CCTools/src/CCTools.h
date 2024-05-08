@@ -108,7 +108,7 @@ protected:
         }
         else if (chip_id == 0x3202 && wafer_id == 0xBB41 && pg_rev == 0x3)
         {
-            return "CC2652P2_?";
+            return "CC2652P2_";
         }
         else if (chip_id == 0x3102 && wafer_id == 0xBB41 && pg_rev == 0x3)
         {

@@ -642,13 +642,27 @@ void handleApi()
                     }
                     break;
                 case CMD_ZB_CHK_FW:
-                    zbFwCheck();
+                    if (zbFwCheck())
+                    {
+                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+                    }
+                    else
+                    {
+                        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+                    }
                     break;
                 case CMD_ZB_CHK_HW:
                     zbHwCheck();
                     break;
                 case CMD_ZB_LED_TOG:
-                    zbLedToggle();
+                    if (zbLedToggle())
+                    {
+                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+                    }
+                    else
+                    {
+                        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+                    }
                     break;
                 case CMD_ESP_FAC_RES:
                     if (serverWeb.hasArg(argConf))

@@ -402,7 +402,8 @@
         "f": "Going to flash: {{file}}",
         "fn": "The firmware was successfully installed!",
         "nv": "New version: {{ver}}",
-        "st": "CC2652 flash is starting..."
+        "st": "CC2652 flash is starting...",
+        "er": "Erase finished"
       }
     }
   },

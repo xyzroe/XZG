@@ -426,7 +426,7 @@ bool CommandInterface::_ledToggle(bool ledState)
 CommandInterface::zbInfoStruct CommandInterface::_checkFwVer()
 {
     zbInfoStruct chip;
-    for (uint8_t i = 0; i < 6; i++)
+    for (uint8_t i = 0; i < 10; i++)
     {
         if (_stream.read() != cmdFrameStart || _stream.read() != 0x0a || _stream.read() != 0x61 || _stream.read() != cmdVer2)
         { // check for packet start
@@ -456,6 +456,7 @@ CommandInterface::zbInfoStruct CommandInterface::_checkFwVer()
             return chip;
         }
     }
+    chip.fwRev = 0;
     return chip;
 }
 

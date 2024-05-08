@@ -1,6 +1,6 @@
-void zbFwCheck();
+bool zbFwCheck();
 void zbHwCheck();
-void zbLedToggle();
+bool zbLedToggle();
 bool zigbeeErase();
 void flashZbUrl(String url);
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool);

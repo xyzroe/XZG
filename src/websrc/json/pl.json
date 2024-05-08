@@ -105,7 +105,8 @@
         "f": "Zamierzam flashować: {{file}}",
         "fn": "Flashowanie pomyślnie!",
         "nv": "Nowa wersja: {{ver}}",
-        "st": "Uruchamianie lampy błyskowej CC2652..."
+        "st": "Uruchamianie lampy błyskowej CC2652...",
+        "er": "Wymazywanie zakończone"
       }
     }
   },

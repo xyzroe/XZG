@@ -105,7 +105,8 @@
         "f": "Indo piscar: {{file}}",
         "fn": "Piscou com sucesso!",
         "nv": "Nova versão: {{ver}}",
-        "st": "Flash CC2652 iniciando..."
+        "st": "Flash CC2652 iniciando...",
+        "er": "Apagar concluído"
       }
     }
   },

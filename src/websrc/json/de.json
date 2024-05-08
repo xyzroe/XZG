@@ -105,7 +105,8 @@
         "f": "Wird geflasht: {{file}}",
         "fn": "Erfolgreich geflasht!",
         "nv": "Neue Version: {{ver}}",
-        "st": "CC2652-Blitz startet..."
+        "st": "CC2652-Blitz startet...",
+        "er": "Löschen beendet"
       }
     }
   },

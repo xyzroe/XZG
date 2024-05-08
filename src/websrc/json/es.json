@@ -105,7 +105,8 @@
         "f": "Va a flashear: {{archivo}}",
         "fn": "¡Flasheado exitosamente!",
         "nv": "Nueva versión: {{ver}}",
-        "st": "CC2652 flash iniciando..."
+        "st": "CC2652 flash iniciando...",
+        "er": "Borrar terminado"
       }
     }
   },

@@ -34,11 +34,17 @@ String tag_ZB = "[ZB]";
 
 extern CCTools CCTool;
 
-void zbFwCheck()
+bool zbFwCheck()
 {
     if (CCTool.checkFirmwareVersion())
     {
         printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
+        return true;
+    }
+    else
+    {
+        printLogMsg(tag_ZB + " fw: unknown!");
+        return false;
     }
 }
 
@@ -65,24 +71,26 @@ void zbHwCheck()
     CCTool.restart();
 }
 
-void zbLedToggle()
+bool zbLedToggle()
 {
     if (CCTool.ledToggle())
     {
         if (CCTool.ledState == 1)
         {
             printLogMsg("[ZB] LED toggle ON");
-            //vars.zbLedState = 1;
+            // vars.zbLedState = 1;
         }
         else
         {
             printLogMsg("[ZB] LED toggle OFF");
-            //vars.zbLedState = 0;
+            // vars.zbLedState = 0;
         }
+        return true;
     }
     else
     {
         printLogMsg("[ZB] LED toggle ERROR");
+        return false;
     }
 }
 
@@ -187,6 +195,7 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
     }
 
     CCTool.eraseFlash();
+    sendEvent("ZB_FW_info", 11, String("erase"));
     printLogMsg("Erase completed!");
 
     int totalSize = http.getSize();

@@ -105,7 +105,8 @@
         "f": "Flash: {{file}}",
         "fn": "Flashato con successo!",
         "nv": "Nuova versione: {{ver}}",
-        "st": "Avvio flash CC2652..."
+        "st": "Avvio flash CC2652...",
+        "er": "Cancellazione terminata"
       }
     }
   },

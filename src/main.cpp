@@ -128,8 +128,6 @@ void startServers(bool usb = false)
 
   startAP(false);
 
-  zbFwCheck();
-
   if (!vars.apStarted)
   {
     if (vpnCfg.wgEnable)
@@ -575,11 +573,13 @@ void setup()
   setupCoordinatorMode();
   vars.connectedClients = 0;
 
-  LOGD("done");
-
   xTaskCreate(updateWebTask, "update Web Task", 2048, NULL, 7, NULL);
 
   printNVSFreeSpace();
+
+  zbFwCheck();
+
+  LOGD("done");
 }
 
 WiFiClient client[10];

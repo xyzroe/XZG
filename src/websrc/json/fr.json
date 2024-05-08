@@ -105,7 +105,8 @@
         "f": "Va flasher : {{file}}",
         "fn": "Flashé avec succès !",
         "nv": "Nouvelle version : {{ver}}",
-        "st": "Démarrage du flash CC2652..."
+        "st": "Démarrage du flash CC2652...",
+        "er": "Effacement terminé"
       }
     }
   },
