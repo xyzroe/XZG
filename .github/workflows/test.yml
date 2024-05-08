@@ -13,3 +13,5 @@ jobs:
           to: "${{ secrets.TELEGRAM_CHAT_ID }}&message_thread_id=14"
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
+          message: |
+            Test
