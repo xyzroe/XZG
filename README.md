@@ -10,8 +10,11 @@
 <br><br>
 <a href="https://xzg.xyzroe.cc"><img src="src/websrc/img/logo.svg" width="128" height="128" alt="XZG logo"></a>
 <br><br>
-This repository contains the firmware for various, ESP32 based, Zigbee gateways.<br><br>
-Firmware is opensource, so feel free to improve it <br> by making a commit to this repository. 
+XZG Firmware unifies the best innovations from<br>
+previous Zigbee gateway projects into a single, comprehensive solution.<br>
+<br>
+By focusing the community's efforts on enhancing one product, XZG aims to streamline development,<br>
+thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍
 </div>
 <br><br> 
 <table width="40%" align="center">
@@ -33,7 +36,7 @@ Firmware is opensource, so feel free to improve it <br> by making a commit to th
 
 ## 🍓 Firmware features
 
-Visit [Wiki](https://xzg.xyzroe.cc/) to get information 
+Visit [Wiki](https://xzg.xyzroe.cc/capabilities/) to get information 
 
 ## 🚀 Installation
 
