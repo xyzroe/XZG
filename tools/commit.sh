@@ -40,18 +40,19 @@ if [ -f "$COMMIT_MESSAGE_FILE" ]; then
     useExistingMessage=${useExistingMessage:-y} # default 'yes' if empty
     if [[ "$useExistingMessage" =~ ^[Yy]$ ]]; then
         commitMessage=$(cat "$COMMIT_MESSAGE_FILE")
+        # Prepend version to the commit message with a newline for separation
+        formattedCommitMessage="${version}
+        ${commitMessage}"
     else
         echo -e "${YELLOW}Please enter your commit message: 📝${NC}"
         read -r commitMessage
+        formattedCommitMessage="${commitMessage}"
     fi
 else
     echo -e "${YELLOW}Commit message file not found. Please enter your commit message: 📝${NC}"
     read -r commitMessage
+    formattedCommitMessage="${commitMessage}"
 fi
-
-# Prepend version to the commit message with a newline for separation
-formattedCommitMessage="${version}
-${commitMessage}"
 
 # Committing changes
 git commit -m "$formattedCommitMessage"

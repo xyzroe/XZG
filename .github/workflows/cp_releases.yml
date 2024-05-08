@@ -16,6 +16,8 @@ jobs:
           ref: releases
 
       - name: Download release assets and create manifest.json
+        env:
+          GITHUB_REPO: ${{ github.repository }}
         run: |
           base_url="https://raw.githubusercontent.com/${GITHUB_REPO}/releases"
           curl -s https://api.github.com/repos/xyzroe/XZG/releases | jq -r '
