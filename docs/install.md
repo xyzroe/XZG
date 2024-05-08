@@ -57,8 +57,8 @@ function loadFirmwareVersions() {
             select.innerHTML = '';
             data.forEach(release => {
                 const option = document.createElement('option');
-                option.value = `https://raw.githubusercontent.com/xyzroe/XZG/releases/${release.name}/manifest.json`;
-                option.textContent = release.name;
+                option.value = `https://raw.githubusercontent.com/xyzroe/XZG/releases/${release.tag_name}/manifest.json`;
+                option.textContent = release.tag_name;
                 select.appendChild(option);
             });
             updateManifestUrl();
