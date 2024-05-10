@@ -165,7 +165,7 @@ extra_css:
 
 nav:
   - Home: index.md
-  - Capabilities: capabilities.md
+  - Features: features.md
   - Web Installer: install.md
   - Wiki:
     - Quick start: quick-start.md
