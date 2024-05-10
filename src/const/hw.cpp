@@ -10,7 +10,7 @@ BrdConfigStruct brdConfigs[] = {
      {.addr = 1, .pwrPin = 16, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO0_IN, .pwrAltPin = -1},
      {.btnPin = 35, .btnPlr = 1, .uartSelPin = 4, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1},
      {.txPin = 17, .rxPin = 5, .rstPin = 33, .bslPin = 32}},
-    {"Omilex-ESP32-POE",
+    {"Olimex-ESP32-POE",
      {.addr = 0, .pwrPin = 12, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT, .pwrAltPin = -1},
      {.btnPin = -1, .btnPlr = 0, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0},
      {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32}},
