@@ -38,6 +38,8 @@ thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍
 
 Visit [features page](https://xzg.xyzroe.cc/features/) to get information 
 
+https://github.com/xyzroe/XZG/assets/6440415/ae312626-f1d9-41c4-b982-11a1f9ba9ed5
+
 ## 📔 Documentation
 
 Visit [Wiki page](https://xzg.xyzroe.cc/quick-start/) to get information 
