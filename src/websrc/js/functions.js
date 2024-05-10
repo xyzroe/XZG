@@ -1305,9 +1305,16 @@ function updateRootEvents(callback) {
 	});
 
 	source.addEventListener('ZB_FW_prgs', function (e) {
-		//console.log(val);
+		//console.log(e.data);
 		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#zbFlshPrgs").css("width", e.data + '%');
+	}, false);
+
+	source.addEventListener('NV', function (e) {
+		//console.log(e.data);
+		let currentContent = $("#console").val();
+		let newContent = currentContent + "\n" + e.data;
+		$("#console").val(newContent);
 	}, false);
 
 	source.addEventListener('ZB_FW_info', function (e) {

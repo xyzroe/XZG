@@ -498,71 +498,6 @@ void handleApi()
         const uint8_t action = serverWeb.arg(action).toInt();
         switch (action)
         {
-        /*case API_FLASH_ZB:
-        {
-            vars.zbFlashing = 1;
-            const char *fwurlArg = "fwurl";
-            const uint8_t eventLen = 11;
-            const char *tagZB_FW_info = "ZB_FW_info";
-            const char *tagZB_FW_err = "ZB_FW_err";
-            const char *tagZB_FW_progress = "ZB_FW_prgs";
-            if (serverWeb.hasArg(fwurlArg))
-            {
-                String fwUrl = serverWeb.arg(fwurlArg);
-                serverWeb.send(HTTP_CODE_OK, contTypeText, ok);
-                uint8_t evWaitCount = 0;
-                while (!eventsClient.connected() && evWaitCount < 200)
-                { // wait for events
-                    webServerHandleClient();
-                    delay(25);
-                    evWaitCount++;
-                }
-                // sendEvent(eventLen, String("FW Url: ") + fwUrl);
-                // setClock();
-                HTTPClient https;
-                WiFiClientSecure client;
-                client.setInsecure();
-                https.begin(client, fwUrl); // https://raw.githubusercontent.com/Tarik2142/devHost/main/coordinator_20211217.bin
-                https.addHeader("Content-Type", "application/octet-stream");
-                const int16_t httpsCode = https.GET();
-                // sendEvent(eventLen, String("REQ result: ") + httpsCode);
-                if (httpsCode == HTTP_CODE_OK)
-                {
-                    const uint32_t fwSize = https.getSize();
-                    DEBUG_PRINTLN(F("[start] Downloading firmware..."));
-                    sendEvent(tagZB_FW_info, eventLen, "[start]");
-                    sendEvent(tagZB_FW_info, eventLen, "Downloading firmware...");
-                    const char *tempFile2 = "/config/coordinator.bin";
-                    LittleFS.remove(tempFile2);
-                    File fwFile = LittleFS.open(tempFile2, "w", 1);
-                    uint8_t buff[4];
-                    uint32_t downloaded = 0;
-                    while (client.readBytes(buff, sizeof(buff)))
-                    {
-                        downloaded += fwFile.write(buff, sizeof(buff));
-                        if (!(downloaded % 8192))
-                        {
-                            const uint8_t d = ((float)downloaded / fwSize) * 100;
-                            sendEvent(tagZB_FW_progress, eventLen, String(d));
-                        }
-                    }
-                    fwFile.close();
-                    // in development
-                }
-                else
-                {
-                    LOGD("REQ error: http_code " + String(httpsCode));
-                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, String(httpsCode));
-                    sendEvent(tagZB_FW_err, eventLen, "REQ error: http_code " + String(httpsCode));
-                }
-            }
-            else
-            {
-                serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, "missing arg 1");
-            }
-            vars.zbFlashing = 0;
-        }
-        break;*/
         case API_GET_LOG:
         {
             String result;
@@ -1003,30 +938,24 @@ void handleSaveParams()
 
 void printEachKeyValuePair(const String &jsonString)
 {
-    DynamicJsonDocument doc(1024); // Создаём JSON документ с достаточным размером буфера
-
-    // Десериализация JSON строки в JSON объект
+    DynamicJsonDocument doc(1024); 
     DeserializationError error = deserializeJson(doc, jsonString);
 
-    // Проверяем на ошибки десериализации
     if (error)
     {
-        // Serial.print(F("deserializeJson() failed with code "));
-        // Serial.println(error.c_str());
+
         return;
     }
 
     const uint8_t eventLen = 100;
-    // Перебираем все ключи и значения в корневом объекте
+
     for (JsonPair kv : doc.as<JsonObject>())
     {
-        DynamicJsonDocument pairDoc(256);       // Создаем маленький JSON документ для каждой пары
-        pairDoc[kv.key().c_str()] = kv.value(); // Добавляем текущую пару в новый документ
+        DynamicJsonDocument pairDoc(256);       
+        pairDoc[kv.key().c_str()] = kv.value(); 
 
-        // Сериализуем новый JSON документ и печатаем его
         String output;
-        serializeJson(pairDoc, output); // Сериализуем пару в строку
-        // Serial.println(output);
+        serializeJson(pairDoc, output); 
 
         sendEvent("root_update", eventLen, String(output));
     }
@@ -1690,6 +1619,25 @@ void printLogMsg(String msg)
     logPush('\n');
     LOGI("%s", msg.c_str());
 }
+
+void progressNvRamFunc(unsigned int progress, unsigned int total)
+{
+
+    const char *tagESP_FW_progress = "ESP_FW_prgs";
+    const uint8_t eventLen = 11;
+
+    float percent = ((float)progress / total) * 100.0;
+
+    sendEvent(tagESP_FW_progress, eventLen, String(percent));
+    // printLogMsg(String(percent));
+
+#ifdef DEBUG
+    if (int(percent) % 5 == 0)
+    {
+        LOGD("Update ESP32 progress: %s of %s | %s%", String(progress), String(total), String(percent));
+    }
+#endif
+};
 
 void progressFunc(unsigned int progress, unsigned int total)
 {

@@ -903,7 +903,7 @@ bool CCTools::ledToggle()
     return false;
 }
 
-bool CCTools::nvram_reset(void (*logFunction)(String))
+bool CCTools::nvram_reset(void (*logFunction)(const String&))
 {
     bool success = true;
 
@@ -965,7 +965,7 @@ bool CCTools::nvram_reset(void (*logFunction)(String))
         }
     }
 
-    logFunction("NVRAM erase finish. Restarting...");
+    logFunction("NVRAM erase finish. Restart CC2652");
 
     restart();
 

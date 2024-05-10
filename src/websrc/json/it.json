@@ -329,7 +329,8 @@
       "saf": "Mostra i firmware disponibili",
       "clzv": "Controlla gli ultimi firmware Zigbee",
       "zgu": "Aggiornamento Git CC2652",
-      "sri": "Seleziona la versione"
+      "sri": "Seleziona la versione",
+      "eznr": "Cancella NVRAM"
     },
     "vp": {
       "hn": {

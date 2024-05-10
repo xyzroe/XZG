@@ -103,10 +103,24 @@ bool zigbeeErase()
     }
     return false;
 }
+void nvPrgs(const String &inputMsg)
+{
+    const char *tagZB_NV_progress = "NV";
+    const uint8_t eventLen = 30;
+    String msg = inputMsg;
+    if (msg.length() > 25)
+    {
+        msg = msg.substring(0, 25);
+    }
+    sendEvent(tagZB_NV_progress, eventLen, msg);
+    LOGD("%s", msg.c_str());
+}
 
 void zbEraseNV(void *pvParameters)
 {
-    CCTool.nvram_reset(printLogMsg);
+    CCTool.nvram_reset(nvPrgs);
+    logClear();
+    printLogMsg("NVRAM erase finish! Restart CC2652!");
     vTaskDelete(NULL);
 }
 

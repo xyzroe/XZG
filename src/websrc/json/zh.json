@@ -329,7 +329,8 @@
       "saf": "显示可用固件",
       "clzv": "检查最新的 Zigbee 固件",
       "zgu": "Git CC2652 更新",
-      "sri": "选择版本"
+      "sri": "选择版本",
+      "eznr": "擦除NVRAM"
     },
     "vp": {
       "hn": {

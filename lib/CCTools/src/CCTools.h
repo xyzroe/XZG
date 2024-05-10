@@ -613,7 +613,7 @@ public:
     void processFlash(byte *data, int size);
     bool checkFirmwareVersion();
     bool ledToggle();
-    bool nvram_reset(void (*logFunction)(String));
+    bool nvram_reset(void (*logFunction)(const String&));
 };
 
 #endif // CCTools_DETECT_H
