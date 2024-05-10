@@ -36,7 +36,11 @@ thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍
 
 ## 🍓 Firmware features
 
-Visit [Wiki](https://xzg.xyzroe.cc/capabilities/) to get information 
+Visit [features page](https://xzg.xyzroe.cc/features/) to get information 
+
+## 📔 Documentation
+
+Visit [Wiki page](https://xzg.xyzroe.cc/quick-start/) to get information 
 
 ## 🚀 Installation
 
@@ -48,11 +52,13 @@ Please follow the installation guide tailored to your hardware.
 
 ### Local
 
-- You need npm and Python installed;
-- Download this repository;
-- Install Visual Studio Code (VSC);
-- Install PlatformIO extension to VSC;
-- Press "PlatformIO: Build" and wait until XZG*.bin are generated;
+- You need npm and Python installed
+- Install Visual Studio Code (VSC)  
+- Install PlatformIO extension to VSC  
+- Clone this repository  
+  `git clone --recurse-submodules https://github.com/xyzroe/XZG.git`
+- Open `XZG.code-workspace` in VSC
+- Press "PlatformIO: Build" and wait until XZG*.bin are generated  
 
 ### Github
  - Fork this repository;
@@ -61,7 +67,8 @@ Please follow the installation guide tailored to your hardware.
  - Just wait and get new release;
   
 ### Gitpod
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://github.com/xyzroe/xzg)
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/xyzroe/XZG)
 
 ## 🖥️ Contribute
 
@@ -73,14 +80,21 @@ Contributions are welcome! If you'd like to help improve the XZG Firmware, you c
 
 ## 🎉 Credits 
 
-Thanks to all the developers and contributors who make this project possible:
+<!-- Copy-paste in your Readme.md file -->
+<a href="https://next.ossinsight.io/widgets/official/compose-recent-active-contributors?repo_id=777202050&limit=30" target="_blank" style="display: block" align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://next.ossinsight.io/widgets/official/compose-recent-active-contributors/thumbnail.png?repo_id=777202050&limit=30&image_size=auto&color_scheme=dark" width="655" height="auto">
+    <img alt="Active Contributors of xyzroe/XZG - Last 28 days" src="https://next.ossinsight.io/widgets/official/compose-recent-active-contributors/thumbnail.png?repo_id=777202050&limit=30&image_size=auto&color_scheme=light" width="655" height="auto">
+  </picture>
+</a>
+<!-- Made with [OSS Insight](https://ossinsight.io/) -->
 
-- Special thanks to [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**.
+Thanks to all the developers and contributors who make this project possible, and special thanks to [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**.
 
-### Our Awesome Contributors:
-
+#### All projects contributors:
 <a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
 <a href="https://github.com/xyzroe/ZigStarGW-FW/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/ZigStarGW-FW" /></a>
+<a href="https://github.com/mercenaruss/uzg-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=mercenaruss/uzg-firmware" /></a>
 <a href="https://github.com/smlight-dev/slzb-06-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=smlight-dev/slzb-06-firmware" /></a>
 
 
