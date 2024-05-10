@@ -1,3 +1,18 @@
+# Note 
+
+As you can see, this project has not been updated for some time, and it's now transitioning to archival status. 🏛
+
+I'm pleased to introduce a modern alternative: [XZG Firmware](https://xzg.xyzroe.cc/features/), which is currently in its final testing stage. 🚀
+
+I invite everyone to participate and share their feedback to ensure the best possible product. 
+Join new [Telegram group](https://t.me/xzg_fw) to share your experiences and feedback. 💌
+
+If you're reading this from your ZigStar web interface, you can seamlessly update directly while preserving your existing settings. 👾
+
+We thank you for being part of our community and are excited to see you upgrade to the latest and greatest platform! 🤝
+
+
+# Stand with Ukraine
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
  
