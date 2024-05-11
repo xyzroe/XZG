@@ -49,8 +49,8 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | [Olizig PoE]()  | :x:                | :x:                |         :x:                         |
 | [LilyZig PoE]() | :x:                | :x:                |         :x:                         |
 | [ZigStar LAN]() | :x:                | :x:                |         :x:                         |
-* Some devices do not support all features
 
+* Some devices do not support all features
 
 
 
