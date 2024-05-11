@@ -40,16 +40,16 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | Code                  |                                                                                   XZG is developed, coded and tested in Ukraine 🇺🇦                                                                                    |
 | Build                 |                                                  :fontawesome-brands-github: All builds are published using GitHub Actions. No more manual publishing of binaries.                                                   |
 
-## 🎮 Supported devices
+## 🎮 Supported devices 
 
 |                 |       Button       |    Custom LEDs     | Remote Network / USB mode selection |
 | :-------------- | :----------------: | :----------------: | :---------------------------------: |
 | [UZG-01]()      | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
 | [SLZB-06]()     | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
-| [Olizig PoE]()  |     :no_entry:     |     :no_entry:     |             :no_entry:              |
-| [LilyZig PoE]() |     :no_entry:     |     :no_entry:     |             :no_entry:              |
-| [ZigStar LAN]() |     :no_entry:     |     :no_entry:     |             :no_entry:              |
-
+| [Olizig PoE]()  | :x:                | :x:                |         :x:                         |
+| [LilyZig PoE]() | :x:                | :x:                |         :x:                         |
+| [ZigStar LAN]() | :x:                | :x:                |         :x:                         |
+* Some devices do not support all features
 
 
 
