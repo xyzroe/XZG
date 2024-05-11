@@ -119,6 +119,7 @@ markdown_extensions:
 plugins:
   - git-committers:
       repository: xyzroe/XZG
+      branch: mkdocs
   - tags
   - offline:
       enabled: false
