@@ -54,9 +54,9 @@
         },
         "CC2652P7": {
             "zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin": {
-                "ver": "ticlang",
+                "ver": "20231210",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin",
-                "notes": ""
+                "notes": "Special build from @mercenaruss 🌟"
             }
         }
     },
