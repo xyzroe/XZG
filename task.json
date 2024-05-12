@@ -13,5 +13,5 @@
     {"type": "router", "link": "https://github.com/egony/cc2652p_cc1352p_RF-STAR/raw/main/firmware/router/router_CC2652P_RFS_20210812.zip"},
     {"type": "coordinator", "link": "https://github.com/egony/cc2652p_E72-2G4M20S1E/raw/master/firmware/coordinator/znp_CC1352P_E72_20220301.zip"},
     {"type": "router", "link": "https://github.com/egony/cc2652p_E72-2G4M20S1E/raw/master/firmware/router/router_CC2652P_E72_20210812.zip"},
-    {"type": "router", "link": "https://github.com/mercenaruss/zigstar_gateways/blob/main/files/Firmware/CC1352P7_Router.zip"}
+    {"type": "router", "link": "https://github.com/mercenaruss/zigstar_gateways/raw/main/files/Firmware/CC1352P7_Router.zip"}
 ]
