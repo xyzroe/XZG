@@ -46,6 +46,21 @@ Through the General menu, you can:
 
 The device button supports multiple types of presses to manage various functions:
 
+### Factory Reset
+
+To perform a factory reset:
+
+1. Power off the device.
+2. Hold down the button.
+3. Power on the device.
+4. Release the button when both the Power and Mode LEDs start flashing at 3 Hz(1).
+    { .annotate }
+
+    1. :light_bulb: 3 Hz means the LED blinks three times per second.
+
+!!! danger "Factory Reset"
+    Performing a factory reset will erase all your settings and restore the device to its original factory state.
+
 ### Types of Button Presses
 
 1. **Short Press (under 3 seconds)**:
@@ -69,17 +84,3 @@ The device button supports multiple types of presses to manage various functions
 !!! note
     This functionality is particularly useful in USB mode with the network disabled.
   
-### Factory Reset
-
-To perform a factory reset:
-
-1. Power off the device.
-2. Hold down the button.
-3. Power on the device.
-4. Release the button when both the Power and Mode LEDs start flashing at 3 Hz(1).
-    { .annotate }
-
-    1. :light_bulb: 3 Hz means the LED blinks three times per second.
-
-!!! danger "Factory Reset"
-    Performing a factory reset will erase all your settings and restore the device to its original factory state.

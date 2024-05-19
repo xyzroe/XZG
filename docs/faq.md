@@ -10,10 +10,3 @@
 
 ??? question "Is it possible to remotely update the firmware of the XZG without needing physical access to the device?"
     Certainly, you have the capability to do so. The two main chips employed in the XZG (CC2652P and ESP32) can both be updated remotely from a different location. This feature makes the device well-suited for installation in infrequently accessed or remote locations.
-
-??? question "What is ESP32 Autoboot feature?"
-    Indeed, ESP32 Autoboot is a default feature when flashing the XZG using the type-C connection. In this context, ESP32 Autoboot refers to the built-in programming mechanism and circuitry that simplifies the process of flashing the ESP32 microcontroller. With this feature, you are not required to manually press buttons to put the ESP32 in flash mode, and you also don't need to connect additional programming tools. The process is streamlined – just connect the type-C cable and initiate the flashing process. This streamlined approach makes flashing the device straightforward and convenient.
-
-
-
-

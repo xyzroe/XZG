@@ -169,9 +169,13 @@ nav:
   - Web Installer: install.md
   - Wiki:
     - Quick start: quick-start.md
-    - Guide: guide.md
-    - Lifehacks: lifehacks.md
+    - Guide: 
+      - Hardware: hardware.md
+      - MQTT: mqtt.md
+      - HTTP API: http_api.md
     - FAQ: faq.md
+    - Lifehacks: lifehacks.md
+
   - About: 
     - about.md
  

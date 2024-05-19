@@ -8,7 +8,7 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 
 
 !!! success "Begin"
-    Now you can start from [Guide](/guide)
+    Now you can start from [Guide](/hardware)
 
 !!! TO-DO
     Write Wiki
