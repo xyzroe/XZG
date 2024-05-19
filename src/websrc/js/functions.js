@@ -917,10 +917,23 @@ function updateTooltips() {
 
 function extractTime(dateStr) {
 	const date = new Date(dateStr);
-	let hours = date.getHours().toString().padStart(2, '0');
+	let hours = date.getHours().toString();
 	let minutes = date.getMinutes().toString().padStart(2, '0');
 	let seconds = date.getSeconds().toString().padStart(2, '0');
-	return `${hours}:${minutes}:${seconds}`;
+
+	let pm = "AM";
+	if (localStorage.getItem('clock_format_12h') == 'true') {
+		if (hours > 12) {
+			hours = hours - 12;
+			pm = "PM";
+		}
+		return `${hours}:${minutes}:${seconds} ${pm}`;
+	}
+	else {
+		hours = hours.padStart(2, '0');
+		return `${hours}:${minutes}:${seconds}`;
+	}
+
 }
 
 function dataReplace(values, navOnly = false) {
@@ -2549,6 +2562,15 @@ function handleClicks() {
 				lastEscTime = currentTime;
 			}
 		}
+	});
+
+	const clockButton = document.getElementById('clock');
+
+	clockButton.addEventListener('click', function () {
+		const currentFormat = localStorage.getItem('clock_format_12h');
+		const is12HourFormat = currentFormat === 'true';
+		localStorage.setItem('clock_format_12h', !is12HourFormat);
+		console.log('Clock format set to:', !is12HourFormat ? '12-hour' : '24-hour');
 	});
 }
 

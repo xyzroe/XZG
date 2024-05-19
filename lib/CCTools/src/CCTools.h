@@ -610,7 +610,7 @@ public:
     bool detectChipInfo();
     bool eraseFlash();
     bool beginFlash(uint32_t startAddr, int totalSize);
-    void processFlash(byte *data, int size);
+    bool processFlash(byte *data, int size);
     bool checkFirmwareVersion();
     bool ledToggle();
     bool nvram_reset(void (*logFunction)(const String&));

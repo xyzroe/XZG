@@ -855,16 +855,17 @@ bool CCTools::beginFlash(uint32_t startAddr, int totalSize)
     return _cmdDownload(startAddr, totalSize);
 }
 
-void CCTools::processFlash(byte *data, int size)
+bool CCTools::processFlash(byte *data, int size)
 {
     if (memcmp(data, this->emptyPacket, size) != 0)
     {
         if (!_cmdSendData(data, size))
         {
-            return;
+            return false;
         }
     }
     this->currentAddr += size;
+    return true;
 }
 
 bool CCTools::checkFirmwareVersion()

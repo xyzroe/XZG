@@ -144,6 +144,7 @@ void flashZbUrl(String url)
             // char buffer[100];
             // snprintf(buffer, sizeof(buffer), "Flash progress: %.2f%%", percent);
             // printLogMsg(String(buffer));
+            LOGI("%s", String(percent));
             sendEvent(tagZB_FW_progress, eventLen, String(percent));
             last_percent = percent;
         }
@@ -196,6 +197,7 @@ void printBufferAsHex(const byte *buffer, size_t length)
 
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
 {
+    /*
     HTTPClient http;
     WiFiClientSecure client;
     client.setInsecure();
@@ -250,6 +252,197 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
     CCTool.restart();
     return true;
+    */
+    /*
+     HTTPClient http;
+     WiFiClientSecure client;
+     client.setInsecure();
+     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+
+     int loadedSize = 0;
+     int totalSize = 0;
+     int maxRetries = 10;
+     int retryCount = 0;
+     int retryDelay = 500;
+     bool isSuccess = false;
+
+     while (retryCount < maxRetries && !isSuccess)
+     {
+         if (loadedSize == 0)
+         {
+             CCTool.eraseFlash();
+             sendEvent("ZB_FW_info", 11, String("erase"));
+             printLogMsg("Erase completed!");
+         }
+         http.begin(client, url);
+         http.addHeader("Content-Type", "application/octet-stream");
+
+         if (loadedSize > 0)
+         {
+             http.addHeader("Range", "bytes=" + String(loadedSize) + "-");
+         }
+
+         int httpCode = http.GET();
+
+         if (httpCode != HTTP_CODE_OK && httpCode != HTTP_CODE_PARTIAL_CONTENT)
+         {
+             char buffer[100];
+             snprintf(buffer, sizeof(buffer), "Failed to download file, HTTP code: %d\n", httpCode);
+             printLogMsg(buffer);
+
+             http.end();
+             retryCount++;
+             delay(retryDelay);
+             continue;
+         }
+
+         if (totalSize == 0)
+         {
+             totalSize = http.getSize();
+         }
+
+         if (loadedSize == 0)
+         {
+             if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+             {
+                 http.end();
+                 LOGI("Error initializing flash process");
+                 continue;
+             }
+             printLogMsg("Begin flash");
+         }
+
+         byte buffer[CCTool.TRANSFER_SIZE];
+         WiFiClient *stream = http.getStreamPtr();
+
+         while (http.connected() && loadedSize < totalSize)
+         {
+             size_t size = stream->available();
+             if (size)
+             {
+                 int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
+                 if (!CCTool.processFlash(buffer, c))
+                 {
+                     loadedSize = 0;
+                     // http.end();
+                     retryCount++;
+                     delay(retryDelay);
+                     break;
+                 }
+                 loadedSize += c;
+                 float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+                 progressShow(percent);
+             }
+             delay(1); // Yield to the WiFi stack
+         }
+
+         http.end();
+
+         if (loadedSize >= totalSize)
+         {
+             isSuccess = true;
+         }
+     }
+
+     CCTool.restart();
+     if (isSuccess)
+     {
+
+         return true;
+     }
+     else
+     {
+         return false;
+     }
+     */
+    WiFiClientSecure client;
+    client.setInsecure();
+
+    int loadedSize = 0;
+    int totalSize = 0;
+    int maxRetries = 10;
+    int retryCount = 0;
+    const int retryDelay = 500;
+    bool isSuccess = false;
+
+    while (retryCount < maxRetries && !isSuccess)
+    {
+        HTTPClient http;
+        http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+        http.begin(client, url);
+        http.addHeader("Content-Type", "application/octet-stream");
+
+        if (loadedSize > 0)
+        {
+            http.addHeader("Range", "bytes=" + String(loadedSize) + "-");
+        }
+
+        int httpCode = http.GET();
+
+        if (httpCode != HTTP_CODE_OK && httpCode != HTTP_CODE_PARTIAL_CONTENT)
+        {
+            char buffer[100];
+            snprintf(buffer, sizeof(buffer), "Failed to download file, HTTP code: %d\n", httpCode);
+            printLogMsg(buffer);
+
+            http.end();
+            retryCount++;
+            delay(retryDelay);
+            continue;
+        }
+
+        if (totalSize == 0)
+        {
+            totalSize = http.getSize();
+        }
+
+        if (loadedSize == 0)
+        {
+            sendEvent("ZB_FW_info", 11, "erase");
+            printLogMsg("Erase completed!");
+            CCTool.eraseFlash();
+
+            if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+            {
+                printLogMsg("Error initializing flash process");
+                http.end();
+                continue;
+            }
+        }
+
+        byte buffer[CCTool.TRANSFER_SIZE];
+        WiFiClient *stream = http.getStreamPtr();
+
+        while (http.connected() && loadedSize < totalSize)
+        {
+            size_t size = stream->available();
+            if (size)
+            {
+                int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
+                if (!CCTool.processFlash(buffer, c))
+                {
+                    loadedSize = 0;
+                    retryCount++;
+                    delay(retryDelay);
+                    break;
+                }
+                loadedSize += c;
+                float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+                progressShow(percent);
+            }
+            delay(1); // Yield to the WiFi stack
+        }
+
+        http.end();
+
+        if (loadedSize >= totalSize)
+        {
+            isSuccess = true;
+        }
+    }
+
+    CCTool.restart();
+    return isSuccess;
 }
 
 #include <FS.h>
