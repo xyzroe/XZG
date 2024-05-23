@@ -260,7 +260,7 @@
     "lo": {
       "pt": "Login - XZG",
       "lbl": "Please sign in",
-      "btn": "Sing in",
+      "btn": "Sign in",
       "mnl": "Need to login",
       "mwc": "Wrong credentials",
       "mlo": "Logged out success"
