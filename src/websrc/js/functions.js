@@ -2363,7 +2363,7 @@ let languages = [
 	{ value: "tr", text: "🇹🇷 Türkçe" },
 	{ value: "it", text: "🇮🇹 Italiano" },
 	{ value: "pl", text: "🇵🇱 Polski" },
-	{ value: "cz", text: "🇨🇿 Český" }
+	{ value: "cz", text: "🇨🇿 Čestina" }
 ];
 
 $(document).ready(() => {
