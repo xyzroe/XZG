@@ -1,0 +1,28 @@
+name: Add merge comment
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  add-merge-comment:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+    - name: Add comment to merged pull request
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pull_request = context.payload.pull_request;
+          const author = pull_request.user.login;
+          const issue_number = pull_request.number;
+          const body = `Thanks @${author} 🚀`;
+          
+          await github.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue_number,
+            body: body
+          });
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

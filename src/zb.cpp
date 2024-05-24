@@ -43,8 +43,17 @@ bool zbFwCheck()
     }
     else
     {
-        printLogMsg(tag_ZB + " fw: unknown!");
-        return false;
+        delay(250);
+        if (CCTool.checkFirmwareVersion())
+        {
+            printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
+            return true;
+        }
+        else
+        {
+            printLogMsg(tag_ZB + " fw: unknown!");
+            return false;
+        }
     }
 }
 

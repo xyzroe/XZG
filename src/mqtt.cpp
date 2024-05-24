@@ -67,8 +67,12 @@ String getWlanIp()
 }
 
 String getWlanSsid()
-{
-    return String(WiFi.SSID());
+{   
+    String ssid = WiFi.SSID();
+    if (ssid.isEmpty()) {
+        ssid = "-";
+    }
+    return ssid;
 }
 
 String getWlanRssi()
