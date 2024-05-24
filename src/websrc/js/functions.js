@@ -28,14 +28,14 @@ const modalBtns = ".modal-footer";
 const pages = {
 	API_PAGE_ROOT: { num: 0, str: "/" },
 	API_PAGE_GENERAL: { num: 1, str: "/general" },
-	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
-	API_PAGE_NETWORK: { num: 3, str: "/network" },
-	API_PAGE_ZIGBEE: { num: 4, str: "/zigbee" },
-	API_PAGE_SECURITY: { num: 5, str: "/security" },
-	API_PAGE_TOOLS: { num: 6, str: "/tools" },
-	API_PAGE_ABOUT: { num: 7, str: "/about" },
-	API_PAGE_MQTT: { num: 8, str: "/mqtt" },
-	API_PAGE_VPN: { num: 9, str: "/vpn" }
+//	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
+	API_PAGE_NETWORK: { num: 2, str: "/network" },
+	API_PAGE_ZIGBEE: { num: 3, str: "/zigbee" },
+	API_PAGE_SECURITY: { num: 4, str: "/security" },
+	API_PAGE_TOOLS: { num: 5, str: "/tools" },
+	API_PAGE_ABOUT: { num: 6, str: "/about" },
+	API_PAGE_MQTT: { num: 7, str: "/mqtt" },
+	API_PAGE_VPN: { num: 8, str: "/vpn" }
 }
 
 const commands = {
@@ -67,8 +67,8 @@ const api = {
 		API_WIFICONNECTSTAT: 7,
 		API_CMD: 8,
 		API_GET_LOG: 9,
-		API_DEL_FILE: 10,
-		API_FLASH_ZB: 11
+		API_DEL_FILE: 10 //,
+		//API_FLASH_ZB: 11
 	},
 	pages: pages,
 	commands: commands
@@ -2362,7 +2362,8 @@ let languages = [
 	{ value: "ja", text: "🇯🇵 日本語" },
 	{ value: "tr", text: "🇹🇷 Türkçe" },
 	{ value: "it", text: "🇮🇹 Italiano" },
-	{ value: "pl", text: "🇵🇱 Polski" }
+	{ value: "pl", text: "🇵🇱 Polski" },
+	{ value: "cz", text: "🇨🇿 Český" }
 ];
 
 $(document).ready(() => {

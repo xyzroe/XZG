@@ -55,6 +55,7 @@
 #include "webh/json/tr.json.gz.h"
 #include "webh/json/it.json.gz.h"
 #include "webh/json/pl.json.gz.h"
+#include "webh/json/cz.json.gz.h"
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
 
@@ -167,6 +168,8 @@ void initWebServer()
                  { sendGzip(contTypeJson, it_json_gz, it_json_gz_len); });
     serverWeb.on("/lg/pl.json", []()
                  { sendGzip(contTypeJson, pl_json_gz, pl_json_gz_len); });
+    serverWeb.on("/lg/cz.json", []()
+                 { sendGzip(contTypeJson, cz_json_gz, cz_json_gz_len); });
     /* ----- LANG FILES | END -----*/
     /* ----- JS and CSS FILES | START -----*/
     serverWeb.on("/js/i18next.min.js", []()
@@ -473,8 +476,8 @@ void handleApi()
         API_WIFICONNECTSTAT,
         API_CMD,
         API_GET_LOG,
-        API_DEL_FILE,
-        API_FLASH_ZB
+        API_DEL_FILE //,
+        // API_FLASH_ZB
     };
     const char *action = "action";
     const char *page = "page";
@@ -482,6 +485,7 @@ void handleApi()
     const char *param = "param";
     const char *wrongArgs = "wrong args";
     const char *ok = "ok";
+    const char *argFilename = "filename";
 
     if (!is_authenticated())
     {
@@ -685,7 +689,7 @@ void handleApi()
             serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
         }
         break;
-        case API_SEND_HEX:
+        /*case API_SEND_HEX:
         {
             String result = wrongArgs;
             const char *argSize = "size";
@@ -704,11 +708,11 @@ void handleApi()
             }
             serverWeb.send(HTTP_CODE_OK, contTypeText, result);
         }
-        break;
+        break;*/
         case API_GET_FILE:
         {
             String result = wrongArgs;
-            const char *argFilename = "filename";
+
             if (serverWeb.hasArg(argFilename))
             {
                 String filename = "/" + serverWeb.arg(argFilename);
@@ -728,7 +732,7 @@ void handleApi()
         case API_DEL_FILE:
         {
             String result = wrongArgs;
-            const char *argFilename = "filename";
+
             if (serverWeb.hasArg(argFilename))
             {
                 String filename = "/" + serverWeb.arg(argFilename);
@@ -938,7 +942,7 @@ void handleSaveParams()
 
 void printEachKeyValuePair(const String &jsonString)
 {
-    DynamicJsonDocument doc(1024); 
+    DynamicJsonDocument doc(1024);
     DeserializationError error = deserializeJson(doc, jsonString);
 
     if (error)
@@ -951,11 +955,11 @@ void printEachKeyValuePair(const String &jsonString)
 
     for (JsonPair kv : doc.as<JsonObject>())
     {
-        DynamicJsonDocument pairDoc(256);       
-        pairDoc[kv.key().c_str()] = kv.value(); 
+        DynamicJsonDocument pairDoc(256);
+        pairDoc[kv.key().c_str()] = kv.value();
 
         String output;
-        serializeJson(pairDoc, output); 
+        serializeJson(pairDoc, output);
 
         sendEvent("root_update", eventLen, String(output));
     }
