@@ -58,7 +58,9 @@ http://xzg.local/api?action=5&filename=configHw.json
 
 !!! tip "Pages"
 
-`http://xzg.local/api?action=0&page=X`
+`http://xzg.local/api?action=0&page=X'
+
+
     | page ID | Name              |
     | ------- | ----------------- |
     | 0       | root              |
