@@ -267,8 +267,8 @@
         },
         "ab": {
             "l1": "Firmware XZG sjednocuje ty nejlepší inovace z",
-            "l2": "předchozí projekty brány Zigbee do jediného komplexního řešení.",
-            "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj, a tím zlepšit schopnosti a efektivitu vašich Zigbee Gateways. 🌍",
+            "l2": "předchozích projektů brány Zigbee do jediného komplexního řešení.",
+            "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj a tím zlepšit schopnosti a efektivitu vašich Zigbee bran. 🌍",
             "w": {
                 "t": "Wiki",
                 "m": "Chcete-li se dozvědět více o projektu firmwaru XZG, navštivte naše: 📘",
@@ -276,8 +276,8 @@
             },
             "f": {
                 "t": "Zpětná vazba",
-                "m": "Pokud máte nějaké nápady, návrhy nebo chcete pomoci jiným způsobem, neváhejte: 📬",
-                "l": "Kontaktujte autora"
+                "m": "Pokud máte nějaké nápady, návrhy, nebo chcete pomoci jiným způsobem, neváhejte: 📬",
+                "l": "Kontaktovat autora"
             },
             "s": {
                 "m": "Podpořte tento projekt jedním z následujících způsobů: 💖",
@@ -285,12 +285,12 @@
             },
             "c": {
                 "t": "Přispět",
-                "m": "Přidejte se k nám při zlepšování překladů, vylepšování dokumentace nebo kódování nových funkcí. 💻",
+                "m": "Přidejte se k nám při zlepšování překladů, vylepšování dokumentace, nebo kódování nových funkcí. 💻",
                 "l": "Repozitář projektu"
             },
             "r": {
                 "t": "Zpráva",
-                "m": "Chcete-li nahlásit chybu nebo požádat o funkci, prosím: 🐞",
+                "m": "Chcete-li nahlásit chybu, nebo požádat o funkci 🐞",
                 "l": "Otevřít problém"
             },
             "cm": {
