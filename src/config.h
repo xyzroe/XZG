@@ -42,7 +42,6 @@ const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
 enum WORK_MODE_t : uint8_t
 {
   WORK_MODE_NETWORK,
-  // COORDINATOR_MODE_WIFI,
   WORK_MODE_USB
 };
 
