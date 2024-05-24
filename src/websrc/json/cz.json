@@ -52,7 +52,7 @@
                 "opu": "Zigbee-USB",
                 "scc": "Socket klient připojen",
                 "sccn": "Žádné připojení",
-                "sccy": "Ano, klientů: {{count}}",
+                "sccy": "Ano, klienti: {{count}}",
                 "su": "Doba připojení",
                 "tt": "Stav zařízení",
                 "zfs": "Velikost flash",
@@ -121,14 +121,14 @@
             }
         },
         "zi": {
-            "so": "Konfigruace sériové linky",
+            "so": "Konfigurace sériové linky",
             "ss": "Rychlost portu",
             "sp": "Socket port",
             "cfg": {
                 "tt": "Generátor konfigurace",
                 "sel": "Vygenerovat konfiguraci pro",
                 "alarm": "Zdá se, že XZG funguje v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
-                "ss": "Konfigruace sériové linky",
+                "ss": "Konfigurace sériové linky",
                 "lxzg": "Umístění XZG",
                 "dzl": "Zakázat Zigbee led?",
                 "sopm": "Nastavit výstupní výkon na max 20",
