@@ -1,14 +1,14 @@
 {
     "l": {
         "st": "Stav",
-        "ge": "Oobecné",
+        "ge": "Obecné",
         "ne": "Síť",
         "zi": "Zigbee",
         "mq": "MQTT",
         "vp": "VPN",
         "se": "Bezpečnost",
         "to": "Nástroje",
-        "ab": "O",
+        "ab": "O XZG",
         "lo": "Odhlásit se"
     },
     "p": {
@@ -26,10 +26,10 @@
                 "kb": "KiB",
                 "efti": "vnitřní",
                 "efte": "externí",
-                "ens": "úložiště NV",
+                "ens": "NV úložiště",
                 "ent": "záznamy",
                 "efss": "Souborový systém",
-                "du": "Provozní doba zařízení",
+                "du": "Doba běhu zařízení",
                 "lt": "Místní čas"
             },
             "te": "Ethernet",
@@ -50,9 +50,9 @@
                 "op": "Pracovní režim",
                 "opn": "Síť Zigbee",
                 "opu": "Zigbee-USB",
-                "scc": "Soketový klient připojen",
+                "scc": "Socket klient připojen",
                 "sccn": "Žádné připojení",
-                "sccy": "Ano, {{count}} klientů",
+                "sccy": "Ano, klientů: {{count}}",
                 "su": "Doba připojení",
                 "tt": "Stav zařízení",
                 "zfs": "Velikost flash",
@@ -115,20 +115,20 @@
                 },
                 "rssi": "RSSI",
                 "ssid": "SSID",
-                "sc": "Bezpečnostní",
+                "sc": "Zabezpečení",
                 "ch": "Kanál",
                 "nnf": "Sítě Wi-Fi nebyly nalezeny"
             }
         },
         "zi": {
-            "so": "Sériová konfigurace",
+            "so": "Konfigruace sériové linky",
             "ss": "Rychlost portu",
-            "sp": "Socket Port",
+            "sp": "Socket port",
             "cfg": {
                 "tt": "Generátor konfigurace",
                 "sel": "Vygenerovat konfiguraci pro",
                 "alarm": "Zdá se, že XZG funguje v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
-                "ss": "Sériová konfigurace",
+                "ss": "Konfigruace sériové linky",
                 "lxzg": "Umístění XZG",
                 "dzl": "Zakázat Zigbee led?",
                 "sopm": "Nastavit výstupní výkon na max 20",
@@ -178,7 +178,7 @@
                 "tt": "Zadejte heslo od svého brokera"
             },
             "reconnect": {
-                "n": "Znovu se připojte",
+                "n": "Znovu se připojit",
                 "ph": "Interval opětovného připojení v sekundách",
                 "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
             }
@@ -187,7 +187,7 @@
             "wg": {
                 "tt": "Konfigurace WireGuard",
                 "lip": "IP adresa lokálního rozhraní",
-                "lpk": "Soukromý klíč místního rozhraní",
+                "lpk": "Soukromý klíč lokálního rozhraní",
                 "ea": "Adresa peer koncového bodu",
                 "epk": "Veřejný klíč peeru koncového bodu",
                 "ep": "Port peeru koncového bodu",
@@ -209,11 +209,11 @@
         "se": {
             "desc": "Konfigurace zabezpečení",
             "web": {
-                "dis": "Zakázat webový server, když je připojen soket",
-                "auth": "Povolit ověření webového serveru"
+                "dis": "Zakázat webový server, když je připojen socket",
+                "auth": "Povolit ověřování webového serveru"
             },
             "fw": {
-                "desc": "Seznam povolených IP pro zásuvku",
+                "desc": "Seznam povolených IP pro socket",
                 "ip": "Povolená IP"
             }
         },
@@ -259,7 +259,7 @@
         },
         "lo": {
             "pt": "Přihlášení - XZG",
-            "lbl": "prosím přihlašte se",
+            "lbl": "Prosím přihlaste se",
             "btn": "Přihlásit se",
             "mnl": "Je potřeba se přihlásit",
             "mwc": "Nesprávné přihlašovací údaje",
@@ -304,7 +304,7 @@
         "user": "Uživatelské jméno",
         "pass": "Heslo",
         "save": "Uložit",
-        "enable": "Umožnit",
+        "enable": "Povolit",
         "en": "Povoleno",
         "dis": "Zakázáno",
         "cancel": "zrušení",
@@ -359,7 +359,7 @@
                 "vgds": "Stahování vydání {{ver}} z GitHubu...",
                 "ucr": "Aktualizace dokončena! ",
                 "prgs": "Aktualizace: {{per}}%",
-                "gvt": "Vydání GitHubu",
+                "gvt": "Vydání na GitHubu",
                 "bil": "Instalovat nejnovější"
             },
             "ws": {
@@ -393,7 +393,7 @@
             "rr": "Některá nastavení vyžadují restart.",
             "msg": "Nové parametry uloženy.",
             "rn": "Restartovat nyní",
-            "rl": "Restarovat ručně později"
+            "rl": "Restartovat později ručně"
         },
         "kw": {
             "msg": "Tato funkce umožňuje ponechat jeden z komunikačních kanálů aktivní a mít přístup k webovému rozhraní. Zařízení samo vybere dostupný kanál podle priority: WIFI, ETHERNET, WIFI AP"
