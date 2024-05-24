@@ -2,7 +2,7 @@
   "c": {
     "cancel": "Stornieren",
     "cc": "In die Zwischenablage kopieren",
-    "conn": "In Verbindung gebracht",
+    "conn": "Verbunden",
     "csp": "Verbindungsgeschwindigkeit",
     "cst": "Verbindungsstatus",
     "drm": "Nicht erinnern",
@@ -46,7 +46,7 @@
         "glm": "Aktualisierung auf die neueste GitHub-Version.",
         "gvm": "Aktualisierung auf {{ver}} GitHub-Version.",
         "gvt": "GitHub-Veröffentlichungen",
-        "lfm": "Aktualisierung aus lokaler Datei.",
+        "lfm": "Aktualisierung mit lokaler Datei.",
         "lgds": "Laden Sie die neueste GitHub-Version herunter...",
         "prgs": "Aktualisierung: {{per}} %",
         "tt": "XZG-Firmware-Update",
@@ -54,7 +54,7 @@
         "vgds": "Veröffentlichung {{ver}} wird von GitHub heruntergeladen...",
         "wdm": "Warten auf Gerät...",
         "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt",
-        "bil": "Neueste installieren"
+        "bil": "Neueste Version installieren"
       },
       "rst": {
         "msg": "Warten auf Neustart. \nWird automatisch geschlossen.",
@@ -71,8 +71,8 @@
     },
     "zb": {
       "fu": {
-        "vc": "Validierung abgeschlossen!",
-        "vt": "validieren: {{per}} %"
+        "vc": "Überprüfung abgeschlossen!",
+        "vt": "überprüfen: {{per}} %"
       },
       "cfv": "Ihre aktuelle Firmware-Revision: {{ver}}",
       "dtc": "Koordinator",
@@ -111,7 +111,7 @@
     }
   },
   "l": {
-    "ab": "Um",
+    "ab": "Über",
     "ge": "Allgemein",
     "lo": "Ausloggen",
     "mq": "MQTT",
@@ -170,7 +170,7 @@
     },
     "mq": {
       "broker": {
-        "n": "Makler",
+        "n": "Broker",
         "ph": "Domainname oder IP-Adresse",
         "tt": "Geben Sie eine gültige Domäne oder IP ein"
       },
@@ -178,7 +178,7 @@
       "disc": {
         "n": "Home Assistant – Automatische Erkennung",
         "ph": "Aktivieren oder deaktivieren",
-        "tt": "💡 Aktivieren Sie dies für die MQTT-Erkennungsfunktion von Home Assistant"
+        "tt": "💡 Aktivieren Sie diese Option für die MQTT-Erkennungsfunktion von Home Assistant"
       },
       "enb": "Aktivieren Sie dies, um MQTT zu aktivieren",
       "interval": {
@@ -235,8 +235,8 @@
         "cs": "Kerne",
         "dm": "Gerätemodell",
         "ef": "Prozessor",
-        "efs": "Erinnerung",
-        "ehs": "Haufen",
+        "efs": "Speicherkapazität",
+        "ehs": "Aktuell verwendeter Speicher",
         "et": "Temperatur",
         "kb": "KiB",
         "mb": "Mb",
@@ -247,7 +247,7 @@
         "efss": "Dateisystem",
         "ens": "NV-Speicher",
         "ent": "Einträge",
-        "du": "Geräteverfügbarkeit",
+        "du": "Gerätelaufzeit",
         "lt": "Ortszeit"
       },
       "te": "Ethernet",
@@ -262,7 +262,7 @@
       },
       "wc": {
         "map": "AP",
-        "mcl": "Klient"
+        "mcl": "Client"
       },
       "zbc": {
         "tt": "Gerätestatus",
@@ -272,7 +272,7 @@
         "scc": "Socket-Client verbunden",
         "sccn": "Keine Verbindung",
         "su": "Verbindungszeit",
-        "sccy": "Ja, {{count}} Kunden",
+        "sccy": "Ja, {{count}} Client",
         "zie": "IEEE",
         "zfs": "Flash-Größe"
       },
@@ -285,7 +285,7 @@
       "desc": "Sicherheitskonfiguration",
       "fw": {
         "desc": "IP-Whitelist für Socket",
-        "ip": "Erlaubte IP"
+        "ip": "Erlaubte IP-Adressen"
       },
       "web": {
         "auth": "Aktivieren Sie die Webserver-Authentifizierung",
@@ -293,7 +293,7 @@
       }
     },
     "to": {
-      "cc": "Klar Konsole",
+      "cc": "Konsole",
       "cf": "Datei wählen...",
       "csc": "Peripheriesteuerung",
       "czc": "Überprüfen Sie die Zigbee-Verbindung",
@@ -308,7 +308,7 @@
       "fn": "Dateiname",
       "fr": "Werkseinstellungen zurückgesetzt",
       "fu": "Firmware Update",
-      "ilfg": "Neueste installieren",
+      "ilfg": "Neueste Version installieren",
       "lb": "blinkt...",
       "ls": "beginnend...",
       "lt": "LEDs wechseln",
@@ -328,7 +328,7 @@
       "zu": "Zigbee-Update (in Entwicklung)",
       "saf": "Verfügbare Firmwares anzeigen",
       "clzv": "Überprüfen Sie die neuesten Zigbee-Firmwares",
-      "zgu": "Git CC2652-Update",
+      "zgu": "Git CC2652-Update (Coordinator)",
       "sri": "Version auswählen",
       "eznr": "NVRAM löschen"
     },
@@ -346,13 +346,13 @@
         "lip": "IP-Adresse der lokalen Schnittstelle",
         "lpk": "Privater Schlüssel der lokalen Schnittstelle",
         "tt": "WireGuard-Konfiguration",
-        "aip": "Erlaubte IPs",
+        "aip": "Erlaubte IP-Adressen",
         "am": "Erlaubte Maske",
         "lgw": "Lokales Gateway",
         "lsn": "Lokales Subnetz",
-        "md": "Machen Standard",
+        "md": "Zum Standard machen",
         "psk": "Geteilter Schlüssel",
-        "lp": "Lokaler Hafen"
+        "lp": "Lokales Netz"
       }
     },
     "zi": {
@@ -372,7 +372,7 @@
       "sp": "Socket-Anschluss",
       "ss": "Socket-Geschwindigkeit",
       "fws": {
-        "alarm": "Das Ändern der Firmware in einem laufenden Netzwerk führt zum Netzwerkausfall!",
+        "alarm": "Das Ändern der Firmware in laufenden Betrieb führt zu einer Netzwerkunterbrechung!",
         "tt": "Rolle"
       }
     },
@@ -392,11 +392,11 @@
         "m": "Wenn Sie Ideen oder Vorschläge haben oder auf andere Weise helfen möchten, zögern Sie bitte nicht: 📬",
         "t": "Rückmeldung"
       },
-      "l1": "Die XZG-Firmware vereint die besten Innovationen von",
-      "l2": "frühere Zigbee-Gateway-Projekte in einer einzigen, umfassenden Lösung.",
+      "l1": "Die XZG-Firmware vereint die besten Teile der Entwicklung von",
+      "l2": "früheren Zigbee-Gateway-Projekten in einer einzigen komninierten Lösung.",
       "l3": "Indem XZG die Bemühungen der Community auf die Verbesserung eines Produkts konzentriert, zielt es darauf ab, die Entwicklung zu rationalisieren und dadurch die Fähigkeiten und Effizienz Ihrer Zigbee-Gateways zu verbessern. \n🌍",
       "r": {
-        "l": "Öffnen Sie ein Problem",
+        "l": "Melden Sie ein Problem",
         "m": "Um einen Fehler zu melden oder eine Funktion anzufordern, gehen Sie bitte wie folgt vor: 🐞",
         "t": "Bericht"
       },
@@ -423,13 +423,13 @@
         "tt": "Feedback zur FW-Beta"
       },
       "upd": {
-        "msg": "Neue Firmware ({{ver}}) wurde auf GitHub gefunden. \nEs wurde {{count}} Mal heruntergeladen.",
+        "msg": "Eine neue Firmware ({{ver}}) ist auf Github verfügbar. \nDiese wurde bereits {{count}} Mal heruntergeladen.",
         "tt": "ESP32-Update verfügbar 🚀"
       }
     },
     "zb": {
       "nzfa": {
-        "tt": "Keine Firmware gefunden"
+        "tt": "Keine neue Firmware gefunden"
       }
     }
   }
