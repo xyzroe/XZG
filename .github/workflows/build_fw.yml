@@ -2,12 +2,12 @@ name: Build, release, push firmware
 
 permissions:
   contents: write
-  
+
 on:
   workflow_dispatch:
   push:
     tags:
-      - '*' # Push events to matching *, any
+      - "*"
 
 jobs:
   build_release_push:
@@ -16,7 +16,24 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
+
+      - name: Get Release tag
+        id: get_tag
+        shell: bash
+        run: |
+          value=${GITHUB_REF#refs/tags/}
+          echo "tag=$value" >> $GITHUB_OUTPUT
+
+      - name: Display src/version.h before update
+        run: cat src/version.h
+
+      - name: Update version in source code
+        run: |
+          sed -i 's/#define VERSION.*/#define VERSION "${{ steps.get_tag.outputs.tag }}"/' src/version.h
+
+      - name: Display src/version.h after update
+        run: cat src/version.h
 
       - name: Install Node JS
         uses: actions/setup-node@v3
@@ -33,27 +50,13 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio==6.1.11
 
       - name: Build PlatformIO Project
         run: pio run
-
-      - name: Get Release Version
-        id: get_version
-        shell: bash
-        run: |
-          value=$(grep '#define VERSION' src/version.h | awk -F '"' '{print $2}')
-          echo "version=$value" >> $GITHUB_OUTPUT
-
-      - name: Get Release tag
-        id: get_tag
-        shell: bash
-        run: |
-          value=${GITHUB_REF#refs/tags/}
-          echo "tag=$value" >> $GITHUB_OUTPUT
 
       - name: Get last commit message
         id: get_commit_message
@@ -84,7 +87,7 @@ jobs:
                 "improv": false,
                 "parts": [
                   {
-                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_version.outputs.version }}.full.bin",
+                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_tag.outputs.tag }}.full.bin",
                     "offset": 0
                   }
                 ]
@@ -98,11 +101,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: false
-          name: "${{ steps.get_version.outputs.version }}"
+          name: "${{ steps.get_tag.outputs.tag }}"
           body: ${{ env.releaseMessage }}
           files: |
-            bin/XZG_${{ steps.get_version.outputs.version }}.ota.bin
-            bin/XZG_${{ steps.get_version.outputs.version }}.full.bin
+            bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin
+            bin/XZG_${{ steps.get_tag.outputs.tag }}.full.bin
 
       - name: Checkout releases branch
         uses: actions/checkout@v3
@@ -113,7 +116,7 @@ jobs:
       - name: Copy files to releases directory
         run: |
           mkdir -p releases/${{ steps.get_tag.outputs.tag }}
-          cp ./bin/XZG_${{ steps.get_version.outputs.version }}.full.bin releases/${{ steps.get_tag.outputs.tag }}/
+          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.full.bin releases/${{ steps.get_tag.outputs.tag }}/
           cp manifest.json releases/${{ steps.get_tag.outputs.tag }}/
           echo "Files copied to releases directory."
 
@@ -136,3 +139,10 @@ jobs:
             ${{ env.commitMessage }}
 
             [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
+
+      - name: Send Discord Notification about release
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d "{\"content\": \"${{ env.commitMessage }}\n\nhttps://github.com/${{ github.repository }}/releases/tag/${{ env.tag }}\"}" \
+               ${{ secrets.DISCORD_WEBHOOK }}
+

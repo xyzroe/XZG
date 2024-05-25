@@ -123,7 +123,7 @@ void startServers(bool usb = false)
       mqttConnectSetup();
     }
   }
-  mDNS_start();
+
   initWebServer();
 
   startAP(false);
@@ -162,6 +162,7 @@ void handleTmrNetworkOverseer()
       if (WiFi.isConnected())
       {
         LOGD("WIFI CONNECTED");
+        mDNS_start();
         tmrNetworkOverseer.stop();
       }
       else
@@ -181,6 +182,7 @@ void handleTmrNetworkOverseer()
       if (vars.connectedEther)
       {
         LOGD("LAN CONNECTED");
+        mDNS_start();
         tmrNetworkOverseer.stop();
       }
       else
@@ -279,7 +281,6 @@ void NetworkEvent(WiFiEvent_t event)
          WiFi.localIP().toString().c_str(),
          WiFi.subnetMask().toString().c_str(),
          WiFi.gatewayIP().toString().c_str());
-
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
@@ -415,7 +416,6 @@ void connectWifi()
 
 void mDNS_start()
 {
-  String tag = "mDNS";
   const char *host = "_xzg";
   const char *http = "_http";
   const char *tcp = "_tcp";
@@ -425,7 +425,7 @@ void mDNS_start()
   }
   else
   {
-    LOGD("mDNS responder started");
+    LOGI("mDNS responder started on %s.local", String(systemCfg.hostname));
     //----- WEB ------
     mDNS.addService(http, tcp, 80);
     //--zeroconf zha--
