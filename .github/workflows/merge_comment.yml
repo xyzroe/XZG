@@ -6,6 +6,7 @@ on:
 
 jobs:
   add-merge-comment:
+    permissions: write-all
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
@@ -18,7 +19,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pull_request = context.payload.pull_request;
+            const pull_request = context.payload.pull_request_target;
             const author = pull_request.user.login;
             const issue_number = pull_request.number;
             const body = `Thanks @${author} 🏆`;
