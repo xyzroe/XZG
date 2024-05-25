@@ -21,7 +21,7 @@ jobs:
             const pull_request = context.payload.pull_request;
             const author = pull_request.user.login;
             const issue_number = pull_request.number;
-            const body = `Thanks @${author} 🚀`;
+            const body = `Thanks @${author} 🏆`;
             return { body: body };
 
       - name: Comment PR
