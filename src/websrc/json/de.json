@@ -1,6 +1,6 @@
 {
   "c": {
-    "cancel": "Stornieren",
+    "cancel": "Abbrechen",
     "cc": "In die Zwischenablage kopieren",
     "conn": "Verbunden",
     "csp": "Verbindungsgeschwindigkeit",
@@ -17,15 +17,15 @@
     "mode": "Modus",
     "now": "Jetzt installieren",
     "pass": "Passwort",
-    "proj": "Erstellt mit ❤️ von",
+    "proj": "Erstellt mit ❤️",
     "save": "Speichern",
     "sure": "Ich bin sicher",
     "user": "Nutzername",
     "ok": "OK",
-    "connecting": "Verbinden",
+    "connecting": "Verbindung",
     "dis": "Deaktiviert",
     "disconn": "Getrennt",
-    "en": "Ermöglicht",
+    "en": "Aktiviert",
     "err": "Fehler",
     "nc": "Keine Verbindung",
     "cl": "Schließen",
@@ -33,20 +33,20 @@
       "e": "Endzeit",
       "s": "Startzeit"
     },
-    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung von Ereignissen wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren."
+    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren."
   },
   "md": {
     "esp": {
       "fr": {
         "msg": "Dadurch werden ALLE Einstellungen gelöscht.",
-        "tt": "WARNUNG ZURÜCKSETZEN AUF WERKSEINSTELLUNG"
+        "tt": "WARNUNG ZURÜCKSETZEN AUF WERKSEINSTELLUNGEN"
       },
       "fu": {
         "fri": "Firmware-Informationen werden abgerufen...",
         "glm": "Aktualisierung auf die neueste GitHub-Version.",
         "gvm": "Aktualisierung auf {{ver}} GitHub-Version.",
         "gvt": "GitHub-Veröffentlichungen",
-        "lfm": "Aktualisierung mit lokaler Datei.",
+        "lfm": "Aktualisierung von lokaler Datei.",
         "lgds": "Laden Sie die neueste GitHub-Version herunter...",
         "prgs": "Aktualisierung: {{per}} %",
         "tt": "XZG-Firmware-Update",
@@ -63,7 +63,7 @@
       },
       "ws": {
         "btn": "Gehe zu",
-        "err": "Verbindungsfehler, überprüfen Sie SSID und PASSWORT und versuchen Sie es erneut",
+        "err": "Verbindungsfehler. Überprüfen Sie SSID und PASSWORT und versuchen Sie es erneut",
         "msg": "Verbindung zum Netzwerk wird gerade hergestellt... Warten Sie auf das Ergebnis.",
         "nip": "Die neue IP-Adresse lautet {{ip}}. Das Gerät wird jetzt neu gestartet, damit die neuen Einstellungen wirksam werden.",
         "tt": "Wi-Fi-Netzwerkverbindung"
@@ -74,7 +74,7 @@
         "vc": "Überprüfung abgeschlossen!",
         "vt": "überprüfen: {{per}} %"
       },
-      "cfv": "Ihre aktuelle Firmware-Revision: {{ver}}",
+      "cfv": "Ihre aktuelle Firmware-Version: {{ver}}",
       "dtc": "Koordinator",
       "dtr": "Router",
       "efr": "Fehler beim Abrufen der Firmware-Informationen<br>Überprüfen Sie Ihr Netzwerk!",
@@ -88,7 +88,7 @@
       "ntf": "Die Thread-Firmware fehlt."
     },
     "kw": {
-      "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät selbst wählt je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"
+      "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät wählt selbst je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"
     },
     "ss": {
       "msg": "Neue Parameter gespeichert.",
@@ -105,7 +105,7 @@
         "f": "Wird geflasht: {{file}}",
         "fn": "Erfolgreich geflasht!",
         "nv": "Neue Version: {{ver}}",
-        "st": "CC2652-Blitz startet...",
+        "st": "CC2652-flash startet...",
         "er": "Löschen beendet"
       }
     }
@@ -127,10 +127,10 @@
       "desc": "Allgemeine Einstellungen",
       "host": {
         "n": "Hostname",
-        "ph": "Greifen Sie mit diesem Namen über das Netzwerk auf das Gerät zu.local",
+        "ph": "Zugriff zum Gerät über das Netzwerk mit name.local",
         "tt": "Lateinische Buchstaben und Zahlen, keine Leerzeichen"
       },
-      "kw": "Netzwerk pflegen",
+      "kw": "Netzwerk und Web-Server speichern",
       "led": {
         "desc": "LED-Konfiguration",
         "dis": "Vollständige Deaktivierung",
@@ -161,7 +161,7 @@
       }
     },
     "lo": {
-      "btn": "Singt mit",
+      "btn": "Einloggen",
       "lbl": "Bitte einloggen",
       "pt": "Anmelden - XZG",
       "mlo": "Erfolgreich abgemeldet",
@@ -191,14 +191,14 @@
         "tt": "Geben Sie das Passwort Ihres Brokers ein"
       },
       "port": {
-        "n": "Hafen",
+        "n": "Port",
         "ph": "MQTT-Portnummer",
         "tt": "Geben Sie die Portnummer ein (normalerweise 1883)"
       },
       "topic": {
-        "n": "Thema",
-        "ph": "MQTT-Thema",
-        "tt": "Geben Sie das MQTT-Thema des Geräts X/Y/Z oder X/Y oder X ein. Keine Leerzeichen."
+        "n": "Topic",
+        "ph": "MQTT-Topic",
+        "tt": "Geben Sie das MQTT-Topic des Geräts X/Y/Z oder X/Y oder X ein. Keine Leerzeichen."
       },
       "user": {
         "ph": "MQTT-Benutzername",
@@ -207,7 +207,7 @@
       "reconnect": {
         "n": "Wieder verbinden",
         "ph": "Wiederverbindungsintervall in Sekunden",
-        "tt": "Geben Sie einen schnellen Versuch ein, die Verbindung zum Broker wiederherzustellen (in Sekunden)."
+        "tt": "Geben Sie wie schnell die Verbindung zum Broker wiederherstellen soll (in Sekunden)."
       }
     },
     "ne": {
@@ -215,7 +215,7 @@
       "descWifi": "WLAN-Konfiguration",
       "dhcp": "DHCP",
       "dns": "DNS Server",
-      "gw": "Tor",
+      "gw": "Gateway",
       "ip": "IP",
       "mask": "Maske",
       "wifi": {
@@ -235,7 +235,7 @@
         "cs": "Kerne",
         "dm": "Gerätemodell",
         "ef": "Prozessor",
-        "efs": "Speicherkapazität",
+        "efs": "Arbeitspeicher",
         "ehs": "Aktuell verwendeter Speicher",
         "et": "Temperatur",
         "kb": "KiB",
@@ -285,7 +285,7 @@
       "desc": "Sicherheitskonfiguration",
       "fw": {
         "desc": "IP-Whitelist für Socket",
-        "ip": "Erlaubte IP-Adressen"
+        "ip": "Erlaubte IP-Adresse"
       },
       "web": {
         "auth": "Aktivieren Sie die Webserver-Authentifizierung",
@@ -293,15 +293,15 @@
       }
     },
     "to": {
-      "cc": "Konsole",
+      "cc": "Konsole löschen",
       "cf": "Datei wählen...",
       "csc": "Peripheriesteuerung",
       "czc": "Überprüfen Sie die Zigbee-Verbindung",
       "czv": "Überprüfen Sie die Zigbee-Version",
       "dc": "Debug-Konsole",
       "dt": "Debug-Tools",
-      "efu": "Datei ESP32-Update",
-      "egu": "Git ESP32-Update",
+      "efu": "ESP32-Datei update",
+      "egu": "Git ESP32 update",
       "esp": "ESP32",
       "fb": "Dateibrowser",
       "fm": "Flash-Modus",
@@ -310,7 +310,7 @@
       "fu": "Firmware Update",
       "ilfg": "Neueste Version installieren",
       "lb": "blinkt...",
-      "ls": "beginnend...",
+      "ls": "startet...",
       "lt": "LEDs wechseln",
       "mc": "Modulsteuerung",
       "mode": "Modus",
@@ -319,7 +319,7 @@
       "pwr": "Leistung",
       "rd": "Rohdaten",
       "rr": "Router erneut verbinden",
-      "rst": "Neu starten",
+      "rst": "Neustart",
       "s": "Größe",
       "sc": "Systemkontrolle",
       "usb": "USB",
@@ -328,7 +328,7 @@
       "zu": "Zigbee-Update (in Entwicklung)",
       "saf": "Verfügbare Firmwares anzeigen",
       "clzv": "Überprüfen Sie die neuesten Zigbee-Firmwares",
-      "zgu": "Git CC2652-Update (Coordinator)",
+      "zgu": "Git CC2652-Update",
       "sri": "Version auswählen",
       "eznr": "NVRAM löschen"
     },
@@ -336,7 +336,7 @@
       "hn": {
         "du": "Dashboard-URL (Standardeinstellung belassen)",
         "hn": "Hostname für Ihr Gerät",
-        "jc": "Treten Sie dem Code für Ihr Netzwerk bei",
+        "jc": "Join Code für Ihr Netzwerk",
         "tt": "Husarnet-Konfiguration (in Entwicklung)"
       },
       "wg": {
@@ -352,7 +352,7 @@
         "lsn": "Lokales Subnetz",
         "md": "Zum Standard machen",
         "psk": "Geteilter Schlüssel",
-        "lp": "Lokales Netz"
+        "lp": "Lokales Port"
       }
     },
     "zi": {
@@ -364,7 +364,7 @@
         "lin": "USB-Geräte unter Linux auflisten: ls /dev/ttyUSB*",
         "lxzg": "Standort von XZG",
         "sel": "Konfiguration generieren für",
-        "sopm": "Stellen Sie die Ausgangsleistung auf maximal 20 ein",
+        "sopm": "Ausgangsleistung auf maximum 20 dBm einstellen",
         "ss": "Serielle Konfiguration",
         "tt": "Konfigurationsgenerator"
       },
@@ -379,7 +379,7 @@
     "ab": {
       "c": {
         "l": "Projekt-Repository",
-        "m": "Helfen Sie uns dabei, die Übersetzung zu verbessern, die Dokumentation zu verbessern oder neue Funktionen zu programmieren. \n💻",
+        "m": "Helfen Sie uns dabei, die Übersetzung zu verbessern, die Dokumentation zu verbessern oder neue Funktionen zu entwickeln. \n💻",
         "t": "Beitragen"
       },
       "cm": {
@@ -394,12 +394,12 @@
         "t": "Rückmeldung"
       },
       "l1": "Die XZG-Firmware vereint die besten Teile der Entwicklung von",
-      "l2": "früheren Zigbee-Gateway-Projekten in einer einzigen komninierten Lösung.",
+      "l2": "früheren Zigbee-Gateway-Projekten in einer einzigen umfassende Lösung.",
       "l3": "Indem XZG die Bemühungen der Community auf die Verbesserung eines Produkts konzentriert, zielt es darauf ab, die Entwicklung zu rationalisieren und dadurch die Fähigkeiten und Effizienz Ihrer Zigbee-Gateways zu verbessern. \n🌍",
       "r": {
         "l": "Melden Sie ein Problem",
         "m": "Um einen Fehler zu melden oder eine Funktion anzufordern, gehen Sie bitte wie folgt vor: 🐞",
-        "t": "Bericht"
+        "t": "Mittelen"
       },
       "s": {
         "m": "Unterstützen Sie dieses Projekt auf eine der folgenden Arten: 💖",
