@@ -1,434 +1,433 @@
 {
-  "l": {
-    "st": "Stav",
-    "ge": "Obecné",
-    "ne": "Síť",
-    "zi": "Zigbee",
-    "mq": "MQTT",
-    "vp": "VPN",
-    "se": "Bezpečnost",
-    "to": "Nástroje",
-    "ab": "O XZG",
-    "lo": "Odhlásit se"
-  },
-  "p": {
-    "st": {
-      "dic": {
-        "tt": "Informace o zařízení",
-        "dm": "Model zařízení",
-        "et": "Teplota",
-        "ef": "Procesor",
-        "cs": "jádra",
-        "mhz": "MHz",
-        "efs": "Paměť",
-        "mb": "Mb",
-        "ehs": "Heap",
-        "kb": "KiB",
-        "efti": "vnitřní",
-        "efte": "externí",
-        "ens": "NV úložiště",
-        "ent": "záznamy",
-        "efss": "Souborový systém",
-        "du": "Doba běhu zařízení",
-        "lt": "Místní čas"
-      },
-      "te": "Ethernet",
-      "tw": "WiFi",
-      "tm": "MQTT",
-      "wgc": {
-        "tt": "WireGuard",
-        "lip": "Místní IP adresa",
-        "ed": "Adresa koncového bodu",
-        "pip": "Peer IP adresa"
-      },
-      "tvh": "Husarnet",
-      "wc": {
-        "mcl": "Klient",
-        "map": "AP"
-      },
-      "zbc": {
-        "op": "Pracovní režim",
-        "opn": "Síť Zigbee",
-        "opu": "Zigbee-USB",
-        "scc": "Socket klient připojen",
-        "sccn": "Žádné připojení",
-        "sccy": "Ano, klienti: {{count}}",
-        "su": "Doba připojení",
-        "tt": "Stav zařízení",
-        "zfs": "Velikost flash",
-        "zie": "IEEE"
-      },
-      "c": {
-        "fv": "FW revize",
-        "hv": "HW verze"
-      }
+    "l": {
+        "st": "Stav",
+        "ge": "Obecné",
+        "ne": "Síť",
+        "zi": "Zigbee",
+        "mq": "MQTT",
+        "vp": "VPN",
+        "se": "Zabezpečení",
+        "to": "Nástroje",
+        "ab": "O XZG",
+        "lo": "Odhlásit se"
     },
-    "ge": {
-      "desc": "Obecné nastavení",
-      "host": {
-        "n": "Název hostitele",
-        "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
-        "tt": "Latinská písmena a číslice, žádné mezery"
-      },
-      "refresh": {
-        "n": "Interval obnovování webu",
-        "ph": "v sekundách",
-        "tt": "?"
-      },
-      "work": {
-        "mode": {
-          "desc": "Vybrat provozní režim zařízení",
-          "net": "Režim sítě",
-          "usb": "Režim USB"
-        }
-      },
-      "kw": "Udržovat síť a webový server",
-      "led": {
-        "desc": "Konfigurace LED",
-        "dis": "Úplné zakázání",
-        "pwr": "LED napájení",
-        "mode": "LED pracovní režim",
-        "night": "Noční režim - ovládání pomocí LED diod"
-      },
-      "ntp": {
-        "desc": "Konfigurace NTP",
-        "zone": "Časové pásmo",
-        "server": {
-          "n": "NTP server",
-          "ph": "pool.ntp.org",
-          "tt": "Zadejte platný název domény"
-        }
-      }
-    },
-    "ne": {
-      "descEth": "Konfigurace Ethernetu",
-      "dhcp": "DHCP",
-      "ip": "IP",
-      "mask": "Maska",
-      "gw": "Brána",
-      "dns": "DNS server",
-      "descWifi": "Konfigurace Wi-Fi",
-      "wifi": {
-        "btn": {
-          "scan": "Vyhledat sítě Wi-Fi",
-          "man": "Zadat ručně"
+    "p": {
+        "st": {
+            "dic": {
+                "tt": "Informace o zařízení",
+                "dm": "Model zařízení",
+                "et": "Teplota",
+                "ef": "Procesor",
+                "cs": "jádra",
+                "mhz": "MHz",
+                "efs": "Paměť",
+                "mb": "Mb",
+                "ehs": "Heap",
+                "kb": "KiB",
+                "efti": "vnitřní",
+                "efte": "externí",
+                "ens": "NV úložiště",
+                "ent": "záznamy",
+                "efss": "Souborový systém",
+                "du": "Doba běhu zařízení",
+                "lt": "Místní čas"
+            },
+            "te": "Ethernet",
+            "tw": "WiFi",
+            "tm": "MQTT",
+            "wgc": {
+                "tt": "WireGuard",
+                "lip": "Místní IP adresa",
+                "ed": "Adresa koncového bodu",
+                "pip": "Peer IP adresa"
+            },
+            "tvh": "Husarnet",
+            "wc": {
+                "mcl": "Klient",
+                "map": "AP"
+            },
+            "zbc": {
+                "op": "Pracovní režim",
+                "opn": "Síť Zigbee",
+                "opu": "Zigbee-USB",
+                "scc": "Socket klient připojen",
+                "sccn": "Žádné připojení",
+                "sccy": "Ano, klienti: {{count}}",
+                "su": "Doba připojení",
+                "tt": "Stav zařízení",
+                "zfs": "Velikost flash",
+                "zie": "IEEE"
+            },
+            "c": {
+                "fv": "FW revize",
+                "hv": "HW verze"
+            }
         },
-        "rssi": "RSSI",
-        "ssid": "SSID",
-        "sc": "Zabezpečení",
-        "ch": "Kanál",
-        "nnf": "Sítě Wi-Fi nebyly nalezeny"
-      }
+        "ge": {
+            "desc": "Obecné nastavení",
+            "host": {
+                "n": "Název hostitele",
+                "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
+                "tt": "Písmena latinky a číslice, žádné mezery"
+            },
+            "refresh": {
+                "n": "Interval obnovování webu",
+                "ph": "v sekundách",
+                "tt": "?"
+            },
+            "work": {
+                "mode": {
+                    "desc": "Vybrat provozní režim zařízení",
+                    "net": "Režim sítě",
+                    "usb": "Režim USB"
+                }
+            },
+            "kw": "Udržovat síť a webový server",
+            "led": {
+                "desc": "Konfigurace LED",
+                "dis": "Úplné zakázání",
+                "pwr": "LED napájení",
+                "mode": "LED pracovní režim",
+                "night": "Noční režim - ovládání pomocí LED diod"
+            },
+            "ntp": {
+                "desc": "Konfigurace NTP",
+                "zone": "Časové pásmo",
+                "server": {
+                    "n": "NTP server",
+                    "ph": "pool.ntp.org",
+                    "tt": "Zadejte platný název domény"
+                }
+            }
+        },
+        "ne": {
+            "descEth": "Konfigurace Ethernetu",
+            "dhcp": "DHCP",
+            "ip": "IP",
+            "mask": "Maska",
+            "gw": "Brána",
+            "dns": "DNS server",
+            "descWifi": "Konfigurace Wi-Fi",
+            "wifi": {
+                "btn": {
+                    "scan": "Vyhledat sítě Wi-Fi",
+                    "man": "Zadat ručně"
+                },
+                "rssi": "RSSI",
+                "ssid": "SSID",
+                "sc": "Zabezpečení",
+                "ch": "Kanál",
+                "nnf": "Sítě Wi-Fi nebyly nalezeny"
+            }
+        },
+        "zi": {
+            "so": "Konfigurace sériové linky",
+            "ss": "Rychlost portu",
+            "sp": "Socket port",
+            "cfg": {
+                "tt": "Generátor konfigurace",
+                "sel": "Vygenerovat konfiguraci pro",
+                "alarm": "Zdá se, že XZG je v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
+                "ss": "Konfigurace sériové linky",
+                "lxzg": "Umístění XZG",
+                "dzl": "Zakázat Zigbee led?",
+                "sopm": "Nastavit výstupní výkon na max 20",
+                "ha": "Pro Home Assistant: Přejděte na \"Nastavení\"→\"Systém\"→\"Hardware\"→V pravém horním rohu vyberte nabídku se třemi tečkami→\"Veškerý hardware\"→Přejděte na ttyUSB a najděte svůj adaptér→Kopírovat cestu zařízení jako \"/dev/ttyUSB0\"",
+                "lin": "Seznam zařízení USB v systému Linux: ls /dev/ttyUSB*",
+                "dp": "INSERT_DEVICE_PATCH_HERE"
+            },
+            "fws": {
+                "tt": "Role",
+                "alarm": "Změna firmwaru v běžící síti způsobí rozpad sítě!"
+            }
+        },
+        "mq": {
+            "enb": "Povolením aktivujete MQTT",
+            "desc": "Konfigurace MQTT",
+            "broker": {
+                "n": "Broker",
+                "ph": "Název domény nebo IP adresa",
+                "tt": "Zadejte platnou doménu nebo IP"
+            },
+            "port": {
+                "n": "Port",
+                "ph": "MQTT port",
+                "tt": "Zadejte číslo portu (obvykle 1883)"
+            },
+            "topic": {
+                "n": "Téma",
+                "ph": "MQTT téma",
+                "tt": "Zadejte téma MQTT zařízení X/Y/Z nebo X/Y nebo X. Bez mezer."
+            },
+            "interval": {
+                "n": "Interval",
+                "ph": "Interval aktualizace v sekundách",
+                "tt": "Zadejte jak často se mají odesílat aktualizace (v sekundách)"
+            },
+            "disc": {
+                "n": "Home Assistant - Automatické zjišťování",
+                "ph": "Povolit nebo zakázat",
+                "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
+            },
+            "user": {
+                "ph": "MQTT uživatelské jméno",
+                "tt": "Zadejte uživatelské jméno od vašeho brokera"
+            },
+            "pass": {
+                "ph": "MQTT heslo",
+                "tt": "Zadejte heslo od svého brokera"
+            },
+            "reconnect": {
+                "n": "Opětovné připojení",
+                "ph": "Interval opětovného připojení v sekundách",
+                "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
+            }
+        },
+        "vp": {
+            "wg": {
+                "tt": "Konfigurace WireGuard",
+                "lip": "IP adresa lokálního rozhraní",
+                "lpk": "Soukromý klíč lokálního rozhraní",
+                "ea": "Adresa peer koncového bodu",
+                "epk": "Veřejný klíč peeru koncového bodu",
+                "ep": "Port peeru koncového bodu",
+                "lsn": "Místní podsíť",
+                "lgw": "Místní brána",
+                "aip": "Povolené IP adresy",
+                "am": "Povolená maska",
+                "md": "Nastavit jako výchozí",
+                "psk": "Předsdílený klíč",
+                "lp": "Místní port"
+            },
+            "hn": {
+                "tt": "Konfigurace Husarnet (ve vývoji)",
+                "jc": "Připojit kód pro vaši síť",
+                "hn": "Název hostitele pro vaše zařízení",
+                "du": "Adresa URL hlavního panelu (nechat „výchozí“)"
+            }
+        },
+        "se": {
+            "desc": "Konfigurace zabezpečení",
+            "web": {
+                "dis": "Zakázat webový server když je připojen socket",
+                "auth": "Povolit ověřování webového serveru"
+            },
+            "fw": {
+                "desc": "Seznam povolených IP pro socket",
+                "ip": "Povolená IP"
+            }
+        },
+        "to": {
+            "sc": "Ovládání systému",
+            "fu": "Aktualizace firmware",
+            "dt": "Nástroje pro ladění",
+            "mc": "Ovládání modulů",
+            "zb": "Zigbee",
+            "rst": "Restart",
+            "fm": "Režim flashování",
+            "rr": "Znovu připojit router",
+            "esp": "ESP32",
+            "fr": "Obnovit tovární nastavení",
+            "csc": "Ovládání periferií",
+            "ms": "Výběr režimu",
+            "ntw": "Síť",
+            "usb": "USB",
+            "lt": "Přepínání LED diod",
+            "ls": "začínající...",
+            "lb": "flashuje...",
+            "pwr": "Napájení",
+            "mode": "Režim",
+            "dc": "Debug konzole",
+            "rd": "Nezpracovaná data ",
+            "cc": "Vymazat konzoli",
+            "czc": "Zkontrolovat připojení Zigbee",
+            "czv": "Zkontrolovat verzi Zigbee",
+            "fb": "Prohlížeč souborů",
+            "fn": "Název souboru",
+            "s": "Velikost",
+            "egu": "Aktualizace Git ESP32",
+            "efu": "Aktualizace souboru ESP32",
+            "cf": "Vybrat soubor...",
+            "ilfg": "Nainstalovat nejnovější",
+            "sri": "Vybrat verzi",
+            "zu": "Aktualizace Zigbee (ve vývoji)",
+            "zfu": "Aktualizace souboru Zigbee",
+            "clzv": "Zkontrolovat nejnovější firmware Zigbee",
+            "saf": "Zobrazit dostupný firmware",
+            "zgu": "Aktualizace Git CC2652",
+            "eznr": "Vymazat NVRAM"
+        },
+        "lo": {
+            "pt": "Přihlášení - XZG",
+            "lbl": "Prosím přihlaste se",
+            "btn": "Přihlásit se",
+            "mnl": "Je potřeba se přihlásit",
+            "mwc": "Nesprávné přihlašovací údaje",
+            "mlo": "Úspěšné odhlášení"
+        },
+        "ab": {
+            "l1": "Firmware XZG sjednocuje nejlepší inovace z oblasti",
+            "l2": "předchozích projektů bran Zigbee do jediného komplexního řešení.",
+            "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj a tím zlepšit schopnosti a efektivitu vašich bran Zigbee. 🌍",
+            "w": {
+                "t": "Wiki",
+                "m": "Chcete-li se dozvědět více o projektu firmwaru XZG, navštivte naše: 📘",
+                "l": "Oficiální Wiki"
+            },
+            "f": {
+                "t": "Zpětná vazba",
+                "m": "Pokud máte nějaké nápady, návrhy, nebo chcete pomoci jiným způsobem, neváhejte: 📬",
+                "l": "Kontaktovat autora"
+            },
+            "s": {
+                "m": "Podpořte tento projekt jedním z následujících způsobů: 💖",
+                "t": "Podpora"
+            },
+            "c": {
+                "t": "Přispět",
+                "m": "Přidejte se k nám při zlepšování překladů, vylepšování dokumentace, nebo kódování nových funkcí. 💻",
+                "l": "Repozitář projektu"
+            },
+            "r": {
+                "t": "Zpráva",
+                "m": "Chcete-li nahlásit chybu, nebo požádat o funkci, použijte prosím: 🐞",
+                "l": "Otevřít problém"
+            },
+            "cm": {
+                "m": "Vaše postřehy, zpětná vazba a spolupráce jsou pro nás neocenitelné 🤝",
+                "t": "Komunita",
+                "l": "Připojte se ke skupině Telegram"
+            }
+        }
     },
-    "zi": {
-      "so": "Konfigurace sériové linky",
-      "ss": "Rychlost portu",
-      "sp": "Socket port",
-      "cfg": {
-        "tt": "Generátor konfigurace",
-        "sel": "Vygenerovat konfiguraci pro",
-        "alarm": "Zdá se, že XZG funguje v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
-        "ss": "Konfigurace sériové linky",
-        "lxzg": "Umístění XZG",
-        "dzl": "Zakázat Zigbee led?",
-        "sopm": "Nastavit výstupní výkon na max 20",
-        "ha": "Pro Home Assistant: Přejděte na \"Nastavení\"→\"Systém\"→\"Hardware\"→V pravém horním rohu vyberte nabídku se třemi tečkami→\"Veškerý hardware\"→Přejděte na ttyUSB a najděte svůj adaptér→Kopírovat cestu zařízení jako \"/dev/ttyUSB0\"",
-        "lin": "Seznam zařízení USB v systému Linux: ls /dev/ttyUSB*",
-        "dp": "INSERT_DEVICE_PATCH_HERE"
-      },
-      "fws": {
-        "tt": "Role",
-        "alarm": "Změna firmwaru v běžící síti způsobí rozpad sítě!"
-      }
+    "c": {
+        "user": "Uživatelské jméno",
+        "pass": "Heslo",
+        "save": "Uložit",
+        "enable": "Povolit",
+        "en": "Povoleno",
+        "dis": "Zakázáno",
+        "cancel": "Zrušit",
+        "sure": "Jsem si jistý",
+        "ltr": "Později",
+        "drm": "Nepřipomínat",
+        "err": "Chyba",
+        "ok": "OK",
+        "now": "Nainstalovat nyní",
+        "mode": "Režim",
+        "cst": "Stav připojení",
+        "csp": "Rychlost připojení",
+        "mac": "MAC adresa",
+        "conn": "Připojeno",
+        "connecting": "Připojování",
+        "disconn": "Odpojeno",
+        "init": "Inicializováno",
+        "host": "Název hostitele",
+        "inst": "Nainstalovat",
+        "cc": "Zkopírovat do schránky",
+        "erss": "Při ukládání nastavení došlo k chybě. Zkontrolujte svou síť",
+        "ercn": "Chyba. ",
+        "proj": "Vytvořeno s ❤️ od",
+        "nc": "Žádné připojení",
+        "cl": "Zavřít",
+        "t": {
+            "e": "Čas ukončení",
+            "s": "Doba spuštění"
+        },
+        "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku"
     },
-    "mq": {
-      "enb": "Povolením aktivujete MQTT",
-      "desc": "Konfigurace MQTT",
-      "broker": {
-        "n": "Broker",
-        "ph": "Název domény nebo IP adresa",
-        "tt": "Zadejte platnou doménu nebo IP"
-      },
-      "port": {
-        "n": "Port",
-        "ph": "Číslo portu MQTT",
-        "tt": "Zadejte číslo portu (obvykle 1883)"
-      },
-      "topic": {
-        "n": "Téma",
-        "ph": "téma MQTT",
-        "tt": "Zadejte téma MQTT zařízení X/Y/Z nebo X/Y nebo X. Bez mezer."
-      },
-      "interval": {
-        "n": "Interval",
-        "ph": "Interval aktualizace v sekundách",
-        "tt": "Zadejte, jak často se mají odesílat aktualizace (v sekundách)"
-      },
-      "disc": {
-        "n": "Home Assistant - Automatické zjišťování",
-        "ph": "Povolit nebo zakázat",
-        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
-      },
-      "user": {
-        "ph": "Uživatelské jméno MQTT",
-        "tt": "Zadejte uživatelské jméno od vašeho brokera"
-      },
-      "pass": {
-        "ph": "heslo MQTT",
-        "tt": "Zadejte heslo od svého brokera"
-      },
-      "reconnect": {
-        "n": "Znovu se připojit",
-        "ph": "Interval opětovného připojení v sekundách",
-        "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
-      }
+    "md": {
+        "esp": {
+            "rst": {
+                "tt": "RESTARTOVAT ZAŘÍZENÍ",
+                "msg": "Čekání na restart. Zavře se automaticky",
+                "nrps": "Žádná odpověď; zkontrolujte, zda se změnil režim IP nebo USB."
+            },
+            "fr": {
+                "tt": "VAROVÁNÍ TOVÁRNÍ RESET",
+                "msg": "Tím se vymažou VŠECHNA nastavení."
+            },
+            "fu": {
+                "tt": "AKTUALIZACE FIRMWARU XZG",
+                "lfm": "Aktualizace z místního souboru.",
+                "gvm": "Aktualizace na {{ver}} vydání z GitHubu.",
+                "glm": "Aktualizovat na nejnovější verzi z GitHubu.",
+                "wm": "Odpojí VŠECHNA socket připojení",
+                "wdm": "Čekání na zařízení...",
+                "fri": "Načítání informací o firmwaru...",
+                "lgds": "Stahování nejnovější verze z GitHubu...",
+                "vgds": "Stahování vydání {{ver}} z GitHubu...",
+                "ucr": "Aktualizace dokončena! ",
+                "prgs": "Aktualizace: {{per}}%",
+                "gvt": "Vydání na GitHubu",
+                "bil": "Instalovat nejnovější"
+            },
+            "ws": {
+                "tt": "Připojení k síti Wi-Fi",
+                "msg": "Probíhá připojení k síti... Počkejte na výsledek.",
+                "nip": "Nová IP adresa je {{ip}} Zařízení se nyní restartuje, aby se nové nastavení projevilo.",
+                "btn": "Jít do",
+                "err": "Chyba připojení, zkontrolujte SSID, HESLO a zkuste to znovu"
+            }
+        },
+        "zb": {
+            "fu": {
+                "vt": "ověřit: {{per}} %",
+                "vc": "Ověření dokončeno!"
+            },
+            "dtc": "Koordinátor",
+            "cfv": "Aktuální firmware: {{ver}}",
+            "dtr": "Router",
+            "efr": "Chyba při načítání informací o firmwaru<br>Zkontrolujte síť!",
+            "lcf": "Nejnovější firmware koordinátora:",
+            "lrf": "Nejnovější firmware routeru:",
+            "ncf": "Chybí firmware koordinátora.",
+            "nrf": "Chybí firmware routeru.",
+            "ot": "Aktualizace Zigbee OTA",
+            "rfm": "Získávání informací o firmwaru...",
+            "ntf": "Firmware vlákna chybí.",
+            "dtt": "OpenThread"
+        },
+        "ss": {
+            "tt": "NASTAVENÍ ULOŽENO",
+            "rr": "Některá nastavení vyžadují restart.",
+            "msg": "Nové parametry uloženy.",
+            "rn": "Restartovat nyní",
+            "rl": "Restartovat později ručně"
+        },
+        "kw": {
+            "msg": "Tato funkce umožňuje ponechat jeden z komunikačních kanálů aktivní a mít přístup k webovému rozhraní. Zařízení samo vybere dostupný kanál podle priority: WIFI, ETHERNET, WIFI AP"
+        },
+        "zg": {
+            "fu": {
+                "f": "Chystám se flashovat: {{file}}",
+                "fn": "Firmware byl úspěšně nainstalován!",
+                "nv": "Nová verze: {{ver}}",
+                "st": "Flash CC2652 se spouští...",
+                "er": "Mazání dokončeno"
+            }
+        }
     },
-    "vp": {
-      "wg": {
-        "tt": "Konfigurace WireGuard",
-        "lip": "IP adresa lokálního rozhraní",
-        "lpk": "Soukromý klíč lokálního rozhraní",
-        "ea": "Adresa peer koncového bodu",
-        "epk": "Veřejný klíč peeru koncového bodu",
-        "ep": "Port peeru koncového bodu",
-        "lsn": "Místní podsíť",
-        "lgw": "Místní brána",
-        "aip": "Povolené IP adresy",
-        "am": "Povolená maska",
-        "md": "Nastavit jako výchozí",
-        "psk": "Předsdílený klíč",
-        "lp": "Místní port"
-      },
-      "hn": {
-        "tt": "Konfigurace Husarnet (ve vývoji)",
-        "jc": "Připojit kód pro vaši síť",
-        "hn": "Název hostitele pro vaše zařízení",
-        "du": "Adresa URL hlavního panelu (nechat „výchozí“)"
-      }
-    },
-    "se": {
-      "desc": "Konfigurace zabezpečení",
-      "web": {
-        "dis": "Zakázat webový server, když je připojen socket",
-        "auth": "Povolit ověřování webového serveru"
-      },
-      "fw": {
-        "desc": "Seznam povolených IP pro socket",
-        "ip": "Povolená IP"
-      }
-    },
-    "to": {
-      "sc": "Ovládání systému",
-      "fu": "Aktualizace firmware",
-      "dt": "Nástroje pro ladění",
-      "mc": "Ovládání modulů",
-      "zb": "Zigbee",
-      "rst": "Restart",
-      "fm": "Režim flashování",
-      "rr": "Znovu připojit router",
-      "esp": "ESP32",
-      "fr": "Obnovit tovární nastavení",
-      "csc": "Ovládání periferií",
-      "ms": "Výběr režimu",
-      "ntw": "Síť",
-      "usb": "USB",
-      "lt": "Přepínání LED diod",
-      "ls": "začínající...",
-      "lb": "flashuje...",
-      "pwr": "Napájení",
-      "mode": "Režim",
-      "dc": "Debug konzole",
-      "rd": "Nezpracovaná data ",
-      "cc": "Vymazat konzoli",
-      "czc": "Zkontrolovat připojení Zigbee",
-      "czv": "Zkontrolovat verzi Zigbee",
-      "fb": "Prohlížeč souborů",
-      "fn": "Název souboru",
-      "s": "Velikost",
-      "egu": "Aktualizace Git ESP32",
-      "efu": "Aktualizace souboru ESP32",
-      "cf": "Vybrat soubor...",
-      "ilfg": "Nainstalovat nejnovější",
-      "sri": "Vybrat verzi",
-      "zu": "Aktualizace Zigbee (ve vývoji)",
-      "zfu": "Aktualizace souboru Zigbee",
-      "clzv": "Zkontrolovat nejnovější firmware Zigbee",
-      "saf": "Zobrazit dostupný firmware",
-      "zgu": "Aktualizace Git CC2652",
-      "eznr": "Vymazat NVRAM"
-    },
-    "lo": {
-      "pt": "Přihlášení - XZG",
-      "lbl": "Prosím přihlaste se",
-      "btn": "Přihlásit se",
-      "mnl": "Je potřeba se přihlásit",
-      "mwc": "Nesprávné přihlašovací údaje",
-      "mlo": "Úspěšné odhlášení"
-    },
-    "ab": {
-      "l1": "Firmware XZG sjednocuje ty nejlepší inovace z",
-      "l2": "předchozích projektů brány Zigbee do jediného komplexního řešení.",
-      "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj a tím zlepšit schopnosti a efektivitu vašich Zigbee bran. 🌍",
-      "w": {
-        "t": "Wiki",
-        "m": "Chcete-li se dozvědět více o projektu firmwaru XZG, navštivte naše: 📘",
-        "l": "Oficiální Wiki"
-      },
-      "f": {
-        "t": "Zpětná vazba",
-        "m": "Pokud máte nějaké nápady, návrhy, nebo chcete pomoci jiným způsobem, neváhejte: 📬",
-        "l": "Kontaktovat autora"
-      },
-      "s": {
-        "m": "Podpořte tento projekt jedním z následujících způsobů: 💖",
-        "t": "Podpora"
-      },
-      "c": {
-        "t": "Přispět",
-        "m": "Přidejte se k nám při zlepšování překladů, vylepšování dokumentace, nebo kódování nových funkcí. 💻",
-        "l": "Repozitář projektu"
-      },
-      "r": {
-        "t": "Zpráva",
-        "m": "Chcete-li nahlásit chybu, nebo požádat o funkci 🐞",
-        "l": "Otevřít problém"
-      },
-      "cm": {
-        "m": "Vaše postřehy, zpětná vazba a spolupráce jsou pro nás neocenitelné 🤝",
-        "t": "Komunita",
-        "l": "Připojte se ke skupině Telegram",
-        "d": "Join Discord community"
-      }
+    "ts": {
+        "esp": {
+            "upd": {
+                "tt": "K dispozici aktualizace ESP32 🚀",
+                "msg": "Na GitHubu byl nalezen nový firmware ({{ver}}). Byl stažen {{count}}krát."
+            },
+            "beta": {
+                "tt": "Zpětná vazba FW beta",
+                "msg": "Děkujeme za testování nové verze! 🎢\nNezapomeňte poskytnout zpětnou vazbu 💌",
+                "cnt": "Kontakt 🧧"
+            },
+            "ane": {
+                "tt": "Chyba konfigurace sítě",
+                "msg": "Nejsou povolena žádná síťová rozhraní. Chcete-li pokračovat, aktivujte alespoň jedno rozhraní."
+            }
+        },
+        "zb": {
+            "nzfa": {
+                "tt": "Nebyl nalezen žádný firmware"
+            }
+        }
     }
-  },
-  "c": {
-    "user": "Uživatelské jméno",
-    "pass": "Heslo",
-    "save": "Uložit",
-    "enable": "Povolit",
-    "en": "Povoleno",
-    "dis": "Zakázáno",
-    "cancel": "zrušení",
-    "sure": "Jsem si jistý",
-    "ltr": "Později",
-    "drm": "Nepřipomínat",
-    "err": "Chyba",
-    "ok": "OK",
-    "now": "Nainstalovat nyní",
-    "mode": "Režim",
-    "cst": "Stav připojení",
-    "csp": "Rychlost připojení",
-    "mac": "MAC adresa",
-    "conn": "Připojeno",
-    "connecting": "Připojování",
-    "disconn": "Odpojeno",
-    "init": "Inicializováno",
-    "host": "Název hostitele",
-    "inst": "Nainstalovat",
-    "cc": "Zkopírovat do schránky",
-    "erss": "Při ukládání nastavení došlo k chybě. Zkontrolujte svou síť",
-    "ercn": "Chyba. ",
-    "proj": "Vytvořeno s ❤️ od",
-    "nc": "Žádné připojení",
-    "cl": "Zavřít",
-    "t": {
-      "e": "Čas ukončení",
-      "s": "Doba spuštění"
-    },
-    "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku"
-  },
-  "md": {
-    "esp": {
-      "rst": {
-        "tt": "RESTARTOVAT ZAŘÍZENÍ",
-        "msg": "Čekání na restart. Zavře se automaticky",
-        "nrps": "Žádná odpověď; zkontrolujte, zda se změnil režim IP nebo USB."
-      },
-      "fr": {
-        "tt": "VAROVÁNÍ TOVÁRNÍ RESET",
-        "msg": "Tím se vymažou VŠECHNA nastavení."
-      },
-      "fu": {
-        "tt": "AKTUALIZACE FIRMWARU XZG",
-        "lfm": "Aktualizace z místního souboru.",
-        "gvm": "Aktualizace na {{ver}} Vydání GitHubu.",
-        "glm": "Aktualizace na nejnovější verzi GitHubu.",
-        "wm": "Odpojí VŠECHNA připojení zásuvek",
-        "wdm": "Čekání na zařízení...",
-        "fri": "Načítání informací o firmwaru...",
-        "lgds": "Stahování nejnovější verze GitHubu...",
-        "vgds": "Stahování vydání {{ver}} z GitHubu...",
-        "ucr": "Aktualizace dokončena! ",
-        "prgs": "Aktualizace: {{per}}%",
-        "gvt": "Vydání na GitHubu",
-        "bil": "Instalovat nejnovější"
-      },
-      "ws": {
-        "tt": "Připojení k síti Wi-Fi",
-        "msg": "Probíhá připojení k síti... Počkejte na výsledek.",
-        "nip": "Nová IP adresa je {{ip}} Zařízení se nyní restartuje, aby se nové nastavení projevilo.",
-        "btn": "Jít do",
-        "err": "Chyba připojení, zkontrolujte SSID, HESLO a zkuste to znovu"
-      }
-    },
-    "zb": {
-      "fu": {
-        "vt": "ověřit: {{per}} %",
-        "vc": "Ověření dokončeno!"
-      },
-      "dtc": "Koordinátor",
-      "cfv": "Aktuální firmware: {{ver}}",
-      "dtr": "Router",
-      "efr": "Chyba při načítání informací o firmwaru<br>Zkontrolujte síť!",
-      "lcf": "Nejnovější firmware koordinátora:",
-      "lrf": "Nejnovější firmware routeru:",
-      "ncf": "Chybí firmware koordinátora.",
-      "nrf": "Chybí firmware routeru.",
-      "ot": "Aktualizace Zigbee OTA",
-      "rfm": "Získávání informací o firmwaru...",
-      "ntf": "Firmware vlákna chybí.",
-      "dtt": "OpenThread"
-    },
-    "ss": {
-      "tt": "NASTAVENÍ ULOŽENO",
-      "rr": "Některá nastavení vyžadují restart.",
-      "msg": "Nové parametry uloženy.",
-      "rn": "Restartovat nyní",
-      "rl": "Restartovat později ručně"
-    },
-    "kw": {
-      "msg": "Tato funkce umožňuje ponechat jeden z komunikačních kanálů aktivní a mít přístup k webovému rozhraní. Zařízení samo vybere dostupný kanál podle priority: WIFI, ETHERNET, WIFI AP"
-    },
-    "zg": {
-      "fu": {
-        "f": "Chystám se flashovat: {{file}}",
-        "fn": "Firmware byl úspěšně nainstalován!",
-        "nv": "Nová verze: {{ver}}",
-        "st": "Flash CC2652 se spouští...",
-        "er": "Mazání dokončeno"
-      }
-    }
-  },
-  "ts": {
-    "esp": {
-      "upd": {
-        "tt": "K dispozici aktualizace ESP32 🚀",
-        "msg": "Nový firmware ({{ver}}) byl nalezen na GitHubu. Bylo staženo {{počet}} krát."
-      },
-      "beta": {
-        "tt": "Zpětná vazba FW beta",
-        "msg": "Děkujeme za testování nové verze! 🎢\nNezapomeňte poskytnout zpětnou vazbu 💌",
-        "cnt": "Kontakt 🧧"
-      },
-      "ane": {
-        "tt": "Chyba konfigurace sítě",
-        "msg": "Nejsou povolena žádná síťová rozhraní. Chcete-li pokračovat, aktivujte alespoň jedno rozhraní."
-      }
-    },
-    "zb": {
-      "nzfa": {
-        "tt": "Nebyl nalezen žádný firmware"
-      }
-    }
-  }
 }
