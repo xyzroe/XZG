@@ -209,7 +209,7 @@
         "se": {
             "desc": "Konfigurace zabezpečení",
             "web": {
-                "dis": "Zakázat webový server, když je připojen socket",
+                "dis": "Zakázat webový server když je připojen socket",
                 "auth": "Povolit ověřování webového serveru"
             },
             "fw": {
