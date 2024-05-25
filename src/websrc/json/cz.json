@@ -6,7 +6,7 @@
         "zi": "Zigbee",
         "mq": "MQTT",
         "vp": "VPN",
-        "se": "Bezpečnost",
+        "se": "Zabezpečení",
         "to": "Nástroje",
         "ab": "O XZG",
         "lo": "Odhlásit se"
@@ -350,7 +350,7 @@
             "fu": {
                 "tt": "AKTUALIZACE FIRMWARU XZG",
                 "lfm": "Aktualizace z místního souboru.",
-                "gvm": "Aktualizace na {{ver}} Vydání GitHubu.",
+                "gvm": "Aktualizace na {{ver}} vydání z GitHubu.",
                 "glm": "Aktualizovat na nejnovější verzi z GitHubu.",
                 "wm": "Odpojí VŠECHNA socket připojení",
                 "wdm": "Čekání na zařízení...",
