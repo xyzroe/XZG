@@ -16,7 +16,7 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 Your insights, feedback, and collaboration are invaluable to us 🤝
 
  - :fontawesome-solid-paper-plane: <a href="https://t.me/xzg_fw" target="_blank">Join Telegram chat</a>
- - :fontawesome-brands-discord: <a href="https://discord.com/invite/zA5VuraE" target="_blank">Join Discord community</a>
+ - :fontawesome-brands-discord: <a href="https://discord.gg/A5ge3cYRKW" target="_blank">Join Discord community</a>
 
 ## Report
 To report a bug or request a feature, please: 
