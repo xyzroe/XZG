@@ -23,7 +23,8 @@ jobs:
             const author = pull_request.user.login;
             const issue_number = pull_request.number;
             const body = `Thanks @${author} 🏆`;
-            return { body: body };
+            console.log(`Generated comment: ${body}`);
+            core.setOutput('body', body);
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
