@@ -307,7 +307,7 @@
         "enable": "Povolit",
         "en": "Povoleno",
         "dis": "Zakázáno",
-        "cancel": "zrušení",
+        "cancel": "Zrušit",
         "sure": "Jsem si jistý",
         "ltr": "Později",
         "drm": "Nepřipomínat",
@@ -351,11 +351,11 @@
                 "tt": "AKTUALIZACE FIRMWARU XZG",
                 "lfm": "Aktualizace z místního souboru.",
                 "gvm": "Aktualizace na {{ver}} Vydání GitHubu.",
-                "glm": "Aktualizace na nejnovější verzi GitHubu.",
-                "wm": "Odpojí VŠECHNA připojení zásuvek",
+                "glm": "Aktualizovat na nejnovější verzi z GitHubu.",
+                "wm": "Odpojí VŠECHNA socket připojení",
                 "wdm": "Čekání na zařízení...",
                 "fri": "Načítání informací o firmwaru...",
-                "lgds": "Stahování nejnovější verze GitHubu...",
+                "lgds": "Stahování nejnovější verze z GitHubu...",
                 "vgds": "Stahování vydání {{ver}} z GitHubu...",
                 "ucr": "Aktualizace dokončena! ",
                 "prgs": "Aktualizace: {{per}}%",
@@ -412,7 +412,7 @@
         "esp": {
             "upd": {
                 "tt": "K dispozici aktualizace ESP32 🚀",
-                "msg": "Nový firmware ({{ver}}) byl nalezen na GitHubu. Bylo staženo {{počet}} krát."
+                "msg": "Na GitHubu byl nalezen nový firmware ({{ver}}). Byl stažen {{count}}krát."
             },
             "beta": {
                 "tt": "Zpětná vazba FW beta",
