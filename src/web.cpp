@@ -79,6 +79,8 @@ extern struct MqttConfigStruct mqttCfg;
 
 extern LEDControl ledControl;
 
+extern IPAddress apIP;
+
 bool wifiWebSetupInProgress = false;
 
 bool eventOK = false;
@@ -241,21 +243,25 @@ void initWebServer()
     LOGD("done");
 }
 
-IPAddress apIP2(192, 168, 1, 1);
+// IPAddress apIP2(192, 168, 1, 1);
 
 bool captivePortal()
 {
-    IPAddress ip;
-    if (!ip.fromString(serverWeb.hostHeader()))
+    if (vars.apStarted)
     {
-        LOGD("Request redirected to captive portal");
-        serverWeb.sendHeader("Location", String("http://") + apIP2.toString(), true);
-        serverWeb.send(302, "text/plain", "");
-        serverWeb.client().stop();
-        return true;
+        IPAddress ip;
+        if (!ip.fromString(serverWeb.hostHeader()))
+        {
+            LOGD("Request redirected to captive portal");
+            serverWeb.sendHeader("Location", String("http://") + apIP.toString(), true);
+            serverWeb.send(302, "text/plain", "");
+            serverWeb.client().stop();
+            return true;
+        }
     }
     return false;
 }
+
 /*
 void handleNotFound()
 {
