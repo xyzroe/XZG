@@ -20,15 +20,12 @@
 #include <WireGuard-ESP32.h>
 static WireGuard wg;
 
-// extern struct ConfigSettingsStruct ConfigSettings;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 extern EthConfig ethConfigs[ETH_CFG_CNT];
 extern ZbConfig zbConfigs[ZB_CFG_CNT];
 extern MistConfig mistConfigs[MIST_CFG_CNT];
 
-// extern struct BrdConfigStruct hwConfig;
 extern struct ThisConfigStruct hwConfig;
-// extern struct CurrentModesStruct modes;
 
 extern struct SystemConfigStruct systemCfg;
 extern struct NetworkConfigStruct networkCfg;
@@ -485,14 +482,11 @@ char *convertTimeToCron(const String &time)
   static char formattedTime[16];
   int hours, minutes;
 
-  // Использование метода toCharArray() для получения C-строки из объекта String
-  char timeArray[6]; // Достаточно места для "ЧЧ:ММ\0"
+  char timeArray[6]; 
   time.toCharArray(timeArray, sizeof(timeArray));
 
-  // Разбор времени
   sscanf(timeArray, "%d:%d", &hours, &minutes);
 
-  // Формирование cron-строки
   snprintf(formattedTime, sizeof(formattedTime), "0 %d %d * * *", minutes, hours);
 
   return formattedTime;
