@@ -638,26 +638,6 @@ void handleApi()
             serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
         }
         break;
-        /*case API_SEND_HEX:
-        {
-            String result = wrongArgs;
-            const char *argSize = "size";
-            const char *argHex = "hex";
-            DEBUG_PRINTLN(F("[send_hex]"));
-            if (serverWeb.hasArg(argHex) && serverWeb.hasArg(argSize))
-            {
-                result = ok;
-                DEBUG_PRINTLN(F("try..."));
-                DEBUG_PRINTLN(serverWeb.arg(argHex).c_str());
-                uint8_t size = serverWeb.arg(argSize).toInt();
-                byte resp[size];
-                hex2bin(resp, serverWeb.arg(argHex).c_str());
-
-                // Serial2.write(resp, size);
-            }
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-        }
-        break;*/
         case API_GET_FILE:
         {
             String result = wrongArgs;
