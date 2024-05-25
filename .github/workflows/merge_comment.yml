@@ -19,7 +19,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pull_request = context.payload.pull_request_target;
+            const pull_request = context.payload.pull_request;
             const author = pull_request.user.login;
             const issue_number = pull_request.number;
             const body = `Thanks @${author} 🏆`;
