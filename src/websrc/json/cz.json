@@ -68,7 +68,7 @@
             "host": {
                 "n": "Název hostitele",
                 "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
-                "tt": "Latinská písmena a číslice, žádné mezery"
+                "tt": "Písmena latinky a číslice, žádné mezery"
             },
             "refresh": {
                 "n": "Interval obnovování webu",
@@ -127,7 +127,7 @@
             "cfg": {
                 "tt": "Generátor konfigurace",
                 "sel": "Vygenerovat konfiguraci pro",
-                "alarm": "Zdá se, že XZG funguje v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
+                "alarm": "Zdá se, že XZG je v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
                 "ss": "Konfigurace sériové linky",
                 "lxzg": "Umístění XZG",
                 "dzl": "Zakázat Zigbee led?",
@@ -151,18 +151,18 @@
             },
             "port": {
                 "n": "Port",
-                "ph": "Číslo portu MQTT",
+                "ph": "MQTT port",
                 "tt": "Zadejte číslo portu (obvykle 1883)"
             },
             "topic": {
                 "n": "Téma",
-                "ph": "téma MQTT",
+                "ph": "MQTT téma",
                 "tt": "Zadejte téma MQTT zařízení X/Y/Z nebo X/Y nebo X. Bez mezer."
             },
             "interval": {
                 "n": "Interval",
                 "ph": "Interval aktualizace v sekundách",
-                "tt": "Zadejte, jak často se mají odesílat aktualizace (v sekundách)"
+                "tt": "Zadejte jak často se mají odesílat aktualizace (v sekundách)"
             },
             "disc": {
                 "n": "Home Assistant - Automatické zjišťování",
@@ -170,15 +170,15 @@
                 "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
             },
             "user": {
-                "ph": "Uživatelské jméno MQTT",
+                "ph": "MQTT uživatelské jméno",
                 "tt": "Zadejte uživatelské jméno od vašeho brokera"
             },
             "pass": {
-                "ph": "heslo MQTT",
+                "ph": "MQTT heslo",
                 "tt": "Zadejte heslo od svého brokera"
             },
             "reconnect": {
-                "n": "Znovu se připojit",
+                "n": "Opětovné připojení",
                 "ph": "Interval opětovného připojení v sekundách",
                 "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
             }
@@ -266,9 +266,9 @@
             "mlo": "Úspěšné odhlášení"
         },
         "ab": {
-            "l1": "Firmware XZG sjednocuje ty nejlepší inovace z",
-            "l2": "předchozích projektů brány Zigbee do jediného komplexního řešení.",
-            "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj a tím zlepšit schopnosti a efektivitu vašich Zigbee bran. 🌍",
+            "l1": "Firmware XZG sjednocuje nejlepší inovace z oblasti",
+            "l2": "předchozích projektů bran Zigbee do jediného komplexního řešení.",
+            "l3": "Zaměřením úsilí komunity na vylepšení jednoho produktu se XZG snaží zefektivnit vývoj a tím zlepšit schopnosti a efektivitu vašich bran Zigbee. 🌍",
             "w": {
                 "t": "Wiki",
                 "m": "Chcete-li se dozvědět více o projektu firmwaru XZG, navštivte naše: 📘",
@@ -290,7 +290,7 @@
             },
             "r": {
                 "t": "Zpráva",
-                "m": "Chcete-li nahlásit chybu, nebo požádat o funkci 🐞",
+                "m": "Chcete-li nahlásit chybu, nebo požádat o funkci, použijte prosím: 🐞",
                 "l": "Otevřít problém"
             },
             "cm": {
