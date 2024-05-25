@@ -139,3 +139,10 @@ jobs:
             ${{ env.commitMessage }}
 
             [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
+
+      - name: Send Discord Notification about release
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d "{\"content\": \"${{ env.commitMessage }}\n\nhttps://github.com/${{ github.repository }}/releases/tag/${{ env.tag }}\"}" \
+               ${{ secrets.DISCORD_WEBHOOK }}
+
