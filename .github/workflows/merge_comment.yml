@@ -4,17 +4,16 @@ on:
   pull_request:
     types: [closed]
 
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
 jobs:
   add-merge-comment:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
-      - name: Add comment to merged pull request
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Generate Comment
+        id: generate_comment
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -23,10 +22,10 @@ jobs:
             const author = pull_request.user.login;
             const issue_number = pull_request.number;
             const body = `Thanks @${author} 🚀`;
+            return { body: body };
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: body
-            });
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: ${{ steps.generate_comment.outputs.body }}
+          reactions: rocket
