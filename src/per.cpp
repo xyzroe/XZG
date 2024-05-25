@@ -23,7 +23,7 @@
 // extern struct ConfigSettingsStruct ConfigSettings;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
-extern struct BrdConfigStruct hwConfig;
+extern struct ThisConfigStruct hwConfig;
 // extern struct CurrentModesStruct modes;
 
 extern struct SystemConfigStruct systemCfg;

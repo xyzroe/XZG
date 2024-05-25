@@ -12,8 +12,18 @@ struct EthConfig
     int pwrAltPin;
 };
 
+// ZigBee settings structure
+struct ZbConfig
+{
+    int txPin;
+    int rxPin;
+    int rstPin;
+    int bslPin;
+};
+
 // Miscellaneous settings structure
-struct MistConfig {
+struct MistConfig
+{
     int btnPin;
     int btnPlr;
     int uartSelPin;
@@ -24,22 +34,24 @@ struct MistConfig {
     int ledPwrPlr;
 };
 
-// ZigBee settings structure
-struct ZbConfig
-{
-    int txPin;
-    int rxPin;
-    int rstPin;
-    int bslPin;
-};
-
-// Root configuration structure that includes all substructures
+// Root configuration structure that includes only configuration indices
 struct BrdConfigStruct
 {
     char board[50];
-    EthConfig eth;
-    MistConfig mist;
-    ZbConfig zb;
+    int ethConfigIndex;
+    int zbConfigIndex;
+    int mistConfigIndex;
 };
 
-#define BOARD_CFG_CNT 6
+#define ETH_CFG_CNT 3
+#define ZB_CFG_CNT 8
+#define MIST_CFG_CNT 3
+#define BOARD_CFG_CNT 13
+
+struct ThisConfigStruct
+{
+    char board[50];
+    EthConfig eth;
+    ZbConfig zb;
+    MistConfig mist;
+};

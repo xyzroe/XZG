@@ -22,8 +22,12 @@ static WireGuard wg;
 
 // extern struct ConfigSettingsStruct ConfigSettings;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
+extern EthConfig ethConfigs[ETH_CFG_CNT];
+extern ZbConfig zbConfigs[ZB_CFG_CNT];
+extern MistConfig mistConfigs[MIST_CFG_CNT];
 
-extern struct BrdConfigStruct hwConfig;
+// extern struct BrdConfigStruct hwConfig;
+extern struct ThisConfigStruct hwConfig;
 // extern struct CurrentModesStruct modes;
 
 extern struct SystemConfigStruct systemCfg;
@@ -261,16 +265,15 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 
 void factoryReset()
 {
-  String tag = "FactoryReset";
 
   LOGD("start");
 
   ledControl.powerLED.mode = LED_FLASH_3Hz;
   ledControl.modeLED.mode = LED_FLASH_3Hz;
 
-  for (uint8_t i = 0; i < 5; i++)
+  for (uint8_t i = 0; i < TIMEOUT_FACTORY_RESET; i++)
   {
-    LOGD("%d, sec", 5 - i);
+    LOGD("%d, sec", TIMEOUT_FACTORY_RESET - i);
     delay(1000);
   }
 
@@ -299,7 +302,6 @@ void factoryReset()
 
 void setClock(void *pvParameters)
 {
-  String tag = "clock";
   configTime(0, 0, systemCfg.ntpServ1, systemCfg.ntpServ2);
 
   const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
@@ -320,7 +322,7 @@ void setClock(void *pvParameters)
   struct tm timeinfo;
   if (localtime_r(&nowSecs, &timeinfo))
   {
-    //LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
+    // LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
 
     char *zoneToFind = const_cast<char *>("Europe/Kiev");
     if (systemCfg.timeZone)
@@ -441,7 +443,6 @@ void setupCron()
 
 void setTimezone(String timezone)
 {
-  String tag = "TZ";
   // LOGD("Setting Timezone");
   setenv("TZ", timezone.c_str(), 1); //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
   tzset();
@@ -497,103 +498,129 @@ char *convertTimeToCron(const String &time)
   return formattedTime;
 }
 
-BrdConfigStruct customConfig;
-
-BrdConfigStruct *findBrdConfig(int searchId = 0)
+ThisConfigStruct *findBrdConfig(int searchId = 0)
 {
-  String tag = "BRD";
-  int brdConfigsSize = sizeof(brdConfigs) / sizeof(brdConfigs[0]);
 
-  bool brdOk = false;
+  bool ethOk = false;
+  bool btnOk = false;
+  bool zbOk = false;
 
-  if (searchId == brdConfigsSize)
+  static ThisConfigStruct bestConfig;
+  bestConfig.eth = {.addr = -1, .pwrPin = -1, .mdcPin = -1, .mdiPin = -1, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT, .pwrAltPin = -1};
+  bestConfig.zb = {.txPin = -1, .rxPin = -1, .rstPin = -1, .bslPin = -1};
+  memset(&bestConfig.mist, -1, sizeof(bestConfig.mist));
+  strlcpy(bestConfig.board, "Unknown", sizeof(bestConfig.board));
+
+  for (int brdIdx = searchId; brdIdx < BOARD_CFG_CNT; ++brdIdx)
   {
-    // last config was not successful. so use custom.
+    int ethIdx = brdConfigs[brdIdx].ethConfigIndex;
+    int zbIdx = brdConfigs[brdIdx].zbConfigIndex;
+    int mistIdx = brdConfigs[brdIdx].mistConfigIndex;
 
-    strlcpy(customConfig.board, "Custom", sizeof(customConfig.board));
-    return &customConfig;
-  }
+    LOGI("Try brd: %d - %s", brdIdx, brdConfigs[brdIdx].board);
 
-  int i = searchId;
-
-  if (ETH.begin(brdConfigs[i].eth.addr, brdConfigs[i].eth.pwrPin, brdConfigs[i].eth.mdcPin, brdConfigs[i].eth.mdiPin, brdConfigs[i].eth.phyType, brdConfigs[i].eth.clkMode, brdConfigs[i].eth.pwrAltPin))
-  {
-    LOGD("Config found: %s", brdConfigs[i].board);
-    delay(1000);
-    brdOk = true;
-
-    if (brdConfigs[i].mist.btnPin > 0)
+    if (brdIdx == 3) // T-Internet-POE
     {
-
-      pinMode(brdConfigs[i].mist.btnPin, INPUT);
-      int press = 0;
-      for (int y = 0; y < 10; y++)
+      pinMode(ethConfigs[ethIdx].pwrAltPin, OUTPUT);
+      delay(50);
+      digitalWrite(ethConfigs[ethIdx].pwrAltPin, LOW);
+      delay(50);
+      pinMode(ethConfigs[ethIdx].pwrAltPin, INPUT);
+      delay(50);
+      bool pwrPinState = digitalRead(ethConfigs[ethIdx].pwrAltPin);
+      if (pwrPinState)
       {
-        int state = digitalRead(brdConfigs[i].mist.btnPin);
-        if (state != brdConfigs[i].mist.btnPlr)
-        {
-          press++;
-          // LOGD("Button press %d", press);
-        }
-        delay(100);
-      }
-      if (press > 5)
-      {
-        brdOk = false;
-        LOGD("Button pin ERROR");
-      }
-      else
-      {
-        LOGD("Button pin OK");
+        LOGW("%s", "Looks like not T-Internet-POE!");
+        continue;
       }
     }
 
-    if (brdOk && (brdConfigs[i].zb.rxPin > 0 && brdConfigs[i].zb.txPin > 0 && brdConfigs[i].zb.rstPin > 0 && brdConfigs[i].zb.bslPin > 0))
+    if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode, ethConfigs[ethIdx].pwrAltPin))
     {
-      LOGD("Zigbee pins OK. Try to connect...");
-      esp_task_wdt_reset();
-      Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, brdConfigs[i].zb.rxPin, brdConfigs[i].zb.txPin); // start zigbee serial
+      ethOk = true;
+      LOGD("Ethernet config OK: %d", ethIdx);
 
-      // CCTool.switchStream(Serial2);
-      int BSL_PIN_MODE = 0;
+      bestConfig.eth = ethConfigs[ethIdx];
 
-      if (CCTool.begin(brdConfigs[i].zb.rstPin, brdConfigs[i].zb.bslPin, BSL_PIN_MODE))
+      if (mistConfigs[mistIdx].btnPin > 0)
       {
-        if (CCTool.detectChipInfo())
+        pinMode(mistConfigs[mistIdx].btnPin, INPUT);
+        int press = 0;
+        for (int y = 0; y < 10; y++)
         {
-          LOGD("Zigbee find - OK");
-          brdOk = true;
+          int state = digitalRead(mistConfigs[mistIdx].btnPin);
+          if (state != mistConfigs[mistIdx].btnPlr)
+          {
+            press++;
+          }
+          delay(100);
+        }
+        btnOk = (press <= 5);
+
+        if (!btnOk)
+        {
+          LOGD("Button pin ERROR");
+          ethOk = false;
         }
         else
         {
-          LOGI("Zigbee find - ERROR");
-          brdOk = false;
+          LOGD("Button pin OK");
         }
       }
       else
       {
-        LOGI("Zigbee ERROR");
-        brdOk = true; // replace false!
+        btnOk = true;
+      }
+
+      if (btnOk)
+      {
+        LOGD("Trying Zigbee: %d", zbIdx);
+        esp_task_wdt_reset();
+        Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, zbConfigs[zbIdx].rxPin, zbConfigs[zbIdx].txPin);
+
+        int BSL_PIN_MODE = 0;
+        if (CCTool.begin(zbConfigs[zbIdx].rstPin, zbConfigs[zbIdx].bslPin, BSL_PIN_MODE))
+        {
+          if (CCTool.detectChipInfo())
+          {
+            zbOk = true;
+            LOGD("Zigbee config OK: %d", zbIdx);
+
+            bestConfig.zb = zbConfigs[zbIdx];
+            bestConfig.mist = mistConfigs[mistIdx];
+            strlcpy(bestConfig.board, brdConfigs[brdIdx].board, sizeof(bestConfig.board));
+            return &bestConfig;
+          }
+          else
+          {
+            zbOk = false;
+            LOGD("Zigbee config ERROR");
+          }
+        }
       }
     }
-  }
-  if (brdOk == true)
-  {
-    return &brdConfigs[i];
-  }
-  else
-  {
-    LOGI("Config error with: %s", brdConfigs[i].board);
+
+    LOGI("Config error with: %s", brdConfigs[brdIdx].board);
     DynamicJsonDocument config(300);
-    config["searchId"] = i + 1;
+    config["searchId"] = brdIdx + 1;
     writeDefaultConfig(configFileHw, config);
 
     LOGD("Restarting...");
-
     delay(500);
     ESP.restart();
 
     return nullptr;
+  }
+
+  if (bestConfig.eth.addr != -1)
+  {
+    LOGI("Returning best partial config");
+    return &bestConfig;
+  }
+  else
+  {
+    LOGI("No valid config found, returning default");
+    return &bestConfig;
   }
 }
 
@@ -601,11 +628,6 @@ void wgBegin()
 {
   if (!wg.is_initialized())
   {
-    // printLogMsg(String("Initializing WireGuard interface..."));
-    // auto subnet = IPAddress(255, 255, 255, 0);
-    // auto gateway = IPAddress(0, 0, 0, 0);
-    // auto allowIP = IPAddress(0, 0, 0, 0);
-    // auto allowMask = IPAddress(0, 0, 0, 0);
 
     const char *wg_preshared_key = nullptr;
     if (vpnCfg.wgPreSharedKey[0] != '\0')
@@ -716,7 +738,6 @@ void ledTask(void *parameter)
   TickType_t lastWakeTime = xTaskGetTickCount();
   int previousMode = LED_OFF;
 
-  // String tag = "ledTask";
   while (1)
   {
     // LOGD("%d | led %s | m %d", millis(), led->name, led->mode);

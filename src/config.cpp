@@ -15,7 +15,7 @@
 Preferences preferences;
 
 extern struct SysVarsStruct vars;
-extern struct BrdConfigStruct hwConfig;
+extern struct ThisConfigStruct hwConfig;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 extern struct SystemConfigStruct systemCfg;
@@ -44,10 +44,9 @@ void printNVSFreeSpace()
 void eraseNVS()
 {
     LOGD("Going to erase NVS");
-    int timeDelay = 3;
-    for (int i = 0; i < timeDelay; i++)
+    for (uint8_t i = 0; i < TIMEOUT_FACTORY_RESET; i++)
     {
-        LOGD("%d seconds left..", (timeDelay - i));
+        LOGD("%d seconds left..", (TIMEOUT_FACTORY_RESET - i));
         delay(1000);
     }
     LOGD("Erasing NVS");
@@ -885,7 +884,7 @@ bool loadFileConfigHW()
         {
             searchId = config["searchId"];
         }
-        BrdConfigStruct *newConfig = findBrdConfig(searchId);
+        ThisConfigStruct *newConfig = findBrdConfig(searchId);
         if (newConfig)
         {
             LOGD("Find. Saving config");

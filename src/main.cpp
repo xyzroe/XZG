@@ -46,7 +46,7 @@ extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 LEDControl ledControl;
 
-BrdConfigStruct hwConfig;
+ThisConfigStruct hwConfig;
 
 SystemConfigStruct systemCfg;
 NetworkConfigStruct networkCfg;

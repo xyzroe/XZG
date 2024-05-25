@@ -16,7 +16,7 @@
 #include "zb.h"
 
 extern struct SysVarsStruct vars;
-extern struct BrdConfigStruct hwConfig;
+extern struct ThisConfigStruct hwConfig;
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 extern struct SystemConfigStruct systemCfg;
