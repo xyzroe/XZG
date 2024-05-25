@@ -1,0 +1,16 @@
+{
+  "name": "XZG Firmware",
+  "version": "20240525",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "improv": false,
+      "parts": [
+        {
+          "path": "https://raw.githubusercontent.com/xyzroe/XZG/releases/20240525/XZG_20240525.full.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
