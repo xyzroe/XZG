@@ -1,12 +1,16 @@
 name: Add merge comment
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
   add-merge-comment:
-    permissions: write-all
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
