@@ -1,5 +1,5 @@
 
-XZG Firmware unifies the best innovations from previous Zigbee gateway projects into a single, comprehensive solution.
+XZG Firmware unifies the best innovations from previous Zigbee gateway projects ([ZigStar](https://zig-star.com)) into a single, comprehensive solution.
 
 By focusing the community's efforts on enhancing one product, XZG aims to streamline development, thereby improving the features and efficiency of your Zigbee Gateways. 🌍
 
@@ -42,13 +42,13 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 
 ## 🎮 Supported devices 
 
-|                 |       Button       |    Custom LEDs     | Remote Network / USB mode selection |
-| :-------------- | :----------------: | :----------------: | :---------------------------------: |
-| [UZG-01]()      | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
-| [SLZB-06]()     | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
-| [Olizig PoE]()  | :x:                | :x:                |         :x:                         |
-| [LilyZig PoE]() | :x:                | :x:                |         :x:                         |
-| [ZigStar LAN]() | :x:                | :x:                |         :x:                         |
+|                                                               |       Button       |    Custom LEDs     | Remote Network / USB mode selection |
+| :------------------------------------------------------------ | :----------------: | :----------------: | :---------------------------------: |
+| [UZG-01](https://uzg.zig-star.com)                            | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
+| [SLZB-06]()                                                   | :white_check_mark: | :white_check_mark: |         :white_check_mark:          |
+| [Olizig PoE](https://zig-star.com/projects/zigstar-olizig/)   | :x:                | :x:                |         :x:                         |
+| [LilyZig PoE](https://zig-star.com/projects/zigstar-lilyzig/) | :x:                | :x:                |         :x:                         |
+| [ZigStar LAN](https://zig-star.com/projects/zigbee-gw-lan/)   | :x:                | :x:                |         :x:                         |
 
 * Some devices do not support all features
 
