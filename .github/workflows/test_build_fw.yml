@@ -6,7 +6,7 @@ on:
       - 'main'
 
 jobs:
-  build_release_push:
+  test_build:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
