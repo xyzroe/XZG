@@ -6,12 +6,12 @@
     "csp": "Prędkość połączenia",
     "cst": "Status połączenia",
     "drm": "Nie przypominaj",
-    "enable": "Włączać",
+    "enable": "Włącz",
     "ercn": "Błąd. \nSprawdź swoją sieć",
     "erss": "Błąd podczas zapisywania ustawień. \nSprawdź swoją sieć",
     "host": "Nazwa hosta",
     "init": "Zainicjowano",
-    "inst": "zainstalować",
+    "inst": "Zainstaluj",
     "ltr": "Później",
     "mac": "Adres MAC",
     "mode": "Tryb",
@@ -19,7 +19,7 @@
     "pass": "Hasło",
     "proj": "Utworzono z ❤️ przez",
     "save": "Ratować",
-    "sure": "jestem pewien",
+    "sure": "Jestem pewien",
     "user": "Nazwa użytkownika",
     "ok": "OK",
     "connecting": "Złączony",
@@ -130,10 +130,10 @@
         "ph": "Uzyskaj dostęp do urządzenia przez sieć, używając tej nazwy.local",
         "tt": "Litery i cyfry łacińskie, bez spacji"
       },
-      "kw": "Zachowaj sieć",
+      "kw": "Zachowaj sieć i serwer WWW",
       "led": {
         "desc": "Konfiguracja diody LED",
-        "dis": "Pełne wyłączenie",
+        "dis": "Całkowite wyłączenie",
         "mode": "Dioda trybu pracy",
         "night": "Tryb nocny – sterowanie diodami LED w oparciu o czas",
         "pwr": "Dioda zasilania"
@@ -176,7 +176,7 @@
       },
       "desc": "Konfiguracja MQTT",
       "disc": {
-        "n": "Asystent domowy — automatyczne wykrywanie",
+        "n": "Home Assistant — automatyczne wykrywanie",
         "ph": "Włącz lub wyłącz",
         "tt": "💡 Włącz tę opcję dla funkcji wykrywania MQTT Home Assistant"
       },
@@ -205,7 +205,7 @@
         "tt": "Wprowadź nazwę użytkownika otrzymaną od brokera"
       },
       "reconnect": {
-        "n": "Na nowo połączyć",
+        "n": "Połącz ponownie",
         "ph": "Odstęp ponownego połączenia w sekundach",
         "tt": "Wprowadź szybką próbę ponownego połączenia z brokerem (w sekundach)"
       }
@@ -214,13 +214,13 @@
       "descEth": "Konfiguracja Ethernetu",
       "descWifi": "Konfiguracja Wi-Fi",
       "dhcp": "DHCP",
-      "dns": "serwer DNS",
-      "gw": "Wejście",
+      "dns": "Serwer DNS",
+      "gw": "Brama",
       "ip": "IP",
       "mask": "Maska",
       "wifi": {
         "btn": {
-          "man": "Wprowadzić ręcznie",
+          "man": "Wprowadź ręcznie",
           "scan": "Skanuj w poszukiwaniu sieci Wi-Fi"
         },
         "ch": "Kanał",
@@ -250,7 +250,7 @@
         "du": "Czas pracy urządzenia",
         "lt": "Czas lokalny"
       },
-      "te": "Ethernetu",
+      "te": "Ethernet",
       "tm": "MQTT",
       "tvh": "Husarnet",
       "tw": "WiFi",
@@ -266,12 +266,12 @@
       },
       "zbc": {
         "tt": "Status urządzenia",
-        "op": "Tryb operacyjny",
+        "op": "Tryb działania",
         "opn": "Sieć Zigbee",
         "opu": "Zigbee-USB",
-        "scc": "Klient gniazda podłączony",
+        "scc": "Klienci podłączeni do gniazda",
         "sccn": "Brak połączenia",
-        "su": "czas połączenia",
+        "su": "Czas połączenia",
         "sccy": "Tak, {{count}} klientów",
         "zfs": "Rozmiar Flasha",
         "zie": "IEEE"
@@ -304,7 +304,7 @@
       "egu": "Aktualizacja Git ESP32",
       "esp": "ESP32",
       "fb": "Przeglądarka plików",
-      "fm": "Tryb z błyskiem",
+      "fm": "Tryb flash",
       "fn": "Nazwa pliku",
       "fr": "Przywrócenie ustawień fabrycznych",
       "fu": "Aktualizacja firmware",
@@ -317,7 +317,7 @@
       "ms": "Wybór trybu",
       "ntw": "Sieć",
       "pwr": "Moc",
-      "rd": "Surowe dane",
+      "rd": "Dane nieprzetworzone",
       "rr": "Połącz router ponownie",
       "rst": "Uruchom ponownie",
       "s": "Rozmiar",
@@ -362,14 +362,14 @@
         "dzl": "Wyłączyć diodę Zigbee?",
         "ha": "W przypadku Home Assistant: Przejdź do „Ustawienia” → „System” → „Sprzęt” → Wybierz menu z trzema kropkami w prawym górnym rogu → „Cały sprzęt” → Przewiń do ttyUSB i znajdź swój adapter → Skopiuj ścieżkę urządzenia, np. „/dev/ \nttyUSB0\"",
         "lin": "Lista urządzeń USB w systemie Linux: ls /dev/ttyUSB*",
-        "lxzg": "Lokalizacja firmy XZG",
+        "lxzg": "Lokalizacja XZG",
         "sel": "Wygeneruj konfigurację dla",
         "sopm": "Ustaw moc wyjściową na maksymalnie 20",
         "ss": "Konfiguracja szeregowa",
         "tt": "Generator konfiguracji"
       },
       "so": "Konfiguracja szeregowa",
-      "sp": "Gniazdo gniazda",
+      "sp": "Port gniazda",
       "ss": "Szybkość gniazda",
       "fws": {
         "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci powoduje awarię sieci!",
