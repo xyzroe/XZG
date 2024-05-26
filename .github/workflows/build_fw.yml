@@ -142,8 +142,7 @@ jobs:
 
       - name: Send Discord Notification about release
         run: |
-          commit_message=$(echo "${{ env.commitMessage }}" | jq -Rsa .)
-          json_payload=$(jq -n --arg content "$commit_message\n\nhttps://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
+          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
           curl -H "Content-Type: application/json" \
                -d "$json_payload" \
                ${{ secrets.DISCORD_WEBHOOK }}
