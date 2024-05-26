@@ -28,7 +28,7 @@ const modalBtns = ".modal-footer";
 const pages = {
 	API_PAGE_ROOT: { num: 0, str: "/" },
 	API_PAGE_GENERAL: { num: 1, str: "/general" },
-//	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
+	//	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
 	API_PAGE_NETWORK: { num: 2, str: "/network" },
 	API_PAGE_ZIGBEE: { num: 3, str: "/zigbee" },
 	API_PAGE_SECURITY: { num: 4, str: "/security" },
@@ -923,9 +923,15 @@ function extractTime(dateStr) {
 
 	let pm = "AM";
 	if (localStorage.getItem('clock_format_12h') == 'true') {
+		if (hours >= 12) {
+			pm = "PM";
+		}
 		if (hours > 12) {
 			hours = hours - 12;
-			pm = "PM";
+		}
+		if (hours == 0) {
+			hours = 12;
+			pm = "AM";
 		}
 		return `${hours}:${minutes}:${seconds} ${pm}`;
 	}
