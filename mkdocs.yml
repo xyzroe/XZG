@@ -97,8 +97,8 @@ markdown_extensions:
   - pymdownx.tilde
   #Emoji
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   #Lists
   - pymdownx.tasklist:
       custom_checkbox: true
@@ -141,7 +141,6 @@ plugins:
        caption_position: bottom
        skip_classes:
         - skip-lightbox
-  - section-index
 
 extra:
   generator: false
@@ -178,7 +177,6 @@ nav:
       - HTTP API: http_api.md
     - FAQ: faq.md
     - Lifehacks: lifehacks.md
-
   - About: 
     - about.md
  
