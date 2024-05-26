@@ -1,8 +1,6 @@
 **/.DS_Store
 .pio
 .vscode
-.gcc-flags.json
-.clang_complete
 commit*
 test.html
 gzipped
