@@ -30,8 +30,6 @@
 
 #define BUFFER_SIZE 256
 
-// #define UPD_FILE "https://github.com/mercenaruss/uzg-firmware/releases/latest/download/XZG.bin"
-
 // CC2652 settings (FOR BSL VALIDATION!)
 #define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
 #define NEED_BSL_LEVEL 1 // 0-ERROR 1-LOW 2-HIGH
@@ -52,16 +50,7 @@ enum LED_t : uint8_t
   ZB_LED
 };
 
-/*enum MODE_t : uint8_t
-{
-  OFF,
-  ON,
-  TOGGLE,
-  BLINK
-};*/
-
 extern const char *coordMode; // coordMode node name
-// extern const char *prevCoordMode; // prevCoordMode node name
 extern const char *configFileSystem;
 extern const char *configFileWifi;
 extern const char *configFileEther;
@@ -71,7 +60,6 @@ extern const char *configFileSerial;
 extern const char *configFileMqtt;
 extern const char *configFileWg;
 extern const char *configFileHw;
-// extern const char *deviceModel;
 
 struct SysVarsStruct
 {
@@ -80,8 +68,6 @@ struct SysVarsStruct
   bool hwLedPwrIs = false;
   bool hwUartSelIs = false;
   bool hwZigbeeIs = false;
-
-  // WORK_MODE_t workMode; // for button  // WORK_MODE_t
 
   bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
   int connectedClients;

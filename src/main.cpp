@@ -37,11 +37,6 @@
 #endif
 */
 
-// ConfigSettingsStruct ConfigSettings;
-// MqttSettingsStruct MqttSettings;
-// WgSettingsStruct WgSettings;
-// CurrentModesStruct modes;
-
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 LEDControl ledControl;
@@ -175,8 +170,6 @@ void handleTmrNetworkOverseer()
         }
       }
     }
-    // break;
-    // case WORK_MODE_NETWORK:
     if (networkCfg.ethEnable)
     {
       if (vars.connectedEther)
@@ -222,9 +215,8 @@ void handleTmrNetworkOverseer()
       }
     }
     break;
-
-    // default:
-    // break;
+  default:
+    break;
   }
 }
 
@@ -322,20 +314,9 @@ void startAP(const bool start)
     LOGD("WIFI_AP_STA");
     WiFi.mode(WIFI_AP_STA); // WIFI_AP_STA for possible wifi scan in wifi mode
     WiFi.disconnect();
-    // String AP_NameString;
-    // getDeviceID(AP_NameString);
-
-    // char AP_NameChar[AP_NameString.length() + 1];
-    // memset(AP_NameChar, 0, AP_NameString.length() + 1);
-
-    // for (int i = 0; i < AP_NameString.length(); i++){
-    //   AP_NameChar[i] = AP_NameString.charAt(i);
-    // }
-
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-    // char apSsid[MAX_DEV_ID_LONG];
-    // getDeviceID(apSsid);
     WiFi.softAP(vars.deviceId); //, WIFIPASS);
+    
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);

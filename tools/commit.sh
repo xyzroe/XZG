@@ -34,6 +34,25 @@ fi
 # Read version from the version file
 version=$(grep '#define VERSION' "$VERSION_HEADER" | awk -F '"' '{print $2}')
 
+tag=$version
+
+regex='^(.+)\.([0-9]+)$'
+
+if [[ $tag =~ $regex ]]; then
+    base=${BASH_REMATCH[1]}
+    suffix=${BASH_REMATCH[2]}
+else
+    base=$tag
+    suffix=0
+fi
+
+while git rev-parse "$tag" >/dev/null 2>&1; do
+    suffix=$((suffix + 1))
+    tag="${base}.${suffix}"
+done
+
+echo $tag
+
 # Checking for commit message file
 if [ -f "$COMMIT_MESSAGE_FILE" ]; then
     echo -e "${YELLOW}Commit message file found. Do you want to use the existing commit message? (y/N) 📝${NC}"
@@ -42,7 +61,7 @@ if [ -f "$COMMIT_MESSAGE_FILE" ]; then
     if [[ "$useExistingMessage" =~ ^[Yy]$ ]]; then
         commitMessage=$(cat "$COMMIT_MESSAGE_FILE")
         # Prepend version to the commit message with a newline for separation
-        formattedCommitMessage="${version}
+        formattedCommitMessage="${tag}
         ${commitMessage}"
         # Cleaning up the commit message file, if used
         if [ -f "$COMMIT_MESSAGE_FILE" ]; then
@@ -68,12 +87,6 @@ echo -e "${YELLOW}Do you want to create a new release by publishing a tag? 🏷�
 read -r tagCommit
 tagCommit=${tagCommit:-n} # default 'no' if empty
 if [[ "$tagCommit" =~ ^[Yy]$ ]]; then
-    tag=$version
-    suffix=0
-    while git rev-parse "$tag" >/dev/null 2>&1; do
-        let "suffix+=1"
-        tag="${version}.${suffix}"
-    done
     git tag "$tag"
     echo -e "${GREEN}Tag assigned: $tag 🏷️${NC}"
     

@@ -350,63 +350,6 @@ void handleEspUpdateUpload()
         }
     }
 }
-/*
-void handleZbUpdateUpload()
-{
-    // Проверяем подлинность
-    if (!is_authenticated())
-    {
-        return;
-    }
-
-    HTTPUpload &upload = serverWeb.upload();
-    if (opened == false)
-    {
-        opened = true;
-        LOGD("Try to remove file " + String(tempFile));
-        if (LittleFS.remove(tempFile))
-        {
-            DEBUG_PRINTLN(F("Removed file - OK"));
-        }
-        else
-        {
-            DEBUG_PRINTLN(F("Error while removing file"));
-        }
-        delay(250);
-        fwFile = LittleFS.open(tempFile, FILE_WRITE);
-
-        if (!fwFile)
-        {
-            DEBUG_PRINTLN(F("- failed to open file for writing"));
-            return;
-        }
-    }
-
-    if (upload.status == UPLOAD_FILE_START)
-    {
-        if (!is_authenticated())
-            return;
-        DEBUG_PRINTLN(String(millis()) + " Upload zigbee fw file: " + String(upload.filename.c_str()));
-        printLogMsg("[ZB_FW] upload: " + String(upload.filename.c_str()));
-    }
-    else if (upload.status == UPLOAD_FILE_WRITE)
-    {
-        fwFile.write(upload.buf, sizeof(upload.buf));
-    }
-    else if (upload.status == UPLOAD_FILE_END)
-    {
-        delay(500);
-        fwFile.close();
-        delay(500);
-        printLogMsg("[ZB_FW] upload finish!");
-        opened = false;
-
-        LOGD("Total file size: %s", String(upload.totalSize));
-
-        //xTaskCreate(checkFwHexTask, "CheckFWHex", 8192, (void *)tempFile, 1, NULL);
-    }
-}
-*/
 
 void handleEvents()
 {
@@ -695,26 +638,6 @@ void handleApi()
             serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
         }
         break;
-        /*case API_SEND_HEX:
-        {
-            String result = wrongArgs;
-            const char *argSize = "size";
-            const char *argHex = "hex";
-            DEBUG_PRINTLN(F("[send_hex]"));
-            if (serverWeb.hasArg(argHex) && serverWeb.hasArg(argSize))
-            {
-                result = ok;
-                DEBUG_PRINTLN(F("try..."));
-                DEBUG_PRINTLN(serverWeb.arg(argHex).c_str());
-                uint8_t size = serverWeb.arg(argSize).toInt();
-                byte resp[size];
-                hex2bin(resp, serverWeb.arg(argHex).c_str());
-
-                // Serial2.write(resp, size);
-            }
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-        }
-        break;*/
         case API_GET_FILE:
         {
             String result = wrongArgs;

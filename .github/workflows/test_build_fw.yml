@@ -1,0 +1,40 @@
+name: Test build firmware
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  test_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Install Node JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio==6.1.11
+
+      - name: Build PlatformIO Project
+        run: pio run
