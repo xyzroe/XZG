@@ -24,8 +24,6 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
 
 void factoryReset();
 
-// String hexToDec(String hexString);
-
 void setLedsDisable(bool all = false);
 void cronTest();
 void nmActivate();
