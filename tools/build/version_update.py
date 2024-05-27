@@ -45,14 +45,13 @@ else:
     if not os.path.exists(PROJECT_DIR + os.sep + "include"):
         os.mkdir(PROJECT_DIR + os.sep + "include")
     VERSION_HEADER = "include" + os.sep + VERSION_HEADER
-
+    
 current_version = read_version_from_file(VERSION_HEADER)
 
-if current_version:
-    if current_version.startswith(current_date):
-        new_version = current_version
-    else:
-        new_version = current_date
+if current_version is None:
+    new_version = current_date
+elif current_version.startswith(current_date) or current_version > current_date:
+    new_version = current_version
 else:
     new_version = current_date
 

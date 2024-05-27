@@ -51,7 +51,11 @@ while git rev-parse "$tag" >/dev/null 2>&1; do
     tag="${base}.${suffix}"
 done
 
-echo $tag
+sed -i.bak "s/#define VERSION \"${version}\"/#define VERSION \"${tag}\"/" "$VERSION_HEADER"
+
+rm "${VERSION_HEADER}.bak"
+
+echo "Updated version to $tag in $VERSION_HEADER"
 
 # Checking for commit message file
 if [ -f "$COMMIT_MESSAGE_FILE" ]; then
