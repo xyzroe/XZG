@@ -351,13 +351,13 @@ void handleEspUpdateUpload()
     }
 }
 
-void handleEvents()
-{
-    if (is_authenticated())
-    {
+void handleEvents() {
+    if (is_authenticated()) {
+        if (eventsClient) {
+            eventsClient.stop();
+        }
         eventsClient = serverWeb.client();
-        if (eventsClient)
-        { // send events header
+        if (eventsClient) {
             eventsClient.println("HTTP/1.1 200 OK");
             eventsClient.println("Content-Type: text/event-stream;");
             eventsClient.println("Connection: close");
@@ -369,15 +369,12 @@ void handleEvents()
     }
 }
 
-void sendEvent(const char *event, const uint8_t evsz, const String data)
-{
-    if (eventsClient)
-    {
+void sendEvent(const char *event, const uint8_t evsz, const String data) {
+    if (eventsClient) {
         char evnmArr[10 + evsz];
-        sprintf(evnmArr, "event: %s\n", event);
+        snprintf(evnmArr, sizeof(evnmArr), "event: %s\n", event);
         eventsClient.print(evnmArr);
         eventsClient.print(String("data: ") + data + "\n\n");
-        // eventsClient.println();
         eventsClient.flush();
     }
 }
