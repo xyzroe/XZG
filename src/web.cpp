@@ -351,13 +351,17 @@ void handleEspUpdateUpload()
     }
 }
 
-void handleEvents() {
-    if (is_authenticated()) {
-        if (eventsClient) {
+void handleEvents()
+{
+    if (is_authenticated())
+    {
+        if (eventsClient)
+        {
             eventsClient.stop();
         }
         eventsClient = serverWeb.client();
-        if (eventsClient) {
+        if (eventsClient)
+        {
             eventsClient.println("HTTP/1.1 200 OK");
             eventsClient.println("Content-Type: text/event-stream;");
             eventsClient.println("Connection: close");
@@ -369,8 +373,10 @@ void handleEvents() {
     }
 }
 
-void sendEvent(const char *event, const uint8_t evsz, const String data) {
-    if (eventsClient) {
+void sendEvent(const char *event, const uint8_t evsz, const String data)
+{
+    if (eventsClient)
+    {
         char evnmArr[10 + evsz];
         snprintf(evnmArr, sizeof(evnmArr), "event: %s\n", event);
         eventsClient.print(evnmArr);
@@ -1155,6 +1161,14 @@ void handleSerial()
     else if (systemCfg.serialSpeed == 115200)
     {
         doc["115200"] = checked;
+    }
+    else if (systemCfg.serialSpeed == 230400)
+    {
+        doc["230400"] = checked;
+    }
+    else if (systemCfg.serialSpeed == 460800)
+    {
+        doc["460800"] = checked;
     }
     else
     {

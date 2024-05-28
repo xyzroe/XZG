@@ -237,14 +237,16 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
     startServers();
-    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, %dMbps", ethKey,
+    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, DNS: %s, %dMbps", ethKey,
          ETH.macAddress().c_str(),
          ETH.localIP().toString().c_str(),
          ETH.subnetMask().toString().c_str(),
          ETH.gatewayIP().toString().c_str(),
+         ETH.dnsIP().toString().c_str(),
          ETH.linkSpeed());
 
     vars.connectedEther = true;
+    checkDNS(true);
     // ConfigSettings.disconnectEthTime = 0;
     break;
   case ARDUINO_EVENT_ETH_DISCONNECTED: // 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
@@ -268,11 +270,13 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
     startServers();
-    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s", wifiKey,
+    LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, DNS: %s", wifiKey,
          WiFi.macAddress().c_str(),
          WiFi.localIP().toString().c_str(),
          WiFi.subnetMask().toString().c_str(),
-         WiFi.gatewayIP().toString().c_str());
+         WiFi.gatewayIP().toString().c_str(),
+         WiFi.dnsIP().toString().c_str());
+    checkDNS(true);
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
@@ -316,7 +320,7 @@ void startAP(const bool start)
     WiFi.disconnect();
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
     WiFi.softAP(vars.deviceId); //, WIFIPASS);
-    
+
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
