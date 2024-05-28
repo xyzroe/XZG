@@ -1056,7 +1056,7 @@ void handleGeneral()
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
 
-    DynamicJsonDocument zones(10240);
+    DynamicJsonDocument zones(1024);
     String results;
 
     JsonArray zonesArray = zones.to<JsonArray>();
