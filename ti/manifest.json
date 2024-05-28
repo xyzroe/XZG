@@ -54,9 +54,9 @@
         },
         "CC2652P7": {
             "zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin": {
-                "ver": "20231210",
+                "ver": "ticlang",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin",
-                "notes": "Special build from @mercenaruss 🌟"
+                "notes": "Special build from @mercenaruss \ud83c\udf1f"
             }
         }
     },
@@ -155,6 +155,11 @@
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507.bin",
                 "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)<br>Increase message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)<br>Improve performance with larger network<br>Optimize table sizes<br>Increase stack_size from 1024 to 8192<br>Add firmware for CC1352P7 and CC2652R7<br>SimpleLink SDK 7.10.00.98"
+            },
+            "CC1352P7_coordinator_20230507_460800.bin": {
+                "ver": "460800",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507_460800.bin",
+                "notes": ""
             }
         },
         "CC2652P2_launchpad": {
@@ -182,6 +187,11 @@
                 "ver": "20220219",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20220219.bin",
                 "notes": "Fix Touchlink crash<br>SimpleLink SDK 5.40.00.40"
+            },
+            "CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin": {
+                "ver": "460800",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin",
+                "notes": ""
             }
         },
         "CC2652P2_other": {
@@ -209,6 +219,11 @@
                 "ver": "20220219",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20220219.bin",
                 "notes": "Fix Touchlink crash<br>SimpleLink SDK 5.40.00.40"
+            },
+            "CC1352P2_CC2652P_other_coordinator_20230507_460800.bin": {
+                "ver": "460800",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507_460800.bin",
+                "notes": ""
             }
         }
     },
