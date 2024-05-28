@@ -380,9 +380,67 @@ void nmDeactivate()
   setLedsDisable();
 }
 
+IPAddress savedWifiDNS;
+IPAddress savedEthDNS;
+
+void checkDNS(bool setup = false)
+{
+  const char *wifiKey = "WiFi";
+  const char *ethKey = "ETH";
+
+  if (networkCfg.wifiEnable)
+  {
+    IPAddress currentWifiDNS = WiFi.dnsIP();
+    if (setup)
+    {
+      savedWifiDNS = currentWifiDNS;
+      LOGI("Saved %s DNS - %s", wifiKey, savedWifiDNS.toString().c_str());
+    }
+    else
+    {
+      if (currentWifiDNS != savedWifiDNS)
+      {
+        WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), savedWifiDNS);
+        LOGI("Updated %s DNS - %s", wifiKey, savedWifiDNS.toString().c_str());
+      }
+      else
+      {
+        //LOGD("No update on %s DNS", wifiKey);
+      }
+    }
+  }
+
+  if (networkCfg.ethEnable)
+  {
+    IPAddress currentEthDNS = ETH.dnsIP();
+    if (setup)
+    {
+      savedEthDNS = currentEthDNS;
+      LOGI("Saved %s DNS - %s", ethKey, savedEthDNS.toString().c_str());
+    }
+    else
+    {
+      if (currentEthDNS != savedEthDNS)
+      {
+        ETH.config(ETH.localIP(), ETH.gatewayIP(), ETH.subnetMask(), savedEthDNS);
+        LOGI("Updated %s DNS - %s", ethKey, savedEthDNS.toString().c_str());
+      }
+      else
+      {
+        //LOGD("No update on %s DNS", ethKey);
+      }
+    }
+  }
+}
+
+void reCheckDNS()
+{
+  checkDNS();
+}
+
 void setupCron()
 {
-  // Cron.create(const_cast<char *>("0 */1 * * * *"), cronTest, false);
+  Cron.create(const_cast<char *>("0 */1 * * * *"), reCheckDNS, false);
 
   Cron.create(const_cast<char *>("0 0 */1 * * *"), checkEspUpdateAvail, false);
 
@@ -482,7 +540,7 @@ char *convertTimeToCron(const String &time)
   static char formattedTime[16];
   int hours, minutes;
 
-  char timeArray[6]; 
+  char timeArray[6];
   time.toCharArray(timeArray, sizeof(timeArray));
 
   sscanf(timeArray, "%d:%d", &hours, &minutes);
