@@ -54,9 +54,9 @@
         },
         "CC2652P7": {
             "zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin": {
-                "ver": "ticlang",
+                "ver": "20231210",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang.bin",
-                "notes": "Special build from @mercenaruss \ud83c\udf1f"
+                "notes": "Special build from @mercenaruss 🌟"
             }
         }
     },
@@ -159,7 +159,7 @@
             "CC1352P7_coordinator_20230507_460800.bin": {
                 "ver": "460800",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507_460800.bin",
-                "notes": ""
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a>"
             }
         },
         "CC2652P2_launchpad": {
@@ -191,7 +191,7 @@
             "CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin": {
                 "ver": "460800",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin",
-                "notes": ""
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a>"
             }
         },
         "CC2652P2_other": {
@@ -223,7 +223,7 @@
             "CC1352P2_CC2652P_other_coordinator_20230507_460800.bin": {
                 "ver": "460800",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507_460800.bin",
-                "notes": ""
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a>"
             }
         }
     },
