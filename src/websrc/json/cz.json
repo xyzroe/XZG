@@ -47,10 +47,10 @@
         "map": "AP"
       },
       "zbc": {
-        "op": "Pracovní režim",
-        "opn": "Síť Zigbee",
+        "op": "Režim",
+        "opn": "Zigbee-síť",
         "opu": "Zigbee-USB",
-        "scc": "Socket klient připojen",
+        "scc": "Socket",
         "sccn": "Žádné připojení",
         "sccy": "Ano, klienti: {{count}}",
         "su": "Doba připojení",
@@ -59,16 +59,16 @@
         "zie": "IEEE"
       },
       "c": {
-        "fv": "FW revize",
-        "hv": "HW verze"
+        "fv": "Firmware",
+        "hv": "Hardware"
       }
     },
     "ge": {
-      "desc": "Obecné nastavení",
+      "desc": "Nastavení",
       "host": {
         "n": "Název hostitele",
         "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
-        "tt": "Písmena latinky a číslice, žádné mezery"
+        "tt": "Písmena latinky a číslice, bez mezer"
       },
       "refresh": {
         "n": "Interval obnovování webu",
@@ -77,7 +77,7 @@
       },
       "work": {
         "mode": {
-          "desc": "Vybrat provozní režim zařízení",
+          "desc": "Provozní režim zařízení",
           "net": "Režim sítě",
           "usb": "Režim USB"
         }
@@ -88,10 +88,10 @@
         "dis": "Úplné zakázání",
         "pwr": "LED napájení",
         "mode": "LED pracovní režim",
-        "night": "Noční režim - ovládání pomocí LED diod"
+        "night": "Noční režim"
       },
       "ntp": {
-        "desc": "Konfigurace NTP",
+        "desc": "NTP",
         "zone": "Časové pásmo",
         "server": {
           "n": "NTP server",
@@ -101,12 +101,12 @@
       }
     },
     "ne": {
-      "descEth": "Konfigurace Ethernetu",
+      "descEth": "Ethernet",
       "dhcp": "DHCP",
       "ip": "IP",
       "mask": "Maska",
       "gw": "Brána",
-      "dns": "DNS server",
+      "dns": "DNS",
       "descWifi": "Konfigurace Wi-Fi",
       "wifi": {
         "btn": {
@@ -121,14 +121,14 @@
       }
     },
     "zi": {
-      "so": "Konfigurace sériové linky",
-      "ss": "Rychlost portu",
-      "sp": "Socket port",
+      "so": "Sériová linka",
+      "ss": "Rychlost",
+      "sp": "Port",
       "cfg": {
         "tt": "Generátor konfigurace",
-        "sel": "Vygenerovat konfiguraci pro",
+        "sel": "Vygenerovat pro",
         "alarm": "Zdá se, že XZG je v režimu přístupového bodu (IP 192.168.1.1). IP adresa se změní po připojení k ethernetu nebo Wi-Fi, poté je třeba znovu vygenerovat konfiguraci.",
-        "ss": "Konfigurace sériové linky",
+        "ss": "Sériová linka",
         "lxzg": "Umístění XZG",
         "dzl": "Zakázat Zigbee led?",
         "sopm": "Nastavit výstupní výkon na max 20",
@@ -137,15 +137,15 @@
         "dp": "INSERT_DEVICE_PATCH_HERE"
       },
       "fws": {
-        "tt": "Role",
+        "tt": "Role zařízení",
         "alarm": "Změna firmwaru v běžící síti způsobí rozpad sítě!"
       }
     },
     "mq": {
       "enb": "Povolením aktivujete MQTT",
-      "desc": "Konfigurace MQTT",
+      "desc": "Nastavení",
       "broker": {
-        "n": "Broker",
+        "n": "Server",
         "ph": "Název domény nebo IP adresa",
         "tt": "Zadejte platnou doménu nebo IP"
       },
@@ -165,16 +165,16 @@
         "tt": "Zadejte jak často se mají odesílat aktualizace (v sekundách)"
       },
       "disc": {
-        "n": "Home Assistant - Automatické zjišťování",
+        "n": "Home Assistant (MQTT zjišťování)",
         "ph": "Povolit nebo zakázat",
         "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
       },
       "user": {
-        "ph": "MQTT uživatelské jméno",
+        "ph": "Uživatelské jméno",
         "tt": "Zadejte uživatelské jméno od vašeho brokera"
       },
       "pass": {
-        "ph": "MQTT heslo",
+        "ph": "Heslo",
         "tt": "Zadejte heslo od svého brokera"
       },
       "reconnect": {
@@ -185,7 +185,7 @@
     },
     "vp": {
       "wg": {
-        "tt": "Konfigurace WireGuard",
+        "tt": "Nastavení rozhraní WireGuard",
         "lip": "IP adresa lokálního rozhraní",
         "lpk": "Soukromý klíč lokálního rozhraní",
         "ea": "Adresa peer koncového bodu",
@@ -207,9 +207,9 @@
       }
     },
     "se": {
-      "desc": "Konfigurace zabezpečení",
+      "desc": "Nastavení",
       "web": {
-        "dis": "Zakázat webový server když je připojen socket",
+        "dis": "Zakázat webový server když je připojený socket",
         "auth": "Povolit ověřování webového serveru"
       },
       "fw": {
@@ -218,8 +218,8 @@
       }
     },
     "to": {
-      "sc": "Ovládání systému",
-      "fu": "Aktualizace firmware",
+      "sc": "Systém",
+      "fu": "Firmware",
       "dt": "Nástroje pro ladění",
       "mc": "Ovládání modulů",
       "zb": "Zigbee",
@@ -233,28 +233,28 @@
       "ntw": "Síť",
       "usb": "USB",
       "lt": "Přepínání LED diod",
-      "ls": "začínající...",
-      "lb": "flashuje...",
+      "ls": "začíná..",
+      "lb": "flashování...",
       "pwr": "Napájení",
       "mode": "Režim",
       "dc": "Debug konzole",
-      "rd": "Nezpracovaná data ",
+      "rd": "Nezpracovaná data",
       "cc": "Vymazat konzoli",
       "czc": "Zkontrolovat připojení Zigbee",
       "czv": "Zkontrolovat verzi Zigbee",
       "fb": "Prohlížeč souborů",
       "fn": "Název souboru",
       "s": "Velikost",
-      "egu": "Aktualizace Git ESP32",
-      "efu": "Aktualizace souboru ESP32",
-      "cf": "Vybrat soubor...",
+      "egu": "ESP32",
+      "efu": "Manuální flashování ESP32",
+      "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
       "sri": "Vybrat verzi",
       "zu": "Aktualizace Zigbee (ve vývoji)",
-      "zfu": "Aktualizace souboru Zigbee",
+      "zfu": "Manuální flashování Zigbee",
       "clzv": "Zkontrolovat nejnovější firmware Zigbee",
-      "saf": "Zobrazit dostupný firmware",
-      "zgu": "Aktualizace Git CC2652",
+      "saf": "Zobrazit dostupné",
+      "zgu": "Zigbee",
       "eznr": "Vymazat NVRAM"
     },
     "lo": {
@@ -316,8 +316,8 @@
     "ok": "OK",
     "now": "Nainstalovat",
     "mode": "Režim",
-    "cst": "Stav připojení",
-    "csp": "Rychlost připojení",
+    "cst": "Stav",
+    "csp": "Rychlost",
     "mac": "MAC adresa",
     "conn": "Připojeno",
     "connecting": "Připojování",
@@ -327,7 +327,7 @@
     "inst": "Nainstalovat",
     "cc": "Zkopírovat do schránky",
     "erss": "Při ukládání nastavení došlo k chybě. Zkontrolujte svou síť",
-    "ercn": "Chyba. ",
+    "ercn": "Chyba. Zkontrolujte svou síť",
     "proj": "Vytvořeno s ❤️ od",
     "nc": "Žádné připojení",
     "cl": "Zavřít",
@@ -377,7 +377,7 @@
         "vc": "Ověření dokončeno!"
       },
       "dtc": "Koordinátor",
-      "cfv": "Aktuální firmware: {{ver}}",
+      "cfv": "Současný firmware: {{ver}}",
       "dtr": "Router",
       "efr": "Chyba při načítání informací o firmwaru<br>Zkontrolujte síť!",
       "lcf": "Nejnovější firmware koordinátora:",
@@ -386,7 +386,7 @@
       "nrf": "Chybí firmware routeru.",
       "ot": "Aktualizace Zigbee OTA",
       "rfm": "Získávání informací o firmwaru...",
-      "ntf": "Firmware vlákna chybí.",
+      "ntf": "Firmware Thread chybí.",
       "dtt": "OpenThread"
     },
     "ss": {
