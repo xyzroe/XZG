@@ -51,7 +51,7 @@ const char *discoveryKey = "discovery";
 const char *reconnectIntKey = "reconnectInt";
 
 const char *systemConfigKey = "system-config";
-const char *keepWebKey = "keepWeb";
+//const char *keepWebKey = "keepWeb";
 const char *disableWebKey = "disableWeb";
 const char *webAuthKey = "webAuth";
 const char *webUserKey = "webUser";
@@ -77,7 +77,7 @@ const char *systemVarsKey = "system-vars";
 const char *hwBtnIsKey = "hwBtnIs";
 const char *hwLedUsbIsKey = "hwLedUsbIs";
 const char *hwLedPwrIsKey = "hwLedPwrIs";
-const char *hwUartSelIsKey = "hwUartSelIs";
+//const char *hwUartSelIsKey = "hwUartSelIs";
 const char *hwZigbeeIsKey = "hwZigbeeIs";
 const char *workModeKey = "workMode";
 const char *connectedSocketKey = "connectedSocket";

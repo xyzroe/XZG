@@ -178,26 +178,35 @@ void zigbeeRestart()
 
 void usbModeSet(usbMode mode)
 {
-  if (vars.hwUartSelIs)
+  // if (vars.hwUartSelIs)
+  //{
+  // String modeStr = (mode == ZIGBEE) ? "ZIGBEE" : "ESP";
+  bool pinValue = (mode == ZIGBEE) ? HIGH : LOW;
+  // String msg = "Switched USB to " + modeStr + "";
+  // printLogMsg(msg);
+
+  if (mode == ZIGBEE)
   {
-    String modeStr = (mode == ZIGBEE) ? "ZIGBEE" : "ESP";
-    bool pinValue = (mode == ZIGBEE) ? HIGH : LOW;
-    String msg = "Switched USB to " + modeStr + "";
-    printLogMsg(msg);
-    digitalWrite(hwConfig.mist.uartSelPin, pinValue);
-    if (pinValue)
-    {
-      ledControl.modeLED.mode = LED_ON;
-    }
-    else
-    {
-      ledControl.modeLED.mode = LED_OFF;
-    }
+    Serial.updateBaudRate(systemCfg.serialSpeed);
   }
   else
   {
-    LOGD("NO vars.hwUartSelIs");
+    Serial.updateBaudRate(115200);
   }
+  // digitalWrite(hwConfig.mist.uartSelPin, pinValue);
+  if (pinValue)
+  {
+    ledControl.modeLED.mode = LED_ON;
+  }
+  else
+  {
+    ledControl.modeLED.mode = LED_OFF;
+  }
+  //}
+  // else
+  //{
+  //  LOGD("NO vars.hwUartSelIs");
+  //}
 }
 
 void getDeviceID(char *arr)
@@ -387,6 +396,10 @@ void checkDNS(bool setup = false)
 {
   const char *wifiKey = "WiFi";
   const char *ethKey = "ETH";
+  const char *savedKey = "Saved";
+  const char *restoredKey = "Restored";
+  const char *dnsTagKey = "[DNS]";
+  char buffer[100];
 
   if (networkCfg.wifiEnable)
   {
@@ -394,18 +407,16 @@ void checkDNS(bool setup = false)
     if (setup)
     {
       savedWifiDNS = currentWifiDNS;
-      LOGI("Saved %s DNS - %s", wifiKey, savedWifiDNS.toString().c_str());
+      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, savedWifiDNS.toString().c_str());
+      printLogMsg(buffer);
     }
     else
     {
       if (currentWifiDNS != savedWifiDNS)
       {
         WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), savedWifiDNS);
-        LOGI("Updated %s DNS - %s", wifiKey, savedWifiDNS.toString().c_str());
-      }
-      else
-      {
-        //LOGD("No update on %s DNS", wifiKey);
+        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, wifiKey, savedWifiDNS.toString().c_str());
+        printLogMsg(buffer);
       }
     }
   }
@@ -416,18 +427,16 @@ void checkDNS(bool setup = false)
     if (setup)
     {
       savedEthDNS = currentEthDNS;
-      LOGI("Saved %s DNS - %s", ethKey, savedEthDNS.toString().c_str());
+      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, savedEthDNS.toString().c_str());
+      printLogMsg(buffer);
     }
     else
     {
       if (currentEthDNS != savedEthDNS)
       {
         ETH.config(ETH.localIP(), ETH.gatewayIP(), ETH.subnetMask(), savedEthDNS);
-        LOGI("Updated %s DNS - %s", ethKey, savedEthDNS.toString().c_str());
-      }
-      else
-      {
-        //LOGD("No update on %s DNS", ethKey);
+        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, ethKey, savedEthDNS.toString().c_str());
+        printLogMsg(buffer);
       }
     }
   }
@@ -507,7 +516,7 @@ void setTimezone(String timezone)
 
   String timeNow = asctime(&timeinfo);
   timeNow.remove(timeNow.length() - 1);
-  printLogMsg("Local time: " + timeNow);
+  printLogMsg("[Time] " + timeNow);
 }
 
 const char *getGmtOffsetForZone(const char *zone)

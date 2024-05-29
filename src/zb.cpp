@@ -41,17 +41,18 @@ bool zbFwCheck()
     {
         if (CCTool.checkFirmwareVersion())
         {
-            printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
+            printLogMsg(tag_ZB + " FW: " + String(CCTool.chip.fwRev));
             return true;
         }
         else
         {   
             CCTool.restart();
-            LOGD("Try: %d", attempt);
-            delay(250); 
+            int val = attempt+1;
+            LOGD("Try: %d", val);
+            delay(500*(val*val)); 
         }
     }
-    printLogMsg(tag_ZB + " fw: unknown!");
+    printLogMsg(tag_ZB + " FW: Unknown! Check serial speed!");
     return false;
 }
 
