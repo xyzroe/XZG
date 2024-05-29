@@ -77,7 +77,7 @@
       },
       "work": {
         "mode": {
-          "desc": "Select the device operating mode",
+          "desc": "Device operating mode",
           "net": "NETWORK mode",
           "usb": "USB mode"
         }
