@@ -36,36 +36,35 @@ extern CCTools CCTool;
 
 bool zbFwCheck()
 {
-    if (CCTool.checkFirmwareVersion())
+    const int maxAttempts = 3;
+    for (int attempt = 0; attempt < maxAttempts; attempt++)
     {
-        printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
-        return true;
-    }
-    else
-    {
-        delay(250);
         if (CCTool.checkFirmwareVersion())
         {
             printLogMsg(tag_ZB + " fw: " + String(CCTool.chip.fwRev));
             return true;
         }
         else
-        {
-            printLogMsg(tag_ZB + " fw: unknown!");
-            return false;
+        {   
+            CCTool.restart();
+            LOGD("Try: %d", attempt);
+            delay(250); 
         }
     }
+    printLogMsg(tag_ZB + " fw: unknown!");
+    return false;
 }
 
 void zbHwCheck()
 {
-    int BSL_PIN_MODE = 0;
     ledControl.modeLED.mode = LED_BLINK_1Hz;
 
     if (CCTool.detectChipInfo())
     {
         printLogMsg(tag_ZB + " Chip: " + CCTool.chip.hwRev);
         printLogMsg(tag_ZB + " IEEE: " + CCTool.chip.ieee);
+        LOGI("modeCfg %s", String((CCTool.chip.modeCfg), HEX));
+        LOGI("bslCfg %s", String((CCTool.chip.bslCfg), HEX));
         printLogMsg(tag_ZB + " Flash size: " + String(CCTool.chip.flashSize / 1024) + " KB");
 
         vars.hwZigbeeIs = true;
@@ -135,7 +134,7 @@ void zbEraseNV(void *pvParameters)
 
 void flashZbUrl(String url)
 {
-
+    Serial2.updateBaudRate(460800);
     float last_percent = 0;
 
     const char *tagZB_FW_info = "ZB_FW_info";
@@ -184,6 +183,7 @@ void flashZbUrl(String url)
         printLogMsg("Failed to flash Zigbee");
         sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
     }
+    Serial2.updateBaudRate(systemCfg.serialSpeed);
 }
 
 void printBufferAsHex(const byte *buffer, size_t length)
