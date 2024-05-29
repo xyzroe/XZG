@@ -649,7 +649,7 @@ CommandInterface::zbInfoStruct CommandInterface::_checkFwVer()
             chip.transportrev = zbVerBuf[0];
             _cleanBuffer();
 
-            DEBUG_PRINTLN("ZB v: " + String(chip.fwRev) + " Main: " + chip.maintrel + " Min: " + chip.minorrel + " Maj: " + chip.majorrel + " T: " + chip.transportrev + " P: " + chip.product);
+            // DEBUG_PRINTLN("ZB v: " + String(chip.fwRev) + " Main: " + chip.maintrel + " Min: " + chip.minorrel + " Maj: " + chip.majorrel + " T: " + chip.transportrev + " P: " + chip.product);
 
             return chip;
         }
