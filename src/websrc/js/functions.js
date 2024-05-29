@@ -395,11 +395,11 @@ function loadPage(url) {
 			apiGetPage(api.pages.API_PAGE_ROOT);
 			break;
 		case api.pages.API_PAGE_GENERAL.str:
-			apiGetPage(api.pages.API_PAGE_GENERAL, () => {
-				if (!$("#usbMode").prop(chck)) {
-					KeepWebDsbl(true);
-				}
-			});
+			apiGetPage(api.pages.API_PAGE_GENERAL);//, () => {
+				//if (!$("#usbMode").prop(chck)) {
+				//	KeepWebDsbl(true);
+				//}
+			//});
 			break;
 		case api.pages.API_PAGE_MQTT.str:
 			apiGetPage(api.pages.API_PAGE_MQTT, () => {
@@ -668,7 +668,7 @@ function apiGetPage(page, doneCall, loader = true) {
 						//hwBtnIs
 						continue;
 					}
-					if (property === "hwUartSelIs") {
+					/*if (property === "hwUartSelIs") {
 						if (values[property]) {
 							showDivById('modeSelCard');
 							showDivById('curModeSelCard');
@@ -676,7 +676,7 @@ function apiGetPage(page, doneCall, loader = true) {
 
 						//hwBtnIs
 						continue;
-					}
+					}*/
 				}
 				dataReplace(values);
 			}
@@ -1976,7 +1976,7 @@ function modalConstructor(type, params) {
 				}
 			});
 			break;
-		case "keepWeb":
+		/*case "keepWeb":
 			$(headerText).text(i18next.t('p.ge.kw'));
 			$(modalBody).text(i18next.t('md.kw.msg'));
 			$('<button>', {
@@ -1987,7 +1987,7 @@ function modalConstructor(type, params) {
 					closeModal();
 				}
 			}).appendTo(modalBtns);
-			break;
+			break;*/
 
 		default:
 			break;
@@ -2101,9 +2101,9 @@ function setupSwipeHandler() {
 	}
 }
 
-function KeepWebDsbl(state) {
+/*function KeepWebDsbl(state) {
 	$("#keepWeb").prop(disbl, state);
-}
+}*/
 
 function EthEnbl(state) {
 	state = !state;

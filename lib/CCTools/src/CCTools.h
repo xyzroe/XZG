@@ -416,6 +416,8 @@ protected:
         uint8_t majorrel;
         uint8_t product;
         uint8_t transportrev;
+        unsigned long modeCfg;
+        unsigned long bslCfg;
     };
 
     static const uint8_t ACK_BYTE = 0xCC;

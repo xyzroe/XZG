@@ -23,8 +23,6 @@ extern struct NetworkConfigStruct networkCfg;
 extern struct VpnConfigStruct vpnCfg;
 extern struct MqttConfigStruct mqttCfg;
 
-String tag = "NVS";
-
 void getNvsStats(int *total, int *used)
 {
     nvs_stats_t nvsStats;
@@ -262,7 +260,7 @@ void saveSystemConfig(const SystemConfigStruct &config)
 {
     preferences.begin(systemConfigKey, false);
 
-    preferences.putBool(keepWebKey, config.keepWeb);
+    //preferences.putBool(keepWebKey, config.keepWeb);
     preferences.putBool(disableWebKey, config.disableWeb);
     preferences.putBool(webAuthKey, config.webAuth);
     preferences.putString(webUserKey, config.webUser);
@@ -292,7 +290,7 @@ void loadSystemConfig(SystemConfigStruct &config)
 {
     preferences.begin(systemConfigKey, true);
 
-    config.keepWeb = preferences.getBool(keepWebKey, true);
+    //config.keepWeb = preferences.getBool(keepWebKey, true);
     config.disableWeb = preferences.getBool(disableWebKey, false);
     config.webAuth = preferences.getBool(webAuthKey, false);
     strlcpy(config.webUser, preferences.getString(webUserKey, "").c_str(), sizeof(config.webUser));
@@ -348,7 +346,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         {
         case API_PAGE_GENERAL:
         {
-            if (serverWeb.hasArg(coordMode))
+            /*if (serverWeb.hasArg(coordMode))
             {
                 const uint8_t mode = serverWeb.arg(coordMode).toInt();
                 if (mode <= 2 && mode >= 0)
@@ -360,7 +358,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
                 }
             }
 
-            configSys.keepWeb = serverWeb.hasArg(keepWebKey) == true;
+            configSys.keepWeb = serverWeb.hasArg(keepWebKey) == true;*/
 
             configSys.disableLedPwr = serverWeb.hasArg(disableLedPwrKey) == true;
 
@@ -507,13 +505,22 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         break;
         case API_PAGE_ZIGBEE:
         {
+            if (serverWeb.hasArg(coordMode))
+            {
+                const uint8_t mode = serverWeb.arg(coordMode).toInt();
+                if (mode <= 2 && mode >= 0)
+                {
+                    configSys.workMode = static_cast<WORK_MODE_t>(mode);
+                }
+            }
+
             const char *baud = "baud";
             if (serverWeb.hasArg(baud))
             {
                 configSys.serialSpeed = serverWeb.arg(baud).toInt();
             }
 
-            if (serverWeb.hasArg(baud))
+            if (serverWeb.hasArg(portKey))
             {
                 configSys.socketPort = serverWeb.arg(portKey).toInt();
             }
@@ -754,7 +761,7 @@ void serializeMqttConfigToJson(const MqttConfigStruct &config, JsonObject obj)
 // Serialization SystemConfigStruct into JSON
 void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject obj)
 {
-    obj[keepWebKey] = config.keepWeb;
+    //obj[keepWebKey] = config.keepWeb;
     obj[disableWebKey] = config.disableWeb;
     obj[webAuthKey] = config.webAuth;
     obj[webUserKey] = config.webUser;
@@ -784,7 +791,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[hwBtnIsKey] = vars.hwBtnIs;
     obj[hwLedUsbIsKey] = vars.hwLedUsbIs;
     obj[hwLedPwrIsKey] = vars.hwLedPwrIs;
-    obj[hwUartSelIsKey] = vars.hwUartSelIs;
+    //obj[hwUartSelIsKey] = vars.hwUartSelIs;
     obj[hwZigbeeIsKey] = vars.hwZigbeeIs;
 
     obj[connectedClientsKey] = vars.connectedClients;
@@ -812,7 +819,6 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
 
 bool loadFileConfigHW()
 {
-    String tag = "HW";
     const char *board = "board";
     const char *addr = "addr";
     const char *pwrPin = "pwrPin";
@@ -1091,7 +1097,7 @@ bool loadFileConfigGeneral()
     systemCfg.disableLedPwr = (uint8_t)doc[disableLedPwrKey];
     systemCfg.disableLedUSB = (uint8_t)doc[disableLedUSBKey];
     vars.disableLeds = (uint8_t)doc[disableLedsKey];
-    systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
+    //systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
     strlcpy(systemCfg.timeZone, doc[timeZoneKey] | NTP_TIME_ZONE, sizeof(systemCfg.timeZone));
 
     configFile.close();

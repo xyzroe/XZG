@@ -382,20 +382,20 @@ void connectWifi()
   }
   else
   {
-    if (!(systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb))
-    { // dont start ap in keepWeb
-      LOGD("NO SSID & PASS ");
-      if (!vars.connectedEther)
-      {
-        LOGD("and problem with LAN");
-        startAP(true);
-        LOGD("so setupWifiAP");
-      }
-      else
-      {
-        LOGD("but LAN is OK");
-      }
+    // if (!(systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb))
+    //{ // dont start ap in keepWeb
+    LOGD("NO SSID & PASS ");
+    if (!vars.connectedEther)
+    {
+      LOGD("and problem with LAN");
+      startAP(true);
+      LOGD("so setupWifiAP");
     }
+    else
+    {
+      LOGD("but LAN is OK");
+    }
+    // }
   }
 }
 
@@ -434,37 +434,41 @@ void setupCoordinatorMode()
   String workModeString = systemCfg.workMode ? "USB" : "Network";
   LOGI("%s", workModeString);
 
-  if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
-  { // start network overseer
-    if (tmrNetworkOverseer.state() == STOPPED)
-    {
-      tmrNetworkOverseer.start();
-    }
-    WiFi.onEvent(NetworkEvent);
-    if (networkCfg.ethEnable)
-      initLan();
-    if (networkCfg.wifiEnable)
-      connectWifi();
+  // if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
+  //{ // start network overseer
+  if (tmrNetworkOverseer.state() == STOPPED)
+  {
+    tmrNetworkOverseer.start();
   }
+  WiFi.onEvent(NetworkEvent);
+  if (networkCfg.ethEnable)
+    initLan();
+  if (networkCfg.wifiEnable)
+    connectWifi();
+  //}
 
   switch (systemCfg.workMode)
   {
   case WORK_MODE_USB:
     ledControl.modeLED.mode = LED_ON;
-    delay(500);
+    delay(100);
     usbModeSet(ZIGBEE);
     break;
   case WORK_MODE_NETWORK:
     ledControl.powerLED.mode = LED_BLINK_1Hz;
+    delay(100);
+    usbModeSet(XZG);
     break;
   default:
     break;
   }
 
-  if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
+  // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
+  //   updWeb = true; // handle web server
+  if (!systemCfg.disableWeb)
     updWeb = true; // handle web server
-  if (systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb)
-    connectWifi(); // try 2 connect wifi
+  // if (systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb)
+  //   connectWifi(); // try 2 connect wifi
 }
 
 void setup()
@@ -528,8 +532,10 @@ void setup()
   if (hwConfig.mist.uartSelPin > 0)
   {
     pinMode(hwConfig.mist.uartSelPin, OUTPUT);
-    vars.hwUartSelIs = true;
-    usbModeSet(XZG);
+    //vars.hwUartSelIs = true;
+    // usbModeSet(XZG);
+    bool fixState = (hwConfig.mist.uartSelPlr == 1) ? LOW : HIGH;
+    digitalWrite(hwConfig.mist.uartSelPin, fixState);
   }
 
   if ((hwConfig.zb.txPin > 0) && (hwConfig.zb.rxPin > 0) && (hwConfig.zb.rstPin > 0) && (hwConfig.zb.bslPin > 0))
@@ -563,7 +569,7 @@ void setup()
   printNVSFreeSpace();
 
   zbFwCheck();
-
+  
   LOGD("done");
 }
 
@@ -684,7 +690,22 @@ void loop(void)
     }
   }
 
-  if (systemCfg.workMode != WORK_MODE_USB)
+  if (systemCfg.workMode == WORK_MODE_USB)
+  {
+    if (Serial2.available())
+    {
+      Serial.write(Serial2.read());
+      Serial.flush();
+    }
+    if (Serial.available())
+    {
+      Serial2.write(Serial.read());
+      Serial2.flush();
+    }
+    return;
+  }
+
+  else if (systemCfg.workMode == WORK_MODE_NETWORK)
   {
     uint16_t net_bytes_read = 0;
     uint8_t net_buf[BUFFER_SIZE];

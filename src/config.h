@@ -66,7 +66,7 @@ struct SysVarsStruct
   bool hwBtnIs = false;
   bool hwLedUsbIs = false;
   bool hwLedPwrIs = false;
-  bool hwUartSelIs = false;
+  //bool hwUartSelIs = false;
   bool hwZigbeeIs = false;
 
   bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
@@ -175,7 +175,7 @@ void loadMqttConfig(MqttConfigStruct &config);
 
 struct SystemConfigStruct
 {
-  bool keepWeb; // when usb mode active
+  //bool keepWeb; // when usb mode active
 
   bool disableWeb; // when socket connected
   bool webAuth;
@@ -297,22 +297,32 @@ uint8_t temprature_sens_read();
 
 // Conditional logging macros
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_WARN
-#define LOGW(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#define LOGW(format, ...) \
+    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
+        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    }
 #else
 #define LOGW(format, ...) // Nothing
 #endif
 
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_INFO
-#define LOGI(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#define LOGI(format, ...) \
+    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
+        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    }
 #else
 #define LOGI(format, ...) // Nothing
 #endif
 
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_DEBUG
-#define LOGD(format, ...) Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__)
+#define LOGD(format, ...) \
+    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
+        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    }
 #else
 #define LOGD(format, ...) // Nothing
 #endif
+
 
 /* ----- Define functions | END -----*/
 

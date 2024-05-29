@@ -43,4 +43,5 @@ BrdConfigStruct brdConfigs[] = {
     {"TubesZB-poe", .ethConfigIndex = 0, .zbConfigIndex = 5, .mistConfigIndex = 0},
     {"TubesZB-poe-2022", .ethConfigIndex = 0, .zbConfigIndex = 6, .mistConfigIndex = 0},
     {"TubesZB-poe-2023", .ethConfigIndex = 0, .zbConfigIndex = 7, .mistConfigIndex = 0},
+    {"CZC-1.0", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},
 };

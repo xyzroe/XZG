@@ -1006,11 +1006,11 @@ void handleGeneral()
     String result;
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    //doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
 
-    switch (systemCfg.workMode)
+    /*switch (systemCfg.workMode)
     {
     case WORK_MODE_USB:
         doc["checkedUsbMode"] = checked;
@@ -1025,7 +1025,7 @@ void handleGeneral()
     if (systemCfg.keepWeb)
     {
         doc[keepWebKey] = checked;
-    }
+    }*/
 
     if (systemCfg.disableLedPwr)
     {
@@ -1142,6 +1142,18 @@ void handleSerial()
     String result;
     DynamicJsonDocument doc(1024);
 
+    switch (systemCfg.workMode)
+    {
+    case WORK_MODE_USB:
+        doc["usbMode"] = checked;
+        break;
+    case WORK_MODE_NETWORK:
+        doc["lanMode"] = checked;
+        break;
+    default:
+        break;
+    }
+
     if (systemCfg.serialSpeed == 9600)
     {
         doc["9600"] = checked;
@@ -1174,6 +1186,7 @@ void handleSerial()
     {
         doc["115200"] = checked;
     }
+
     doc[socketPortKey] = String(systemCfg.socketPort);
 
     serializeJson(doc, result);
@@ -1475,7 +1488,7 @@ void handleTools()
     DynamicJsonDocument doc(512);
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    //doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
     // doc["hostname"] = systemCfg.hostname;
