@@ -47,7 +47,7 @@
         "map": "AP"
       },
       "zbc": {
-        "op": "Rrežim",
+        "op": "Režim",
         "opn": "Zigbee-síť",
         "opu": "Zigbee-USB",
         "scc": "Socket",
@@ -121,7 +121,7 @@
       }
     },
     "zi": {
-      "so": "Sériová linky",
+      "so": "Sériová linka",
       "ss": "Rychlost",
       "sp": "Port",
       "cfg": {
