@@ -167,6 +167,11 @@ void zigbeeEnableBSL()
   printLogMsg("ZB enable BSL");
   CCTool.enterBSL();
   printLogMsg("Now you can flash CC2652!");
+  if (systemCfg.workMode == WORK_MODE_USB)
+  {
+    Serial.updateBaudRate(500000);
+    Serial2.updateBaudRate(500000);
+  }
 }
 
 void zigbeeRestart()
@@ -174,6 +179,11 @@ void zigbeeRestart()
   printLogMsg("ZB RST begin");
   CCTool.restart();
   printLogMsg("ZB restart was done");
+  if (systemCfg.workMode == WORK_MODE_USB)
+  {
+    Serial.updateBaudRate(systemCfg.serialSpeed);
+    Serial2.updateBaudRate(systemCfg.serialSpeed);
+  }
 }
 
 void usbModeSet(usbMode mode)

@@ -1006,7 +1006,7 @@ void handleGeneral()
     String result;
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    //doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
 
@@ -1056,7 +1056,7 @@ void handleGeneral()
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
 
-    DynamicJsonDocument zones(10240);
+    DynamicJsonDocument zones(8000);
     String results;
 
     JsonArray zonesArray = zones.to<JsonArray>();
@@ -1064,6 +1064,9 @@ void handleGeneral()
     {
         zonesArray.add(timeZones[i].zone);
     }
+
+    size_t usedMemory = zones.memoryUsage();
+    LOGD("Zones used: %s bytes", String(usedMemory));
 
     serializeJson(zones, results);
     serverWeb.sendHeader(respTimeZonesName, results);
@@ -1488,7 +1491,7 @@ void handleTools()
     DynamicJsonDocument doc(512);
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    //doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
     // doc["hostname"] = systemCfg.hostname;

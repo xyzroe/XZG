@@ -135,7 +135,7 @@ void zbEraseNV(void *pvParameters)
 
 void flashZbUrl(String url)
 {
-    Serial2.updateBaudRate(460800);
+    Serial2.updateBaudRate(500000);
     float last_percent = 0;
 
     const char *tagZB_FW_info = "ZB_FW_info";
