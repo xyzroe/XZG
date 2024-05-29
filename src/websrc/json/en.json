@@ -251,7 +251,7 @@
       "ilfg": "Install latest",
       "sri": "Select version",
       "zu": "Zigbee update (in develop)",
-      "zfu": "Zigbee file update",
+      "zfu": "Zigbee manual flashing",
       "clzv": "Check the latest Zigbee firmware",
       "saf": "Show available...",
       "zgu": "Zigbee",
