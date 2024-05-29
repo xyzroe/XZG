@@ -127,13 +127,13 @@
       "cfg": {
         "tt": "Configuration generator",
         "sel": "Generate for",
-        "alarm": "It seems that XZG works in access point mode (IP 192.168.1.1). The IP address will change after connecting to ethernet or Wi-Fi, after that the config needs to be generated again.",
+        "alarm": "XZG is operating in access point mode (IP 192.168.1.1). The IP address will change after connecting to Ethernet or Wi-Fi, after which you will need to regenerate the configuration.",
         "ss": "Serial settings",
         "lxzg": "Location of XZG",
         "dzl": "Disable Zigbee led?",
         "sopm": "Set output power to max 20",
         "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
-        "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
+        "lin": "List of USB devices in Linux: ls  /dev/ttyUSB*",
         "dp": "INSERT_DEVICE_PATCH_HERE"
       },
       "fws": {
@@ -142,7 +142,7 @@
       }
     },
     "mq": {
-      "enb": "Enable this to activate MQTT",
+      "enb": "Enable this to activate MQTT settings",
       "desc": "Settings",
       "broker": {
         "n": "Server",
@@ -165,16 +165,16 @@
         "tt": "Enter how often to send updates (in seconds)"
       },
       "disc": {
-        "n": "Home Assistant - Auto Discovery",
+        "n": "Home Assistant (MQTT Discovery)",
         "ph": "Enable or disable",
-        "tt": "💡 Enable this for Home Assistant's MQTT discovery feature"
+        "tt": "💡 Enable this for Home Assistant MQTT discovery feature"
       },
       "user": {
-        "ph": "MQTT username",
+        "ph": "Username",
         "tt": "Enter username from your MQTT server"
       },
       "pass": {
-        "ph": "MQTT password",
+        "ph": "Password",
         "tt": "Enter password from your MQTT server"
       },
       "reconnect": {
