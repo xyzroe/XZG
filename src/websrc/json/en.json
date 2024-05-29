@@ -1,7 +1,7 @@
 {
   "l": {
     "st": "Status",
-    "ge": "Device",
+    "ge": "General",
     "ne": "Network",
     "zi": "Zigbee",
     "mq": "MQTT",
