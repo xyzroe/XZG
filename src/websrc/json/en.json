@@ -14,8 +14,8 @@
   "p": {
     "st": {
       "dic": {
-        "tt": "Device information",
-        "dm": "Device model",
+        "tt": "Device",
+        "dm": "Model",
         "et": "Temperature",
         "ef": "Processor",
         "cs": "cores",
@@ -29,7 +29,7 @@
         "ens": "NV storage",
         "ent": "entries",
         "efss": "File system",
-        "du": "Device operating time",
+        "du": "Operating time",
         "lt": "Local time"
       },
       "te": "Ethernet",
@@ -47,24 +47,24 @@
         "map": "AP"
       },
       "zbc": {
-        "op": "Operating mode",
+        "op": "Mode",
         "opn": "Zigbee-Network",
         "opu": "Zigbee-USB",
-        "scc": "Socket client connected",
+        "scc": "Socket",
         "sccn": "No connection",
-        "sccy": "Yes, {{count}} clients",
+        "sccy": "{{count}} clients",
         "su": "Connection time",
         "tt": "Device status",
         "zfs": "Flash size",
         "zie": "IEEE"
       },
       "c": {
-        "fv": "FW revision",
-        "hv": "HW version"
+        "fv": "Firmware",
+        "hv": "Hardware"
       }
     },
     "ge": {
-      "desc": "General settings",
+      "desc": "Settings",
       "host": {
         "n": "Hostname",
         "ph": "Access device over network using this name.local",
@@ -77,21 +77,21 @@
       },
       "work": {
         "mode": {
-          "desc": "Select the device operating mode",
+          "desc": "Device operating mode",
           "net": "NETWORK mode",
           "usb": "USB mode"
         }
       },
       "kw": "Keep network & web server",
       "led": {
-        "desc": "LED config",
+        "desc": "LED configuration",
         "dis": "Full disable",
         "pwr": "Power LED",
         "mode": "Work mode LED",
-        "night": "Night mode - time based LEDs control"
+        "night": "Night mode"
       },
       "ntp": {
-        "desc": "NTP config",
+        "desc": "NTP",
         "zone": "Timezone",
         "server": {
           "n": "NTP server",
@@ -101,13 +101,13 @@
       }
     },
     "ne": {
-      "descEth": "Ethernet config",
+      "descEth": "Ethernet",
       "dhcp": "DHCP",
       "ip": "IP",
-      "mask": "Mask",
+      "mask": "Subnet",
       "gw": "Gateway",
-      "dns": "DNS server",
-      "descWifi": "Wi-Fi config",
+      "dns": "DNS",
+      "descWifi": "Wi-Fi",
       "wifi": {
         "btn": {
           "scan": "Scan for Wi-Fi networks",
@@ -121,31 +121,31 @@
       }
     },
     "zi": {
-      "so": "Serial config",
-      "ss": "Socket Speed",
-      "sp": "Socket Port",
+      "so": "Serial settings",
+      "ss": "Speed",
+      "sp": "Port",
       "cfg": {
-        "tt": "Config generator",
-        "sel": "Generate config for",
-        "alarm": "It seems that XZG works in access point mode (IP 192.168.1.1). The IP address will change after connecting to ethernet or Wi-Fi, after that the config needs to be generated again.",
-        "ss": "Serial config",
+        "tt": "Configuration generator",
+        "sel": "Generate for",
+        "alarm": "XZG is operating in access point mode (IP 192.168.1.1). The IP address will change after connecting to Ethernet or Wi-Fi, after which you will need to regenerate the configuration.",
+        "ss": "Serial settings",
         "lxzg": "Location of XZG",
         "dzl": "Disable Zigbee led?",
         "sopm": "Set output power to max 20",
         "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyUSB and find your adapter→Copy Device path like \"/dev/ttyUSB0\"",
-        "lin": "List USB devices on Linux: ls  /dev/ttyUSB*",
+        "lin": "List of USB devices in Linux: ls  /dev/ttyUSB*",
         "dp": "INSERT_DEVICE_PATCH_HERE"
       },
       "fws": {
-        "tt": "Role",
-        "alarm": "Changing the firmware on a running network cause the network break down!"
+        "tt": "Device Role",
+        "alarm": "Changing the firmware while the network is running will lead to its destruction!"
       }
     },
     "mq": {
-      "enb": "Enable this to activate MQTT",
-      "desc": "MQTT config",
+      "enb": "Enable this to activate MQTT settings",
+      "desc": "Settings",
       "broker": {
-        "n": "Broker",
+        "n": "Server",
         "ph": "Domain name or IP address",
         "tt": "Enter valid domain or IP"
       },
@@ -165,27 +165,27 @@
         "tt": "Enter how often to send updates (in seconds)"
       },
       "disc": {
-        "n": "Home Assistant - Auto Discovery",
+        "n": "Home Assistant (MQTT Discovery)",
         "ph": "Enable or disable",
-        "tt": "💡 Enable this for Home Assistant's MQTT discovery feature"
+        "tt": "💡 Enable this for Home Assistant MQTT discovery feature"
       },
       "user": {
-        "ph": "MQTT username",
-        "tt": "Enter username from your broker"
+        "ph": "Username",
+        "tt": "Enter username from your MQTT server"
       },
       "pass": {
-        "ph": "MQTT password",
-        "tt": "Enter password from your broker"
+        "ph": "Password",
+        "tt": "Enter password from your MQTT server"
       },
       "reconnect": {
         "n": "Reconnect",
         "ph": "Reconnect interval in seconds",
-        "tt": "Enter fast try to reconnect broker (in seconds)"
+        "tt": "Enter fast try to reconnect MQTT server (in seconds)"
       }
     },
     "vp": {
       "wg": {
-        "tt": "WireGuard config",
+        "tt": "WireGuard Interface Settings",
         "lip": "IP address of the local interface",
         "lpk": "Private key of the local interface",
         "ea": "Address of the endpoint peer",
@@ -194,7 +194,7 @@
         "lsn": "Local Subnet",
         "lgw": "Local Gateway",
         "aip": "Allowed IPs",
-        "am": "Allowed Mask",
+        "am": "Allowed Subnet",
         "md": "Make default",
         "psk": "Pre-shared key",
         "lp": "Local port"
@@ -207,7 +207,7 @@
       }
     },
     "se": {
-      "desc": "Security config",
+      "desc": "Settings",
       "web": {
         "dis": "Disable web server when socket is connected",
         "auth": "Enable web server authentication"
@@ -218,9 +218,9 @@
       }
     },
     "to": {
-      "sc": "System control",
-      "fu": "Firmware update",
-      "dt": "Debug tools",
+      "sc": "System",
+      "fu": "Firmware",
+      "dt": "Debug",
       "mc": "Modules control",
       "zb": "Zigbee",
       "rst": "Restart",
@@ -237,24 +237,24 @@
       "lb": "blinking...",
       "pwr": "Power",
       "mode": "Mode",
-      "dc": "Debug console",
+      "dc": "Console",
       "rd": "Raw data ",
-      "cc": "Clear Console",
+      "cc": "Clear",
       "czc": "Check Zigbee connect",
       "czv": "Check Zigbee version",
       "fb": "File Browser",
       "fn": "Filename",
       "s": "Size",
-      "egu": "Git ESP32 update",
-      "efu": "File ESP32 update",
-      "cf": "Choose file...",
+      "egu": "ESP32",
+      "efu": "ESP32 manual flashing",
+      "cf": "Select firmware file...",
       "ilfg": "Install latest",
       "sri": "Select version",
       "zu": "Zigbee update (in develop)",
-      "zfu": "Zigbee file update",
+      "zfu": "Zigbee manual flashing",
       "clzv": "Check the latest Zigbee firmware",
-      "saf": "Show available firmware",
-      "zgu": "Git CC2652 update",
+      "saf": "Show available...",
+      "zgu": "Zigbee",
       "eznr": "Erase NVRAM"
     },
     "lo": {
@@ -316,9 +316,9 @@
     "ok": "OK",
     "now": "Install now",
     "mode": "Mode",
-    "cst": "Connection status",
-    "csp": "Connection speed",
-    "mac": "MAC address",
+    "cst": "Status",
+    "csp": "Speed",
+    "mac": "MAC",
     "conn": "Connected",
     "connecting": "Connecting",
     "disconn": "Disconnected",
