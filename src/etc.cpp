@@ -414,7 +414,12 @@ void checkDNS(bool setup = false)
   if (networkCfg.wifiEnable)
   {
     IPAddress currentWifiDNS = WiFi.dnsIP();
-    if (setup)
+
+    String dnsStr = currentWifiDNS.toString();
+    int lastDot = dnsStr.lastIndexOf('.');
+    String fourthPart = dnsStr.substring(lastDot + 1);
+
+    if (setup && fourthPart.toInt() != 0)
     {
       savedWifiDNS = currentWifiDNS;
       snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, savedWifiDNS.toString().c_str());
@@ -434,7 +439,12 @@ void checkDNS(bool setup = false)
   if (networkCfg.ethEnable)
   {
     IPAddress currentEthDNS = ETH.dnsIP();
-    if (setup)
+
+    String dnsStr = currentEthDNS.toString();
+    int lastDot = dnsStr.lastIndexOf('.');
+    String fourthPart = dnsStr.substring(lastDot + 1);
+
+    if (setup && fourthPart.toInt() != 0)
     {
       savedEthDNS = currentEthDNS;
       snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, savedEthDNS.toString().c_str());
