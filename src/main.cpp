@@ -131,6 +131,7 @@ void startServers(bool usb = false)
     }
   }
 
+  mDNS_start();
   /* //not available now
   if (vpnCfg.hnEnable)
   {
@@ -157,7 +158,6 @@ void handleTmrNetworkOverseer()
       if (WiFi.isConnected())
       {
         LOGD("WIFI CONNECTED");
-        mDNS_start();
         tmrNetworkOverseer.stop();
       }
       else
@@ -175,7 +175,6 @@ void handleTmrNetworkOverseer()
       if (vars.connectedEther)
       {
         LOGD("LAN CONNECTED");
-        mDNS_start();
         tmrNetworkOverseer.stop();
       }
       else
@@ -532,8 +531,8 @@ void setup()
   if (hwConfig.mist.uartSelPin > 0)
   {
     pinMode(hwConfig.mist.uartSelPin, OUTPUT);
-    //vars.hwUartSelIs = true;
-    // usbModeSet(XZG);
+    // vars.hwUartSelIs = true;
+    //  usbModeSet(XZG);
     bool fixState = (hwConfig.mist.uartSelPlr == 1) ? LOW : HIGH;
     digitalWrite(hwConfig.mist.uartSelPin, fixState);
   }
@@ -569,7 +568,7 @@ void setup()
   printNVSFreeSpace();
 
   zbFwCheck();
-  
+
   LOGD("done");
 }
 
