@@ -16,5 +16,8 @@
     {"type": "router", "link": "https://github.com/mercenaruss/zigstar_gateways/raw/main/files/Firmware/CC1352P7_Router.zip"},
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20230507/CC1352P7_coordinator_20230507_460800.zip"},
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/files/15468217/CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.zip"},
-    {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/files/15468219/CC1352P2_CC2652P_other_coordinator_20230507_460800.zip"}
+    {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/files/15468219/CC1352P2_CC2652P_other_coordinator_20230507_460800.zip"},
+    {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20240316/CC1352P7_coordinator_20240316_patched_460800.zip"},
+    {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20221226/CC1352P2_CC2652P_other_coordinator_20221226_patched_460800.zip"},
+    {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20221226/CC1352P2_CC2652P_launchpad_coordinator_20221226_patched_460800.zip"}
 ]
