@@ -27,7 +27,7 @@
         "efti": "vnitřní",
         "efte": "externí",
         "ens": "NV úložiště",
-        "ent": "záznamy",
+        "ent": "záznamů",
         "efss": "Souborový systém",
         "du": "Doba běhu zařízení",
         "lt": "Místní čas"
@@ -107,7 +107,7 @@
       "mask": "Maska",
       "gw": "Brána",
       "dns": "DNS",
-      "descWifi": "Konfigurace Wi-Fi",
+      "descWifi": "Wi-Fi",
       "wifi": {
         "btn": {
           "scan": "Vyhledat sítě Wi-Fi",
@@ -333,7 +333,7 @@
     "cl": "Zavřít",
     "t": {
       "e": "Čas ukončení",
-      "s": "Doba spuštění"
+      "s": "Čas spuštění"
     },
     "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku"
   },
