@@ -59,4 +59,8 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 !!! tip "Custom device support"
     You can add **any** custom device by editing `configHw.json` in Tools/Debug/File browser after installing XZG firmware.
 
+    Please share your configuration with our community after testing. The most popular devices will be added. 🚀
+
+    ![image](https://private-user-images.githubusercontent.com/6440415/332863162-874a8053-a19b-4a37-97f8-c2abab9ea588.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTcxMTM1NTgsIm5iZiI6MTcxNzExMzI1OCwicGF0aCI6Ii82NDQwNDE1LzMzMjg2MzE2Mi04NzRhODA1My1hMTliLTRhMzctOTdmOC1jMmFiYWI5ZWE1ODgucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDUzMCUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA1MzBUMjM1NDE4WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MWRkMjI2OTgwZjk5OTNkOTgzNDFiMDExZTlkMjA2Nzg5YWNkMmI1MTk3MDgzY2YxZjVlMDZlZTE2ZjlkYTUwNiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.zjqcG8rRvDht15-RZ-keyt1izZC23p9buAY2WGlZ0ig)
+
 
