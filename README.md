@@ -77,7 +77,7 @@ Contributions are welcome! If you'd like to help improve the XZG Firmware, you c
 
 Thanks to all the developers and contributors who make this project possible, and special thanks to [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**.
 
-#### All projects contributors:
+#### All contributors:
 <a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
 
 
