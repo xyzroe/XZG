@@ -17,22 +17,6 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍
 </div>
 <br><br> 
-<table width="40%" align="center">
-<tr align="center">
- <td colspan="3"><i>Previous versions:</i></td>
-</tr>
-  <tr align="center">
-    <td><a href="https://github.com/xyzroe/ZigStarGW-FW/releases/latest">ZigStarGW-FW</a></td>
-    <td><a href="https://github.com/mercenaruss/uzg-firmware/releases/latest">UZG-01</a></td>
-    <td><a href="https://github.com/smlight-dev/slzb-06-firmware/releases/">SLZB-06</a></td>
-  </tr>
-  <tr align="center">
-    <td><a href="https://github.com/xyzroe/ZigStarGW-FW/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/ZigStarGW-FW/total.svg" alt="ZigStarGW-FW's download"></a></td>
-    <td><a href="https://github.com/mercenaruss/uzg-firmware/releases/latest"><img src="https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg" alt="UZG-01 Firmware's download"></a></td>
-    <td><a href="https://github.com/smlight-dev/slzb-06-firmware/releases/latest"><img src="https://img.shields.io/github/downloads/smlight-dev/slzb-06-firmware/total.svg" alt="SLZB-06 Firmware's download"></a></td>
-  </tr>
-</table>
-<br> 
 
 ## 🍓 Firmware features
 
@@ -95,9 +79,6 @@ Thanks to all the developers and contributors who make this project possible, an
 
 #### All projects contributors:
 <a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
-<a href="https://github.com/xyzroe/ZigStarGW-FW/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/ZigStarGW-FW" /></a>
-<a href="https://github.com/mercenaruss/uzg-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=mercenaruss/uzg-firmware" /></a>
-<a href="https://github.com/smlight-dev/slzb-06-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=smlight-dev/slzb-06-firmware" /></a>
 
 
 Special thanks to all third-party library authors. Their work has significantly contributed to this project:
