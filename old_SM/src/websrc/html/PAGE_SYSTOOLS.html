@@ -1,0 +1,215 @@
+<div id='main'>
+  <ul class="nav nav-tabs nav-fill mb-3" role="tablist" style="flex-wrap: inherit;">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#systemControl" type="button"
+        role="tab" aria-controls="home" aria-selected="true"><svg class="me-1" xmlns="http://www.w3.org/2000/svg"
+          width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+          <use xlink:href="icons.svg#systemControl"/>
+        </svg>System Control</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#systemTools" type="button"
+        role="tab" aria-controls="profile" aria-selected="false" onclick="$('.masonry').masonry()"><svg class="me-1"
+          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tools"
+          viewBox="0 0 16 16">
+          <use xlink:href="icons.svg#systemTools"/>
+        </svg>System Tools</button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="systemControl" role="tabpanel" aria-labelledby="home-tab">
+      <div class="row masonry" data-masonry='{"percentPosition": true }'>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>System vars</div>
+            <div class='card-body'>
+              <div class="container">
+                <form class="saveParams" method='POST' action="saveParams">
+                  <div class="row">
+                    <label for="hostname">Hostname. Device will be displayed in the network with
+                      this name</label>
+                    <input data-replace="hostname" class="form-control" id="hostname" type="text" name="hostname"
+                      value="" maxlength="50" required>
+                    <label for='refreshLogs'>Console log refresh interval</label>
+                    <input data-replace="refreshLogs" class='form-control' id='refreshLogs' type="number" min="1000"
+                      max="10000" step="1" name='refreshLogs' value='' placeholder="in milliseconds" required>
+                    <div class="col">
+                      <div class="row justify-content-md-center mt-2">
+                        <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Set</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>Modules control</div>
+            <div class='card-body'>
+              <div class="row">
+                <button type='button' data-cmd="1"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Restart</button>
+                <button type='button' data-cmd="2"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Zigbee Flash Mode</button>
+                <button type='button' data-cmd="0" class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Router
+                  Reconnect</button>
+                <button type='button' data-cmd="3"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>ESP32 Restart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>Current session control</div>
+            <div class='card-body'>
+              <div class="row">
+                <button type='button' data-cmd="4"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>LAN Mode ON</button>
+                <button type='button' data-cmd="5"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>USB Mode ON</button>
+                <button type='button' data-cmd="6"
+                  class='btn btn-outline-primary col-sm-12 col-md-auto mb-1'>Yellow LED
+                  Toggle</button>
+                <button type="button" data-cmd="7"
+                  class="btn btn-outline-primary col-sm-12 col-md-auto mb-1">Blue LED Toggle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tab-pane fade" id="systemTools" role="tabpanel" aria-labelledby="profile-tab">
+      <div class="row masonry" data-masonry='{"percentPosition": true }'>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>ESP32 Update</div>
+            <div class='card-body'>
+              <form class="container" method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+                <input type='file' name='update' id='file' onchange='sub(this)' style=display:none accept='.bin'>
+                <label id='file-input' for='file'> Choose file...</label>
+                <input id="updButton" type='submit' class='btn btn-warning mb-2' value='ESP32 OTA Update' disabled>
+                <br>
+                <div id='prg'></div>
+                <div id='prgbar'>
+                  <div id='bar'></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>File Browser</div>
+            <div class='card-body'>
+              <table id="filelist" class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Filename</th>
+                    <th scope="col">Size</th>
+                  </tr>
+                </thead>
+              </table>
+              <form method="POST" action="saveFile">
+                <div class="form-group">
+                  <div><label for="file">File : <span id="title"></span></label><input type="hidden" name="filename"
+                      id="filename" value=""></div><textarea class="form-control mb-2" id="config_file" name="file"
+                    rows="10"></textarea>
+                </div><button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>Zigbee OTA update</div>
+            <div class='card-body'>
+              <div class="row">
+                <div class="col">
+                  <label for="zbFirmware" class="form-label">Select firmware file</label>
+                  <input class="form-control" type="file" id="zbFirmware" accept=".hex">
+                  <button type="button" class="btn btn-warning col-sm-12 col-md-6">Update Zigbee firmware</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="col-sm-12 col-md-6 mb-4">
+          <div class='card'>
+            <div class='card-header'>Debug console</div>
+            <div class='card-body'>
+              <div class="row">
+                <div class="col">
+                  <div class="col-sm-12">Raw data :</div>
+                  <textarea class="form-control col-sm-12 mb-2" id="console" rows="8"></textarea>
+                  <button type="button" data-cmd="8" onclick="$('console').val('')"
+                    class="btn btn-outline-primary col-sm-3">Clear Console</button>
+                  <!-- send hex to zigbee ONLY FOR DEVELOP!!! -->
+                  <div class="mt-3">
+                    <input class="form-control col-sm-6" id="sendHex" type="text" name="sendHex" value="" maxlength="50"
+                      placeholder="Send hex to zigbee module">
+                    <button type="button" onclick="sendHex()" class="btn btn-outline-primary col-sm-3 mt-2">Send</button>
+                  </div>
+                  <!-- --------- -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/masonry.min.js"></script>
+  <script>
+    function sub(obj) {
+      let fileName = obj.value.split('\\\\');
+      if (fileName != "") {
+        if (!(localStorage.getItem('flash_warning') == 1)) {
+          modalConstructor("flashWarning");
+        } else {
+          $("#updButton").removeAttr("disabled");
+        }
+      }
+      document.getElementById('file-input').innerHTML = '   ' + fileName[fileName.length - 1];
+    };
+    $('form#upload_form').submit(function (e) {
+      e.preventDefault();
+      var form = $('#upload_form')[0];
+      var data = new FormData(form);
+      $.ajax({
+        url: '/update',
+        type: 'POST',
+        data: data,
+        contentType: false,
+        processData: false,
+        xhr: function () {
+          var xhr = new window.XMLHttpRequest();
+          xhr.upload.addEventListener('progress', function (evt) {
+            if (evt.lengthComputable) {
+              var per = evt.loaded / evt.total;
+              $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+              $('#bar').css('width', Math.round(per * 100) + '%');
+            }
+          }, false);
+          return xhr;
+        },
+        success: function (d, s) {
+          console.log('success!');
+          $('#prg').html('Update completed!<br>Rebooting!');
+          //window.location.href = '/';
+          rebootWait();
+        },
+        error: function (a, b, c) {
+        }
+      });
+    });
+  </script>
+</div>

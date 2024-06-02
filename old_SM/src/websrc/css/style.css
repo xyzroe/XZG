@@ -1,0 +1,186 @@
+nav h2, #pagenamePC{
+  color: lightcoral;
+}
+
+#smPreloader{
+  position: absolute;
+  left: calc(50% - 50px);
+  top: calc(50% - 200px);
+  z-index: 1000;
+  width: 100px;
+  height: 100px;
+}
+
+.card-disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-disabled > *{
+  pointer-events: none;
+}
+
+.smCircle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+#circle-1 {
+  background: #ff000052;
+  position: absolute;
+  top: 100px;
+  left: 60px;
+}
+#circle-2 {
+  background: #ff00008a;
+  position: absolute;
+  top: 100px;
+}
+#circle-3 {
+  background: #ff000087;
+  position: absolute;
+  top: 50px;
+  left: 30px;
+}
+
+@media (min-width: 576px) {
+  .nav {
+    padding-left: 8px;
+  }
+
+}
+
+@media (max-width: 767px) {
+  .nav-container {
+    position: fixed;
+    left: -250px;
+    transition: all 0.3s ease-out;
+    top: -1px !important;
+  }
+
+  nav.navbar {
+    display: flex !important;
+    z-index: 99;
+  }
+
+  #pagenamePC {
+    display: none;
+  }
+}
+
+.sidenav-active {
+  left: -1px !important;
+  transition: all 0.6s ease-out;
+}
+
+.toast {
+  z-index: 100;
+  margin-right: 20px;
+}
+
+.nav-container {
+  min-width: fit-content;
+  z-index: 100;
+}
+
+.nav-shadow {
+  -webkit-box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+  -moz-box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+  box-shadow: 5px 0px 7px 0px rgba(0, 0, 0, 0.53);
+}
+
+.nav {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.logo-wrapper {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 10px;
+}
+
+.logo-wrapper span {
+  padding-left: 6px;
+  vertical-align: middle;
+}
+
+.app-main-content {
+  padding-top: 0px;
+}
+
+.cardPadding {
+  padding-bottom: 20px;
+}
+
+.nav-active {
+  background-color: #0000003d;
+}
+
+.nav-item span {
+  vertical-align: inherit;
+}
+
+.nav-item {
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.nav-item a {
+  border-bottom: white 1px solid !important;
+  border-radius: 0 !important;
+}
+
+.nav-item:last-child a {
+  border-bottom: none !important;
+}
+
+#file-input {
+  padding: 0;
+  border: 1px solid #ddd;
+  line-height: 44px;
+  text-align: left;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  border-radius: 4px;
+  margin: 10px auto;
+  font-size: 15px
+}
+
+#bar,
+#prgbar {
+  background-color: #f1f1f1;
+  border-radius: 10px
+}
+
+#bar {
+  background-color: #17a2b8;
+  width: 0%;
+  height: 10px
+}
+
+form#upload_form {
+  background: #fff;
+  max-width: 408px;
+  border-radius: 5px;
+  text-align: center
+}
+
+h2 {
+  text-align: center
+}
+
+div#update_info {
+  max-width: 55%;
+  margin: auto;
+  margin-bottom: 25px;
+}
+
+div#main {
+  margin-left: auto;
+  margin-right: auto;
+}

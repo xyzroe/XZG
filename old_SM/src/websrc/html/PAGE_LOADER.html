@@ -1,0 +1,189 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href='css/required.css' rel='stylesheet' type='text/css' />
+    <title data-replace="pageName"></title>
+</head>
+
+<body>
+    <div id="smPreloader">
+        <div class="smPreloaderWrapper">
+            <div id="circle-1" class="smCircle">
+            </div>
+            <div id="circle-2" class="smCircle">
+            </div>
+            <div id="circle-3" class="smCircle">
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast fade toast_show hide" data-bs-autohide="false" role="alert">
+            <div class="toast-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    class="bi bi-info-circle" viewBox="0 0 16 16" reserveAspectRatio="xMidYMid slice" focusable="false"
+                    role="img">
+                    <use xlink:href="icons.svg#info-circle" />
+                </svg>
+                <strong class="mr-auto" style="padding-left: 10px;" id="toastHeaderText">Tip</strong>
+            </div>
+            <div class="toast-body">
+                <div id="toastBody"></div>
+                <div class="mt-2 pt-2 border-top" id="toastButtons">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="toast"
+                        onclick="localStorage.setItem('refresh_tip_got', 1)">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="100"
+        aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Modal title</h5>
+                    <button type="button" class="btn-close visually-hidden modal-btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+
+                </div>
+                <div class="modal-footer" id="modalButtons">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar shadow sticky-top bg-light" style="display: none;">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-toggler-icon"
+                    onclick="$('#sidenav').addClass('sidenav-active'); sidenavAutoclose();"></span>
+            </div>
+            <h2 data-replace="pageName" class="position-absolute top-50 start-50 translate-middle"></h2>
+            <a href='/logout' class='btn logoutLink nav-link visually-hidden'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                    class="bi bi-door-open" viewBox="0 0 16 16">
+                    <use xlink:href="icons.svg#door-open" />
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+    <div class='container-fluid'>
+        <div class='row flex-nowrap'>
+            <div id="sidenav" class='col-auto nav-container px-0 col-md-3 col-xl-2 bg-dark nav-shadow'>
+                <div class='d-flex flex-column align-items-center align-items-sm-start pt-2 text-white min-vh-100'>
+                    <div class='logo-wrapper'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+                            <use xlink:href="icons.svg#SMLogo"></use>
+                        </svg>
+                        <span class='fs-5 d-none d-sm-inline'>SLZB-06</span>
+                        </a>
+                    </div>
+                    <ul class='nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start'
+                        id='menu'>
+                        <li class='nav-item'>
+                            <a href='/' class='nav-link align-middle' onclick=''>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-house' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#house" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>Status</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/general' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-hdd-stack' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#hdd-stack" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>General</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/ethernet' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-ethernet' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#ethernet" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>Ethernet</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/wifi' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-wifi' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#wifi" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>WiFi</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/zha-z2m' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-activity' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#activity" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>Z2M and ZHA</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/security' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-lock' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#lock" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>Security</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/sys-tools' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-cpu' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#cpu" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>System and Tools</span>
+                            </a>
+                        </li>
+                        <li class='nav-item'>
+                            <a href='/about' class='nav-link align-middle'>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor'
+                                    class='bi bi-info-square' viewBox='0 0 16 16'>
+                                    <use xlink:href="icons.svg#info-square" />
+                                </svg>
+                                <span class='ms-1 d-none d-sm-inline'>About</span>
+                            </a>
+                        </li>
+                        <li class='nav-item logoutLink visually-hidden'>
+                            <a href='/logout' class='nav-link align-middle d-none d-sm-inline'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                                    class="bi bi-door-open" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#door-open" />
+                                </svg>
+                                <span class='ms-1'>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+
+                </div>
+            </div>
+            <div class='col py-3'>
+                <h2 data-replace="pageName" class="mb-3" id="pagenamePC"></h2>
+                <div id="pageContent" class="container">
+
+                </div>
+                <h6 class="fixed-bottom"
+                    style="text-align: right;color: #0000007a;margin-bottom: 0;font-weight: 100;font-size: 60%;">© 2023
+                    SMLIGHT</h6>
+            </div>
+        </div>
+    </div>
+    <script type='text/javascript' src='/js/jquery-min.js'></script>
+    <script type='text/javascript' src='/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='/js/functions.js'></script>
+</body>
+
+</html>

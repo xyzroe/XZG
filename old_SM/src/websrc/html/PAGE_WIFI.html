@@ -1,0 +1,92 @@
+<div id='main'>
+    <div class="col-sm-12 cardPadding">
+        <div class="card">
+            <div class="card-header">Wifi Setup</div>
+            <div class="card-body">
+                <form class="saveParams" method='POST' action="saveParams">
+                    <div class="row">
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">SSID</th>
+                                        <th scope="col">Security</th>
+                                        <th scope="col">Channel</th>
+                                        <th scope="col">RSSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wifiTable">
+                                    <tr id="wifiScanPreloader" class="visually-hidden">
+                                        <td colspan="4">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" aria-label="Animated striped example"
+                                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                                    style="width: 100%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="wifiScanButton">
+                                        <td colspan="4">
+                                            <div class="row justify-content-md-center">
+                                                <button type="button" class="btn btn-outline-primary col-sm-12 col-md-6"
+                                                    onclick="getWifiList()">Scan for WIFI networks</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="collapse" id="collapseWifiPass">
+                                <div class="card card-body">
+                                    <div class="mb-2">
+                                        <label for="WIFISSID">SSID</label>
+                                        <input data-replace="ssid" class="form-control" id="WIFIssid" type="text"
+                                            name="WIFISSID" id="WIFISSID" value="" minlength="2" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="pass">Password</label>
+                                        <input data-replace="passWifi" class="form-control" id="WIFIpassword"
+                                            type="password" name="WIFIpassword" id="WIFIpassword" minlength="8"
+                                            required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <div class="mb-2">
+                                <div class="form-check form-switch">
+                                    <input data-replace="dchp" class="form-check-input" id="dhcpWiFi" type="checkbox"
+                                        role="switch" name="dhcpWiFi" onclick="WifiDhcpDsbl(this.checked)">
+                                    <label class="form-check-label" for="dhcpWiFi">DHCP</label>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="ip">IP</label>
+                                <input data-replace="ip" class="form-control" id="WifiIp" type="text" name="ipAddress"
+                                    placeholder="192.168.x.x">
+                            </div>
+                            <div class="mb-2">
+                                <label for="mask">Mask</label>
+                                <input data-replace="mask" class="form-control" id="WifiMask" type="text" name="ipMask"
+                                    placeholder="255.255.255.0">
+                            </div>
+                            <div class="mb-2">
+                                <label for="gateway">Gateway</label>
+                                <input data-replace="gw" type="text" class="form-control" id="WifiGateway" name="ipGW"
+                                    placeholder="192.168.x.x">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-sm-12">
+                            <div class="row justify-content-md-center">
+                                <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6"
+                                    name="save">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

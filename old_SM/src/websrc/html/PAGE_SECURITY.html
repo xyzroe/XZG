@@ -1,0 +1,52 @@
+<div id='main'>
+    <form class="saveParams" method='POST' action="saveParams">
+        <div class='card'>
+            <div class='card-header'>Security options</div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 mb-4">
+                        <div class='form-check'>
+                            <input data-replace="disableWeb" class='form-check-input' id='disableWeb' type='checkbox'
+                                name='disableWeb'>
+                            <label class='form-check-label' for='disableWeb'>Disable web server when socket is
+                                connected</label>
+                            <br>
+                        </div>
+                        <div class='form-check'>
+                            <input data-replace="webAuth" class='form-check-input' id='webAuth' type='checkbox'
+                                name='webAuth' onclick="SeqInputDsbl(!this.checked)">
+                            <label class='form-check-label' for='webAuth'>Enable web server authentication</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 mb-2">
+                        <label for='webUser'>Username</label>
+                        <input data-replace="webUser" class='form-control' id='webUser' type='text' name='webUser'
+                            disabled>
+                        <label for='webPass'>Password</label>
+                        <input data-replace="webPass" class='form-control' id='webPass' type='password' name='webPass'
+                            disabled>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 mb-4">
+                        <div class='form-check'>
+                            <input data-replace="fwEnabled" class='form-check-input' id='fwEnabled' type='checkbox'
+                                name='fwEnabled' onclick="SeqInputDsblFw(!this.checked)">
+                            <label class='form-check-label' for='fwEnabled'>Enable IP whitelist for socket</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 mb-2">
+                        <label for='fwIp'>Allowed IP</label>
+                        <input data-replace="fwIp" class='form-control' id='fwIp' type='text' name='fwIp'
+                            disabled placeholder="192.168.x.x">
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row justify-content-md-center">
+                            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                                name='save'>Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,99 @@
+<div id='main'>
+    <div class='row'>
+        <div class="col-sm-12">
+            <form class="saveParams" method='POST' action="saveParams">
+                <div class="card">
+                    <div class="card-header">General settings</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6 mb-3">
+                                <div class="row">
+                                    <div class="col-sm-12 mb-3" onclick="KeepWebDsbl(!$('#usbMode').prop('checked'))">
+                                        <span>Select the device operating mode:</span>
+                                        <div class="form-check">
+                                            <input data-replace="checkedLanMode" class="form-check-input" type="radio"
+                                                name="coordMode" id="lanMode" value="0">
+                                            <label class="form-check-label" for="lanMode">
+                                                LAN mode
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input data-replace="checkedWifiMode" class="form-check-input" type="radio"
+                                                name="coordMode" id="wifiMode" value="1">
+                                            <label class="form-check-label" for="wifiMode">
+                                                WIFI mode
+                                            </label>
+                                        </div>
+                                        <!-- <hr class="border border-dark border-top"> -->
+                                        <div class="form-check">
+                                            <input data-replace="checkedUsbMode" class="form-check-input" type="radio"
+                                                name="coordMode" id="usbMode" value="2">
+                                            <label class="form-check-label" for="usbMode">
+                                                USB mode
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline me-1">
+                                            <input class="form-check-input" type="checkbox" id="keepWeb" name="keepWeb"
+                                                data-replace="keepWeb">
+                                            <label class="form-check-label" for="keepWeb">Keep network & web
+                                                server</label>
+                                        </div>
+                                        <div class="form-check form-check-inline ps-0">
+                                            <button type="button" onclick="modalConstructor('keepWeb');"
+                                                class="btn btn-outline-primary btn-sm" style="height: 20%;">?</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 mb-3">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <span>Using the Toggle buttons, you can control the state of the LEDs in the
+                                            current
+                                            session (not saved on reboot):</span>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <button type="button" data-cmd="6"
+                                            class="btn btn-outline-primary col col-md-auto mb-1">Power LED (Yellow)
+                                            Toggle</button>
+                                        <button type="button" data-cmd="7"
+                                            class="btn btn-outline-primary col col-md-auto mb-1">Mode LED (Blue)
+                                            Toggle</button>
+                                        <br>
+                                    </div>
+                                    <br>
+
+                                    <div class="col-sm-12">
+                                        <br>
+                                        <span>Control the behavior of the LEDs (with saving on reboot) using the
+                                            switches
+                                            below:</span>
+                                        <div class='form-check form-switch'>
+                                            <input data-replace="checkedDisableLedYellow" class='form-check-input'
+                                                id='disableLedYellow' type='checkbox' role="switch"
+                                                name='disableLedYellow'>
+                                            <label class='form-check-label' for='disableLedYellow'>Disable Power LED
+                                                (yellow)</label>
+                                        </div>
+                                        <div class='form-check form-switch'>
+                                            <input data-replace="checkedDisableLedBlue" class='form-check-input'
+                                                id='disableLedBlue' type='checkbox' role="switch" name='disableLedBlue'>
+                                            <label class='form-check-label' for='disableLedBlue'>Disable USB mode LED
+                                                (blue)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row justify-content-md-center">
+                                <button type="submit" class="btn btn-outline-primary col-sm-12 col-md-6"
+                                    name="save">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
