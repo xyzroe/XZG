@@ -1,0 +1,80 @@
+<div id='main'>
+
+    <form class="saveParams" method='POST' action="saveParams">
+        <div class='card'>
+            <div class='card-header'>Serial options</div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class='col-sm-12 col-md-6 mb-4'>
+                        <div class='form-group'>
+                            <label for='baud'>Serial Speed</label>
+                            <select class='form-select' id='baud' name='baud'>
+                                <option data-replace="9600" value='9600'>9600 bauds</option>
+                                <option data-replace="19200" value='19200'>19200 bauds</option>
+                                <option data-replace="38400" value='38400'>38400 bauds</option>
+                                <option data-replace="57600" value='57600'>57600 bauds</option>
+                                <option data-replace="115200" value='115200'>115200 bauds</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 col-md-6 mb-4'>
+                        <div class='form-group'>
+                            <label for='port'>Socket Port</label>
+                            <input data-replace="socketPort" class='form-control' id='port' type='number' name='port'
+                                min='100' max='65000'>
+                        </div>
+                    </div>
+                </div>
+                <div class='col-sm-12'>
+                    <div class="row justify-content-md-center">
+                        <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                            name='save'>Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class='card mt-2'>
+        <div class='card-header'><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="icons.svg#magic" />
+            </svg>Config generator</div>
+        <div class='card-body'>
+            <div class="row">
+                <div class='col-sm-12'>
+                    <div class='form-group'>
+                        <div class="alert alert-warning visually-hidden" role="alert" id="apAlert">
+                            It seems that SLZB-06 works in access point mode (IP192.168.1.1).
+                            The IP address will change after connecting to ethernet or Wi-Fi, after that the config
+                            needs to be generated again.
+                        </div>
+                        <label for='generatedFile'>Generate config for:
+                            <div class="ms-1 form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="generatorType" id="z2m" checked
+                                    onclick="generateConfig(this.id)">
+                                <label class="form-check-label" for="z2m">Zigbee2MQTT</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="generatorType" id="zha"
+                                    onclick="generateConfig(this.id)">
+                                <label class="form-check-label" for="zha">ZHA</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="generatorType" id="usb"
+                                    onclick="generateConfig(this.id)">
+                                <label class="form-check-label" for="usb">USB</label>
+                            </div>
+                        </label>
+                        <textarea class="form-control mb-2" id="generatedFile" name="file" rows="12"></textarea>
+                        <button type="button" class="btn btn-outline-primary col-sm-12 col-md-4"
+                            onclick="copyCode()"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <use id="clipIco" xlink:href="icons.svg#clipboard2" />
+                            </svg>Copy to clipboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
