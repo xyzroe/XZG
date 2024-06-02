@@ -1,0 +1,194 @@
+<div id='main'>
+    <div class='row masonry ' data-masonry='{"percentPosition": true }'>
+        <div class='col-sm-12 col-md-6 mb-4'>
+            <div class='card'>
+                <div class='card-header'>Device status</div>
+                <div class='card-body'>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Operational mode:</td>
+                                <td data-replace="operationalMode"></td>
+                            </tr>
+                            <tr>
+                                <td>Ethernet connected:</td>
+                                <td data-replace="connectedEther"></td>
+                            </tr>
+                            <tr>
+                                <td>Socket client connected:</td>
+                                <td data-replace="connectedSocketStatus"></td>
+                            </tr>
+                            <tr>
+                                <td>WiFi Client enabled:</td>
+                                <td data-replace="wifiEnabled"></td>
+                            </tr>
+                            <tr>
+                                <td>WiFi Client status:</td>
+                                <td data-replace="wifiConnected"></td>
+                            </tr>
+                            <tr>
+                                <td>WiFi Access Point enabled:</td>
+                                <td data-replace="wifiModeAP"></td>
+                            </tr>
+                            <tr>
+                                <td>WiFi Access Point status:</td>
+                                <td data-replace="wifiModeAPStatus"></td>
+                            </tr>
+                            <tr>
+                                <td>Device Uptime:</td>
+                                <td data-replace="uptime"></td>
+                            </tr>
+                            <tr>
+                                <td>Socket uptime:</td>
+                                <td data-replace="connectedSocket"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class='col-sm-12 col-md-6 mb-4'>
+            <div class='card'>
+                <div class='card-header'>Device information</div>
+                <div class='card-body'>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Model:</td>
+                                <td data-replace="hwRev"></td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 Firmware ver:</td>
+                                <td data-replace="VERSION"></td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 version:</td>
+                                <td data-replace="espModel"></td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 temperature:</td>
+                                <td><span data-replace="deviceTemp"></span> &deg;C</td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 frequency:</td>
+                                <td><span data-replace="espCores"></span> cores @ <span data-replace="espFreq"></span>
+                                    MHz
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 flash size:</td>
+                                <td><span data-replace="espFlashSize"></span> Mb, <span
+                                        data-replace="espFlashType"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ESP32 Free heap:</td>
+                                <td><span data-replace="espHeapFree"></span> / <span data-replace="espHeapSize"></span>
+                                    KiB
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CC2652P version:</td>
+                                <td>CC2652PP1FRGZR</td>
+                            </tr>
+                            <tr>
+                                <td>CC2652P frequency:</td>
+                                <td>48 MHz</td>
+                            </tr>
+                            <tr>
+                                <td>CC2652P flash size:</td>
+                                <td>352 Kb</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class='col-sm-12 col-md-6 mb-4'>
+            <div class='card'>
+                <div class='card-header'>Ethernet</div>
+                <div class='card-body'>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Connection status:</td>
+                                <td data-replace="ethConnection"></td>
+                            </tr>
+                            <tr>
+                                <td>DHCP:</td>
+                                <td data-replace="ethDhcp"></td>
+                            </tr>
+                            <tr>
+                                <td>IP Address:</td>
+                                <td data-replace="ethIp"></td>
+                            </tr>
+                            <tr>
+                                <td>Subnet Mask:</td>
+                                <td data-replace="etchMask"></td>
+                            </tr>
+                            <tr>
+                                <td>Default Gateway:</td>
+                                <td data-replace="ethGate"></td>
+                            </tr>
+                            <tr>
+                                <td>Connection speed:</td>
+                                <td data-replace="ethSpd"></td>
+                            </tr>
+                            <tr>
+                                <td>MAC address:</td>
+                                <td data-replace="ethMac"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class='col-sm-12 col-md-6 mb-4'>
+            <div class='card'>
+                <div class='card-header'>Wifi</div>
+                <div class='card-body'>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Mode:</td>
+                                <td data-replace="wifiMode"></td>
+                            </tr>
+                            <tr>
+                                <td>SSID:</td>
+                                <td data-replace="wifiSsid"></td>
+                            </tr>
+                            <tr>
+                                <td>MAC Address:</td>
+                                <td data-replace="wifiMac"></td>
+                            </tr>
+                            <tr>
+                                <td>IP Address:</td>
+                                <td data-replace="wifiIp"></td>
+                            </tr>
+                            <tr>
+                                <td>Subnet Mask:</td>
+                                <td data-replace="wifiSubnet"></td>
+                            </tr>
+                            <tr>
+                                <td>Default Gateway:</td>
+                                <td data-replace="wifiGate"></td>
+                            </tr>
+                            <tr>
+                                <td>RSSI:</td>
+                                <td data-replace="wifiRssi"></td>
+                            </tr>
+                            <tr>
+                                <td>DHCP:</td>
+                                <td data-replace="wifiDhcp"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/masonry.min.js"></script>
+</div>

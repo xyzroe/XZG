@@ -1,0 +1,44 @@
+<div id='main'>
+    <div class='row'>
+        <form class="saveParams" method='POST' action="saveParams">
+            <div class='col-sm-12 cardPadding'>
+                <div class='card'>
+                    <div class="card-header">Ethernet options</div>
+                    <div class="card-body">
+                        <div class='mb-2 form-check form-switch'>
+                            <input data-replace="modeEther" id="EthDhcpTog" class='form-check-input' type='checkbox'
+                                role="switch" name='dhcp' onclick="EthInputDsbl(this.checked)">
+                            <label class='form-check-label' for='dhcp'>DHCP</label>
+                        </div>
+                        <div class='mb-2'>
+                            <label for='ip'>IP</label>
+                            <input data-replace="ipEther" class='form-control' id='EthIp' type='text' name='ipAddress'
+                                placeholder="192.168.x.x">
+                        </div>
+                        <div class='mb-2'>
+                            <label for='mask'>Mask</label>
+                            <input data-replace="maskEther" class='form-control' id='EthMask' type='text' name='ipMask'
+                                placeholder="255.255.255.0">
+                        </div>
+                        <div class='mb-2'>
+                            <label for='gateway'>Gateway</label>
+                            <input data-replace="GWEther" type='text' class='form-control' id='EthGateway' name='ipGW'
+                                placeholder="192.168.x.x">
+                        </div>
+                        <!-- <div class='mb-2 form-check form-switch'>
+                            <input data-replace="disablePingCtrl" class='form-check-input' id='disablePingCtrl'
+                                type='checkbox' role="switch" name='disablePingCtrl'>
+                            <label class='form-check-label' for='disablePingCtrl'><b>Disable</b> gateway ping
+                                check</label>
+                        </div> -->
+                        <br>
+                        <div class="row justify-content-md-center">
+                            <button type='submit' class='btn btn-outline-primary col-sm-12 col-md-6'
+                                name='save'>Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
