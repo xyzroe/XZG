@@ -103,7 +103,7 @@ struct NetworkConfigStruct
   // Wi-Fi
   bool wifiEnable;
   char wifiSsid[50];
-  char wifiPass[50];
+  char wifiPass[80];
   bool wifiDhcp;
   IPAddress wifiIp;
   IPAddress wifiMask;

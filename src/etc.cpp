@@ -401,7 +401,6 @@ void nmDeactivate()
 
 IPAddress savedWifiDNS;
 IPAddress savedEthDNS;
-
 void checkDNS(bool setup = false)
 {
   const char *wifiKey = "WiFi";
@@ -414,20 +413,29 @@ void checkDNS(bool setup = false)
   if (networkCfg.wifiEnable)
   {
     IPAddress currentWifiDNS = WiFi.dnsIP();
+    char dnsStrW[16];
+    snprintf(dnsStrW, sizeof(dnsStrW), "%u.%u.%u.%u", currentWifiDNS[0], currentWifiDNS[1], currentWifiDNS[2], currentWifiDNS[3]);
 
-    String dnsStr = currentWifiDNS.toString();
-    int lastDot = dnsStr.lastIndexOf('.');
-    String fourthPart = dnsStr.substring(lastDot + 1);
+    int lastDot = -1;
+    for (int i = 0; dnsStrW[i] != '\0'; i++)
+    {
+      if (dnsStrW[i] == '.')
+      {
+        lastDot = i;
+      }
+    }
 
-    if (setup && fourthPart.toInt() != 0)
+    int fourthPartW = atoi(dnsStrW + lastDot + 1);
+
+    if (setup && fourthPartW != 0)
     {
       savedWifiDNS = currentWifiDNS;
-      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, savedWifiDNS.toString().c_str());
+      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, dnsStrW);
       printLogMsg(buffer);
     }
     else
     {
-      if (currentWifiDNS != savedWifiDNS)
+      if (savedWifiDNS && currentWifiDNS != savedWifiDNS)
       {
         WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), savedWifiDNS);
         snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, wifiKey, savedWifiDNS.toString().c_str());
@@ -439,20 +447,29 @@ void checkDNS(bool setup = false)
   if (networkCfg.ethEnable)
   {
     IPAddress currentEthDNS = ETH.dnsIP();
+    char dnsStrE[16];
+    snprintf(dnsStrE, sizeof(dnsStrE), "%u.%u.%u.%u", currentEthDNS[0], currentEthDNS[1], currentEthDNS[2], currentEthDNS[3]);
 
-    String dnsStr = currentEthDNS.toString();
-    int lastDot = dnsStr.lastIndexOf('.');
-    String fourthPart = dnsStr.substring(lastDot + 1);
+    int lastDot = -1;
+    for (int i = 0; dnsStrE[i] != '\0'; i++)
+    {
+      if (dnsStrE[i] == '.')
+      {
+        lastDot = i;
+      }
+    }
 
-    if (setup && fourthPart.toInt() != 0)
+    int fourthPartE = atoi(dnsStrE + lastDot + 1);
+
+    if (setup && fourthPartE != 0)
     {
       savedEthDNS = currentEthDNS;
-      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, savedEthDNS.toString().c_str());
+      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, dnsStrE);
       printLogMsg(buffer);
     }
     else
     {
-      if (currentEthDNS != savedEthDNS)
+      if (savedEthDNS && currentEthDNS != savedEthDNS)
       {
         ETH.config(ETH.localIP(), ETH.gatewayIP(), ETH.subnetMask(), savedEthDNS);
         snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, ethKey, savedEthDNS.toString().c_str());

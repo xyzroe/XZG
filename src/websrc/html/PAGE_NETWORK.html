@@ -141,7 +141,7 @@
                                     <div class="mb-2">
                                         <label for="wifiSsid" data-i18n="p.ne.wifi.ssid"></label>
                                         <input data-r2v="wifiSsid" class="form-control" type="text" name="wifiSsid"
-                                            id="wifiSsid" value="" minlength="2" required>
+                                            id="wifiSsid" value="" minlength="2" maxlength="50" required>
                                     </div>
                                     <div class="mb-2">
                                         <label for="pass" data-i18n="c.pass"></label>
@@ -149,7 +149,7 @@
                                             <input type="password" id="wifiPass" data-r2v="wifiPass"
                                                 class="form-control" placeholder="Password" aria-label="Password"
                                                 aria-describedby="tglPassViewVisibility" name="wifiPass"
-                                                minlength="8" required>
+                                                minlength="8" maxlength="80" required>
                                             <button class="btn inline_btn" type="button" id="tglPassViewVisibility"
                                                 onclick="tglPassView(this)">
                                                 <svg viewBox="0 0 16 16" class="inline_icon">

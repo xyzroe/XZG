@@ -158,6 +158,7 @@ void handleTmrNetworkOverseer()
       if (WiFi.isConnected())
       {
         LOGD("WIFI CONNECTED");
+        // startServers();
         tmrNetworkOverseer.stop();
       }
       else
@@ -175,6 +176,7 @@ void handleTmrNetworkOverseer()
       if (vars.connectedEther)
       {
         LOGD("LAN CONNECTED");
+        // startServers();
         tmrNetworkOverseer.stop();
       }
       else
@@ -193,7 +195,7 @@ void handleTmrNetworkOverseer()
       if (WiFi.isConnected())
       {
         tmrNetworkOverseer.stop();
-        startServers(true);
+        // startServers(true);
       }
       else
       {
@@ -203,7 +205,7 @@ void handleTmrNetworkOverseer()
           if (vars.connectedEther)
           {
             tmrNetworkOverseer.stop();
-            startServers(true);
+            // startServers(true);
           }
           else
           {                            // no network interfaces
@@ -235,7 +237,7 @@ void NetworkEvent(WiFiEvent_t event)
     LOGD("%s Connected", ethKey);
     break;
   case ARDUINO_EVENT_ETH_GOT_IP: // 22: // SYSTEM_EVENT_ETH_GOT_IP:
-    startServers();
+    // startServers();
     LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, DNS: %s, %dMbps", ethKey,
          ETH.macAddress().c_str(),
          ETH.localIP().toString().c_str(),
@@ -268,7 +270,7 @@ void NetworkEvent(WiFiEvent_t event)
     }
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
-    startServers();
+    // startServers();
     LOGI("%s MAC: %s, IP: %s, Mask: %s, Gw: %s, DNS: %s", wifiKey,
          WiFi.macAddress().c_str(),
          WiFi.localIP().toString().c_str(),
@@ -348,6 +350,8 @@ void connectWifi()
   }
   WiFi.persistent(false);
   esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B);
+  WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+  WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
     LOGD("Ok SSID & PASS");
@@ -452,11 +456,13 @@ void setupCoordinatorMode()
     ledControl.modeLED.mode = LED_ON;
     delay(100);
     usbModeSet(ZIGBEE);
+    startServers(true);
     break;
   case WORK_MODE_NETWORK:
     ledControl.powerLED.mode = LED_BLINK_1Hz;
     delay(100);
     usbModeSet(XZG);
+    startServers();
     break;
   default:
     break;
