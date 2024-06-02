@@ -1,0 +1,8 @@
+.DS_Store
+.pio
+.vscode
+.gcc-flags.json
+.clang_complete
+bin/ZigStarGW_*
+commit
+TASK-LIST.md

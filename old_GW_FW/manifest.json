@@ -1,0 +1,14 @@
+{
+    "name": "ZigStarGW-FW",
+    "builds": [
+      {
+        "chipFamily": "ESP32",
+        "improv": false,
+        "parts": [
+          { "path": "bin/bootloader_dio_40m.bin", "offset": 4096 },
+          { "path": "bin/partitions.bin", "offset": 32768 },
+          { "path": "bin/ZigStarGW.bin", "offset": 65536 }
+        ]
+      }
+    ]
+  }
