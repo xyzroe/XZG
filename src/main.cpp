@@ -123,13 +123,13 @@ void startServers(bool usb = false)
 
   startAP(false);
 
-  if (!vars.apStarted)
+  /*if (!vars.apStarted)
   {
     if (vpnCfg.wgEnable)
     {
       wgBegin();
     }
-  }
+  }*/
 
   mDNS_start();
   /* //not available now
