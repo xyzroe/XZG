@@ -350,8 +350,6 @@ void connectWifi()
   }
   WiFi.persistent(false);
   esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B);
-  WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
-  WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
     LOGD("Ok SSID & PASS");
@@ -380,6 +378,8 @@ void connectWifi()
       WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
       LOGD("Try DHCP");
     }
+    WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+    WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
     WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
     LOGD("WiFi.begin");
   }
