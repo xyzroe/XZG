@@ -36,9 +36,10 @@ def update_manifest(root, file, chip, version):
             if file not in manifest[root][chip]:
                 manifest[root][chip][file] = data[chip][file]
             else:
-                manifest[root][chip][file]["ver"] = data[chip][file]["ver"]
+                manifest[root][chip][file].setdefault("ver", data[chip][file]["ver"])
                 manifest[root][chip][file]["link"] = data[chip][file]["link"]
                 manifest[root][chip][file].setdefault("notes", "")
+                manifest[root][chip][file].setdefault("baud", "115200")
             f.seek(0)
             json.dump(manifest, f, indent=4)
             f.truncate()
