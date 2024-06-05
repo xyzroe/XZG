@@ -163,27 +163,6 @@
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
                 "baud": "460800"
             }
-        },
-        "CC2652RB": {
-            "CC2652RB_coordinator_20240315.bin": {
-                "ver": "20240315",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652RB_coordinator_20240315.bin",
-                "notes": ""
-            }
-        },
-        "CC2652R7_coordinator": {
-            "CC2652R7_coordinator_20240316.bin": {
-                "ver": "20240316",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R7_coordinator_20240316.bin",
-                "notes": ""
-            }
-        },
-        "CC2652R_coordinator": {
-            "CC2652R_coordinator_20240315.bin": {
-                "ver": "20240315",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240315.bin",
-                "notes": ""
-            }
         }
     },
     "thread": {
