@@ -39,10 +39,10 @@
     },
     "coordinator": {
         "CC2652P2_launchpad": {
-            "CC1352P2_CC2652P_launchpad_coordinator_20221226.bin": {
-                "ver": "20221226",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226.bin",
-                "notes": "Improve performance/reliability for larger network (100+ devices)<br>Increase request retry attempts<br>Increase routing table sizes<br>SimpleLink SDK 6.10.01.01",
+            "CC1352P2_CC2652P_launchpad_coordinator_20240315.bin": {
+                "ver": "20240315",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315.bin",
+                "notes": "<a href='https://github.com/Koenkk/Z-Stack-firmware/discussions/496' target='_blank'>Koenkk/Z-Stack-firmware/discussions/496</a>",
                 "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20230507.bin": {
@@ -51,16 +51,10 @@
                 "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)<br>Increase message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)<br>Improve performance with larger network<br>Optimize table sizes<br>Increase stack_size from 1024 to 8192<br>Add firmware for CC1352P7 and CC2652R7<br>SimpleLink SDK 7.10.00.98",
                 "baud": "115200"
             },
-            "znp_CC1352P_RFS_20220302.bin": {
-                "ver": "20220302",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_RFS_20220302.bin",
-                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40",
-                "baud": "115200"
-            },
-            "CC1352P2_CC2652P_launchpad_coordinator_20240315.bin": {
-                "ver": "20240315",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315.bin",
-                "notes": "<a href='https://github.com/Koenkk/Z-Stack-firmware/discussions/496' target='_blank'>Koenkk/Z-Stack-firmware/discussions/496</a>",
+            "CC1352P2_CC2652P_launchpad_coordinator_20221226.bin": {
+                "ver": "20221226",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226.bin",
+                "notes": "Improve performance/reliability for larger network (100+ devices)<br>Increase request retry attempts<br>Increase routing table sizes<br>SimpleLink SDK 6.10.01.01",
                 "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20220219.bin": {
@@ -68,6 +62,18 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20220219.bin",
                 "notes": "Fix Touchlink crash<br>SimpleLink SDK 5.40.00.40",
                 "baud": "115200"
+            },
+            "znp_CC1352P_RFS_20220302.bin": {
+                "ver": "20220302",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_RFS_20220302.bin",
+                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40",
+                "baud": "115200"
+            },
+            "CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin": {
+                "ver": "x4_20240315",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin",
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
+                "baud": "460800"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin": {
                 "ver": "x4_20230507",
@@ -80,31 +86,19 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20221226",
                 "baud": "460800"
-            },
-            "CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin": {
-                "ver": "x4_20240315",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin",
-                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
-                "baud": "460800"
             }
         },
         "CC2652P2_other": {
-            "CC1352P2_CC2652P_other_coordinator_20230507.bin": {
-                "ver": "20230507",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507.bin",
-                "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)<br>Increase message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)<br>Improve performance with larger network<br>Optimize table sizes<br>Increase stack_size from 1024 to 8192<br>Add firmware for CC1352P7 and CC2652R7<br>SimpleLink SDK 7.10.00.98",
-                "baud": "115200"
-            },
-            "znp_CC1352P_E72_20220301.bin": {
-                "ver": "20220301",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_E72_20220301.bin",
-                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40",
-                "baud": "115200"
-            },
             "CC1352P2_CC2652P_other_coordinator_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240315.bin",
                 "notes": "<a href='https://github.com/Koenkk/Z-Stack-firmware/discussions/496' target='_blank'>Koenkk/Z-Stack-firmware/discussions/496</a>",
+                "baud": "115200"
+            },
+            "CC1352P2_CC2652P_other_coordinator_20230507.bin": {
+                "ver": "20230507",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507.bin",
+                "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)<br>Increase message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)<br>Improve performance with larger network<br>Optimize table sizes<br>Increase stack_size from 1024 to 8192<br>Add firmware for CC1352P7 and CC2652R7<br>SimpleLink SDK 7.10.00.98",
                 "baud": "115200"
             },
             "CC1352P2_CC2652P_other_coordinator_20221226.bin": {
@@ -119,6 +113,18 @@
                 "notes": "Fix Touchlink crash<br>SimpleLink SDK 5.40.00.40",
                 "baud": "115200"
             },
+            "znp_CC1352P_E72_20220301.bin": {
+                "ver": "20220301",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/znp_CC1352P_E72_20220301.bin",
+                "notes": "Alex Egony build based on Koenkk and JetHome patches for Z-Stack_3.x.0<br>DC/DC converter enabled<br>Default TX power: 20dBm<br>Extended LEDs support<br>SDK 5.40.00.40",
+                "baud": "115200"
+            },
+            "CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin": {
+                "ver": "x4_20240315",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin",
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
+                "baud": "460800"
+            },
             "CC1352P2_CC2652P_other_coordinator_20230507_460800.bin": {
                 "ver": "x4_20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507_460800.bin",
@@ -129,12 +135,6 @@
                 "ver": "x4_20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20221226_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20221226",
-                "baud": "460800"
-            },
-            "CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin": {
-                "ver": "x4_20240315",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin",
-                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
                 "baud": "460800"
             }
         },
@@ -151,16 +151,16 @@
                 "notes": "Enable child aging to fix issues like #13478 (but not for older Xiaomi devices as they do not implement child aging correctly which gets them kicked out of the network)<br>Increase message timeout from 7 to 8 seconds to increase message delivery success rate for devices using a 7.5 seconds poll interval (#13478)<br>Improve performance with larger network<br>Optimize table sizes<br>Increase stack_size from 1024 to 8192<br>Add firmware for CC1352P7 and CC2652R7<br>SimpleLink SDK 7.10.00.98",
                 "baud": "115200"
             },
-            "CC1352P7_coordinator_20230507_460800.bin": {
-                "ver": "x4_20230507",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507_460800.bin",
-                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
-                "baud": "460800"
-            },
             "CC1352P7_coordinator_20240316_patched_460800.bin": {
                 "ver": "x4_20240316",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240316_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240316",
+                "baud": "460800"
+            },
+            "CC1352P7_coordinator_20230507_460800.bin": {
+                "ver": "x4_20230507",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507_460800.bin",
+                "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
                 "baud": "460800"
             }
         },
