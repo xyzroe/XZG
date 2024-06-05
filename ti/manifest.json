@@ -70,19 +70,19 @@
                 "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin": {
-                "ver": "20230507_460800",
+                "ver": "x4_20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20230507_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
                 "baud": "460800"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20221226_patched_460800.bin": {
-                "ver": "20221226_patched_460800",
+                "ver": "x4_20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20221226_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20221226",
                 "baud": "460800"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin": {
-                "ver": "20240315_patched_460800",
+                "ver": "x4_20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
                 "baud": "460800"
@@ -120,19 +120,19 @@
                 "baud": "115200"
             },
             "CC1352P2_CC2652P_other_coordinator_20230507_460800.bin": {
-                "ver": "20230507_460800",
+                "ver": "x4_20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20230507_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
                 "baud": "460800"
             },
             "CC1352P2_CC2652P_other_coordinator_20221226_patched_460800.bin": {
-                "ver": "20221226_patched_460800",
+                "ver": "x4_20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20221226_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20221226",
                 "baud": "460800"
             },
             "CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin": {
-                "ver": "20240315_patched_460800",
+                "ver": "x4_20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240315",
                 "baud": "460800"
@@ -152,13 +152,13 @@
                 "baud": "115200"
             },
             "CC1352P7_coordinator_20230507_460800.bin": {
-                "ver": "20230507_460800",
+                "ver": "x4_20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20230507_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20230507",
                 "baud": "460800"
             },
             "CC1352P7_coordinator_20240316_patched_460800.bin": {
-                "ver": "20240316_patched_460800",
+                "ver": "x4_20240316",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240316_patched_460800.bin",
                 "notes": "<a href='https://github.com/Andrik45719/Z-Stack-firmware' target='_blank'>Andrik45719/Z-Stack-firmware</a> based on 20240316",
                 "baud": "460800"
