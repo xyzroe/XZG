@@ -478,7 +478,8 @@ void handleApi()
                 CMD_ZB_CHK_HW,
                 CMD_ZB_LED_TOG,
                 CMD_ESP_FAC_RES,
-                CMD_ZB_ERASE_NVRAM
+                CMD_ZB_ERASE_NVRAM,
+                CMD_DNS_CHECK
             };
             String result = wrongArgs;
             const char *argCmd = "cmd";
@@ -504,6 +505,9 @@ void handleApi()
                     break;
                 case CMD_ZB_BSL:
                     zigbeeEnableBSL();
+                    break;
+                case CMD_DNS_CHECK:
+                    checkDNS();
                     break;
                 case CMD_ZB_ERASE_NVRAM:
                     xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);

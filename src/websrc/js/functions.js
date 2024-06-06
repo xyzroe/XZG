@@ -52,7 +52,9 @@ const commands = {
 	CMD_ZB_CHK_FW: 10,
 	CMD_ZB_CHK_HW: 11,
 	CMD_ZB_LED_TOG: 12,
-	CMD_ESP_FAC_RES: 13
+	CMD_ESP_FAC_RES: 13,
+	CMD_ZB_ERASE_NVRAM: 14,
+	CMD_DNS_CHECK: 15
 }
 
 const api = {
@@ -1490,6 +1492,7 @@ function modalAddSpiner() {
 }
 
 function startZbFlash(link) {
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
 	$(modalBtns).html("");
 	$(modalBody).html("");
 
@@ -1695,6 +1698,7 @@ function modalConstructor(type, params) {
 	$(modalBtns).html("");
 	switch (type) {
 		case "flashESP":
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
 			$(headerText).text(i18next.t('md.esp.fu.tt')).css("color", "red");;
 			let action = 0;
 			if (params instanceof FormData) {

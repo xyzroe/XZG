@@ -185,7 +185,7 @@
                 })
                 .then(fw => {
                     const matchedClass = Object.keys(classToFwMap).find(cls => selectedCard.className.includes(cls));
-
+                    
                     if (matchedClass && fw[classToFwMap[matchedClass]] && fw[classToFwMap[matchedClass]].length > 0) {
                         const fileLink = fw[classToFwMap[matchedClass]][0].link;
                         const baudRate = fw[classToFwMap[matchedClass]][0].baud;

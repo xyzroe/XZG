@@ -137,6 +137,8 @@ void zbEraseNV(void *pvParameters)
 void flashZbUrl(String url)
 {
     // zbFwCheck();
+    ledControl.modeLED.mode = LED_BLINK_3Hz;
+
     checkDNS();
     delay(1000);
 
@@ -262,6 +264,7 @@ void flashZbUrl(String url)
         printLogMsg("Failed to flash Zigbee");
         sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
     }
+    ledControl.modeLED.mode = LED_OFF;
 }
 
 /*void printBufferAsHex(const byte *buffer, size_t length)
