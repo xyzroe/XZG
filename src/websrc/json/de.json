@@ -158,6 +158,21 @@
           "net": "Netzwerkmodus",
           "usb": "USB-Modus"
         }
+      },
+      "u": {
+        "ai": "Automatische Installation von Updates (ESP32 und Zigbee)",
+        "d": {
+          "ev": "Täglich",
+          "fr": "Freitag",
+          "mn": "Montag",
+          "sa": "Samstag",
+          "su": "Sonntag",
+          "th": "Donnerstag",
+          "tt": "Wochentag",
+          "tu": "Dienstag",
+          "wd": "Mittwoch"
+        },
+        "h": "Neue Firmware-Prüfzeit"
       }
     },
     "lo": {
@@ -227,7 +242,9 @@
         "rssi": "RSSI",
         "sc": "Sicherheit",
         "ssid": "SSID",
-        "nnf": "WLAN-Netzwerke nicht gefunden"
+        "nnf": "WLAN-Netzwerke nicht gefunden",
+        "mode": "Modus",
+        "power": "Sendeleistung"
       }
     },
     "st": {
@@ -278,7 +295,13 @@
       },
       "c": {
         "fv": "FW-Revision",
-        "hv": "HW-Version"
+        "hv": "HW-Version",
+        "r": "Rolle"
+      },
+      "zr": {
+        "c": "Koordinator",
+        "r": "Router",
+        "t": "OpenTread"
       }
     },
     "se": {
@@ -431,6 +454,9 @@
     "zb": {
       "nzfa": {
         "tt": "Keine neue Firmware gefunden"
+      },
+      "upd": {
+        "tt": "Neue Zigbee-Firmware gefunden 🌟"
       }
     }
   }

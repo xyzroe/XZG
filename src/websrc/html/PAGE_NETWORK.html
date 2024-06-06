@@ -72,6 +72,31 @@
                                     <label class="form-check-label" for="wifiDhcp" data-i18n="p.ne.dhcp"></label>
                                 </div>
                             </div>
+                            <div class='mb-2'>
+                                <label for='wifiMode' data-i18n="p.ne.wifi.mode"></label>
+                                <select class='form-select' id='wifiMode' name='wifiMode'>
+                                    <option data-r2v="1" value='1'>11B</option>
+                                    <option data-r2v="2" value='2'>11G</option>
+                                    <option data-r2v="4" value='4'>11N</option>
+                                    <option data-r2v="8" value='8'>LR</option>
+                                </select>
+                            </div>
+                            <div class='mb-2'>
+                                <label for='wifiPwr' data-i18n="p.ne.wifi.power"></label>
+                                <select class='form-select' id='wifiPwr' name='wifiPwr'>
+                                    <option data-r2v="78" value='78'>19.5 dBm</option>
+                                    <option data-r2v="76" value='76'>19 dBm</option>
+                                    <option data-r2v="74" value='74'>18.5 dBm</option>
+                                    <option data-r2v="68" value='68'>17 dBm</option>
+                                    <option data-r2v="60" value='60'>15 dBm</option>
+                                    <option data-r2v="52" value='52'>13 dBm</option>
+                                    <option data-r2v="44" value='44'>11 dBm</option>
+                                    <option data-r2v="34" value='34'>8.5 dBm</option>
+                                    <option data-r2v="28" value='28'>7 dBm</option>
+                                    <option data-r2v="20" value='20'>5 dBm</option>
+                                    <option data-r2v="8" value='8'>2 dBm</option>
+                                </select>
+                            </div>
                             <div class="mb-2">
                                 <label for="wifiIp" data-i18n="p.ne.ip"></label>
                                 <input data-r2v="wifiIp" class="form-control" id="wifiIp" type="text" name="wifiIp"

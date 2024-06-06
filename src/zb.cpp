@@ -14,6 +14,7 @@
 #include "log.h"
 #include "etc.h"
 #include "zb.h"
+#include "const/keys.h"
 
 extern struct SysVarsStruct vars;
 extern struct ThisConfigStruct hwConfig;
@@ -45,11 +46,11 @@ bool zbFwCheck()
             return true;
         }
         else
-        {   
+        {
             CCTool.restart();
-            int val = attempt+1;
+            int val = attempt + 1;
             LOGD("Try: %d", val);
-            delay(500*(val*val)); 
+            delay(500 * (val * val));
         }
     }
     printLogMsg(tag_ZB + " FW: Unknown! Check serial speed!");
@@ -114,14 +115,14 @@ bool zigbeeErase()
 }
 void nvPrgs(const String &inputMsg)
 {
-    const char *tagZB_NV_progress = "NV";
+    
     const uint8_t eventLen = 30;
     String msg = inputMsg;
     if (msg.length() > 25)
     {
         msg = msg.substring(0, 25);
     }
-    sendEvent(tagZB_NV_progress, eventLen, msg);
+    sendEvent(tagZB_NV_prgs, eventLen, msg);
     LOGD("%s", msg.c_str());
 }
 
@@ -135,26 +136,25 @@ void zbEraseNV(void *pvParameters)
 
 void flashZbUrl(String url)
 {
+    // zbFwCheck();
+    checkDNS();
+    delay(1000);
+
     Serial2.updateBaudRate(500000);
     float last_percent = 0;
 
-    const char *tagZB_FW_info = "ZB_FW_info";
-    const char *tagZB_FW_file = "ZB_FW_file";
-    const char *tagZB_FW_err = "ZB_FW_err";
-    const char *tagZB_FW_progress = "ZB_FW_prgs";
     const uint8_t eventLen = 11;
 
     auto progressShow = [last_percent](float percent) mutable
     {
-        const char *tagZB_FW_progress = "ZB_FW_prgs";
 
         if ((percent - last_percent) > 1 || percent < 0.1 || percent == 100)
         {
             // char buffer[100];
             // snprintf(buffer, sizeof(buffer), "Flash progress: %.2f%%", percent);
             // printLogMsg(String(buffer));
-            LOGI("%s", String(percent));
-            sendEvent(tagZB_FW_progress, eventLen, String(percent));
+            LOGI("%.2f%%", percent);
+            sendEvent(tagZB_FW_prgs, eventLen, String(percent));
             last_percent = percent;
         }
     };
@@ -162,32 +162,109 @@ void flashZbUrl(String url)
     printLogMsg("Start Zigbee flashing");
     sendEvent(tagZB_FW_info, eventLen, String("start"));
 
-    zbFwCheck();
+    // https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240316.bin
+    //  CCTool.enterBSL();
+    int key = url.indexOf("?b=");
 
-    // CCTool.enterBSL();
+    String clear_url = url.substring(0, key);
 
-    printLogMsg("Installing from " + url);
-    sendEvent(tagZB_FW_file, eventLen, String(url));
+    // printLogMsg("Clear from " + clear_url);
+    String baud_str = url.substring(key + 3, url.length());
+    // printLogMsg("Baud " + baud_str);
+    systemCfg.serialSpeed = baud_str.toInt();
 
-    if (eraseWriteZbUrl(url.c_str(), progressShow, CCTool))
+    printLogMsg("ZB flash " + clear_url + " @ " + systemCfg.serialSpeed);
+
+    sendEvent(tagZB_FW_file, eventLen, String(clear_url));
+
+    if (eraseWriteZbUrl(clear_url.c_str(), progressShow, CCTool))
     {
         sendEvent(tagZB_FW_info, eventLen, String("finish"));
-        printLogMsg("Flashing finished successfully");
-        zbFwCheck();
-        zbLedToggle();
-        delay(1000);
-        zbLedToggle();
-        sendEvent(tagZB_FW_file, eventLen, String(CCTool.chip.fwRev));
+        printLogMsg("Flashed successfully");
+        Serial2.updateBaudRate(systemCfg.serialSpeed);
+
+        int lineIndex = clear_url.lastIndexOf("_");
+        int binIndex = clear_url.lastIndexOf(".bin");
+        int lastSlashIndex = clear_url.lastIndexOf("/");
+
+        if (lineIndex > -1 && binIndex > -1 && lastSlashIndex > -1)
+        {
+            String zbFw = clear_url.substring(lineIndex + 1, binIndex);
+            // LOGI("1 %s", zbFw);
+
+            strncpy(systemCfg.zbFw, zbFw.c_str(), sizeof(systemCfg.zbFw) - 1);
+            zbFw = "";
+
+            int i = 0;
+
+            int preLastSlash = -1;
+            // LOGI("2 %s", String(url.c_str()));
+
+            while (clear_url.indexOf("/", i) > -1 && i < lastSlashIndex)
+            {
+                int result = clear_url.indexOf("/", i);
+                // LOGI("r %d", result);
+                if (result > -1)
+                {
+                    i = result + 1;
+                    if (result < lastSlashIndex)
+                    {
+                        preLastSlash = result;
+                        // LOGI("pl %d", preLastSlash);
+                    }
+                }
+                // LOGI("l %d", lastSlashIndex);
+                // delay(500);
+            }
+
+            //LOGD("%s %s", String(preLastSlash), String(lastSlashIndex));
+            String zbRole = clear_url.substring(preLastSlash + 1, lastSlashIndex);
+            LOGI("%s", zbRole);
+
+            if (zbRole.indexOf("coordinator") > -1)
+            {
+                systemCfg.zbRole = COORDINATOR;
+            }
+            else if (zbRole.indexOf("router") > -1)
+            {
+                systemCfg.zbRole = ROUTER;
+            }
+            else if (zbRole.indexOf("tread") > -1)
+            {
+                systemCfg.zbRole = OPENTHREAD;
+            }
+            else
+            {
+                systemCfg.zbRole = UNDEFINED;
+            }
+            zbRole = "";
+
+            saveSystemConfig(systemCfg);
+        }
+        else
+        {
+            LOGW("URL error");
+        }
+        if (systemCfg.zbRole == COORDINATOR)
+        {
+            zbFwCheck();
+            zbLedToggle();
+            delay(1000);
+            zbLedToggle();
+        }
+        sendEvent(tagZB_FW_file, eventLen, String(systemCfg.zbFw));
+        delay(500);
+        ESP.restart();
     }
     else
     {
+        Serial2.updateBaudRate(systemCfg.serialSpeed);
         printLogMsg("Failed to flash Zigbee");
         sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
     }
-    Serial2.updateBaudRate(systemCfg.serialSpeed);
 }
 
-void printBufferAsHex(const byte *buffer, size_t length)
+/*void printBufferAsHex(const byte *buffer, size_t length)
 {
     const char *TAG = "BufferHex";
     char hexStr[CCTool.TRANSFER_SIZE + 10];
@@ -203,7 +280,7 @@ void printBufferAsHex(const byte *buffer, size_t length)
     }
 
     LOGD("Buffer content:\n%s", hexOutput.c_str());
-}
+}*/
 
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
 {
@@ -214,7 +291,7 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
     int loadedSize = 0;
     int totalSize = 0;
-    int maxRetries = 10;
+    int maxRetries = 7;
     int retryCount = 0;
     int retryDelay = 500;
     bool isSuccess = false;

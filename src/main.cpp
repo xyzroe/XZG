@@ -76,7 +76,7 @@ void initLan()
 {
   LOGD("Try to use %s", hwConfig.board);
 
-  if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode, hwConfig.eth.pwrAltPin))
+  if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode))// hwConfig.eth.pwrAltPin))
   {
     String modeString = networkCfg.ethDhcp ? "DHCP" : "Static";
     LOGD("LAN start ok, %s", modeString);
@@ -142,54 +142,54 @@ void startServers(bool usb = false)
 
 void handleTmrNetworkOverseer()
 {
-  switch (systemCfg.workMode)
+  // switch (systemCfg.workMode)
+  //{
+  // case WORK_MODE_NETWORK:
+  if (!networkCfg.wifiEnable && !networkCfg.ethEnable)
   {
-  case WORK_MODE_NETWORK:
-    if (!networkCfg.wifiEnable && !networkCfg.ethEnable)
-    {
-      LOGD("Both interfaces disabled. Start AP");
-      startAP(true);
-      connectWifi();
-    }
-    if (networkCfg.wifiEnable)
-    {
-      LOGD("WiFi.status = %s", String(WiFi.status()));
+    LOGD("Both interfaces disabled. Start AP");
+    startAP(true);
+    connectWifi();
+  }
+  if (networkCfg.wifiEnable)
+  {
+    LOGD("WiFi.status = %s", String(WiFi.status()));
 
-      if (WiFi.isConnected())
-      {
-        LOGD("WIFI CONNECTED");
-        // startServers();
-        tmrNetworkOverseer.stop();
-      }
-      else
-      {
-        if (tmrNetworkOverseer.counter() > overseerMaxRetry)
-        {
-          LOGD("WIFI counter overflow");
-          startAP(true);
-          connectWifi();
-        }
-      }
-    }
-    if (networkCfg.ethEnable)
+    if (WiFi.isConnected())
     {
-      if (vars.connectedEther)
+      LOGD("WIFI CONNECTED");
+      // startServers();
+      tmrNetworkOverseer.stop();
+    }
+    else
+    {
+      if (tmrNetworkOverseer.counter() > overseerMaxRetry)
       {
-        LOGD("LAN CONNECTED");
-        // startServers();
-        tmrNetworkOverseer.stop();
-      }
-      else
-      {
-        if (tmrNetworkOverseer.counter() > overseerMaxRetry)
-        {
-          LOGD("LAN counter overflow");
-          startAP(true);
-        }
+        LOGD("WIFI counter overflow");
+        startAP(true);
+        connectWifi();
       }
     }
-    break;
-  case WORK_MODE_USB:
+  }
+  if (networkCfg.ethEnable)
+  {
+    if (vars.connectedEther)
+    {
+      LOGD("LAN CONNECTED");
+      // startServers();
+      tmrNetworkOverseer.stop();
+    }
+    else
+    {
+      if (tmrNetworkOverseer.counter() > overseerMaxRetry)
+      {
+        LOGD("LAN counter overflow");
+        startAP(true);
+      }
+    }
+  }
+  // break;
+  /*case WORK_MODE_USB:
     if (tmrNetworkOverseer.counter() > 3)
     { // 10 seconds for wifi connect
       if (WiFi.isConnected())
@@ -217,8 +217,8 @@ void handleTmrNetworkOverseer()
     }
     break;
   default:
-    break;
-  }
+    break;*/
+  //}
 }
 
 void NetworkEvent(WiFiEvent_t event)
@@ -278,6 +278,7 @@ void NetworkEvent(WiFiEvent_t event)
          WiFi.gatewayIP().toString().c_str(),
          WiFi.dnsIP().toString().c_str());
     checkDNS(true);
+    LOGD("WiFi TX %s", String(WiFi.getTxPower()));
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
@@ -349,7 +350,10 @@ void connectWifi()
     LOGD("timeout");
   }
   WiFi.persistent(false);
-  esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B);
+
+  // TO-DO protocol and power setup via GUI
+  esp_wifi_set_protocol(WIFI_IF_STA, networkCfg.wifiMode);
+
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
     LOGD("Ok SSID & PASS");
@@ -381,6 +385,9 @@ void connectWifi()
     WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
     WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
     WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
+    WiFi.setAutoReconnect(true);
+    WiFi.setTxPower(networkCfg.wifiPower);
+    LOGD("WiFi TX %s", String(WiFi.getTxPower()));
     LOGD("WiFi.begin");
   }
   else
@@ -573,7 +580,17 @@ void setup()
 
   printNVSFreeSpace();
 
-  zbFwCheck();
+  if (systemCfg.zbRole == COORDINATOR)
+  {
+    zbFwCheck();
+  }
+  else {
+    LOGI("[ZB] role: %s", String(systemCfg.zbRole));
+  }
+  LOGI("[ESP] FW: %s", String(VERSION));
+
+  if (!vars.apStarted)
+    checkUpdateAvail();
 
   LOGD("done");
 }

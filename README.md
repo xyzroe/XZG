@@ -1,8 +1,8 @@
 # XZG Firmware
 <div align="center"> 
-<a href="https://github.com/xyzroe/xzg/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
+<a href="https://github.com/xyzroe/XZG/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
 <a href="https://github.com/xyzroe/XZG/actions/workflows/build_fw.yml"><img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img></a>
-<a href="https://github.com/xyzroe/xzg/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/xzg/total.svg" alt="GitHub download"></img></a>
+<a href="https://github.com/xyzroe/XZG/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/XZG/total.svg" alt="GitHub download"></img></a>
 <a href="https://github.com/xyzroe/XZG/issues"><img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License"></img></a>
 </div>

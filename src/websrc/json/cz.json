@@ -60,7 +60,13 @@
       },
       "c": {
         "fv": "Firmware",
-        "hv": "Hardware"
+        "hv": "Hardware",
+        "r": "Role"
+      },
+      "zr": {
+        "c": "Coordinator",
+        "r": "Router",
+        "t": "OpenTread"
       }
     },
     "ge": {
@@ -98,6 +104,21 @@
           "ph": "pool.ntp.org",
           "tt": "Zadejte platný název domény"
         }
+      },
+      "u": {
+        "ai": "Auto install updates (ESP32 and Zigbee)",
+        "d": {
+          "ev": "Everyday",
+          "fr": "Friday",
+          "mn": "Monday",
+          "sa": "Saturday",
+          "su": "Sunday",
+          "th": "Thursday",
+          "tt": "Day of week",
+          "tu": "Tuesday",
+          "wd": "Wednesday"
+        },
+        "h": "New firmware check time"
       }
     },
     "ne": {
@@ -117,7 +138,9 @@
         "ssid": "SSID",
         "sc": "Zabezpečení",
         "ch": "Kanál",
-        "nnf": "Sítě Wi-Fi nebyly nalezeny"
+        "nnf": "Sítě Wi-Fi nebyly nalezeny",
+        "mode": "Mode",
+        "power": "Tx Power"
       }
     },
     "zi": {
@@ -428,6 +451,9 @@
     "zb": {
       "nzfa": {
         "tt": "Nebyl nalezen žádný firmware"
+      },
+      "upd": {
+        "tt": "New Zigbee firmware found 🌟"
       }
     }
   }
