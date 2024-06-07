@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 import re
 from datetime import datetime
 import shutil
@@ -28,7 +28,7 @@ def download_and_extract(url, extract_to):
         os.remove(zip_path)
     except requests.RequestException as e:
         print(f"Error downloading from {url}: {e}")
-    except ZipFile.BadZipFile as e:
+    except BadZipFile as e:
         print(f"Error unpacking archive: {e}")
 
 def update_manifest(root, file, chip, version):
