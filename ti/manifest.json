@@ -90,17 +90,20 @@
             "CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20221226.bin": {
                 "ver": "20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20221226.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_460800_20230507.bin": {
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_460800_20230507.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20240315.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         },
         "CC2652P2_other": {
@@ -155,17 +158,20 @@
             "CC1352P2_CC2652P_other_coordinator_patched_460800_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_patched_460800_20240315.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_other_coordinator_460800_20230507.bin": {
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_460800_20230507.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_other_coordinator_patched_460800_20221226.bin": {
                 "ver": "20221226",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_patched_460800_20221226.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         },
         "CC2652P7": {
@@ -196,33 +202,38 @@
             "CC1352P7_coordinator_460800_20230507.bin": {
                 "ver": "20230507",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_460800_20230507.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P7_coordinator_patched_460800_20240316.bin": {
                 "ver": "20240316",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_patched_460800_20240316.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         },
         "CC2652RB": {
             "CC2652RB_coordinator_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652RB_coordinator_20240315.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         },
         "CC2652R7_coordinator": {
             "CC2652R7_coordinator_20240316.bin": {
                 "ver": "20240316",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R7_coordinator_20240316.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         },
         "CC2652R_coordinator": {
             "CC2652R_coordinator_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240315.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         }
     },
@@ -233,6 +244,20 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin",
                 "notes": "Special build from @mercenaruss \ud83c\udf1f",
                 "baud": "115200"
+            }
+        }
+    },
+    "tread": {
+        "CC2652P2_launchpad": {
+            "rcp_LP_CC2652PSIP_tirtos_ticlang.bin": {
+                "ver": "ticlang",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/tread/rcp_LP_CC2652PSIP_tirtos_ticlang.bin",
+                "notes": ""
+            },
+            "rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.bin": {
+                "ver": "24",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/tread/rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.bin",
+                "notes": ""
             }
         }
     }
