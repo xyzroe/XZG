@@ -52,6 +52,17 @@
                 </div>
                 <div class='card-body'>
                     <div class="row">
+                        <div class='col-sm-12 mb-4'>
+                            <div class='form-group'>
+                                <label for='coordMode' data-i18n="p.ge.work.mode.desc"></label>
+                                <select class='form-select d-inline' id='coordMode' name='coordMode'>
+                                    <option data-r2v="lanMode" value='0' data-i18n="p.ge.work.mode.net"></option>
+                                    <option data-r2v="usbMode" value='1' data-i18n="p.ge.work.mode.usb"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class='col-sm-12 col-md-6 mb-4'>
                             <div class='form-group'>
                                 <label for='baud' data-i18n="p.zi.ss"></label>
@@ -174,12 +185,13 @@
                 })
                 .then(fw => {
                     const matchedClass = Object.keys(classToFwMap).find(cls => selectedCard.className.includes(cls));
-
+                    
                     if (matchedClass && fw[classToFwMap[matchedClass]] && fw[classToFwMap[matchedClass]].length > 0) {
                         const fileLink = fw[classToFwMap[matchedClass]][0].link;
-                        console.log(fileLink);
+                        const baudRate = fw[classToFwMap[matchedClass]][0].baud;
+                        console.log(fileLink + " @ " + baudRate);
                         modalConstructor("flashZBM");
-                        startZbFlash(fileLink);
+                        startZbFlash(fileLink + "?b=" + baudRate);
                     } else {
                         const errorMessage = classToErrorMessage[matchedClass] || "No matching firmware available.";
                         console.log(errorMessage);

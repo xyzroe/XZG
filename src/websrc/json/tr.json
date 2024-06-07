@@ -158,6 +158,21 @@
           "net": "AĞ modu",
           "usb": "USB modu"
         }
+      },
+      "u": {
+        "ai": "Otomatik yükleme güncellemeleri (ESP32 ve Zigbee)",
+        "d": {
+          "ev": "Her gün",
+          "fr": "Cuma",
+          "mn": "Pazartesi",
+          "sa": "Cumartesi",
+          "su": "Pazar",
+          "th": "Perşembe",
+          "tt": "Haftanın günü",
+          "tu": "Salı",
+          "wd": "Çarşamba"
+        },
+        "h": "Yeni ürün yazılımı kontrol zamanı"
       }
     },
     "lo": {
@@ -227,7 +242,9 @@
         "rssi": "RSSI",
         "sc": "Güvenlik",
         "ssid": "SSID",
-        "nnf": "WiFi ağları bulunamadı"
+        "nnf": "WiFi ağları bulunamadı",
+        "mode": "Mod",
+        "power": "Teksas Gücü"
       }
     },
     "st": {
@@ -278,7 +295,13 @@
       },
       "c": {
         "fv": "Firmware revizyonu",
-        "hv": "Donanım sürümü"
+        "hv": "Donanım sürümü",
+        "r": "Rol"
+      },
+      "zr": {
+        "c": "Koordinatör",
+        "r": "Yönlendirici",
+        "t": "Açık Sırt"
       }
     },
     "se": {
@@ -431,6 +454,9 @@
     "zb": {
       "nzfa": {
         "tt": "Firmware bulunamadı"
+      },
+      "upd": {
+        "tt": "Yeni Zigbee ürün yazılımı bulundu 🌟"
       }
     }
   }

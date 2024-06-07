@@ -108,7 +108,6 @@ extern bool loadFileConfigWg();
 
 WebServer serverWeb(80);
 
-// HTTPClient clientWeb;
 WiFiClient eventsClient;
 
 void webServerHandleClient()
@@ -479,7 +478,8 @@ void handleApi()
                 CMD_ZB_CHK_HW,
                 CMD_ZB_LED_TOG,
                 CMD_ESP_FAC_RES,
-                CMD_ZB_ERASE_NVRAM
+                CMD_ZB_ERASE_NVRAM,
+                CMD_DNS_CHECK
             };
             String result = wrongArgs;
             const char *argCmd = "cmd";
@@ -487,6 +487,7 @@ void handleApi()
             const char *argConf = "conf";
             const char *argLed = "led";
             const char *argAct = "act";
+            const char *errLink = "Error getting link";
 
             if (serverWeb.hasArg(argCmd))
             {
@@ -504,6 +505,9 @@ void handleApi()
                     break;
                 case CMD_ZB_BSL:
                     zigbeeEnableBSL();
+                    break;
+                case CMD_DNS_CHECK:
+                    checkDNS();
                     break;
                 case CMD_ZB_ERASE_NVRAM:
                     xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);
@@ -524,15 +528,14 @@ void handleApi()
                         getEspUpdate(serverWeb.arg(argUrl));
                     else
                     {
-                        String link = fetchGitHubReleaseInfo();
-                        LOGD("%s", link.c_str());
+                        String link = fetchLatestEspFw();
                         if (link)
                         {
                             getEspUpdate(link);
                         }
                         else
                         {
-                            LOGW("Error getting link");
+                            LOGW("%s", String(errLink));
                         }
                     }
                     break;
@@ -607,12 +610,18 @@ void handleApi()
                     break;
                 case CMD_ZB_FLASH:
                     if (serverWeb.hasArg(argUrl))
-                    {
                         flashZbUrl(serverWeb.arg(argUrl));
-                    }
                     else
                     {
-                        flashZbUrl("https://github.com/xyzroe/XZG/raw/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240315.bin");
+                        String link = fetchLatestZbFw();
+                        if (link)
+                        {
+                            flashZbUrl(link);
+                        }
+                        else
+                        {
+                            LOGW("%s", String(errLink));
+                        }
                     }
                     break;
                 default:
@@ -906,6 +915,7 @@ void updateWebTask(void *parameter)
     {
         String root_data = getRootData(true);
         printEachKeyValuePair(root_data);
+        root_data = String(); // free memory
         vTaskDelayUntil(&lastWakeTime, pdMS_TO_TICKS(systemCfg.refreshLogs * 1000));
     }
 }
@@ -1006,11 +1016,11 @@ void handleGeneral()
     String result;
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
 
-    switch (systemCfg.workMode)
+    /*switch (systemCfg.workMode)
     {
     case WORK_MODE_USB:
         doc["checkedUsbMode"] = checked;
@@ -1025,7 +1035,7 @@ void handleGeneral()
     if (systemCfg.keepWeb)
     {
         doc[keepWebKey] = checked;
-    }
+    }*/
 
     if (systemCfg.disableLedPwr)
     {
@@ -1053,10 +1063,17 @@ void handleGeneral()
         doc[nmEnableKey] = checked;
     }
 
+    if (systemCfg.updAutoInst)
+    {
+        doc[updAutoInstKey] = checked;
+    }
+    doc[updCheckTimeKey] = systemCfg.updCheckTime;
+    doc[updCheckDayKey] = systemCfg.updCheckDay;
+
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
 
-    DynamicJsonDocument zones(10240);
+    DynamicJsonDocument zones(8000);
     String results;
 
     JsonArray zonesArray = zones.to<JsonArray>();
@@ -1064,6 +1081,9 @@ void handleGeneral()
     {
         zonesArray.add(timeZones[i].zone);
     }
+
+    size_t usedMemory = zones.memoryUsage();
+    LOGD("Zones used: %s bytes", String(usedMemory));
 
     serializeJson(zones, results);
     serverWeb.sendHeader(respTimeZonesName, results);
@@ -1133,6 +1153,63 @@ void handleNetwork()
     doc[wifiDns1Key] = networkCfg.wifiDns1;
     doc[wifiDns2Key] = networkCfg.wifiDns2;
 
+    switch (networkCfg.wifiMode)
+    {
+    case WIFI_PROTOCOL_11B:
+        doc["1"] = checked;
+        break;
+    case WIFI_PROTOCOL_11G:
+        doc["2"] = checked;
+        break;
+    case WIFI_PROTOCOL_11N:
+        doc["4"] = checked;
+        break;
+    case WIFI_PROTOCOL_LR:
+        doc["8"] = checked;
+        break;
+    default:
+        break;
+    }
+
+    switch (networkCfg.wifiPower)
+    {
+    case WIFI_POWER_19_5dBm:
+        doc["78"] = checked;
+        break;
+    case WIFI_POWER_19dBm:
+        doc["76"] = checked;
+        break;
+    case WIFI_POWER_18_5dBm:
+        doc["74"] = checked;
+        break;
+    case WIFI_POWER_17dBm:
+        doc["68"] = checked;
+        break;
+    case WIFI_POWER_15dBm:
+        doc["60"] = checked;
+        break;
+    case WIFI_POWER_13dBm:
+        doc["52"] = checked;
+        break;
+    case WIFI_POWER_11dBm:
+        doc["44"] = checked;
+        break;
+    case WIFI_POWER_8_5dBm:
+        doc["34"] = checked;
+        break;
+    case WIFI_POWER_7dBm:
+        doc["28"] = checked;
+        break;
+    case WIFI_POWER_5dBm:
+        doc["20"] = checked;
+        break;
+    case WIFI_POWER_2dBm:
+        doc["8"] = checked;
+        break;
+    default:
+        break;
+    }
+
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
 }
@@ -1142,39 +1219,49 @@ void handleSerial()
     String result;
     DynamicJsonDocument doc(1024);
 
-    if (systemCfg.serialSpeed == 9600)
+    switch (systemCfg.workMode)
     {
+    case WORK_MODE_USB:
+        doc["usbMode"] = checked;
+        break;
+    case WORK_MODE_NETWORK:
+        doc["lanMode"] = checked;
+        break;
+    default:
+        break;
+    }
+
+    switch (systemCfg.serialSpeed)
+    {
+    case 9600:
         doc["9600"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 19200)
-    {
+        break;
+    case 19200:
         doc["19200"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 38400)
-    {
-        doc["8400"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 57600)
-    {
+        break;
+    case 38400:
+        doc["38400"] = checked;
+        break;
+    case 57600:
         doc["57600"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 115200)
-    {
+        break;
+    case 115200:
         doc["115200"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 230400)
-    {
+        break;
+    case 230400:
         doc["230400"] = checked;
-    }
-    else if (systemCfg.serialSpeed == 460800)
-    {
+        break;
+    case 460800:
         doc["460800"] = checked;
-    }
-    else
-    {
+        break;
+    default:
         doc["115200"] = checked;
+        break;
     }
+
     doc[socketPortKey] = String(systemCfg.socketPort);
+
+    doc[zbRoleKey] = systemCfg.zbRole;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1276,6 +1363,9 @@ String getRootData(bool update)
 
         const char *operationalMode = "operationalMode";
         doc[operationalMode] = systemCfg.workMode;
+
+        doc[espUpdAvailKey] = vars.updateEspAvail;
+        doc[zbUpdAvailKey] = vars.updateZbAvail;
     }
 
     // ETHERNET TAB
@@ -1298,7 +1388,7 @@ String getRootData(bool update)
             doc[ethIpKey] = ETH.localIP().toString();
             doc[ethMaskKey] = ETH.subnetMask().toString();
             doc[ethGateKey] = ETH.gatewayIP().toString();
-            doc[ethDns] = ETH.dnsIP().toString();
+            doc[ethDns] = vars.savedEthDNS.toString();//ETH.dnsIP().toString();
         }
         else
         {
@@ -1306,7 +1396,7 @@ String getRootData(bool update)
             doc[ethIpKey] = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
             doc[ethMaskKey] = networkCfg.ethDhcp ? noConn : ETH.subnetMask().toString();
             doc[ethGateKey] = networkCfg.ethDhcp ? noConn : ETH.gatewayIP().toString();
-            doc[ethDns] = networkCfg.ethDhcp ? noConn : ETH.dnsIP().toString();
+            doc[ethDns] = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString();//ETH.dnsIP().toString();
         }
     }
 
@@ -1337,7 +1427,16 @@ String getRootData(bool update)
 
         doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
 
-        doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+        // doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+        if (CCTool.chip.fwRev > 0)
+        {
+            doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+        }
+        else
+        {
+            doc["zigbeeFwRev"] = String(systemCfg.zbFw);
+            doc["zbFwSaved"] = true;
+        }
 
         doc["zigbeeHwRev"] = CCTool.chip.hwRev;
 
@@ -1350,6 +1449,9 @@ String getRootData(bool update)
 
         doc["espFsSize"] = totalFs;
         doc["espFsUsed"] = usedFs;
+
+        doc[zbRoleKey] = systemCfg.zbRole;
+        doc["zigbeeFwSaved"] = systemCfg.zbFw;
     }
     int heapSize = ESP.getHeapSize() / 1024;
     int heapFree = ESP.getFreeHeap() / 1024;
@@ -1386,7 +1488,7 @@ String getRootData(bool update)
             doc[wifiIpKey] = WiFi.localIP().toString();
             doc[wifiMaskKey] = WiFi.subnetMask().toString();
             doc[wifiGateKey] = WiFi.gatewayIP().toString();
-            doc[wifiDns] = WiFi.dnsIP().toString();
+            doc[wifiDns] = vars.savedWifiDNS.toString();//WiFi.dnsIP().toString();
         }
         else
         {
@@ -1396,7 +1498,7 @@ String getRootData(bool update)
             doc[wifiIpKey] = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
             doc[wifiMaskKey] = networkCfg.wifiDhcp ? noConn : WiFi.subnetMask().toString();
             doc[wifiGateKey] = networkCfg.wifiDhcp ? noConn : WiFi.gatewayIP().toString();
-            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : WiFi.dnsIP().toString();
+            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString();//WiFi.dnsIP().toString();
         }
     }
 
@@ -1475,7 +1577,7 @@ void handleTools()
     DynamicJsonDocument doc(512);
 
     doc[hwBtnIsKey] = vars.hwBtnIs;
-    doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
     // doc["hostname"] = systemCfg.hostname;
@@ -1563,16 +1665,16 @@ void printLogMsg(String msg)
     logPush('\n');
     LOGI("%s", msg.c_str());
 }
-
+/*
 void progressNvRamFunc(unsigned int progress, unsigned int total)
 {
 
-    const char *tagESP_FW_progress = "ESP_FW_prgs";
+    const char *tagESP_FW_prgs = "ESP_FW_prgs";
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
 
-    sendEvent(tagESP_FW_progress, eventLen, String(percent));
+    sendEvent(tagESP_FW_prgs, eventLen, String(percent));
     // printLogMsg(String(percent));
 
 #ifdef DEBUG
@@ -1582,16 +1684,16 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
     }
 #endif
 };
-
+*/
 void progressFunc(unsigned int progress, unsigned int total)
 {
 
-    const char *tagESP_FW_progress = "ESP_FW_prgs";
+    
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
 
-    sendEvent(tagESP_FW_progress, eventLen, String(percent));
+    sendEvent(tagESP_FW_prgs, eventLen, String(percent));
     // printLogMsg(String(percent));
 
 #ifdef DEBUG
@@ -1609,21 +1711,22 @@ void getEspUpdate(String esp_fw_url)
 {
     LOGI("getEspUpdate: %s", esp_fw_url.c_str());
 
-    HTTPClient clientWeb;
+    checkDNS();
+    HTTPClient http;
     WiFiClientSecure client;
     client.setInsecure(); // the magic line, use with caution
-    clientWeb.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-    clientWeb.begin(client, esp_fw_url);
-    clientWeb.addHeader("Content-Type", "application/octet-stream");
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    http.begin(client, esp_fw_url);
+    http.addHeader("Content-Type", "application/octet-stream");
 
     // Get file, just to check if each reachable
-    int resp = clientWeb.GET();
+    int resp = http.GET();
     LOGD("Response: %s", String(resp));
     // If file is reachable, start downloading
     if (resp == HTTP_CODE_OK)
     {
         // get length of document (is -1 when Server sends no Content-Length header)
-        totalLength = clientWeb.getSize();
+        totalLength = http.getSize();
         // transfer to local variable
         int len = totalLength;
         // this is required to start firmware update process
@@ -1633,10 +1736,10 @@ void getEspUpdate(String esp_fw_url)
         // create buffer for read
         uint8_t buff[128] = {0};
         // get tcp stream
-        WiFiClient *stream = clientWeb.getStreamPtr();
+        WiFiClient *stream = http.getStreamPtr();
         // read all data from server
         LOGI("Updating firmware...");
-        while (clientWeb.connected() && (len > 0 || len == -1))
+        while (http.connected() && (len > 0 || len == -1))
         {
             // get available data size
             size_t size = stream->available();
@@ -1657,7 +1760,7 @@ void getEspUpdate(String esp_fw_url)
     {
         LOGI("Cannot download firmware file.");
     }
-    clientWeb.end();
+    http.end();
 }
 
 void runEspUpdateFirmware(uint8_t *data, size_t len)
@@ -1675,10 +1778,11 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     ESP.restart();
 }
 
-String fetchGitHubReleaseInfo()
+String fetchLatestEspFw()
 {
+    checkDNS();
     HTTPClient http;
-    http.begin("https://api.github.com/repos/xyzroe/xzg/releases");
+    http.begin("https://api.github.com/repos/xyzroe/XZG/releases");
     int httpCode = http.GET();
 
     String browser_download_url = "";
@@ -1694,7 +1798,68 @@ String fetchGitHubReleaseInfo()
         if (releases.size() > 0 && releases[0]["assets"].size() > 1)
         {
             browser_download_url = releases[0]["assets"][1]["browser_download_url"].as<String>();
-            LOGD("browser_download_url: %s", browser_download_url.c_str());
+            // LOGD("browser_download_url: %s", browser_download_url.c_str());
+        }
+    }
+    else
+    {
+        LOGD("Error on HTTP request");
+    }
+
+    http.end();
+    return browser_download_url;
+}
+
+String fetchLatestZbFw()
+{
+    checkDNS();
+    HTTPClient http;
+    http.begin("https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json");
+    int httpCode = http.GET();
+
+    String browser_download_url = "";
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+
+        DynamicJsonDocument doc(8192 * 2);
+        deserializeJson(doc, payload);
+
+        size_t usedMemory = doc.memoryUsage();
+        LOGD("doc used: %s bytes", String(usedMemory));
+
+        String roleKey;
+        if (systemCfg.zbRole == COORDINATOR)
+        {
+            roleKey = "coordinator";
+        }
+        else if (systemCfg.zbRole == ROUTER)
+        {
+            roleKey = "router";
+        }
+        else if (systemCfg.zbRole == OPENTHREAD)
+        {
+            roleKey = "thread";
+        }
+
+        if (doc.containsKey(roleKey) && doc[roleKey].containsKey(CCTool.chip.hwRev))
+        {
+            JsonObject roleObj = doc[roleKey][CCTool.chip.hwRev].as<JsonObject>();
+            for (JsonPair kv : roleObj)
+            {
+                JsonObject file = kv.value().as<JsonObject>();
+                if (file.containsKey("link"))
+                {
+                    browser_download_url = file["link"].as<String>();
+                    if (file.containsKey("baud"))
+                    {
+                        browser_download_url = browser_download_url + "?b=" + file["baud"].as<int>();
+                    }
+                    break;
+                }
+            }
+            // LOGD("browser_download_url: %s", browser_download_url.c_str());
         }
     }
     else
@@ -1708,8 +1873,13 @@ String fetchGitHubReleaseInfo()
 
 String extractVersionFromURL(String url)
 {
-    int startPos = url.indexOf("/download/") + 10;
-    int endPos = url.indexOf("/", startPos);
+    int startPos = url.lastIndexOf('_') + 1;
+    int endPos = url.indexOf(".ota.bin");
+    if (endPos == -1)
+    {
+        endPos = url.indexOf(".bin");
+    }
+
     if (startPos != -1 && endPos != -1)
     {
         return url.substring(startPos, endPos);

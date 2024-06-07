@@ -60,7 +60,13 @@
       },
       "c": {
         "fv": "Firmware",
-        "hv": "Hardware"
+        "hv": "Hardware",
+        "r": "Role"
+      },
+      "zr": {
+        "c": "Coordinator",
+        "r": "Router",
+        "t": "OpenTread"
       }
     },
     "ge": {
@@ -98,6 +104,21 @@
           "ph": "pool.ntp.org",
           "tt": "Enter valid domain name"
         }
+      },
+      "u": {
+        "h": "New firmware check time",
+        "d": {
+          "tt": "Day of week",
+          "ev": "Everyday",
+          "mn": "Monday",
+          "tu": "Tuesday",
+          "wd": "Wednesday",
+          "th": "Thursday",
+          "fr": "Friday",
+          "sa": "Saturday",
+          "su": "Sunday"
+        },
+        "ai": "Auto install updates (ESP32 and Zigbee)"
       }
     },
     "ne": {
@@ -117,7 +138,9 @@
         "ssid": "SSID",
         "sc": "Security",
         "ch": "Channel",
-        "nnf": "WiFi networks not found"
+        "nnf": "WiFi networks not found",
+        "mode": "Mode",
+        "power": "Tx Power"
       }
     },
     "zi": {
@@ -428,6 +451,9 @@
     "zb": {
       "nzfa": {
         "tt": "No firmware found"
+      },
+      "upd": {
+        "tt": "New Zigbee firmware found 🌟"
       }
     }
   }

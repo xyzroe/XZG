@@ -23,8 +23,6 @@ extern struct NetworkConfigStruct networkCfg;
 extern struct VpnConfigStruct vpnCfg;
 extern struct MqttConfigStruct mqttCfg;
 
-String tag = "NVS";
-
 void getNvsStats(int *total, int *used)
 {
     nvs_stats_t nvsStats;
@@ -127,6 +125,8 @@ void saveNetworkConfig(const NetworkConfigStruct &config)
     preferences.putString(wifiGateKey, config.wifiGate.toString());
     preferences.putString(wifiDns1Key, config.wifiDns1.toString());
     preferences.putString(wifiDns2Key, config.wifiDns2.toString());
+    preferences.putInt(wifiPwrKey, static_cast<int>(config.wifiPower));
+    preferences.putInt(wifiModeKey, config.wifiMode);
 
     preferences.putBool(ethEnblKey, config.ethEnable);
     preferences.putBool(ethDhcpKey, config.ethDhcp);
@@ -152,6 +152,9 @@ void loadNetworkConfig(NetworkConfigStruct &config)
     config.wifiGate.fromString(preferences.getString(wifiGateKey));
     config.wifiDns1.fromString(preferences.getString(wifiDns1Key, DNS_SERV_1));
     config.wifiDns2.fromString(preferences.getString(wifiDns2Key, DNS_SERV_2));
+
+    config.wifiPower = static_cast<wifi_power_t>(preferences.getInt(wifiPwrKey, WIFI_POWER_19_5dBm));
+    config.wifiMode = preferences.getInt(wifiModeKey, WIFI_PROTOCOL_11B);
 
     config.ethEnable = preferences.getBool(ethEnblKey, true);
     config.ethDhcp = preferences.getBool(ethDhcpKey, true);
@@ -262,7 +265,7 @@ void saveSystemConfig(const SystemConfigStruct &config)
 {
     preferences.begin(systemConfigKey, false);
 
-    preferences.putBool(keepWebKey, config.keepWeb);
+    // preferences.putBool(keepWebKey, config.keepWeb);
     preferences.putBool(disableWebKey, config.disableWeb);
     preferences.putBool(webAuthKey, config.webAuth);
     preferences.putString(webUserKey, config.webUser);
@@ -285,6 +288,13 @@ void saveSystemConfig(const SystemConfigStruct &config)
     // preferences.putInt(prevWorkModeKey, static_cast<int>(config.prevWorkMode));
     preferences.putInt(workModeKey, static_cast<int>(config.workMode));
 
+    preferences.putInt(zbRoleKey, static_cast<int>(config.zbRole));
+    preferences.putString(zbFwKey, config.zbFw);
+
+    preferences.putString(updCheckTimeKey, config.updCheckTime);
+    preferences.putString(updCheckDayKey, config.updCheckDay);
+    preferences.putBool(updAutoInstKey, config.updAutoInst);
+
     preferences.end();
 }
 
@@ -292,7 +302,7 @@ void loadSystemConfig(SystemConfigStruct &config)
 {
     preferences.begin(systemConfigKey, true);
 
-    config.keepWeb = preferences.getBool(keepWebKey, true);
+    // config.keepWeb = preferences.getBool(keepWebKey, true);
     config.disableWeb = preferences.getBool(disableWebKey, false);
     config.webAuth = preferences.getBool(webAuthKey, false);
     strlcpy(config.webUser, preferences.getString(webUserKey, "").c_str(), sizeof(config.webUser));
@@ -316,6 +326,13 @@ void loadSystemConfig(SystemConfigStruct &config)
     // config.prevWorkMode = static_cast<WORK_MODE_t>(preferences.getInt(prevWorkMode, WORK_MODE_NETWORK));
     // config.prevWorkMode = static_cast<WORK_MODE_t>(preferences.getInt(prevWorkModeKey, WORK_MODE_NETWORK));
     config.workMode = static_cast<WORK_MODE_t>(preferences.getInt(workModeKey, WORK_MODE_NETWORK));
+
+    config.zbRole = static_cast<ZB_ROLE_t>(preferences.getInt(zbRoleKey, UNDEFINED));
+    strlcpy(config.zbFw, preferences.getString(zbFwKey, "?").c_str(), sizeof(config.zbFw));
+
+    strlcpy(config.updCheckTime, preferences.getString(updCheckTimeKey, UPD_CHK_TIME).c_str(), sizeof(config.updCheckTime));
+    strlcpy(config.updCheckDay, preferences.getString(updCheckDayKey, UPD_CHK_DAY).c_str(), sizeof(config.updCheckDay));
+    config.updAutoInst = preferences.getBool(updAutoInstKey, false);
 
     preferences.end();
 }
@@ -348,7 +365,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         {
         case API_PAGE_GENERAL:
         {
-            if (serverWeb.hasArg(coordMode))
+            /*if (serverWeb.hasArg(coordMode))
             {
                 const uint8_t mode = serverWeb.arg(coordMode).toInt();
                 if (mode <= 2 && mode >= 0)
@@ -360,7 +377,7 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
                 }
             }
 
-            configSys.keepWeb = serverWeb.hasArg(keepWebKey) == true;
+            configSys.keepWeb = serverWeb.hasArg(keepWebKey) == true;*/
 
             configSys.disableLedPwr = serverWeb.hasArg(disableLedPwrKey) == true;
 
@@ -400,18 +417,32 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
 
             if (serverWeb.hasArg(nmStartHourKey))
             {
-                LOGD("nmStartHourKey %s", String(serverWeb.arg(nmStartHourKey)));
+                // LOGD("nmStartHourKey %s", String(serverWeb.arg(nmStartHourKey)));
                 // Serial.println(convertTimeToCron(serverWeb.arg(nmStartHourKey)));
                 strncpy(configSys.nmStart, serverWeb.arg(nmStartHourKey).c_str(), sizeof(configSys.nmStart) - 1);
                 configSys.nmStart[sizeof(configSys.nmStart) - 1] = '\0'; // Guarantee a null terminator at the end
             }
             if (serverWeb.hasArg(nmEndHourKey))
             {
-                LOGD("nmEndHourKey %s", String(serverWeb.arg(nmEndHourKey)));
+                // LOGD("nmEndHourKey %s", String(serverWeb.arg(nmEndHourKey)));
                 // Serial.println(convertTimeToCron(serverWeb.arg(nmEndHourKey)));
                 strncpy(configSys.nmEnd, serverWeb.arg(nmEndHourKey).c_str(), sizeof(configSys.nmEnd) - 1);
                 configSys.nmEnd[sizeof(configSys.nmEnd) - 1] = '\0'; // Guarantee a null terminator at the end
             }
+
+            if (serverWeb.hasArg(updCheckTimeKey))
+            {
+                strncpy(configSys.updCheckTime, serverWeb.arg(updCheckTimeKey).c_str(), sizeof(configSys.updCheckTime) - 1);
+                configSys.updCheckTime[sizeof(configSys.updCheckTime) - 1] = '\0'; // Guarantee a null terminator at the end
+            }
+
+            if (serverWeb.hasArg(updCheckDayKey))
+            {
+                strncpy(configSys.updCheckDay, serverWeb.arg(updCheckDayKey).c_str(), sizeof(configSys.updCheckDay) - 1);
+                configSys.updCheckDay[sizeof(configSys.updCheckDay) - 1] = '\0'; // Guarantee a null terminator at the end
+            }
+
+            configSys.updAutoInst = serverWeb.hasArg(updAutoInstKey) == true;
 
             saveSystemConfig(configSys);
         }
@@ -450,6 +481,16 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
             configNet.wifiEnable = serverWeb.hasArg(wifiEnblKey) == true;
 
             configNet.wifiDhcp = serverWeb.hasArg(wifiDhcpKey) == true;
+
+            if (serverWeb.hasArg(wifiModeKey))
+            {
+                configNet.wifiMode = serverWeb.arg(wifiModeKey).toInt();
+            }
+            if (serverWeb.hasArg(wifiPwrKey))
+            {
+                const uint8_t pwr = serverWeb.arg(wifiPwrKey).toInt();
+                configNet.wifiPower = static_cast<wifi_power_t>(pwr);
+            }
 
             if (serverWeb.arg(wifiSsidKey))
             {
@@ -507,13 +548,22 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
         break;
         case API_PAGE_ZIGBEE:
         {
+            if (serverWeb.hasArg(coordMode))
+            {
+                const uint8_t mode = serverWeb.arg(coordMode).toInt();
+                if (mode <= 2 && mode >= 0)
+                {
+                    configSys.workMode = static_cast<WORK_MODE_t>(mode);
+                }
+            }
+
             const char *baud = "baud";
             if (serverWeb.hasArg(baud))
             {
                 configSys.serialSpeed = serverWeb.arg(baud).toInt();
             }
 
-            if (serverWeb.hasArg(baud))
+            if (serverWeb.hasArg(portKey))
             {
                 configSys.socketPort = serverWeb.arg(portKey).toInt();
             }
@@ -702,6 +752,8 @@ void serializeNetworkConfigToJson(const NetworkConfigStruct &config, JsonObject 
     obj[wifiGateKey] = config.wifiGate.toString();
     obj[wifiDns1Key] = config.wifiDns1.toString();
     obj[wifiDns2Key] = config.wifiDns2.toString();
+    obj[wifiPwrKey] = config.wifiPower;
+    obj[wifiModeKey] = config.wifiMode;
     obj[ethEnblKey] = config.ethEnable;
     obj[ethDhcpKey] = config.ethDhcp;
     obj[ethIpKey] = config.ethIp.toString();
@@ -754,7 +806,7 @@ void serializeMqttConfigToJson(const MqttConfigStruct &config, JsonObject obj)
 // Serialization SystemConfigStruct into JSON
 void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject obj)
 {
-    obj[keepWebKey] = config.keepWeb;
+    // obj[keepWebKey] = config.keepWeb;
     obj[disableWebKey] = config.disableWeb;
     obj[webAuthKey] = config.webAuth;
     obj[webUserKey] = config.webUser;
@@ -776,6 +828,13 @@ void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject ob
     obj[nmEndHourKey] = config.nmEnd;
     // obj[prevWorkModeKey] = static_cast<int>(config.prevWorkMode);
     obj[workModeKey] = static_cast<int>(config.workMode);
+
+    obj[zbRoleKey] = static_cast<int>(config.zbRole);
+    obj[zbFwKey] = config.zbFw;
+
+    obj[updCheckTimeKey] = config.updCheckTime;
+    obj[updCheckDayKey] = config.updCheckDay;
+    obj[updAutoInstKey] = config.updAutoInst;
 }
 
 // Serializing system variables to JSON
@@ -784,7 +843,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[hwBtnIsKey] = vars.hwBtnIs;
     obj[hwLedUsbIsKey] = vars.hwLedUsbIs;
     obj[hwLedPwrIsKey] = vars.hwLedPwrIs;
-    obj[hwUartSelIsKey] = vars.hwUartSelIs;
+    // obj[hwUartSelIsKey] = vars.hwUartSelIs;
     obj[hwZigbeeIsKey] = vars.hwZigbeeIs;
 
     obj[connectedClientsKey] = vars.connectedClients;
@@ -808,11 +867,13 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     // obj[zbFlashingKey] = vars.zbFlashing;
 
     obj[deviceIdKey] = vars.deviceId;
+
+    obj[espUpdAvailKey] = vars.updateEspAvail;
+    obj[zbUpdAvailKey] = vars.updateZbAvail;
 }
 
 bool loadFileConfigHW()
 {
-    String tag = "HW";
     const char *board = "board";
     const char *addr = "addr";
     const char *pwrPin = "pwrPin";
@@ -856,7 +917,10 @@ bool loadFileConfigHW()
     hwConfig.eth.mdiPin = config[mdiPin];
     hwConfig.eth.phyType = config[phyType];
     hwConfig.eth.clkMode = config[clkMode];
-    hwConfig.eth.pwrAltPin = config[pwrAltPin];
+    if (hwConfig.eth.pwrPin == -1) {
+        hwConfig.eth.pwrPin = config[pwrAltPin];
+    }
+    //hwConfig.eth.pwrAltPin = config[pwrAltPin];
     hwConfig.mist.btnPin = config[btnPin];
     hwConfig.mist.btnPlr = config[btnPlr];
     hwConfig.mist.uartSelPin = config[uartSelPin];
@@ -897,7 +961,7 @@ bool loadFileConfigHW()
             config[mdiPin] = newConfig->eth.mdiPin;
             config[phyType] = newConfig->eth.phyType;
             config[clkMode] = newConfig->eth.clkMode;
-            config[pwrAltPin] = newConfig->eth.pwrAltPin;
+            //config[pwrAltPin] = newConfig->eth.pwrAltPin;
             config[btnPin] = newConfig->mist.btnPin;
             config[btnPlr] = newConfig->mist.btnPlr;
             config[uartSelPin] = newConfig->mist.uartSelPin;
@@ -1091,7 +1155,7 @@ bool loadFileConfigGeneral()
     systemCfg.disableLedPwr = (uint8_t)doc[disableLedPwrKey];
     systemCfg.disableLedUSB = (uint8_t)doc[disableLedUSBKey];
     vars.disableLeds = (uint8_t)doc[disableLedsKey];
-    systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
+    // systemCfg.keepWeb = (uint8_t)doc[keepWebKey];
     strlcpy(systemCfg.timeZone, doc[timeZoneKey] | NTP_TIME_ZONE, sizeof(systemCfg.timeZone));
 
     configFile.close();

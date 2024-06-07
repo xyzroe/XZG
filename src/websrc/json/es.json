@@ -5,10 +5,10 @@
     "conn": "Conectado",
     "csp": "Velocidad de conexión",
     "cst": "Estado de conexión",
-    "drm": "no recordar",
+    "drm": "No recordar",
     "enable": "Permitir",
-    "ercn": "Error. \nRevisa tu red",
-    "erss": "Error al guardar la configuración. \nRevisa tu red",
+    "ercn": "Error. Revisa tu red",
+    "erss": "Error al guardar la configuración. Revisa tu red",
     "host": "Nombre de host",
     "init": "Inicializado",
     "inst": "Instalar",
@@ -18,22 +18,22 @@
     "now": "Instalar ahora",
     "pass": "Contraseña",
     "proj": "Creado con ❤️ por",
-    "save": "Ahorrar",
-    "sure": "Estoy seguro de que",
+    "save": "Guardar",
+    "sure": "Estoy seguro",
     "user": "Nombre de usuario",
-    "ok": "DE ACUERDO",
+    "ok": "De acuerdo",
     "connecting": "Conectando",
     "dis": "Desactivado",
     "disconn": "Desconectado",
     "en": "Activado",
     "err": "Error",
     "nc": "Sin conexión",
-    "cl": "Cerca",
+    "cl": "Cerrar",
     "t": {
       "e": "Hora de finalización",
       "s": "Hora de inicio"
     },
-    "cerp": "Se alcanzó el número máximo de reintentos de reconexión de eventos. \nActualiza la página para continuar."
+    "cerp": "Se alcanzó el número máximo de reintentos de reconexión de eventos. Actualiza la página para continuar."
   },
   "md": {
     "esp": {
@@ -50,15 +50,15 @@
         "lgds": "Descargando la última versión de GitHub...",
         "prgs": "Actualización: {{per}}%",
         "tt": "ACTUALIZACIÓN DEL FIRMWARE XZG",
-        "ucr": "¡Actualizacion completa! \n¡Reiniciando!",
+        "ucr": "¡Actualizacion completa! ¡Reiniciando!",
         "vgds": "Descargando la versión {{ver}} de GitHub...",
-        "wdm": "Esperando por el dispositivo...",
-        "wm": "Desconectará TODAS las conexiones del enchufe.",
-        "bil": "Instalar lo último"
+        "wdm": "Esperando al dispositivo...",
+        "wm": "Desconectará TODAS las conexiones del socket.",
+        "bil": "Instalar última versión"
       },
       "rst": {
-        "msg": "Esperando reinicio. \nSe cerrará automáticamente.",
-        "nrps": "Ninguna respuesta; \ncompruebe si el modo IP o USB cambió.",
+        "msg": "Esperando reinicio. Se cerrará automáticamente.",
+        "nrps": "Ninguna respuesta; compruebe si el modo IP o USB cambió.",
         "tt": "REINICIAR EL DIPOSITIVO"
       },
       "ws": {
@@ -66,13 +66,13 @@
         "err": "Error de conexión, verifique SSID, CONTRASEÑA y vuelva a intentarlo",
         "msg": "Conectándose a la red en curso... Espere el resultado.",
         "nip": "La nueva dirección IP es {{ip}} El dispositivo ahora se reiniciará para que la nueva configuración surta efecto.",
-        "tt": "Conexión de red wifi"
+        "tt": "Conexión de red Wifi"
       }
     },
     "zb": {
       "fu": {
         "vc": "¡Validación completa!",
-        "vt": "validar: {{per}} %"
+        "vt": "validación: {{per}} %"
       },
       "cfv": "Su revisión de firmware actual: {{ver}}",
       "dtc": "Coordinador",
@@ -84,11 +84,11 @@
       "nrf": "No hay firmware del enrutador disponible.",
       "ot": "Actualización Zigbee OTA",
       "rfm": "Obteniendo información del firmware...",
-      "dtt": "hilo abierto",
+      "dtt": "OpenThread",
       "ntf": "Falta el firmware de Thread."
     },
     "kw": {
-      "msg": "Esta función le permite dejar activo uno de los canales de comunicación y tener acceso a la interfaz web. \nEl propio dispositivo seleccionará un canal disponible según la prioridad: WIFI, ETHERNET, WIFI AP"
+      "msg": "Esta función le permite dejar activo uno de los canales de comunicación y tener acceso a la interfaz web. El propio dispositivo seleccionará un canal disponible según la prioridad: WIFI, ETHERNET, WIFI AP"
     },
     "ss": {
       "msg": "Nuevos parámetros guardados.",
@@ -97,16 +97,13 @@
       "rr": "Algunas configuraciones requieren un reinicio.",
       "tt": "AJUSTES GUARDADOS"
     },
-    "zgb": {
-      "fu": {}
-    },
     "zg": {
       "fu": {
         "f": "Va a flashear: {{archivo}}",
-        "fn": "¡Flasheado exitosamente!",
+        "fn": "¡El firmware se ha instalado con éxito!",
         "nv": "Nueva versión: {{ver}}",
-        "st": "CC2652 flash iniciando...",
-        "er": "Borrar terminado"
+        "st": "Iniciando CC2652 flash...",
+        "er": "Borrado terminado"
       }
     }
   },
@@ -130,19 +127,19 @@
         "ph": "Acceda al dispositivo a través de la red usando este nombre.local",
         "tt": "Letras y números latinos, sin espacios."
       },
-      "kw": "Mantener la red",
+      "kw": "Mantener la red y servidor web",
       "led": {
         "desc": "Configuración de LED",
         "dis": "Desactivación total",
         "mode": "LED de modo de trabajo",
-        "night": "Modo nocturno: control de LED basado en el tiempo",
-        "pwr": "LED de encendido"
+        "night": "Modo nocturno - control de LED basado en la hora",
+        "pwr": "LED de alimentación"
       },
       "ntp": {
-        "desc": "configuración NTP",
+        "desc": "Configuración NTP",
         "server": {
-          "n": "servidor NTP",
-          "ph": "piscina.ntp.org",
+          "n": "Servidor NTP",
+          "ph": "pool.ntp.org",
           "tt": "Introduzca un nombre de dominio válido"
         },
         "zone": "Zona horaria"
@@ -156,21 +153,36 @@
         "mode": {
           "desc": "Seleccione el modo de funcionamiento del dispositivo",
           "net": "Modo de red",
-          "usb": "modo USB"
+          "usb": "Modo USB"
         }
+      },
+      "u": {
+        "ai": "Actualizaciones de instalación automática (ESP32 y Zigbee)",
+        "d": {
+          "ev": "Cada día",
+          "fr": "Viernes",
+          "mn": "Lunes",
+          "sa": "Sábado",
+          "su": "Domingo",
+          "th": "Jueves",
+          "tt": "Día de la semana",
+          "tu": "Martes",
+          "wd": "Miércoles"
+        },
+        "h": "Hora de verificación del nuevo firmware"
       }
     },
     "lo": {
-      "btn": "cantar",
+      "btn": "Iniciar sesión",
       "lbl": "Por favor, registrese",
       "pt": "Iniciar sesión - XZG",
-      "mlo": "Cerrado exitosamente",
-      "mnl": "Necesito iniciar sesión",
+      "mlo": "Cerrada sesión con éxito",
+      "mnl": "Es necesario iniciar sesión",
       "mwc": "Credenciales incorrectas"
     },
     "mq": {
       "broker": {
-        "n": "Corredor",
+        "n": "Broker",
         "ph": "Nombre de dominio o dirección IP",
         "tt": "Ingrese un dominio o IP válido"
       },
@@ -187,8 +199,8 @@
         "tt": "Ingrese la frecuencia con la que enviar actualizaciones (en segundos)"
       },
       "pass": {
-        "ph": "contraseña MQTT",
-        "tt": "Ingrese la contraseña de su corredor"
+        "ph": "Contraseña MQTT",
+        "tt": "Ingrese la contraseña de su broker"
       },
       "port": {
         "n": "Puerto",
@@ -201,33 +213,35 @@
         "tt": "Ingrese el tema MQTT del dispositivo X/Y/Z o X/Y o X. Sin espacios."
       },
       "user": {
-        "ph": "nombre de usuario MQTT",
-        "tt": "Ingrese el nombre de usuario de su corredor"
+        "ph": "Nombre de usuario MQTT",
+        "tt": "Ingrese el nombre de usuario de su broker"
       },
       "reconnect": {
         "n": "Reconectar",
         "ph": "Intervalo de reconexión en segundos",
-        "tt": "Ingrese un intento rápido para volver a conectarse al corredor (en segundos)"
+        "tt": "Ingrese un intento rápido para volver a conectarse al broker (en segundos)"
       }
     },
     "ne": {
       "descEth": "Configuración de Ethernet",
-      "descWifi": "configuración wifi",
+      "descWifi": "Configuración Wifi",
       "dhcp": "DHCP",
-      "dns": "servidor DNS",
-      "gw": "Puerta",
+      "dns": "Servidor DNS",
+      "gw": "Puerta de enlace",
       "ip": "IP",
-      "mask": "Mascarilla",
+      "mask": "Máscara de red",
       "wifi": {
         "btn": {
           "man": "Ingresar manualmente",
-          "scan": "Buscar redes Wi-Fi"
+          "scan": "Buscar redes Wifi"
         },
         "ch": "Canal",
         "rssi": "RSSI",
         "sc": "Seguridad",
         "ssid": "SSID",
-        "nnf": "Redes WiFi no encontradas"
+        "nnf": "Redes Wifi no encontradas",
+        "mode": "Modo",
+        "power": "Poder TX"
       }
     },
     "st": {
@@ -236,16 +250,16 @@
         "dm": "Modelo de dispositivo",
         "ef": "Procesador",
         "efs": "Memoria",
-        "ehs": "Montón",
+        "ehs": "Pila",
         "et": "Temperatura",
         "kb": "Kib",
-        "mb": "megabyte",
-        "mhz": "megahercio",
+        "mb": "Mb",
+        "mhz": "MHz",
         "tt": "Información del dispositivo",
         "efte": "externo",
         "efti": "interno",
         "efss": "Sistema de archivos",
-        "ens": "almacenamiento NV",
+        "ens": "Almacenamiento NV",
         "ent": "entradas",
         "du": "Tiempo de actividad del dispositivo",
         "lt": "Hora local"
@@ -255,10 +269,10 @@
       "tvh": "Husarnet",
       "tw": "Wifi",
       "wgc": {
-        "ed": "Dirección de punto final",
+        "ed": "Dirección del endpoint",
         "lip": "Dirección IP local",
-        "pip": "Dirección IP del mismo nivel",
-        "tt": "AlambreGuardia"
+        "pip": "Dirección IP del peer",
+        "tt": "WireGuard"
       },
       "wc": {
         "map": "AP",
@@ -266,19 +280,25 @@
       },
       "zbc": {
         "tt": "Estado del dispositivo",
-        "op": "Modo operacional",
+        "op": "Modo de operación",
         "opn": "Red Zigbee",
         "opu": "Zigbee-USB",
         "scc": "Cliente de socket conectado",
         "sccn": "Sin conexión",
-        "su": "Tiempo de conección",
+        "su": "Tiempo de conexión",
         "sccy": "Sí, {{count}} clientes",
         "zie": "IEEE",
         "zfs": "Tamaño del flash"
       },
       "c": {
         "fv": "Revisión de firmware",
-        "hv": "Versión HW"
+        "hv": "Versión HW",
+        "r": "Role"
+      },
+      "zr": {
+        "c": "Coordinador",
+        "r": "Enrutador",
+        "t": "OpenTread"
       }
     },
     "se": {
@@ -293,7 +313,7 @@
       }
     },
     "to": {
-      "cc": "Consola limpia",
+      "cc": "Limpiar consola",
       "cf": "Elija el archivo...",
       "csc": "Control de periféricos",
       "czc": "Verifique la conexión Zigbee",
@@ -304,24 +324,24 @@
       "egu": "Actualización de Git ESP32",
       "esp": "ESP32",
       "fb": "Explorador de archivos",
-      "fm": "Modo destello",
+      "fm": "Modo flash",
       "fn": "Nombre del archivo",
       "fr": "Restablecimiento de fábrica",
       "fu": "Actualización de firmware",
-      "ilfg": "Instalar lo último",
-      "lb": "parpadeo...",
-      "ls": "a partir de...",
-      "lt": "Los LED alternan",
+      "ilfg": "Instalar última versión",
+      "lb": "parpadeando...",
+      "ls": "comenzando...",
+      "lt": "Conmutar LEDs",
       "mc": "Control de módulos",
       "mode": "Modo",
       "ms": "Seleccionar modo",
       "ntw": "Red",
-      "pwr": "Fuerza",
+      "pwr": "Alimentación",
       "rd": "Datos sin procesar",
       "rr": "Reconexión del enrutador",
-      "rst": "Reanudar",
+      "rst": "Reiniciar",
       "s": "Tamaño",
-      "sc": "Control de sistema",
+      "sc": "Control del sistema",
       "usb": "USB",
       "zb": "Zigbee",
       "zfu": "Actualización de archivos Zigbee",
@@ -340,9 +360,9 @@
         "tt": "Configuración de Husarnet (en desarrollo)"
       },
       "wg": {
-        "ea": "Dirección del par del punto final",
-        "ep": "Puerto del par del punto final",
-        "epk": "Clave pública del par del punto final",
+        "ea": "Dirección del endpoint",
+        "ep": "Puerto del endpoint",
+        "epk": "Clave pública del endpoint",
         "lip": "Dirección IP de la interfaz local",
         "lpk": "Clave privada de la interfaz local.",
         "tt": "Configuración de WireGuard",
@@ -357,29 +377,29 @@
     },
     "zi": {
       "cfg": {
-        "alarm": "Parece que XZG funciona en modo punto de acceso (IP 192.168.1.1). \nLa dirección IP cambiará después de conectarse a Ethernet o Wi-Fi; luego, la configuración deberá generarse nuevamente.",
-        "dp": "INSERT_DEVICE_PATCH_HERE",
+        "alarm": "Parece que XZG funciona en modo punto de acceso (IP 192.168.1.1). La dirección IP cambiará después de conectarse a Ethernet o Wi-Fi; luego, la configuración deberá generarse nuevamente.",
+        "dp": "INSERTE_PATCH_DEL_DISPOSITIVO_AQUI",
         "dzl": "¿Desactivar el LED Zigbee?",
         "ha": "Para Home Assistant: Vaya a \"Configuración\" → \"Sistema\" → \"Hardware\" → Seleccione el menú de 3 puntos en la esquina superior derecha → \"Todo el hardware\" → Desplácese hasta ttyUSB y busque su adaptador → Copiar ruta del dispositivo como \"/dev/ \nttyUSB0\"",
         "lin": "Listar dispositivos USB en Linux: ls /dev/ttyUSB*",
         "lxzg": "Ubicación de XZG",
         "sel": "Generar configuración para",
         "sopm": "Establezca la potencia de salida al máximo 20",
-        "ss": "Configuración en serie",
+        "ss": "Configuración por puerto serie",
         "tt": "Generador de configuración"
       },
-      "so": "Configuración en serie",
-      "sp": "Puerto de enchufe",
-      "ss": "Velocidad del zócalo",
+      "so": "Configuración por puerto serie",
+      "sp": "Puerto del socket",
+      "ss": "Velocidad del socket",
       "fws": {
-        "alarm": "¡Cambiar el firmware en una red en funcionamiento provoca que la red se averíe!",
-        "tt": "Role"
+        "alarm": "¡Cambiar el firmware en una red en funcionamiento provoca que la red se rompa!",
+        "tt": "Rol"
       }
     },
     "ab": {
       "c": {
         "l": "Repositorio de proyectos",
-        "m": "Únase a nosotros para mejorar la traducción, mejorar la documentación o codificar nuevas funciones. \n💻",
+        "m": "Únase a nosotros para mejorar la traducción, mejorar la documentación o codificar nuevas funciones. 💻",
         "t": "Contribuir"
       },
       "cm": {
@@ -415,7 +435,7 @@
   "ts": {
     "esp": {
       "ane": {
-        "msg": "No hay interfaces de red habilitadas. \nActive al menos una interfaz para continuar.",
+        "msg": "No hay interfaces de red habilitadas. Active al menos una interfaz para continuar.",
         "tt": "Error de configuración de red"
       },
       "beta": {
@@ -431,6 +451,9 @@
     "zb": {
       "nzfa": {
         "tt": "No se encontró firmware"
+      },
+      "upd": {
+        "tt": "Nuevo firmware Zigbee encontrado 🌟"
       }
     }
   }
