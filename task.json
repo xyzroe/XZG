@@ -22,6 +22,6 @@
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20221226/CC1352P2_CC2652P_launchpad_coordinator_20221226_patched_460800.zip"},
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20240315/CC1352P2_CC2652P_launchpad_coordinator_20240315_patched_460800.zip"},
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20240315/CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.zip"},
-    {"type": "tread", "link":  "https://github.com/tube0013/tube_gateways/blob/main/openthread_boarder_router_fw/rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.hex.zip"},
-    {"type": "tread", "link":  "https://github.com/tube0013/tube_gateways/blob/main/openthread_boarder_router_fw/old/rcp_LP_CC2652PSIP_tirtos_ticlang.hex.zip"}
+    {"type": "tread", "link":  "https://github.com/tube0013/tube_gateways/raw/main/openthread_boarder_router_fw/rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.hex.zip"},
+    {"type": "tread", "link":  "https://github.com/tube0013/tube_gateways/raw/main/openthread_boarder_router_fw/old/rcp_LP_CC2652PSIP_tirtos_ticlang.hex.zip"}
 ]
