@@ -67,9 +67,10 @@ String getWlanIp()
 }
 
 String getWlanSsid()
-{   
+{
     String ssid = WiFi.SSID();
-    if (ssid.isEmpty()) {
+    if (ssid.isEmpty())
+    {
         ssid = "-";
     }
     return ssid;
@@ -97,7 +98,16 @@ String getConnections()
 
 String getZigbeeFWver()
 {
-    return String(CCTool.chip.fwRev);
+    String fw;
+    if (CCTool.chip.fwRev > 0)
+    {
+        fw = CCTool.chip.fwRev;
+    }
+    else
+    {
+        fw = systemCfg.zbFw;
+    }
+    return fw;
 }
 
 String getZigbeeHWrev()
@@ -117,6 +127,27 @@ String getWorkMode()
         break;
     }
     return "Error";
+}
+
+String getRole()
+{
+    String role;
+    switch (systemCfg.zbRole)
+    {
+    case COORDINATOR:
+        role = "Coordinator";
+        break;
+    case ROUTER:
+        role = "Router";
+        break;
+    case OPENTHREAD:
+        role = "Thread";
+        break;
+    default:
+        role = "Unknown";
+        break;
+    }
+    return role;
 }
 
 mqttTopicsConfig mqttTopicsConfigs[] = {
@@ -153,6 +184,11 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
      .sensorType = haBinarySensor,
      .sensorId = "update_esp",
      .stateTopic = "/io/update_esp",
+     .deviceClass = "update"},
+    {.name = "Update Zigbee",
+     .sensorType = haBinarySensor,
+     .sensorId = "update_zb",
+     .stateTopic = "/io/update_zb",
      .deviceClass = "update"},
     {.name = "Uptime",
      .sensorType = haSensor,
@@ -234,11 +270,19 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
      .stateTopic = stateTopic,
      .icon = "mdi:access-point",
      .valueTemplate = "{{ value_json.zbhw }}",
-     .getSensorValue = getZigbeeHWrev}};
+     .getSensorValue = getZigbeeHWrev},
+    {.name = "Zigbee Role",
+     .sensorType = haSensor,
+     .sensorId = "zbrl",
+     .stateTopic = stateTopic,
+     .icon = "mdi:access-point",
+     .valueTemplate = "{{ value_json.zbrl }}",
+     .getSensorValue = getRole}};
 
 void mqttConnectSetup()
 {
     LOGD("mqttConnectSetup");
+    checkDNS();
 
     if (mqttCfg.reconnectInt == 0)
     {
@@ -266,25 +310,25 @@ void mqttConnectSetup()
     uint16_t keepAlive = mqttCfg.updateInt + 10;
     mqttClient.setKeepAlive(keepAlive);
 
-    const char* clientId = vars.deviceId;
+    const char *clientId = vars.deviceId;
     mqttClient.setClientId(clientId);
 
     mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
 
-    //String topic = String(mqttCfg.topic) + "/avty";
-    //mqttClient.setWill(topic.c_str(), 1, true, "offline");
+    // String topic = String(mqttCfg.topic) + "/avty";
+    // mqttClient.setWill(topic.c_str(), 1, true, "offline");
 
     mqttClient.setServer(mqttCfg.server, mqttCfg.port);
 
-/* NO SSL SUPPORT in current SDK
-#if ASYNC_TCP_SSL_ENABLED
-    mqttClient.setSecure(MQTT_SECURE);
-    if (MQTT_SECURE)
-    {
-        mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
-    }
-#endif
-*/
+    /* NO SSL SUPPORT in current SDK
+    #if ASYNC_TCP_SSL_ENABLED
+        mqttClient.setSecure(MQTT_SECURE);
+        if (MQTT_SECURE)
+        {
+            mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
+        }
+    #endif
+    */
 
     mqttClient.onConnect(onMqttConnect);
     mqttClient.onDisconnect(onMqttDisconnect);
@@ -311,7 +355,10 @@ void onMqttConnect(bool sessionPresent)
 
     vars.mqttConn = true;
 
-    mqttPublishDiscovery();
+    if (mqttCfg.discovery)
+    {
+        mqttPublishDiscovery();
+    }
 
     mqttPublishIo("rst_esp", 0);
     mqttPublishIo("rst_zig", 0);
@@ -319,6 +366,7 @@ void onMqttConnect(bool sessionPresent)
     bool socket_state = vars.connectedClients ? 1 : 0;
     mqttPublishIo("socket", socket_state);
     mqttPublishIo("update_esp", vars.updateEspAvail);
+    mqttPublishIo("update_zb", vars.updateZbAvail);
     mqttPublishState();
 
     mqttPublishAvail();

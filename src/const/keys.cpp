@@ -10,6 +10,8 @@ const char *wifiMaskKey = "wifiMask";
 const char *wifiGateKey = "wifiGate";
 const char *wifiDns1Key = "wifiDns1";
 const char *wifiDns2Key = "wifiDns2";
+const char *wifiPwrKey = "wifiPwr";
+const char *wifiModeKey = "wifiMode";
 const char *ethEnblKey = "ethEnbl";
 const char *ethDhcpKey = "ethDhcp";
 const char *ethIpKey = "ethIp";
@@ -51,7 +53,7 @@ const char *discoveryKey = "discovery";
 const char *reconnectIntKey = "reconnectInt";
 
 const char *systemConfigKey = "system-config";
-//const char *keepWebKey = "keepWeb";
+// const char *keepWebKey = "keepWeb";
 const char *disableWebKey = "disableWeb";
 const char *webAuthKey = "webAuth";
 const char *webUserKey = "webUser";
@@ -73,11 +75,15 @@ const char *nmStartHourKey = "startHour";
 const char *nmEndHourKey = "endHour";
 const char *nmEnableKey = "nightMode";
 
+const char *updCheckTimeKey = "updHour";
+const char *updCheckDayKey = "updDays";
+const char *updAutoInstKey = "autoIns";
+
 const char *systemVarsKey = "system-vars";
 const char *hwBtnIsKey = "hwBtnIs";
 const char *hwLedUsbIsKey = "hwLedUsbIs";
 const char *hwLedPwrIsKey = "hwLedPwrIs";
-//const char *hwUartSelIsKey = "hwUartSelIs";
+// const char *hwUartSelIsKey = "hwUartSelIs";
 const char *hwZigbeeIsKey = "hwZigbeeIs";
 const char *workModeKey = "workMode";
 const char *connectedSocketKey = "connectedSocket";
@@ -94,8 +100,18 @@ const char *vpnHnInitKey = "vpnHnInit";
 const char *mqttConnKey = "mqttConn";
 const char *mqttReconnectTimeKey = "mqttReconnectTime";
 const char *mqttHeartbeatTimeKey = "mqttHeartbeatTime";
-//const char *zbLedStateKey = "zbLedState";
-//const char *zbFlashingKey = "zbFlashing";
+// const char *zbLedStateKey = "zbLedState";
+// const char *zbFlashingKey = "zbFlashing";
 const char *deviceIdKey = "deviceId";
-
 const char *timeZoneNameKey = "timeZoneName";
+const char *zbRoleKey = "zbRole";
+const char *zbFwKey = "zbFw";
+const char *zbUpdAvailKey = "zbUpdAvail";
+const char *espUpdAvailKey = "espUpdAvail";
+
+const char *tagZB_FW_info = "zb.fi";
+const char *tagZB_FW_file = "zb.ff";
+const char *tagZB_FW_err = "zb.fe";
+const char *tagZB_FW_prgs = "zb.fp";
+const char *tagZB_NV_prgs = "zb.nv";
+const char *tagESP_FW_prgs = "esp.fp";

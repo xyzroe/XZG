@@ -158,6 +158,21 @@
           "net": "Tryb sieciowy",
           "usb": "Tryb USB"
         }
+      },
+      "u": {
+        "ai": "Automatyczna instalacja aktualizacji (ESP32 i Zigbee)",
+        "d": {
+          "ev": "Codziennie",
+          "fr": "Piątek",
+          "mn": "Poniedziałek",
+          "sa": "Sobota",
+          "su": "Niedziela",
+          "th": "Czwartek",
+          "tt": "Dzień tygodnia",
+          "tu": "Wtorek",
+          "wd": "Środa"
+        },
+        "h": "Czas sprawdzania nowego oprogramowania sprzętowego"
       }
     },
     "lo": {
@@ -227,7 +242,9 @@
         "rssi": "RSSI",
         "sc": "Bezpieczeństwo",
         "ssid": "SSID",
-        "nnf": "Nie znaleziono sieci Wi-Fi"
+        "nnf": "Nie znaleziono sieci Wi-Fi",
+        "mode": "Tryb",
+        "power": "Moc wysyłania"
       }
     },
     "st": {
@@ -278,7 +295,13 @@
       },
       "c": {
         "fv": "Wersja oprogramowania sprzętowego",
-        "hv": "Wersja sprzętowa"
+        "hv": "Wersja sprzętowa",
+        "r": "Rola"
+      },
+      "zr": {
+        "c": "Koordynator",
+        "r": "Routera",
+        "t": "OtwórzTread"
       }
     },
     "se": {
@@ -431,6 +454,9 @@
     "zb": {
       "nzfa": {
         "tt": "Nie znaleziono oprogramowania sprzętowego"
+      },
+      "upd": {
+        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟"
       }
     }
   }

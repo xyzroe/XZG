@@ -185,12 +185,13 @@
                 })
                 .then(fw => {
                     const matchedClass = Object.keys(classToFwMap).find(cls => selectedCard.className.includes(cls));
-
+                    
                     if (matchedClass && fw[classToFwMap[matchedClass]] && fw[classToFwMap[matchedClass]].length > 0) {
                         const fileLink = fw[classToFwMap[matchedClass]][0].link;
-                        console.log(fileLink);
+                        const baudRate = fw[classToFwMap[matchedClass]][0].baud;
+                        console.log(fileLink + " @ " + baudRate);
                         modalConstructor("flashZBM");
-                        startZbFlash(fileLink);
+                        startZbFlash(fileLink + "?b=" + baudRate);
                     } else {
                         const errorMessage = classToErrorMessage[matchedClass] || "No matching firmware available.";
                         console.log(errorMessage);

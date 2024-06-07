@@ -27,7 +27,7 @@ void factoryReset();
 void setLedsDisable(bool all = false);
 void cronTest();
 void nmActivate();
-void checkDNS(bool setup);
+void checkDNS(bool setup = false);
 void setupCron();
 
 void setClock(void *pvParameters);
@@ -43,4 +43,4 @@ void hnBegin();
 void ledTask(void *parameter);
 String getTime();
 
-void checkEspUpdateAvail();
+void checkUpdateAvail();

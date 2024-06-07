@@ -52,7 +52,9 @@ const commands = {
 	CMD_ZB_CHK_FW: 10,
 	CMD_ZB_CHK_HW: 11,
 	CMD_ZB_LED_TOG: 12,
-	CMD_ESP_FAC_RES: 13
+	CMD_ESP_FAC_RES: 13,
+	CMD_ZB_ERASE_NVRAM: 14,
+	CMD_DNS_CHECK: 15
 }
 
 const api = {
@@ -367,6 +369,7 @@ function setIconGlow(iconId, state, show = true) {
 
 function loadPage(url) {
 
+	delete updateValues.zbRole;
 
 	if (window.location.pathname !== url) {
 		window.history.pushState("", document.title, url);
@@ -396,9 +399,9 @@ function loadPage(url) {
 			break;
 		case api.pages.API_PAGE_GENERAL.str:
 			apiGetPage(api.pages.API_PAGE_GENERAL);//, () => {
-				//if (!$("#usbMode").prop(chck)) {
-				//	KeepWebDsbl(true);
-				//}
+			//if (!$("#usbMode").prop(chck)) {
+			//	KeepWebDsbl(true);
+			//}
 			//});
 			break;
 		case api.pages.API_PAGE_MQTT.str:
@@ -644,8 +647,6 @@ function apiGetPage(page, doneCall, loader = true) {
 				for (const property in values) {
 					if (property === "timeZoneName") {
 						selectedTimeZone = values[property];
-						//console.log(selectedTimeZone);
-						//console.log("timeZoneName");
 						continue;
 					}
 					if (property === "hwBtnIs") {
@@ -653,7 +654,6 @@ function apiGetPage(page, doneCall, loader = true) {
 						continue;
 					}
 					if (property === "hwLedUsbIs") {
-						//hwBtnIs
 						if (values[property]) {
 							showDivById('ledsCard');
 							showDivById('modeLedBtn');
@@ -665,23 +665,17 @@ function apiGetPage(page, doneCall, loader = true) {
 							showDivById('ledsCard');
 							showDivById('pwrLedBtn');
 						}
-						//hwBtnIs
 						continue;
 					}
-					/*if (property === "hwUartSelIs") {
-						if (values[property]) {
-							showDivById('modeSelCard');
-							showDivById('curModeSelCard');
-						}
-
-						//hwBtnIs
-						continue;
-					}*/
 				}
 				dataReplace(values);
 			}
 			updateLocalizedContent();
 
+			$('[title]').each(function() {
+				var title = $(this).attr('title');
+				setTitleAndActivateTooltip(this, title);
+			});
 
 			if (xhr.getResponseHeader("respTimeZones") !== null) {
 				const zones = JSON.parse(xhr.getResponseHeader("respTimeZones"));
@@ -962,6 +956,24 @@ function dataReplace(values, navOnly = false) {
 
 		showCardDrawIcon(property, values);
 		let $elements = $(baseSelector + property + "']");
+		if (property == "zbRole") {
+			if (values[property] == 1) {
+				document.querySelectorAll('.zfs_coordinator').forEach(card => card.classList.add('selected'));
+			} else if (values[property] == 2) {
+				document.querySelectorAll('.zfs_router').forEach(card => card.classList.add('selected'));
+			} else if (values[property] == 3) {
+				document.querySelectorAll('.zfs_thread').forEach(card => card.classList.add('selected'));
+			}
+		}
+		if (property == "espUpdAvail" && values[property] == 1) {
+			toastConstructor("espUpdAvail");
+		}
+		if (property == "zbUpdAvail" && values[property] == 1) {
+			toastConstructor("zbUpdAvail");
+		}
+		if (property == "zbFwSaved" && values[property] == 1) {
+			$('td[data-r2v="zigbeeFwRev"]').addClass('fst-italic');
+		}
 		//console.log($elements);
 		$elements.map(function () {
 			const elemType = $(this).prop('nodeName').toLowerCase();
@@ -996,7 +1008,7 @@ function dataReplace(values, navOnly = false) {
 					updateProgressBar("prgTemp", valueToSet, 15, 85)
 					break;
 				case "wifiRssi":
-					updateProgressBar("prgRssi", valueToSet, -105, 0)
+					updateProgressBar("prgRssi", valueToSet, 0, -105)
 					valueToSet = valueToSet + " " + "dBm";
 					break;
 				case "connectedSocket": // socket time
@@ -1021,7 +1033,6 @@ function dataReplace(values, navOnly = false) {
 							break;
 					}
 					break;
-
 				case "operationalMode":
 					updateValues[property] = values[property];
 					switch (valueToSet) {
@@ -1030,6 +1041,22 @@ function dataReplace(values, navOnly = false) {
 							break;
 						case 1:
 							valueToSet = i18next.t('p.st.zbc.opu');
+							break;
+					}
+					break;
+				case "zbRole":
+					updateValues[property] = values[property];
+					switch (valueToSet) {
+						case 1:
+							valueToSet = i18next.t('p.st.zr.c');
+							break;
+						case 2:
+							valueToSet = i18next.t('p.st.zr.r');
+							break;
+						case 2:
+							valueToSet = i18next.t('p.st.zr.t');
+							break;
+						default:
 							break;
 					}
 					break;
@@ -1152,8 +1179,9 @@ function toastConstructor(params, text) {
 	switch (params) {
 		case "espUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.esp.upd.tt"));
-			$("#toastBody").text(text);
-			$('<button>', {
+			$("#toastBody").text("ESP32 UPD text");
+			//$("#toastBody").text(text);
+			/*$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-danger",
 				text: i18next.t("c.drm"),
@@ -1161,14 +1189,45 @@ function toastConstructor(params, text) {
 					$('.toast').toast('hide');
 					localStorage.setItem('update_notify', 1);
 				}
-			}).appendTo("#toastButtons");
+			}).appendTo("#toastButtons");*/
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
 				text: i18next.t("c.now"),
 				click: function () {
 					$('.toast').toast('hide');
-					modalConstructor("flashESP");
+					modalConstructor("fetchGitReleases");
+				}
+			}).appendTo("#toastButtons");
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-outline-success",
+				text: i18next.t("c.ltr"),
+				click: function () {
+					$('.toast').toast('hide');
+
+				}
+			}).appendTo("#toastButtons");
+			break;
+		case "zbUpdAvail":
+			$("#toastHeaderText").text(i18next.t("ts.zb.upd.tt"));
+			$("#toastBody").text("ZB UPD text");
+			/*$('<button>', {
+				type: "button",
+				"class": "btn btn-outline-danger",
+				text: i18next.t("c.drm"),
+				click: function () {
+					$('.toast').toast('hide');
+					localStorage.setItem('update_notify_zb', 1);
+				}
+			}).appendTo("#toastButtons");*/
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-warning",
+				text: i18next.t("c.now"),
+				click: function () {
+					$('.toast').toast('hide');
+					modalConstructor("flashZB");
 				}
 			}).appendTo("#toastButtons");
 			$('<button>', {
@@ -1217,7 +1276,7 @@ function toastConstructor(params, text) {
 			break;
 		case "noZbFw":
 			$("#toastHeaderText").text(i18next.t("ts.zb.nzfa.tt"));
-			$("#toastBody").text(text); //		$("#toastBody").text(i18next.t("ts.zb.nzfa.msg"));
+			$("#toastBody").text(text); 
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-primary",
@@ -1293,7 +1352,7 @@ function updateRootEvents(callback) {
 		return;
 	}
 
-	var source = new EventSource('/events', { withCredentials: false, timeout: 1000 });
+	var source = new EventSource('/events', { withCredentials: false, timeout: 100 });
 	console.log("Events try to open");
 
 	source.addEventListener('open', function (e) {
@@ -1323,20 +1382,20 @@ function updateRootEvents(callback) {
 		}
 	});
 
-	source.addEventListener('ZB_FW_prgs', function (e) {
+	source.addEventListener('zb.fp', function (e) {
 		//console.log(e.data);
 		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#zbFlshPrgs").css("width", e.data + '%');
 	}, false);
 
-	source.addEventListener('NV', function (e) {
+	source.addEventListener('zb.nv', function (e) {
 		//console.log(e.data);
 		let currentContent = $("#console").val();
 		let newContent = currentContent + "\n" + e.data;
 		$("#console").val(newContent);
 	}, false);
 
-	source.addEventListener('ZB_FW_info', function (e) {
+	source.addEventListener('zb.fi', function (e) {
 		let data = e.data.replaceAll("`", "<br>");
 		console.log(data);
 
@@ -1364,7 +1423,7 @@ function updateRootEvents(callback) {
 
 	}, false);
 
-	source.addEventListener('ZB_FW_file', function (e) {
+	source.addEventListener('zb.ff', function (e) {
 		let fileName = fileFromUrl(e.data);
 		if (fileName) {
 			data = i18next.t('md.zg.fu.f', { file: fileName });
@@ -1378,12 +1437,12 @@ function updateRootEvents(callback) {
 			setTimeout(function () {
 				espReboot();
 				restartWait();
-			}, 2000);
+			}, 1250);
 		}
 		$("#zbFlshPgsTxt").html(data);
 	}, false);
 
-	source.addEventListener('ZB_FW_err', function (e) {
+	source.addEventListener('zb.fe', function (e) {
 		const data = e.data.replaceAll("`", "<br>");
 		$(modalBtns).html("");
 		$("#zbFlshPgsTxt").html(data);
@@ -1393,7 +1452,7 @@ function updateRootEvents(callback) {
 	}, false);
 
 
-	source.addEventListener('ESP_FW_prgs', function (e) {
+	source.addEventListener('esp.fp', function (e) {
 
 		$('#prg').css('width', e.data + '%');
 		$('#bar').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
@@ -1404,7 +1463,7 @@ function updateRootEvents(callback) {
 				$('#bar').html(i18next.t('md.esp.fu.ucr')).css("color", "green");
 
 				setTimeout(function () {
-					localStorage.setItem('update_notify', 0);
+					//localStorage.setItem('update_notify', 0);
 					restartWait();
 
 				}, 1000);
@@ -1433,6 +1492,7 @@ function modalAddSpiner() {
 }
 
 function startZbFlash(link) {
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
 	$(modalBtns).html("");
 	$(modalBody).html("");
 
@@ -1554,7 +1614,8 @@ function findAllVersionsSorted(data, chip) {
 							file: file,
 							ver: fileInfo.ver,
 							link: fileInfo.link,
-							notes: fileInfo.notes
+							notes: fileInfo.notes,
+							baud: fileInfo.baud
 						});
 					});
 				}
@@ -1598,20 +1659,20 @@ function createReleaseBlock(file, deviceType) {
 
 	setTitleAndActivateTooltip(emojiBlock[0], deviceName);
 
-	let fileName = fileFromUrl(file.link);
+	//let fileName = fileFromUrl(file.link);
 
 	const buttonContainer = $('<div>', { "class": "d-flex align-items-start" }).appendTo(headerAndButtonContainer);
 	const button = $('<a>', {
 		"class": buttonClass,
 		"click": function () {
-			startZbFlash(file.link);
+			startZbFlash(file.link + "?b=" + file.baud);
 			let tooltipInstance = bootstrap.Tooltip.getInstance(this);
 			if (tooltipInstance) {
 				tooltipInstance.hide();
 			}
 		},
 		"data-bs-toggle": "tooltip",
-		"title": fileName,
+		"title": file.link,
 		"text": i18next.t('c.inst'),
 		"role": "button"
 	}).css("white-space", "nowrap").appendTo(buttonContainer);
@@ -1637,6 +1698,7 @@ function modalConstructor(type, params) {
 	$(modalBtns).html("");
 	switch (type) {
 		case "flashESP":
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
 			$(headerText).text(i18next.t('md.esp.fu.tt')).css("color", "red");;
 			let action = 0;
 			if (params instanceof FormData) {
@@ -1918,7 +1980,7 @@ function modalConstructor(type, params) {
 												window.location = "http://" + data.ip + "/";
 											}
 										}).appendTo(modalBtns);
-									}, 5000);
+									}, 3000);
 								} else {
 									counter++;
 								}
@@ -2131,6 +2193,8 @@ function WifiEnbl(state) {
 	var dhcpEnabled = $("#wifiDhcp").is(":checked");
 	$("#wifiSsid").prop(disbl, state);
 	$("#wifiPass").prop(disbl, state);
+	$("#wifiMode").prop(disbl, state);
+	$("#wifiPwr").prop(disbl, state);
 	if (dhcpEnabled) {
 		$("#wifiDhcp").prop(disbl, state);
 		$("#wifiIp").prop(disbl, true);
@@ -2234,7 +2298,7 @@ function logRefresh(ms) {
 		});
 	}, ms);
 }
-
+/*
 async function fetchData(url, isJson = true) {
 	if (isJson) {
 		return await $.getJSON(url);
@@ -2280,7 +2344,8 @@ function compareDates(dateStr1, dateStr2) {
 		return 0; // даты равны
 	}
 }
-
+*/
+/*
 function checkLatestESPrelease() {
 
 
@@ -2323,6 +2388,7 @@ function checkLatestESPrelease() {
 	});
 
 }
+*/
 
 // CSS class name for dark theme
 const darkTheme = "dark-theme";
@@ -2471,7 +2537,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-	var t = await fetch("https://api.github.com/repos/xyzroe/xzg/releases");
+	var t = await fetch("https://api.github.com/repos/xyzroe/XZG/releases");
 	if (t.ok) return await t.json();
 	throw new Error("GitHub API request failed: " + t.statusText)
 }
@@ -2513,7 +2579,7 @@ function handleClicks() {
 
 	$(document).on('click', '#upd_esp_git', function () {
 		console.log("Update from Git started... Just be patient!");
-		localStorage.setItem("update_notify", 0);
+		//localStorage.setItem("update_notify", 0);
 		modalConstructor("flashESP");
 	});
 

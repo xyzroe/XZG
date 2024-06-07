@@ -167,6 +167,11 @@ void zigbeeEnableBSL()
   printLogMsg("ZB enable BSL");
   CCTool.enterBSL();
   printLogMsg("Now you can flash CC2652!");
+  if (systemCfg.workMode == WORK_MODE_USB)
+  {
+    Serial.updateBaudRate(500000);
+    Serial2.updateBaudRate(500000);
+  }
 }
 
 void zigbeeRestart()
@@ -174,6 +179,11 @@ void zigbeeRestart()
   printLogMsg("ZB RST begin");
   CCTool.restart();
   printLogMsg("ZB restart was done");
+  if (systemCfg.workMode == WORK_MODE_USB)
+  {
+    Serial.updateBaudRate(systemCfg.serialSpeed);
+    Serial2.updateBaudRate(systemCfg.serialSpeed);
+  }
 }
 
 void usbModeSet(usbMode mode)
@@ -308,6 +318,7 @@ void factoryReset()
 
 void setClock(void *pvParameters)
 {
+  checkDNS();
   configTime(0, 0, systemCfg.ntpServ1, systemCfg.ntpServ2);
 
   const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
@@ -330,7 +341,7 @@ void setClock(void *pvParameters)
   {
     // LOGD("Current GMT time: %s", String(asctime(&timeinfo)).c_str());
 
-    char *zoneToFind = const_cast<char *>("Europe/Kiev");
+    char *zoneToFind = const_cast<char *>(NTP_TIME_ZONE);
     if (systemCfg.timeZone)
     {
       zoneToFind = systemCfg.timeZone;
@@ -389,10 +400,7 @@ void nmDeactivate()
   setLedsDisable();
 }
 
-IPAddress savedWifiDNS;
-IPAddress savedEthDNS;
-
-void checkDNS(bool setup = false)
+void checkDNS(bool setup)
 {
   const char *wifiKey = "WiFi";
   const char *ethKey = "ETH";
@@ -404,19 +412,36 @@ void checkDNS(bool setup = false)
   if (networkCfg.wifiEnable)
   {
     IPAddress currentWifiDNS = WiFi.dnsIP();
-    if (setup)
+    if (currentWifiDNS != vars.savedWifiDNS)
     {
-      savedWifiDNS = currentWifiDNS;
-      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, savedWifiDNS.toString().c_str());
-      printLogMsg(buffer);
-    }
-    else
-    {
-      if (currentWifiDNS != savedWifiDNS)
+      char dnsStrW[16];
+      snprintf(dnsStrW, sizeof(dnsStrW), "%u.%u.%u.%u", currentWifiDNS[0], currentWifiDNS[1], currentWifiDNS[2], currentWifiDNS[3]);
+
+      int lastDot = -1;
+      for (int i = 0; dnsStrW[i] != '\0'; i++)
       {
-        WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), savedWifiDNS);
-        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, wifiKey, savedWifiDNS.toString().c_str());
+        if (dnsStrW[i] == '.')
+        {
+          lastDot = i;
+        }
+      }
+
+      int fourthPartW = atoi(dnsStrW + lastDot + 1);
+
+      if (setup && fourthPartW != 0)
+      {
+        vars.savedWifiDNS = currentWifiDNS;
+        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, wifiKey, dnsStrW);
         printLogMsg(buffer);
+      }
+      else
+      {
+        if (vars.savedWifiDNS)
+        {
+          WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), vars.savedWifiDNS);
+          snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, wifiKey, vars.savedWifiDNS.toString().c_str());
+          printLogMsg(buffer);
+        }
       }
     }
   }
@@ -424,34 +449,69 @@ void checkDNS(bool setup = false)
   if (networkCfg.ethEnable)
   {
     IPAddress currentEthDNS = ETH.dnsIP();
-    if (setup)
+    if (currentEthDNS != vars.savedEthDNS)
     {
-      savedEthDNS = currentEthDNS;
-      snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, savedEthDNS.toString().c_str());
-      printLogMsg(buffer);
-    }
-    else
-    {
-      if (currentEthDNS != savedEthDNS)
+      char dnsStrE[16];
+      snprintf(dnsStrE, sizeof(dnsStrE), "%u.%u.%u.%u", currentEthDNS[0], currentEthDNS[1], currentEthDNS[2], currentEthDNS[3]);
+
+      int lastDot = -1;
+      for (int i = 0; dnsStrE[i] != '\0'; i++)
       {
-        ETH.config(ETH.localIP(), ETH.gatewayIP(), ETH.subnetMask(), savedEthDNS);
-        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, ethKey, savedEthDNS.toString().c_str());
+        if (dnsStrE[i] == '.')
+        {
+          lastDot = i;
+        }
+      }
+
+      int fourthPartE = atoi(dnsStrE + lastDot + 1);
+
+      if (setup && fourthPartE != 0)
+      {
+        vars.savedEthDNS = currentEthDNS;
+        snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, savedKey, ethKey, dnsStrE);
         printLogMsg(buffer);
+      }
+      else
+      {
+        if (vars.savedEthDNS)
+        {
+          ETH.config(ETH.localIP(), ETH.gatewayIP(), ETH.subnetMask(), vars.savedEthDNS);
+          snprintf(buffer, sizeof(buffer), "%s %s %s - %s", dnsTagKey, restoredKey, ethKey, vars.savedEthDNS.toString().c_str());
+          printLogMsg(buffer);
+        }
       }
     }
   }
 }
 
-void reCheckDNS()
+/*void reCheckDNS()
 {
   checkDNS();
-}
+}*/
 
 void setupCron()
 {
-  Cron.create(const_cast<char *>("0 */1 * * * *"), reCheckDNS, false);
+  //Cron.create(const_cast<char *>("30 */1 * * * *"), reCheckDNS, false);
 
-  Cron.create(const_cast<char *>("0 0 */1 * * *"), checkEspUpdateAvail, false);
+  // const String time = systemCfg.updCheckTime;
+  static char formattedTime[16];
+  int seconds, hours, minutes;
+
+  String wday = systemCfg.updCheckDay;
+
+  seconds = random(1, 59);
+
+  // char timeArray[6];
+  // String(systemCfg.updCheckTime).toCharArray(timeArray, sizeof(timeArray));
+
+  sscanf(systemCfg.updCheckTime, "%d:%d", &hours, &minutes);
+
+  snprintf(formattedTime, sizeof(formattedTime), "%d %d %d * * %s", seconds, minutes, hours, wday);
+
+  // LOGD("UPD cron %s", String(formattedTime));
+  printLogMsg("[UPD_CHK] cron " + String(formattedTime));
+
+  Cron.create(const_cast<char *>(formattedTime), checkUpdateAvail, false); // 0 0 */6 * * *
 
   if (systemCfg.nmEnable)
   {
@@ -567,7 +627,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
   bool zbOk = false;
 
   static ThisConfigStruct bestConfig;
-  bestConfig.eth = {.addr = -1, .pwrPin = -1, .mdcPin = -1, .mdiPin = -1, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT, .pwrAltPin = -1};
+  bestConfig.eth = {.addr = -1, .pwrPin = -1, .mdcPin = -1, .mdiPin = -1, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT};// .pwrAltPin = -1};
   bestConfig.zb = {.txPin = -1, .rxPin = -1, .rstPin = -1, .bslPin = -1};
   memset(&bestConfig.mist, -1, sizeof(bestConfig.mist));
   strlcpy(bestConfig.board, "Unknown", sizeof(bestConfig.board));
@@ -582,13 +642,13 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
     if (brdIdx == 3) // T-Internet-POE
     {
-      pinMode(ethConfigs[ethIdx].pwrAltPin, OUTPUT);
+      pinMode(ethConfigs[ethIdx].pwrPin, OUTPUT);
       delay(50);
-      digitalWrite(ethConfigs[ethIdx].pwrAltPin, LOW);
+      digitalWrite(ethConfigs[ethIdx].pwrPin, LOW);
       delay(50);
-      pinMode(ethConfigs[ethIdx].pwrAltPin, INPUT);
+      pinMode(ethConfigs[ethIdx].pwrPin, INPUT);
       delay(50);
-      bool pwrPinState = digitalRead(ethConfigs[ethIdx].pwrAltPin);
+      bool pwrPinState = digitalRead(ethConfigs[ethIdx].pwrPin);
       if (pwrPinState)
       {
         LOGW("%s", "Looks like not T-Internet-POE!");
@@ -596,7 +656,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
       }
     }
 
-    if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode, ethConfigs[ethIdx].pwrAltPin))
+    if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode))// ethConfigs[ethIdx].pwrAltPin))
     {
       ethOk = true;
       LOGD("Ethernet config OK: %d", ethIdx);
@@ -687,6 +747,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
 void wgBegin()
 {
+  checkDNS();
   if (!wg.is_initialized())
   {
 
@@ -876,18 +937,70 @@ void ledTask(void *parameter)
   }
 }
 
-void checkEspUpdateAvail()
+int compareVersions(String v1, String v2)
 {
-  String latestReleaseUrl = fetchGitHubReleaseInfo();
-  String latestVersion = extractVersionFromURL(latestReleaseUrl);
+  int v1_major = v1.substring(0, v1.indexOf('.')).toInt();
+  int v2_major = v2.substring(0, v2.indexOf('.')).toInt();
 
-  if (latestVersion.length() > 0 && latestVersion > VERSION)
+  if (v1_major != v2_major)
+  {
+    return v1_major - v2_major;
+  }
+
+  String v1_suffix = v1.substring(v1.indexOf('.') + 1);
+  String v2_suffix = v2.substring(v2.indexOf('.') + 1);
+
+  if (v1_suffix.length() == 0)
+    return -1;
+  if (v2_suffix.length() == 0)
+    return 1;
+
+  return v1_suffix.compareTo(v2_suffix);
+}
+
+void checkUpdateAvail()
+{
+  const char *ESPkey = "ESP";
+  const char *ZBkey = "ZB";
+  const char *FoundKey = "Found ";
+  const char *NewFwKey = " new fw: ";
+  const char *TryKey = "try to install";
+  String latestReleaseUrlEsp = fetchLatestEspFw();
+  String latestReleaseUrlZb = fetchLatestZbFw();
+  String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
+  String latestVersionZb = extractVersionFromURL(latestReleaseUrlZb);
+
+  LOGD("%s %s", ESPkey, latestVersionEsp.c_str());
+  LOGD("%s %s", ZBkey, latestVersionZb.c_str());
+
+  if (latestVersionEsp.length() > 0 && compareVersions(latestVersionEsp, VERSION) > 0)
   {
     vars.updateEspAvail = true;
+    printLogMsg(String(FoundKey) + String(ESPkey) + String(NewFwKey) + latestVersionEsp);
+    if (systemCfg.updAutoInst)
+    {
+      printLogMsg(String(TryKey));
+      getEspUpdate(latestReleaseUrlEsp);
+    }
   }
   else
   {
     vars.updateEspAvail = false;
   }
-  LOGD("%s", String(vars.updateEspAvail));
+
+  if (CCTool.chip.fwRev > 0 && latestVersionZb.length() > 0 && compareVersions(latestVersionZb, String(CCTool.chip.fwRev)) > 0)
+  {
+    vars.updateZbAvail = true;
+    printLogMsg(String(FoundKey) + String(ZBkey) + String(NewFwKey) + latestVersionZb);
+    if (systemCfg.updAutoInst)
+    {
+      printLogMsg(String(TryKey));
+      flashZbUrl(latestReleaseUrlZb);
+      ESP.restart();
+    }
+  }
+  else
+  {
+    vars.updateZbAvail = false;
+  }
 }

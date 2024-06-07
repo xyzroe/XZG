@@ -14,7 +14,7 @@
 
 #define ZB_TCP_PORT 6638 // any port ever. later setup from config file
 #define ZB_SERIAL_SPEED 115200
-#define NTP_TIME_ZONE "Europe/Kiev"
+#define NTP_TIME_ZONE "Europe/Berlin"
 #define NTP_SERV_1 "pool.ntp.org"
 #define NTP_SERV_2 "time.google.com"
 #define DNS_SERV_1 "1.1.1.1"
@@ -23,6 +23,8 @@
 #define NETWORK_ZERO "0.0.0.0"
 #define NM_START_TIME "23:00"
 #define NM_END_TIME "07:00"
+#define UPD_CHK_TIME "01:00"
+#define UPD_CHK_DAY "*"
 
 #define MAX_SOCKET_CLIENTS 5
 
@@ -50,6 +52,14 @@ enum LED_t : uint8_t
   ZB_LED
 };
 
+enum ZB_ROLE_t : uint8_t
+{
+  UNDEFINED,
+  COORDINATOR,
+  ROUTER,
+  OPENTHREAD
+};
+
 extern const char *coordMode; // coordMode node name
 extern const char *configFileSystem;
 extern const char *configFileWifi;
@@ -66,7 +76,7 @@ struct SysVarsStruct
   bool hwBtnIs = false;
   bool hwLedUsbIs = false;
   bool hwLedPwrIs = false;
-  //bool hwUartSelIs = false;
+  // bool hwUartSelIs = false;
   bool hwZigbeeIs = false;
 
   bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
@@ -95,6 +105,9 @@ struct SysVarsStruct
   char deviceId[MAX_DEV_ID_LONG];
 
   bool updateEspAvail;
+  bool updateZbAvail;
+  IPAddress savedWifiDNS;
+  IPAddress savedEthDNS;
 };
 
 // Network configuration structure
@@ -102,8 +115,11 @@ struct NetworkConfigStruct
 {
   // Wi-Fi
   bool wifiEnable;
+  // int wifiPower;
+  wifi_power_t wifiPower;
+  int wifiMode;
   char wifiSsid[50];
-  char wifiPass[50];
+  char wifiPass[80];
   bool wifiDhcp;
   IPAddress wifiIp;
   IPAddress wifiMask;
@@ -175,7 +191,7 @@ void loadMqttConfig(MqttConfigStruct &config);
 
 struct SystemConfigStruct
 {
-  //bool keepWeb; // when usb mode active
+  // bool keepWeb; // when usb mode active
 
   bool disableWeb; // when socket connected
   bool webAuth;
@@ -205,7 +221,14 @@ struct SystemConfigStruct
   char nmEnd[6];
 
   // WORK_MODE_t prevWorkMode; // for button // WORK_MODE_t
-  WORK_MODE_t workMode; // for button  // WORK_MODE_t
+  WORK_MODE_t workMode;
+
+  ZB_ROLE_t zbRole;
+  char zbFw[30];
+
+  char updCheckTime[6];
+  char updCheckDay[3];
+  bool updAutoInst;
 };
 
 // Function prototypes for SystemConfigStruct
@@ -297,32 +320,34 @@ uint8_t temprature_sens_read();
 
 // Conditional logging macros
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_WARN
-#define LOGW(format, ...) \
-    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
-        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
-    }
+#define LOGW(format, ...)                                                                                                                           \
+  if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                      \
+  {                                                                                                                                                 \
+    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+  }
 #else
 #define LOGW(format, ...) // Nothing
 #endif
 
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_INFO
-#define LOGI(format, ...) \
-    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
-        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
-    }
+#define LOGI(format, ...)                                                                                                                             \
+  if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                        \
+  {                                                                                                                                                   \
+    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+  }
 #else
 #define LOGI(format, ...) // Nothing
 #endif
 
 #if CURRENT_LOG_LEVEL >= LOG_LEVEL_DEBUG
-#define LOGD(format, ...) \
-    if (systemCfg.workMode == WORK_MODE_NETWORK) { \
-        Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
-    }
+#define LOGD(format, ...)                                                                                                                              \
+  if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                         \
+  {                                                                                                                                                    \
+    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+  }
 #else
 #define LOGD(format, ...) // Nothing
 #endif
-
 
 /* ----- Define functions | END -----*/
 

@@ -158,6 +158,21 @@
           "net": "Mode réseau",
           "usb": "Mode USB"
         }
+      },
+      "u": {
+        "ai": "Mises à jour d'installation automatique (ESP32 et Zigbee)",
+        "d": {
+          "ev": "Tous les jours",
+          "fr": "Vendredi",
+          "mn": "Lundi",
+          "sa": "Samedi",
+          "su": "Dimanche",
+          "th": "Jeudi",
+          "tt": "Jour de la semaine",
+          "tu": "Mardi",
+          "wd": "Mercredi"
+        },
+        "h": "Heure de vérification du nouveau firmware"
       }
     },
     "lo": {
@@ -227,7 +242,9 @@
         "rssi": "RSSI",
         "sc": "Sécurité",
         "ssid": "SSID",
-        "nnf": "Réseaux WiFi introuvables"
+        "nnf": "Réseaux WiFi introuvables",
+        "mode": "Mode",
+        "power": "Puissance d'émission"
       }
     },
     "st": {
@@ -278,7 +295,13 @@
       },
       "c": {
         "fv": "Révision du microLOGDciel",
-        "hv": "Version matérielle"
+        "hv": "Version matérielle",
+        "r": "Rôle"
+      },
+      "zr": {
+        "c": "Coordinateur",
+        "r": "Routeur",
+        "t": "Ouvrir la bande de roulement"
       }
     },
     "se": {
@@ -431,6 +454,9 @@
     "zb": {
       "nzfa": {
         "tt": "Aucun firmware trouvé"
+      },
+      "upd": {
+        "tt": "Nouveau firmware Zigbee trouvé 🌟"
       }
     }
   }
