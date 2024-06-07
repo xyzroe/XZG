@@ -244,6 +244,16 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang_20240506.bin",
                 "notes": "Special build from @mercenaruss \ud83c\udf1f",
                 "baud": "115200"
+            },
+            "rcp_LP_CC2652PSIP_tirtos_ticlang.bin": {
+                "ver": "ticlang",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos_ticlang.bin",
+                "notes": ""
+            },
+            "rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.bin": {
+                "ver": "24",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.bin",
+                "notes": ""
             }
         }
     }
