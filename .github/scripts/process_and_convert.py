@@ -2,7 +2,11 @@ import json
 import os
 import requests
 from zipfile import ZipFile
+import re
+from datetime import datetime
+import shutil
 
+DATE_PATTERN = re.compile(r'_(\d{4}[01]\d[0-3]\d)')
 
 def download_and_extract(url, extract_to):
     print(url)
@@ -12,14 +16,20 @@ def download_and_extract(url, extract_to):
         zip_path = os.path.join(extract_to, os.path.basename(url))
         with open(zip_path, "wb") as f:
             f.write(response.content)
+        
         with ZipFile(zip_path, "r") as zip_ref:
-            zip_ref.extractall(extract_to)
+            for zip_info in zip_ref.infolist():
+                zip_ref.extract(zip_info, extract_to)
+                extracted_path = os.path.join(extract_to, zip_info.filename)
+                date_time = datetime(*zip_info.date_time)
+                mod_time = date_time.timestamp()
+                os.utime(extracted_path, (mod_time, mod_time))
+        
         os.remove(zip_path)
     except requests.RequestException as e:
         print(f"Error downloading from {url}: {e}")
-    except zipfile.BadZipFile as e:
+    except zip_ref.BadZipFile as e:
         print(f"Error unpacking archive: {e}")
-
 
 def update_manifest(root, file, chip, version):
     manifest_path = os.path.join("ti", "manifest.json")
@@ -47,6 +57,26 @@ def update_manifest(root, file, chip, version):
         with open(manifest_path, "w") as f:
             json.dump({root: data}, f, indent=4)
 
+def find_date_in_filename(filename):
+    match = DATE_PATTERN.search(filename)
+    match_str = match
+    if match_str == None:
+        match_str = "None"
+    else:
+        match_str = str(match.group(1))
+    return match.group(1) if match else None
+
+def append_date_to_filename(filepath, date_str):
+    directory, filename = os.path.split(filepath)
+    name, ext = os.path.splitext(filename)
+    name = DATE_PATTERN.sub('', name)
+    new_filename = f"{name}_{date_str}{ext}"
+    new_filepath = os.path.join(directory, new_filename)
+    os.rename(filepath, new_filepath)
+    return new_filepath
+
+def get_creation_date(filepath):
+    return datetime.fromtimestamp(os.path.getmtime(filepath)).strftime('%Y%m%d')
 
 with open("task.json", "r") as f:
     print("Read task.json")
@@ -70,11 +100,33 @@ for root, dirs, files in os.walk("ti"):
             except Exception as e:
                 print(f"Error converting file {hex_path}: {e}")
 
-print("update manifest")
+print("update filenames")
 for root, dirs, files in os.walk("ti"):
     for file in files:
         if file.endswith(".bin"):
             print(file)
+            bin_path = os.path.join(root, file)
+            name, ext = os.path.splitext(file)
+            # Check if filename ends with a date
+            if not re.search(r'_\d{8}$', name):
+                date_str = find_date_in_filename(name)
+                print(date_str)
+                if date_str == None:
+                    corresponding_hex = bin_path[:-4] + ".hex"
+                    if os.path.exists(corresponding_hex):
+                        date_str = get_creation_date(corresponding_hex)
+                if date_str:
+                    new_bin_path = append_date_to_filename(bin_path, date_str)
+                    file = os.path.basename(new_bin_path)
+                    print('New name - ' + new_bin_path)
+            else:
+                print('OK')
+
+print("update manifest")
+for root, dirs, files in os.walk("ti"):
+    for file in files:
+        if file.endswith(".bin"):
+            #print(file)
             bin_path = os.path.join(root, file)
             # Extract chip and version from the file name
             parts = file.split("_")

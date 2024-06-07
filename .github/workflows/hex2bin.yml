@@ -9,22 +9,23 @@ on:
       - zb_fws
     paths-ignore:
       - "ti/manifest.json"
+      - "README.md"
   workflow_dispatch:
 
 jobs:
   convert:
-    runs-on: ubuntu-latest  # Run on the latest Ubuntu version
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3  # Use the latest version
+      uses: actions/checkout@v3
       with:
         ref: zb_fws
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'  # Use the latest Python 3 version
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
