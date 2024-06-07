@@ -213,7 +213,7 @@
         "auth": "Enable web server authentication"
       },
       "fw": {
-        "desc": "IP whitelist for socket",
+        "desc": "IP whitelist for Zigbee socket connection",
         "ip": "Allowed IP"
       }
     },
