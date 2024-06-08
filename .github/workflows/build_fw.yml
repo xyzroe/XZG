@@ -125,10 +125,18 @@ jobs:
           cd releases
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
-          git push origin releases
+          if [[ -n $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
+            git push origin releases
+          else
+            echo "No changes to commit"
+          fi
 
+  notify:
+    runs-on: ubuntu-latest
+    needs: build_release_push
+    steps:
       - name: Send Telegram Notification about release
         uses: appleboy/telegram-action@master
         with:

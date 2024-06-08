@@ -130,11 +130,7 @@ document.addEventListener("scroll", function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-	setTimeout(updateRootEvents(function (connected) {
-		if (connected) {
-			//console.log("ok");
-		}
-	}), 300);
+	setTimeout(connectEvents(), 300);
 	const savedLang = localStorage.getItem("selected-lang");
 	const browserLang = navigator.language ? navigator.language.substring(0, 2) : navigator.userLanguage;
 	let preferredLang = savedLang || (languages.some(lang => lang.value === browserLang) ? browserLang : 'en'); // 'en' как fallback
@@ -672,7 +668,7 @@ function apiGetPage(page, doneCall, loader = true) {
 			}
 			updateLocalizedContent();
 
-			$('[title]').each(function() {
+			$('[title]').each(function () {
 				var title = $(this).attr('title');
 				setTitleAndActivateTooltip(this, title);
 			});
@@ -1276,7 +1272,7 @@ function toastConstructor(params, text) {
 			break;
 		case "noZbFw":
 			$("#toastHeaderText").text(i18next.t("ts.zb.nzfa.tt"));
-			$("#toastBody").text(text); 
+			$("#toastBody").text(text);
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-primary",
@@ -1339,8 +1335,9 @@ function espFlashGitWait(params) {
 
 let retryCount = 0;
 const maxRetries = 30;
+var sourceEvents;
 
-function updateRootEvents(callback) {
+function connectEvents() {
 
 	if (window.location.pathname.startsWith('/login')) {
 		return;
@@ -1352,27 +1349,27 @@ function updateRootEvents(callback) {
 		return;
 	}
 
-	var source = new EventSource('/events', { withCredentials: false, timeout: 100 });
+	sourceEvents = new EventSource('/events', { withCredentials: false, timeout: 200 });
 	console.log("Events try to open");
 
-	source.addEventListener('open', function (e) {
+	sourceEvents.addEventListener('open', function (e) {
 		console.log("Events Connected");
-		callback(true);
+		//callback(true);
 		retryCount = 0;
 	}, false);
 
-	source.addEventListener('error', function (e) {
+	sourceEvents.addEventListener('error', function (e) {
 		if (e.target.readyState != EventSource.OPEN) {
 			console.log("Events Err. Reconnecting...");
 			retryCount++;
 			setTimeout(function () {
-				source.close();
-				updateRootEvents(callback);
-			}, 1000);
+				sourceEvents.close();
+				connectEvents();//callback);
+			}, 100);
 		}
 	}, false);
 
-	source.addEventListener('root_update', function (e) {
+	sourceEvents.addEventListener('root_update', function (e) {
 		if (e.data != "finish") {
 			Object.assign(updateValues, JSON.parse(e.data));
 		} else {
@@ -1382,20 +1379,20 @@ function updateRootEvents(callback) {
 		}
 	});
 
-	source.addEventListener('zb.fp', function (e) {
+	sourceEvents.addEventListener('zb.fp', function (e) {
 		//console.log(e.data);
 		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#zbFlshPrgs").css("width", e.data + '%');
 	}, false);
 
-	source.addEventListener('zb.nv', function (e) {
+	sourceEvents.addEventListener('zb.nv', function (e) {
 		//console.log(e.data);
 		let currentContent = $("#console").val();
 		let newContent = currentContent + "\n" + e.data;
 		$("#console").val(newContent);
 	}, false);
 
-	source.addEventListener('zb.fi', function (e) {
+	sourceEvents.addEventListener('zb.fi', function (e) {
 		let data = e.data.replaceAll("`", "<br>");
 		console.log(data);
 
@@ -1423,7 +1420,7 @@ function updateRootEvents(callback) {
 
 	}, false);
 
-	source.addEventListener('zb.ff', function (e) {
+	sourceEvents.addEventListener('zb.ff', function (e) {
 		let fileName = fileFromUrl(e.data);
 		if (fileName) {
 			data = i18next.t('md.zg.fu.f', { file: fileName });
@@ -1442,7 +1439,7 @@ function updateRootEvents(callback) {
 		$("#zbFlshPgsTxt").html(data);
 	}, false);
 
-	source.addEventListener('zb.fe', function (e) {
+	sourceEvents.addEventListener('zb.fe', function (e) {
 		const data = e.data.replaceAll("`", "<br>");
 		$(modalBtns).html("");
 		$("#zbFlshPgsTxt").html(data);
@@ -1452,7 +1449,7 @@ function updateRootEvents(callback) {
 	}, false);
 
 
-	source.addEventListener('esp.fp', function (e) {
+	sourceEvents.addEventListener('esp.fp', function (e) {
 
 		$('#prg').css('width', e.data + '%');
 		$('#bar').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
@@ -1491,49 +1488,77 @@ function modalAddSpiner() {
 	}).appendTo(modalBtns);
 }
 
+function reconnectEvents() {
+	if (sourceEvents) {
+		sourceEvents.close();
+		console.log('Connection closed by client, reconnecting...');
+		setTimeout(function () {
+			connectEvents();
+		}, 100);
+	} else {
+		console.log('NO connection, reconnecting...');
+		connectEvents();
+	}
+}
+
 function startZbFlash(link) {
-	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
-	$(modalBtns).html("");
-	$(modalBody).html("");
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK, function (data) {
+		reconnectEvents();
 
-	$("<div>", {
-		text: i18next.t("md.esp.fu.wm"),
-		class: "my-1 text-sm-center text-danger"
-	}).appendTo(modalBody);
+		$(modalBtns).html("");
+		$(modalBody).html("");
 
-	let fileName = fileFromUrl(link);
-	$("<div>", {
-		text: fileName,
-		class: "my-1 text-sm-center"
-	}).appendTo(modalBody);
+		$("<div>", {
+			text: i18next.t("md.esp.fu.wm"),
+			class: "my-1 text-sm-center text-danger"
+		}).appendTo(modalBody);
 
-	modalAddCancel();
-	$('<button>', {
-		type: "button",
-		"class": "btn btn-warning",
-		text: i18next.t('c.sure'),
-		title: i18next.t("md.esp.fu.wm"),
-		click: function () {
+		let fileName = fileFromUrl(link);
+		$("<div>", {
+			text: fileName,
+			class: "my-1 text-sm-center"
+		}).appendTo(modalBody);
 
-			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ZB_FLASH + "&url=" + link);
-			$(modalBtns).html("");
-			modalAddSpiner();
-			$(modalBody).html("");
-			$("<div>", {
-				id: "zbFlshPgsTxt",
-				text: i18next.t("md.esp.fu.wdm"),
-				class: "mb-2 text-sm-center"
-			}).appendTo(modalBody);
-			$("<div>", {
-				"class": "progress",
-				append: $("<div>", {
-					"class": "progress-bar progress-bar-striped progress-bar-animated",
-					id: "zbFlshPrgs",
-					style: "width: 100%; background-color: var(--link-color);"
-				})
-			}).appendTo(modalBody);
-		}
-	}).appendTo(modalBtns);
+		modalAddCancel();
+		let flashButton = $('<button>', {
+			type: "button",
+			"class": "btn btn-warning",
+			text: i18next.t('c.sure'),
+			title: i18next.t("md.esp.fu.wm"),
+			disabled: true,
+			click: function () {
+				$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ZB_FLASH + "&url=" + link);
+				$(modalBtns).html("");
+				modalAddSpiner();
+				$(modalBody).html("");
+				$("<div>", {
+					id: "zbFlshPgsTxt",
+					text: i18next.t("md.esp.fu.wdm"),
+					class: "mb-2 text-sm-center"
+				}).appendTo(modalBody);
+				$("<div>", {
+					"class": "progress",
+					append: $("<div>", {
+						"class": "progress-bar progress-bar-striped progress-bar-animated",
+						id: "zbFlshPrgs",
+						style: "width: 100%; background-color: var(--link-color);"
+					})
+				}).appendTo(modalBody);
+			}
+		}).appendTo(modalBtns);
+
+		let checkSourceEventsInterval = setInterval(function () {
+			if (sourceEvents) {
+				flashButton.prop('disabled', false);
+			} else {
+				flashButton.prop('disabled', true);
+			}
+		}, 100);
+
+		$(modal).on('hidden.bs.modal', function () {
+			clearInterval(checkSourceEventsInterval);
+		});
+	});
 }
 
 function modalAddClose() {
@@ -1651,15 +1676,16 @@ function createReleaseBlock(file, deviceType) {
 		deviceIcon = "🚀";
 	}
 
+	const uniqueId = 'release-' + Math.random().toString(36).substr(2, 9);
+
 	const releaseBlock = $("<div>", { "class": "release-block", "style": "margin-bottom: 20px;" });
 	const headerAndButtonContainer = $('<div>', { "class": "d-flex justify-content-between align-items-start" }).appendTo(releaseBlock);
 
 	const emojiBlock = $('<span>', { "text": deviceIcon }).css('margin-right', '5px').appendTo(headerAndButtonContainer);
-	const header = $("<h5>", { "class": "mb-0", "text": file.ver }).appendTo(headerAndButtonContainer);
+	const header = $("<h5>", { "id": uniqueId + '-header', "class": "mb-0", "text": file.ver, "style": "cursor: pointer;" }).appendTo(headerAndButtonContainer);
 
 	setTitleAndActivateTooltip(emojiBlock[0], deviceName);
-
-	//let fileName = fileFromUrl(file.link);
+	setTitleAndActivateTooltip(header[0], i18next.t('md.zb.cte'));
 
 	const buttonContainer = $('<div>', { "class": "d-flex align-items-start" }).appendTo(headerAndButtonContainer);
 	const button = $('<a>', {
@@ -1679,8 +1705,23 @@ function createReleaseBlock(file, deviceType) {
 
 	setTitleAndActivateTooltip(button[0], file.link);
 
-	$("<div>", { "class": "mt-2 release-description", "html": file.notes }).appendTo(releaseBlock);
-	$("<hr>").appendTo(releaseBlock);
+	let descriptionDiv;
+
+	if (file.notes.endsWith('.md')) {
+		$.get(file.notes, function (data) {
+			descriptionDiv = $("<div>", { "id": uniqueId + '-description', "class": "mt-2 release-description", "html": marked.parse(data), "style": "display: none;" }).appendTo(releaseBlock);
+			$("<hr>").appendTo(releaseBlock);
+		});
+	} else {
+		descriptionDiv = $("<div>", { "id": uniqueId + '-description', "class": "mt-2 release-description", "html": marked.parse(file.notes), "style": "display: none;" }).appendTo(releaseBlock);
+		$("<hr>").appendTo(releaseBlock);
+	}
+
+	$(document).on("click", `#${uniqueId}-header`, function () {
+		$(`#${uniqueId}-description`).toggle();
+	});
+
+
 	return releaseBlock;
 }
 
@@ -2495,6 +2536,7 @@ i18next
 	.use(i18nextHttpBackend)
 	.init({
 		lng: 'en',
+		fallbackLng: 'en',
 		backend: {
 			loadPath: '/lg/{{lng}}.json',
 		},

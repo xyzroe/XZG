@@ -85,7 +85,8 @@
       "ot": "Zigbee OTA 更新",
       "rfm": "正在获取固件信息...",
       "dtt": "开放线程",
-      "ntf": "Thread 固件丢失。"
+      "ntf": "Thread 固件丢失。",
+      "cte": "点击展开信息"
     },
     "kw": {
       "msg": "此功能允许您保持通信通道之一处于活动状态并有权访问 Web 界面。\n设备本身会根据优先级选择可用通道：WIFI、ETHERNET、WIFI AP"

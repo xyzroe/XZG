@@ -115,7 +115,7 @@ bool zigbeeErase()
 }
 void nvPrgs(const String &inputMsg)
 {
-    
+
     const uint8_t eventLen = 30;
     String msg = inputMsg;
     if (msg.length() > 25)
@@ -140,7 +140,7 @@ void flashZbUrl(String url)
     ledControl.modeLED.mode = LED_BLINK_3Hz;
 
     checkDNS();
-    delay(1000);
+    delay(250);
 
     Serial2.updateBaudRate(500000);
     float last_percent = 0;
@@ -149,7 +149,6 @@ void flashZbUrl(String url)
 
     auto progressShow = [last_percent](float percent) mutable
     {
-
         if ((percent - last_percent) > 1 || percent < 0.1 || percent == 100)
         {
             // char buffer[100];
@@ -219,7 +218,7 @@ void flashZbUrl(String url)
                 // delay(500);
             }
 
-            //LOGD("%s %s", String(preLastSlash), String(lastSlashIndex));
+            // LOGD("%s %s", String(preLastSlash), String(lastSlashIndex));
             String zbRole = clear_url.substring(preLastSlash + 1, lastSlashIndex);
             LOGI("%s", zbRole);
 
