@@ -12,6 +12,9 @@ on:
 jobs:
   build_release_push:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+      commit_message: ${{ steps.get_commit_message.outputs.commit_message }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -72,6 +75,7 @@ jobs:
           echo "commitMessage<<EOF" >> $GITHUB_ENV
           printf "%s\n" "$commitMessage" >> $GITHUB_ENV 
           echo "EOF" >> $GITHUB_ENV
+          echo "commit_message=$commitMessage" >> $GITHUB_OUTPUT
         env:
           GITHUB_REF: ${{ github.ref }}
 
@@ -144,13 +148,13 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
           message: |
-            ${{ env.commitMessage }}
+            ${{ needs.build_release_push.outputs.commit_message }}
 
-            [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
+            [${{ needs.build_release_push.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ needs.build_release_push.outputs.tag }})
 
       - name: Send Discord Notification about release
         run: |
-          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
+          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ needs.build_release_push.outputs.tag }}" '{content: $content}')
           curl -H "Content-Type: application/json" \
                -d "$json_payload" \
                ${{ secrets.DISCORD_WEBHOOK }}
