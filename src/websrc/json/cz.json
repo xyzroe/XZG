@@ -64,7 +64,7 @@
         "r": "Role"
       },
       "zr": {
-        "c": "Coordinator",
+        "c": "Koordinátor",
         "r": "Router",
         "t": "OpenTread"
       }
@@ -106,19 +106,19 @@
         }
       },
       "u": {
-        "ai": "Auto install updates (ESP32 and Zigbee)",
+        "ai": "Automatická instalace aktualizací (ESP32 and Zigbee)",
         "d": {
-          "ev": "Everyday",
-          "fr": "Friday",
-          "mn": "Monday",
-          "sa": "Saturday",
-          "su": "Sunday",
-          "th": "Thursday",
-          "tt": "Day of week",
-          "tu": "Tuesday",
-          "wd": "Wednesday"
+          "ev": "Každý den",
+          "fr": "Pátek",
+          "mn": "Pondělí",
+          "sa": "Sobota",
+          "su": "Neděle",
+          "th": "Čtvrtek",
+          "tt": "Pracovní dny",
+          "tu": "Čtvrtek",
+          "wd": "Středa"
         },
-        "h": "New firmware check time"
+        "h": "Čas kontroly nového firmwaru"
       }
     },
     "ne": {
@@ -139,7 +139,7 @@
         "sc": "Zabezpečení",
         "ch": "Kanál",
         "nnf": "Sítě Wi-Fi nebyly nalezeny",
-        "mode": "Mode",
+        "mode": "Režim",
         "power": "Tx Power"
       }
     },
@@ -454,7 +454,7 @@
         "tt": "Nebyl nalezen žádný firmware"
       },
       "upd": {
-        "tt": "New Zigbee firmware found 🌟"
+        "tt": "Byl nalezen nový firmware Zigbee 🌟"
       }
     }
   }
