@@ -85,7 +85,8 @@
       "ot": "Atualização Zigbee OTA",
       "rfm": "Buscando informações de firmware...",
       "dtt": "OpenThread",
-      "ntf": "O firmware do Thread está faltando."
+      "ntf": "O firmware do Thread está faltando.",
+      "cte": "Clique para expandir as informações"
     },
     "kw": {
       "msg": "Esta função permite deixar um dos canais de comunicação ativo e ter acesso à interface web. \nO próprio dispositivo selecionará um canal disponível de acordo com a prioridade: WIFI, ETHERNET, WIFI AP"

@@ -85,7 +85,8 @@
       "ot": "Zigbee OTA-Update",
       "rfm": "Firmware-Informationen werden abgerufen...",
       "dtt": "OpenThread",
-      "ntf": "Die Thread-Firmware fehlt."
+      "ntf": "Die Thread-Firmware fehlt.",
+      "cte": "Klicken Sie, um die Informationen zu erweitern"
     },
     "kw": {
       "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät wählt selbst je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"

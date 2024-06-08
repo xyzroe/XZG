@@ -410,7 +410,8 @@
       "ot": "Aktualizace Zigbee OTA",
       "rfm": "Získávání informací o firmwaru...",
       "ntf": "Firmware Thread chybí.",
-      "dtt": "OpenThread"
+      "dtt": "OpenThread",
+      "cte": "Click to expand info"
     },
     "ss": {
       "tt": "NASTAVENÍ ULOŽENO",

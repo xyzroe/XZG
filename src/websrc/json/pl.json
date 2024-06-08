@@ -85,7 +85,8 @@
       "ot": "Aktualizacja Zigbee OTA",
       "rfm": "Pobieram informacje o oprogramowaniu sprzętowym...",
       "dtt": "Otwórz wątek",
-      "ntf": "Brak oprogramowania sprzętowego Thread."
+      "ntf": "Brak oprogramowania sprzętowego Thread.",
+      "cte": "Kliknij, aby rozwinąć informacje"
     },
     "kw": {
       "msg": "Dzięki tej funkcji możesz pozostawić jeden z kanałów komunikacji aktywnym i mieć dostęp do interfejsu WWW. \nUrządzenie samo wybierze dostępny kanał według priorytetu: WIFI, ETHERNET, WIFI AP"
