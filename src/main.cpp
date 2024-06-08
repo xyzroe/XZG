@@ -576,7 +576,7 @@ void setup()
   setupCoordinatorMode();
   vars.connectedClients = 0;
 
-  xTaskCreate(updateWebTask, "update Web Task", 2048, NULL, 7, NULL);
+  xTaskCreate(updateWebTask, "update Web Task", 2048, NULL, 8, NULL);
 
   printNVSFreeSpace();
 

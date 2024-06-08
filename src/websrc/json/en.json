@@ -410,7 +410,8 @@
       "ot": "Zigbee OTA update",
       "rfm": "Getting information about the firmware...",
       "ntf": "The Thread firmware is missing.",
-      "dtt": "OpenThread"
+      "dtt": "OpenThread",
+      "cte": "Click to expand info"
     },
     "ss": {
       "tt": "SETTINGS SAVED",

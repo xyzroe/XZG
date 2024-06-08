@@ -190,7 +190,7 @@ void ledModeSetup()
 
     LOGD("%d", ledControl.modeLED.mode);
 
-    xTaskCreate(ledTask, "MODE LED Task", 2048, &ledControl.modeLED, 6, NULL);
+    xTaskCreate(ledTask, "MODE LED Task", 2048, &ledControl.modeLED, 7, NULL);
 }
 
 void ledPwrSetup()

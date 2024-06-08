@@ -85,7 +85,8 @@
       "ot": "Zigbee OTA güncellemesi",
       "rfm": "Ürün yazılımı bilgileri alınıyor...",
       "dtt": "OpenThread",
-      "ntf": "Thread ürün yazılımı eksik."
+      "ntf": "Thread ürün yazılımı eksik.",
+      "cte": "Bilgileri genişletmek için tıklayın"
     },
     "kw": {
       "msg": "Bu fonksiyon iletişim kanallarından birini aktif bırakıp web arayüzüne erişmenizi sağlar. \nCihazın kendisi önceliğe göre uygun bir kanal seçecektir: WIFI, ETHERNET, WIFI AP"
