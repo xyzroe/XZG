@@ -282,62 +282,63 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
 void mqttConnectSetup()
 {
     LOGD("mqttConnectSetup");
-    checkDNS();
-
-    if (mqttCfg.reconnectInt == 0)
+    if (checkDNS())
     {
-        mqttCfg.reconnectInt = 30;
-        LOGI("Reconnect Int didn't set. So use %d seconds", mqttCfg.reconnectInt);
-    }
-    if (mqttCfg.updateInt == 0)
-    {
-        mqttCfg.updateInt = 60;
-        LOGI("Update Int didn't set. So use %d seconds", mqttCfg.updateInt);
-    }
-    mqttReconnectTimer = xTimerCreate("mqttReconnectTimer", pdMS_TO_TICKS(mqttCfg.reconnectInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
-    mqttPubStateTimer = xTimerCreate("mqttPubStateTimer", pdMS_TO_TICKS(mqttCfg.updateInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(mqttPublishState));
-
-    if (mqttReconnectTimer == NULL)
-    {
-        LOGD("Failed to create mqttReconnectTimer");
-    }
-
-    if (mqttPubStateTimer == NULL)
-    {
-        LOGD("Failed to create mqttPubStateTimer");
-    }
-
-    uint16_t keepAlive = mqttCfg.updateInt + 10;
-    mqttClient.setKeepAlive(keepAlive);
-
-    const char *clientId = vars.deviceId;
-    mqttClient.setClientId(clientId);
-
-    mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
-
-    // String topic = String(mqttCfg.topic) + "/avty";
-    // mqttClient.setWill(topic.c_str(), 1, true, "offline");
-
-    mqttClient.setServer(mqttCfg.server, mqttCfg.port);
-
-    /* NO SSL SUPPORT in current SDK
-    #if ASYNC_TCP_SSL_ENABLED
-        mqttClient.setSecure(MQTT_SECURE);
-        if (MQTT_SECURE)
+        if (mqttCfg.reconnectInt == 0)
         {
-            mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
+            mqttCfg.reconnectInt = 30;
+            LOGI("Reconnect Int didn't set. So use %d seconds", mqttCfg.reconnectInt);
         }
-    #endif
-    */
+        if (mqttCfg.updateInt == 0)
+        {
+            mqttCfg.updateInt = 60;
+            LOGI("Update Int didn't set. So use %d seconds", mqttCfg.updateInt);
+        }
+        mqttReconnectTimer = xTimerCreate("mqttReconnectTimer", pdMS_TO_TICKS(mqttCfg.reconnectInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
+        mqttPubStateTimer = xTimerCreate("mqttPubStateTimer", pdMS_TO_TICKS(mqttCfg.updateInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(mqttPublishState));
 
-    mqttClient.onConnect(onMqttConnect);
-    mqttClient.onDisconnect(onMqttDisconnect);
+        if (mqttReconnectTimer == NULL)
+        {
+            LOGD("Failed to create mqttReconnectTimer");
+        }
 
-    mqttClient.onMessage(onMqttMessage);
+        if (mqttPubStateTimer == NULL)
+        {
+            LOGD("Failed to create mqttPubStateTimer");
+        }
 
-    if (xTimerStart(mqttReconnectTimer, 0) != pdPASS)
-    {
-        LOGD("Failed to start timer");
+        uint16_t keepAlive = mqttCfg.updateInt + 10;
+        mqttClient.setKeepAlive(keepAlive);
+
+        const char *clientId = vars.deviceId;
+        mqttClient.setClientId(clientId);
+
+        mqttClient.setCredentials(mqttCfg.user, mqttCfg.pass);
+
+        // String topic = String(mqttCfg.topic) + "/avty";
+        // mqttClient.setWill(topic.c_str(), 1, true, "offline");
+
+        mqttClient.setServer(mqttCfg.server, mqttCfg.port);
+
+        /* NO SSL SUPPORT in current SDK
+        #if ASYNC_TCP_SSL_ENABLED
+            mqttClient.setSecure(MQTT_SECURE);
+            if (MQTT_SECURE)
+            {
+                mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
+            }
+        #endif
+        */
+
+        mqttClient.onConnect(onMqttConnect);
+        mqttClient.onDisconnect(onMqttDisconnect);
+
+        mqttClient.onMessage(onMqttMessage);
+
+        if (xTimerStart(mqttReconnectTimer, 0) != pdPASS)
+        {
+            LOGD("Failed to start timer");
+        }
     }
 }
 

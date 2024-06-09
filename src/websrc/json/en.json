@@ -392,6 +392,10 @@
         "nip": "New IP address is {{ip}} Device will now reboot for the new settings to take effect.",
         "btn": "Go to",
         "err": "Connection error, check SSID, PASSWORD and try again"
+      },
+      "mc": {
+        "tt": "Select your device model",
+        "mi": "More than one device with exactly your configuration is supported. You need to select your device."
       }
     },
     "zb": {

@@ -108,6 +108,8 @@ struct SysVarsStruct
   bool updateZbAvail;
   IPAddress savedWifiDNS;
   IPAddress savedEthDNS;
+
+  bool firstUpdCheck = false;
 };
 
 // Network configuration structure

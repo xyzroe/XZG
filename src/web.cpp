@@ -479,7 +479,8 @@ void handleApi()
                 CMD_ZB_LED_TOG,
                 CMD_ESP_FAC_RES,
                 CMD_ZB_ERASE_NVRAM,
-                CMD_DNS_CHECK
+                CMD_DNS_CHECK,
+                CMD_BRD_NAME
             };
             String result = wrongArgs;
             const char *argCmd = "cmd";
@@ -622,6 +623,39 @@ void handleApi()
                         {
                             LOGW("%s", String(errLink));
                         }
+                    }
+                    break;
+                case CMD_BRD_NAME:
+                    if (serverWeb.hasArg("board"))
+                    {
+                        String brdName = serverWeb.arg("board");
+                        brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
+
+                        File configFile = LittleFS.open(configFileHw, FILE_READ);
+                        if (!configFile)
+                        {
+                            Serial.println("Failed to open config file for reading");
+                            return;
+                        }
+
+                        DynamicJsonDocument config(1024);
+                        DeserializationError error = deserializeJson(config, configFile);
+                        if (error)
+                        {
+                            Serial.println("Failed to parse config file");
+                            configFile.close();
+                            return;
+                        }
+
+                        configFile.close();
+                        config["board"] = hwConfig.board;
+
+                        writeDefaultConfig(configFileHw, config);
+                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+                    }
+                    else
+                    {
+                        serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
                     }
                     break;
                 default:
@@ -1082,8 +1116,8 @@ void handleGeneral()
         zonesArray.add(timeZones[i].zone);
     }
 
-    size_t usedMemory = zones.memoryUsage();
-    LOGD("Zones used: %s bytes", String(usedMemory));
+    // size_t usedMemory = zones.memoryUsage();
+    // LOGD("Zones used: %s bytes", String(usedMemory));
 
     serializeJson(zones, results);
     serverWeb.sendHeader(respTimeZonesName, results);
@@ -1208,6 +1242,11 @@ void handleNetwork()
         break;
     default:
         break;
+    }
+
+    if (hwConfig.eth.mdcPin == -1 || hwConfig.eth.mdiPin == -1)
+    {
+        doc["no_eth"] = 1;
     }
 
     serializeJson(doc, result);
@@ -1388,7 +1427,7 @@ String getRootData(bool update)
             doc[ethIpKey] = ETH.localIP().toString();
             doc[ethMaskKey] = ETH.subnetMask().toString();
             doc[ethGateKey] = ETH.gatewayIP().toString();
-            doc[ethDns] = vars.savedEthDNS.toString();//ETH.dnsIP().toString();
+            doc[ethDns] = vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
         else
         {
@@ -1396,7 +1435,7 @@ String getRootData(bool update)
             doc[ethIpKey] = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
             doc[ethMaskKey] = networkCfg.ethDhcp ? noConn : ETH.subnetMask().toString();
             doc[ethGateKey] = networkCfg.ethDhcp ? noConn : ETH.gatewayIP().toString();
-            doc[ethDns] = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString();//ETH.dnsIP().toString();
+            doc[ethDns] = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
     }
 
@@ -1474,6 +1513,47 @@ String getRootData(bool update)
     if (!update)
     {
         doc["wifiMac"] = WiFi.macAddress();
+        String boardStr = hwConfig.board;
+        if (boardStr.startsWith("Multi"))
+        {
+            int underscoreIndex = boardStr.indexOf('_');
+            if (underscoreIndex != -1)
+            {
+                String boardNumber = boardStr.substring(underscoreIndex + 1);
+                boardNumber.trim();
+                int boardNum = boardNumber.toInt();
+
+                String boardArray[BOARD_CFG_CNT];
+                int arrayIndex = 0;
+
+                for (int brdNewIdx = 0; brdNewIdx < BOARD_CFG_CNT; brdNewIdx++)
+                {
+                    if (brdConfigs[brdNewIdx].ethConfigIndex == brdConfigs[boardNum].ethConfigIndex)
+                    {
+                        if (brdConfigs[brdNewIdx].zbConfigIndex == brdConfigs[boardNum].zbConfigIndex)
+                        {
+                            if (brdConfigs[brdNewIdx].mistConfigIndex == brdConfigs[boardNum].mistConfigIndex)
+                            {
+                                boardArray[arrayIndex++] = brdConfigs[brdNewIdx].board;
+                            }
+                        }
+                    }
+                }
+
+                DynamicJsonDocument jsonDoc(512);
+                JsonArray jsonArray = jsonDoc.to<JsonArray>();
+
+                for (int i = 0; i < arrayIndex; i++)
+                {
+                    jsonArray.add(boardArray[i]);
+                }
+
+                String jsonString;
+                serializeJson(jsonArray, jsonString);
+
+                doc["boardArray"] = jsonString;
+            }
+        }
     }
 
     if (networkCfg.wifiEnable)
@@ -1488,7 +1568,7 @@ String getRootData(bool update)
             doc[wifiIpKey] = WiFi.localIP().toString();
             doc[wifiMaskKey] = WiFi.subnetMask().toString();
             doc[wifiGateKey] = WiFi.gatewayIP().toString();
-            doc[wifiDns] = vars.savedWifiDNS.toString();//WiFi.dnsIP().toString();
+            doc[wifiDns] = vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
         else
         {
@@ -1498,7 +1578,7 @@ String getRootData(bool update)
             doc[wifiIpKey] = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
             doc[wifiMaskKey] = networkCfg.wifiDhcp ? noConn : WiFi.subnetMask().toString();
             doc[wifiGateKey] = networkCfg.wifiDhcp ? noConn : WiFi.gatewayIP().toString();
-            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString();//WiFi.dnsIP().toString();
+            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
     }
 
@@ -1688,7 +1768,6 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
 void progressFunc(unsigned int progress, unsigned int total)
 {
 
-    
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
