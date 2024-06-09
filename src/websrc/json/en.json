@@ -54,7 +54,6 @@
         "sccn": "No connection",
         "sccy": "{{count}} clients",
         "su": "Connection time",
-        "tt": "Device status",
         "zfs": "Flash size",
         "zie": "IEEE"
       },
@@ -272,10 +271,7 @@
       "efu": "ESP32 manual flashing",
       "cf": "Select firmware file...",
       "ilfg": "Install latest",
-      "sri": "Select version",
       "zu": "Zigbee update (in develop)",
-      "zfu": "Zigbee manual flashing",
-      "clzv": "Check the latest Zigbee firmware",
       "saf": "Show available...",
       "zgu": "Zigbee",
       "eznr": "Erase NVRAM"
@@ -383,8 +379,7 @@
         "vgds": "Downloading release {{ver}} from GitHub...",
         "ucr": "Update complete! Rebooting!",
         "prgs": "Update: {{per}}%",
-        "gvt": "GitHub releases",
-        "bil": "Install Latest"
+        "gvt": "GitHub releases"
       },
       "ws": {
         "tt": "Wi-Fi network connection",
@@ -399,16 +394,10 @@
       }
     },
     "zb": {
-      "fu": {
-        "vt": "validate: {{per}} %",
-        "vc": "Validate complete!"
-      },
+      "fu": {},
       "dtc": "Coordinator",
-      "cfv": "Current firmware: {{ver}}",
       "dtr": "Router",
       "efr": "Error while retrieving firmware information<br>Check the network!",
-      "lcf": "Latest coordinator firmware:",
-      "lrf": "Latest router firmware:",
       "ncf": "The coordinator firmware is missing.",
       "nrf": "The router firmware is missing.",
       "ot": "Zigbee OTA update",

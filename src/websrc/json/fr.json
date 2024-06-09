@@ -53,8 +53,7 @@
         "ucr": "Mise à jour terminée! \nRedémarrage !",
         "vgds": "Téléchargement de la version {{ver}} depuis GitHub...",
         "wdm": "En attente de l'appareil...",
-        "wm": "Cela déconnectera TOUTES les connexions de prise",
-        "bil": "Installer le dernier"
+        "wm": "Cela déconnectera TOUTES les connexions de prise"
       },
       "rst": {
         "msg": "Attente de redémarrage. \nSe fermera automatiquement.",
@@ -67,19 +66,17 @@
         "msg": "Connexion au réseau en cours... Attendez le résultat.",
         "nip": "La nouvelle adresse IP est {{ip}}. L'appareil va maintenant redémarrer pour que les nouveaux paramètres prennent effet.",
         "tt": "Connexion réseau Wi-Fi"
+      },
+      "mc": {
+        "mi": "Plusieurs appareils avec exactement votre configuration sont pris en charge. \nVous devez sélectionner votre appareil.",
+        "tt": "Sélectionnez le modèle de votre appareil"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Validez terminé !",
-        "vt": "valider : {{per}} %"
-      },
-      "cfv": "Votre révision actuelle du micrologiciel : {{ver}}",
+      "fu": {},
       "dtc": "Coordinateur",
       "dtr": "Routeur",
       "efr": "Erreur lors de la récupération des informations sur le micrologiciel<br>Vérifiez votre réseau !",
-      "lcf": "Dernier firmware du coordinateur :",
-      "lrf": "Dernier firmware du routeur :",
       "ncf": "Aucun micrologiciel du coordinateur disponible.",
       "nrf": "Aucun firmware de routeur disponible.",
       "ot": "Mise à jour Zigbee OTA",
@@ -283,7 +280,6 @@
         "mcl": "Client"
       },
       "zbc": {
-        "tt": "Statut du périphérique",
         "op": "Mode opérationnel",
         "opn": "Réseau Zigbee",
         "opu": "Zigbee-USB",
@@ -348,12 +344,9 @@
       "sc": "Controle du système",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Mise à jour du fichier Zigbee",
       "zu": "Mise à jour Zigbee (en développement)",
       "saf": "Afficher les firmwares disponibles",
-      "clzv": "Vérifiez les derniers firmwares Zigbee",
       "zgu": "Mise à jour Git CC2652",
-      "sri": "Sélectionnez la version",
       "eznr": "Effacer la NVRAM"
     },
     "vp": {
