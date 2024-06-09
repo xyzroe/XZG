@@ -54,7 +54,6 @@
         "sccn": "Žádné připojení",
         "sccy": "Ano, klienti: {{count}}",
         "su": "Doba připojení",
-        "tt": "Stav zařízení",
         "zfs": "Velikost flash",
         "zie": "IEEE"
       },
@@ -272,10 +271,7 @@
       "efu": "Manuální flashování ESP32",
       "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
-      "sri": "Vybrat verzi",
       "zu": "Aktualizace Zigbee (ve vývoji)",
-      "zfu": "Manuální flashování Zigbee",
-      "clzv": "Zkontrolovat nejnovější firmware Zigbee",
       "saf": "Zobrazit dostupné",
       "zgu": "Zigbee",
       "eznr": "Vymazat NVRAM"
@@ -383,8 +379,7 @@
         "vgds": "Stahování vydání {{ver}} z GitHubu...",
         "ucr": "Aktualizace dokončena! ",
         "prgs": "Aktualizace: {{per}}%",
-        "gvt": "Vydání na GitHubu",
-        "bil": "Instalovat nejnovější"
+        "gvt": "Vydání na GitHubu"
       },
       "ws": {
         "tt": "Připojení k síti Wi-Fi",
@@ -399,16 +394,10 @@
       }
     },
     "zb": {
-      "fu": {
-        "vt": "ověřit: {{per}} %",
-        "vc": "Ověření dokončeno!"
-      },
+      "fu": {},
       "dtc": "Koordinátor",
-      "cfv": "Současný firmware: {{ver}}",
       "dtr": "Router",
       "efr": "Chyba při načítání informací o firmwaru<br>Zkontrolujte síť!",
-      "lcf": "Nejnovější firmware koordinátora:",
-      "lrf": "Nejnovější firmware routeru:",
       "ncf": "Chybí firmware koordinátora.",
       "nrf": "Chybí firmware routeru.",
       "ot": "Aktualizace Zigbee OTA",

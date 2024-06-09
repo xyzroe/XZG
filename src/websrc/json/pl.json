@@ -53,8 +53,7 @@
         "ucr": "Aktualizacja zakończona! \nPonowne uruchamianie!",
         "vgds": "Pobieram wersję {{ver}} z GitHub...",
         "wdm": "Oczekiwanie na urządzenie...",
-        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd",
-        "bil": "Zainstaluj najnowsze"
+        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd"
       },
       "rst": {
         "msg": "Czekając na ponowne uruchomienie. \nZamknie się automatycznie.",
@@ -67,19 +66,17 @@
         "msg": "Trwa łączenie z siecią... Poczekaj na wynik.",
         "nip": "Nowy adres IP to {{ip}}. Urządzenie uruchomi się teraz ponownie, aby nowe ustawienia zaczęły obowiązywać.",
         "tt": "Połączenie z siecią Wi-Fi"
+      },
+      "mc": {
+        "mi": "Obsługiwane jest więcej niż jedno urządzenie o dokładnie takiej konfiguracji. \nMusisz wybrać swoje urządzenie.",
+        "tt": "Wybierz model swojego urządzenia"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Weryfikacja zakończona!",
-        "vt": "zatwierdź: {{per}}%"
-      },
-      "cfv": "Twoja aktualna wersja oprogramowania: {{ver}}",
+      "fu": {},
       "dtc": "Koordynator",
       "dtr": "Routera",
       "efr": "Błąd podczas pobierania informacji o oprogramowaniu sprzętowym<br>Sprawdź swoją sieć!",
-      "lcf": "Najnowsze oprogramowanie koordynatora:",
-      "lrf": "Najnowsze oprogramowanie routera:",
       "ncf": "Brak dostępnego oprogramowania sprzętowego koordynatora.",
       "nrf": "Brak dostępnego oprogramowania sprzętowego routera.",
       "ot": "Aktualizacja Zigbee OTA",
@@ -283,7 +280,6 @@
         "mcl": "Klient"
       },
       "zbc": {
-        "tt": "Status urządzenia",
         "op": "Tryb działania",
         "opn": "Sieć Zigbee",
         "opu": "Zigbee-USB",
@@ -348,12 +344,9 @@
       "sc": "Sterowanie systemem",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Aktualizacja pliku Zigbee",
       "zu": "Aktualizacja Zigbee (w przygotowaniu)",
       "saf": "Pokaż dostępne oprogramowanie sprzętowe",
-      "clzv": "Sprawdź najnowsze oprogramowanie sprzętowe Zigbee",
       "zgu": "Aktualizacja Gita CC2652",
-      "sri": "Wybierz wersję",
       "eznr": "Wymaż NVRAM"
     },
     "vp": {
