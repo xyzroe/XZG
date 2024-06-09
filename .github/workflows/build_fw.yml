@@ -12,9 +12,6 @@ on:
 jobs:
   build_release_push:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
-      commit_message: ${{ steps.get_commit_message.outputs.commit_message }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -75,8 +72,6 @@ jobs:
           echo "commitMessage<<EOF" >> $GITHUB_ENV
           printf "%s\n" "$commitMessage" >> $GITHUB_ENV 
           echo "EOF" >> $GITHUB_ENV
-          echo "${commitMessage}" > commit_message.txt
-          echo "commit_message=$(cat commit_message.txt)" >> $GITHUB_OUTPUT
         env:
           GITHUB_REF: ${{ github.ref }}
 
@@ -130,18 +125,10 @@ jobs:
           cd releases
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          if [[ -n $(git status --porcelain) ]]; then
-            git add .
-            git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
-            git push origin releases
-          else
-            echo "No changes to commit"
-          fi
+          git add .
+          git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
+          git push origin releases
 
-  notify:
-    runs-on: ubuntu-latest
-    needs: build_release_push
-    steps:
       - name: Send Telegram Notification about release
         uses: appleboy/telegram-action@master
         with:
@@ -149,13 +136,13 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
           message: |
-            ${{ needs.build_release_push.outputs.commit_message }}
+            ${{ env.commitMessage }}
 
-            [${{ needs.build_release_push.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ needs.build_release_push.outputs.tag }})
+            [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
 
       - name: Send Discord Notification about release
         run: |
-          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ needs.build_release_push.outputs.tag }}" '{content: $content}')
+          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
           curl -H "Content-Type: application/json" \
                -d "$json_payload" \
                ${{ secrets.DISCORD_WEBHOOK }}
