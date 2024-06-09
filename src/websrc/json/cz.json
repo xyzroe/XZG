@@ -190,7 +190,7 @@
       "disc": {
         "n": "Home Assistant (MQTT zjišťování)",
         "ph": "Povolit nebo zakázat",
-        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistantem"
+        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistentem"
       },
       "user": {
         "ph": "Uživatelské jméno",
