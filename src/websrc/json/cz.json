@@ -105,7 +105,7 @@
         }
       },
       "u": {
-        "ai": "Automatická instalace aktualizací (ESP32 and Zigbee)",
+        "ai": "Automatická instalace aktualizací (ESP32 a Zigbee)",
         "d": {
           "ev": "Každý den",
           "fr": "Pátek",
@@ -139,7 +139,7 @@
         "ch": "Kanál",
         "nnf": "Sítě Wi-Fi nebyly nalezeny",
         "mode": "Režim",
-        "power": "Tx Power"
+        "power": "Tx výkon"
       }
     },
     "zi": {
@@ -189,7 +189,7 @@
       "disc": {
         "n": "Home Assistant (MQTT zjišťování)",
         "ph": "Povolit nebo zakázat",
-        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
+        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistentem"
       },
       "user": {
         "ph": "Uživatelské jméno",
@@ -202,7 +202,7 @@
       "reconnect": {
         "n": "Opětovné připojení",
         "ph": "Interval opětovného připojení v sekundách",
-        "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
+        "tt": "Zadejte rychlý pokus o opětovné připojení serveru MQTT (v sekundách)"
       }
     },
     "vp": {
@@ -365,7 +365,7 @@
       },
       "fr": {
         "tt": "VAROVÁNÍ TOVÁRNÍ RESET",
-        "msg": "Tím se vymažou VŠECHNA nastavení."
+        "msg": "Tímto se vymažou VŠECHNA nastavení."
       },
       "fu": {
         "tt": "AKTUALIZACE FIRMWARU XZG",
@@ -389,8 +389,8 @@
         "err": "Chyba připojení, zkontrolujte SSID, HESLO a zkuste to znovu"
       },
       "mc": {
-        "mi": "More than one device with exactly your configuration is supported. You need to select your device.",
-        "tt": "Select your device model"
+        "tt": "Vybrat model zařízení",
+        "mi": "Je podporováno více než jedno zařízení s přesně vaší konfigurací. Musíte si vybrat své zařízení."
       }
     },
     "zb": {
@@ -402,9 +402,9 @@
       "nrf": "Chybí firmware routeru.",
       "ot": "Aktualizace Zigbee OTA",
       "rfm": "Získávání informací o firmwaru...",
-      "ntf": "Firmware Thread chybí.",
+      "ntf": "Thread firmware chybí.",
       "dtt": "OpenThread",
-      "cte": "Click to expand info"
+      "cte": "Kliknutím rozbalit informace"
     },
     "ss": {
       "tt": "NASTAVENÍ ULOŽENO",
