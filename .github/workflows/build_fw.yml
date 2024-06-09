@@ -75,7 +75,8 @@ jobs:
           echo "commitMessage<<EOF" >> $GITHUB_ENV
           printf "%s\n" "$commitMessage" >> $GITHUB_ENV 
           echo "EOF" >> $GITHUB_ENV
-          echo "commit_message=$commitMessage" >> $GITHUB_OUTPUT
+          echo "${commitMessage}" > commit_message.txt
+          echo "commit_message=$(cat commit_message.txt)" >> $GITHUB_OUTPUT
         env:
           GITHUB_REF: ${{ github.ref }}
 
