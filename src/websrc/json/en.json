@@ -232,7 +232,7 @@
     "se": {
       "desc": "Settings",
       "web": {
-        "dis": "Disable web server when socket is connected",
+        "dis": "Disable web server when establishing Zigbee socket connection",
         "auth": "Enable web server authentication"
       },
       "fw": {
