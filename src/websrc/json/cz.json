@@ -54,7 +54,6 @@
         "sccn": "Žádné připojení",
         "sccy": "Ano, klienti: {{count}}",
         "su": "Doba připojení",
-        "tt": "Stav zařízení",
         "zfs": "Velikost flash",
         "zie": "IEEE"
       },
@@ -106,7 +105,7 @@
         }
       },
       "u": {
-        "ai": "Automatická instalace aktualizací (ESP32 and Zigbee)",
+        "ai": "Automatická instalace aktualizací (ESP32 a Zigbee)",
         "d": {
           "ev": "Každý den",
           "fr": "Pátek",
@@ -140,7 +139,7 @@
         "ch": "Kanál",
         "nnf": "Sítě Wi-Fi nebyly nalezeny",
         "mode": "Režim",
-        "power": "Tx Power"
+        "power": "Tx výkon"
       }
     },
     "zi": {
@@ -190,7 +189,7 @@
       "disc": {
         "n": "Home Assistant (MQTT zjišťování)",
         "ph": "Povolit nebo zakázat",
-        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistant"
+        "tt": "💡 Povolte to pro funkci zjišťování MQTT Home Assistentem"
       },
       "user": {
         "ph": "Uživatelské jméno",
@@ -203,7 +202,7 @@
       "reconnect": {
         "n": "Opětovné připojení",
         "ph": "Interval opětovného připojení v sekundách",
-        "tt": "Zadejte rychlý pokus o opětovné připojení brokera (v sekundách)"
+        "tt": "Zadejte rychlý pokus o opětovné připojení serveru MQTT (v sekundách)"
       }
     },
     "vp": {
@@ -272,10 +271,7 @@
       "efu": "Manuální flashování ESP32",
       "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
-      "sri": "Vybrat verzi",
       "zu": "Aktualizace Zigbee (ve vývoji)",
-      "zfu": "Manuální flashování Zigbee",
-      "clzv": "Zkontrolovat nejnovější firmware Zigbee",
       "saf": "Zobrazit dostupné",
       "zgu": "Zigbee",
       "eznr": "Vymazat NVRAM"
@@ -369,7 +365,7 @@
       },
       "fr": {
         "tt": "VAROVÁNÍ TOVÁRNÍ RESET",
-        "msg": "Tím se vymažou VŠECHNA nastavení."
+        "msg": "Tímto se vymažou VŠECHNA nastavení."
       },
       "fu": {
         "tt": "AKTUALIZACE FIRMWARU XZG",
@@ -383,8 +379,7 @@
         "vgds": "Stahování vydání {{ver}} z GitHubu...",
         "ucr": "Aktualizace dokončena! ",
         "prgs": "Aktualizace: {{per}}%",
-        "gvt": "Vydání na GitHubu",
-        "bil": "Instalovat nejnovější"
+        "gvt": "Vydání na GitHubu"
       },
       "ws": {
         "tt": "Připojení k síti Wi-Fi",
@@ -392,26 +387,24 @@
         "nip": "Nová IP adresa je {{ip}} Zařízení se nyní restartuje, aby se nové nastavení projevilo.",
         "btn": "Jít do",
         "err": "Chyba připojení, zkontrolujte SSID, HESLO a zkuste to znovu"
+      },
+      "mc": {
+        "tt": "Vybrat model zařízení",
+        "mi": "Je podporováno více než jedno zařízení s přesně vaší konfigurací. Musíte si vybrat své zařízení."
       }
     },
     "zb": {
-      "fu": {
-        "vt": "ověřit: {{per}} %",
-        "vc": "Ověření dokončeno!"
-      },
+      "fu": {},
       "dtc": "Koordinátor",
-      "cfv": "Současný firmware: {{ver}}",
       "dtr": "Router",
       "efr": "Chyba při načítání informací o firmwaru<br>Zkontrolujte síť!",
-      "lcf": "Nejnovější firmware koordinátora:",
-      "lrf": "Nejnovější firmware routeru:",
       "ncf": "Chybí firmware koordinátora.",
       "nrf": "Chybí firmware routeru.",
       "ot": "Aktualizace Zigbee OTA",
       "rfm": "Získávání informací o firmwaru...",
-      "ntf": "Firmware Thread chybí.",
+      "ntf": "Thread firmware chybí.",
       "dtt": "OpenThread",
-      "cte": "Click to expand info"
+      "cte": "Kliknutím rozbalit informace"
     },
     "ss": {
       "tt": "NASTAVENÍ ULOŽENO",

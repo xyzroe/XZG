@@ -53,8 +53,7 @@
         "ucr": "Aktualisierung abgeschlossen! \nNeustart!",
         "vgds": "Veröffentlichung {{ver}} wird von GitHub heruntergeladen...",
         "wdm": "Warten auf Gerät...",
-        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt",
-        "bil": "Neueste Version installieren"
+        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt"
       },
       "rst": {
         "msg": "Warten auf Neustart. \nWird automatisch geschlossen.",
@@ -67,19 +66,17 @@
         "msg": "Verbindung zum Netzwerk wird gerade hergestellt... Warten Sie auf das Ergebnis.",
         "nip": "Die neue IP-Adresse lautet {{ip}}. Das Gerät wird jetzt neu gestartet, damit die neuen Einstellungen wirksam werden.",
         "tt": "Wi-Fi-Netzwerkverbindung"
+      },
+      "mc": {
+        "mi": "Es werden mehr als ein Gerät mit genau Ihrer Konfiguration unterstützt. \nSie müssen Ihr Gerät auswählen.",
+        "tt": "Wählen Sie Ihr Gerätemodell aus"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Überprüfung abgeschlossen!",
-        "vt": "überprüfen: {{per}} %"
-      },
-      "cfv": "Ihre aktuelle Firmware-Version: {{ver}}",
+      "fu": {},
       "dtc": "Koordinator",
       "dtr": "Router",
       "efr": "Fehler beim Abrufen der Firmware-Informationen<br>Überprüfen Sie Ihr Netzwerk!",
-      "lcf": "Neueste Koordinator-Firmware:",
-      "lrf": "Neueste Router-Firmware:",
       "ncf": "Keine Koordinator-Firmware verfügbar.",
       "nrf": "Keine Router-Firmware verfügbar.",
       "ot": "Zigbee OTA-Update",
@@ -283,7 +280,6 @@
         "mcl": "Client"
       },
       "zbc": {
-        "tt": "Gerätestatus",
         "op": "Betriebsmodus",
         "opn": "Zigbee-Netzwerk",
         "opu": "Zigbee-USB",
@@ -348,12 +344,9 @@
       "sc": "Systemkontrolle",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Aktualisierung der Zigbee-Datei",
       "zu": "Zigbee-Update (in Entwicklung)",
       "saf": "Verfügbare Firmwares anzeigen",
-      "clzv": "Überprüfen Sie die neuesten Zigbee-Firmwares",
       "zgu": "Git CC2652-Update",
-      "sri": "Version auswählen",
       "eznr": "NVRAM löschen"
     },
     "vp": {

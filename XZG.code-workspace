@@ -13,6 +13,13 @@
 		"files.associations": {
 			"*.tpp": "cpp"
 		},
+		"i18n-ally.keysInUse": [
+			"p.lo.mlo",
+			"p.lo.mwc",
+			"p.lo.mnl",
+			"p.mq.disc.ph",
+			"p.mq.disc.n"
+		],
 	},
 	"extensions": {
 		"recommendations": [

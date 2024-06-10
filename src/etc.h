@@ -27,7 +27,7 @@ void factoryReset();
 void setLedsDisable(bool all = false);
 void cronTest();
 void nmActivate();
-void checkDNS(bool setup = false);
+bool checkDNS(bool setup = false);
 void setupCron();
 
 void setClock(void *pvParameters);

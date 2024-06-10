@@ -6,7 +6,6 @@ EthConfig ethConfigs[] = {
     {.addr = 0, .pwrPin = 12, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT},     // .pwrAltPin = -1},  // 0 Olimex-ESP32-POE
     {.addr = 1, .pwrPin = 16, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO0_IN},       // .pwrAltPin = -1},  // 1 WT32-ETH01
     {.addr = 0, .pwrPin = 5, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT},      // .pwrAltPin = -1},  // 2 T-Internet-POE / UZG01 / HamGeek POE Plus
-    // {.addr = 0, .pwrPin = 5, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT},   // .pwrAltPin = -1},  // 3 HamGeek POE Plus
 };
 
 // ZigBee configurations
@@ -47,5 +46,5 @@ BrdConfigStruct brdConfigs[] = {
     {"TubesZB-poe-2023", .ethConfigIndex = 0, .zbConfigIndex = 6, .mistConfigIndex = 0},    // 10
     {"CZC-1.0", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},             // 11
     {"SLS-classic", .ethConfigIndex = -1, .zbConfigIndex = 7, .mistConfigIndex = 3},        // 12
-    {"HG POE+", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},             // 13
+    {"HG POE Plus", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},         // 13
 };

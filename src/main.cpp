@@ -74,9 +74,9 @@ MDNSResponder mDNS;
 
 void initLan()
 {
-  LOGD("Try to use %s", hwConfig.board);
+  LOGD("Load cfg %s", hwConfig.board);
 
-  if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode))// hwConfig.eth.pwrAltPin))
+  if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode)) // hwConfig.eth.pwrAltPin))
   {
     String modeString = networkCfg.ethDhcp ? "DHCP" : "Static";
     LOGD("LAN start ok, %s", modeString);
@@ -158,8 +158,12 @@ void handleTmrNetworkOverseer()
     if (WiFi.isConnected())
     {
       LOGD("WIFI CONNECTED");
-      // startServers();
       tmrNetworkOverseer.stop();
+      if (!vars.firstUpdCheck)
+      {
+        checkUpdateAvail();
+        vars.firstUpdCheck = true;
+      }
     }
     else
     {
@@ -176,8 +180,12 @@ void handleTmrNetworkOverseer()
     if (vars.connectedEther)
     {
       LOGD("LAN CONNECTED");
-      // startServers();
       tmrNetworkOverseer.stop();
+      if (!vars.firstUpdCheck)
+      {
+        checkUpdateAvail();
+        vars.firstUpdCheck = true;
+      }
     }
     else
     {
@@ -254,7 +262,7 @@ void NetworkEvent(WiFiEvent_t event)
     LOGD("%s Disconnected", ethKey);
     vars.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
-    if (tmrNetworkOverseer.state() == STOPPED && systemCfg.workMode == WORK_MODE_NETWORK)
+    if (tmrNetworkOverseer.state() == STOPPED) //&& systemCfg.workMode == WORK_MODE_NETWORK)
     {
       tmrNetworkOverseer.start();
     }
@@ -523,6 +531,15 @@ void setup()
 
   loadFileConfigHW();
 
+  if (hwConfig.eth.mdcPin == -1 || hwConfig.eth.mdiPin == -1)
+  {
+    if (networkCfg.ethEnable)
+    {
+      networkCfg.ethEnable = false;
+      saveNetworkConfig(networkCfg);
+    }
+  }
+
   vars.apStarted = false;
 
   // AVOID USING PIN 0
@@ -580,17 +597,22 @@ void setup()
 
   printNVSFreeSpace();
 
-  if (systemCfg.zbRole == COORDINATOR)
+  if (systemCfg.zbRole == COORDINATOR || systemCfg.zbRole == UNDEFINED)
   {
-    zbFwCheck();
+    if (zbFwCheck())
+    {
+      if (systemCfg.zbRole == UNDEFINED)
+      {
+        systemCfg.zbRole = COORDINATOR;
+        saveSystemConfig(systemCfg);
+      }
+    }
   }
-  else {
+  else
+  {
     LOGI("[ZB] role: %s", String(systemCfg.zbRole));
   }
   LOGI("[ESP] FW: %s", String(VERSION));
-
-  if (!vars.apStarted)
-    checkUpdateAvail();
 
   LOGD("done");
 }

@@ -53,8 +53,7 @@
         "ucr": "¡Actualizacion completa! ¡Reiniciando!",
         "vgds": "Descargando la versión {{ver}} de GitHub...",
         "wdm": "Esperando al dispositivo...",
-        "wm": "Desconectará TODAS las conexiones del socket.",
-        "bil": "Instalar última versión"
+        "wm": "Desconectará TODAS las conexiones del socket."
       },
       "rst": {
         "msg": "Esperando reinicio. Se cerrará automáticamente.",
@@ -67,19 +66,17 @@
         "msg": "Conectándose a la red en curso... Espere el resultado.",
         "nip": "La nueva dirección IP es {{ip}} El dispositivo ahora se reiniciará para que la nueva configuración surta efecto.",
         "tt": "Conexión de red Wifi"
+      },
+      "mc": {
+        "mi": "Se admite más de un dispositivo con exactamente su configuración. \nDebes seleccionar tu dispositivo.",
+        "tt": "Selecciona tu modelo de dispositivo"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "¡Validación completa!",
-        "vt": "validación: {{per}} %"
-      },
-      "cfv": "Su revisión de firmware actual: {{ver}}",
+      "fu": {},
       "dtc": "Coordinador",
       "dtr": "Enrutador",
       "efr": "Error al obtener información del firmware<br>¡Comprueba tu red!",
-      "lcf": "Último firmware del coordinador:",
-      "lrf": "Último firmware del enrutador:",
       "ncf": "No hay firmware del coordinador disponible.",
       "nrf": "No hay firmware del enrutador disponible.",
       "ot": "Actualización Zigbee OTA",
@@ -280,7 +277,6 @@
         "mcl": "Cliente"
       },
       "zbc": {
-        "tt": "Estado del dispositivo",
         "op": "Modo de operación",
         "opn": "Red Zigbee",
         "opu": "Zigbee-USB",
@@ -345,12 +341,9 @@
       "sc": "Control del sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Actualización de archivos Zigbee",
       "zu": "Actualización de Zigbee (en desarrollo)",
       "saf": "Mostrar firmwares disponibles",
-      "clzv": "Verifique los últimos firmwares de Zigbee",
       "zgu": "Actualización de Git CC2652",
-      "sri": "Seleccionar versión",
       "eznr": "Borrar NVRAM"
     },
     "vp": {

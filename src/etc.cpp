@@ -400,7 +400,7 @@ void nmDeactivate()
   setLedsDisable();
 }
 
-void checkDNS(bool setup)
+bool checkDNS(bool setup)
 {
   const char *wifiKey = "WiFi";
   const char *ethKey = "ETH";
@@ -482,6 +482,7 @@ void checkDNS(bool setup)
       }
     }
   }
+  return true;
 }
 
 /*void reCheckDNS()
@@ -491,7 +492,7 @@ void checkDNS(bool setup)
 
 void setupCron()
 {
-  //Cron.create(const_cast<char *>("30 */1 * * * *"), reCheckDNS, false);
+  // Cron.create(const_cast<char *>("30 */1 * * * *"), reCheckDNS, false);
 
   // const String time = systemCfg.updCheckTime;
   static char formattedTime[16];
@@ -627,7 +628,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
   bool zbOk = false;
 
   static ThisConfigStruct bestConfig;
-  bestConfig.eth = {.addr = -1, .pwrPin = -1, .mdcPin = -1, .mdiPin = -1, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT};// .pwrAltPin = -1};
+  bestConfig.eth = {.addr = -1, .pwrPin = -1, .mdcPin = -1, .mdiPin = -1, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT}; // .pwrAltPin = -1};
   bestConfig.zb = {.txPin = -1, .rxPin = -1, .rstPin = -1, .bslPin = -1};
   memset(&bestConfig.mist, -1, sizeof(bestConfig.mist));
   strlcpy(bestConfig.board, "Unknown", sizeof(bestConfig.board));
@@ -640,7 +641,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
     LOGI("Try brd: %d - %s", brdIdx, brdConfigs[brdIdx].board);
 
-    if (brdIdx == 3) // T-Internet-POE
+    /*if (brdIdx == 3) // T-Internet-POE
     {
       pinMode(ethConfigs[ethIdx].pwrPin, OUTPUT);
       delay(50);
@@ -654,69 +655,99 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
         LOGW("%s", "Looks like not T-Internet-POE!");
         continue;
       }
-    }
+    }*/
 
-    if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode))// ethConfigs[ethIdx].pwrAltPin))
+    if (ethIdx == -1)
     {
       ethOk = true;
-      LOGD("Ethernet config OK: %d", ethIdx);
-
+      LOGD("NO ethernet OK: %d", ethIdx);
+    }
+    else if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode)) // ethConfigs[ethIdx].pwrAltPin))
+    {
+      ethOk = true;
       bestConfig.eth = ethConfigs[ethIdx];
+      LOGD("Ethernet config OK: %d", ethIdx);
+    }
 
-      if (mistConfigs[mistIdx].btnPin > 0)
+    if (mistConfigs[mistIdx].btnPin > 0)
+    {
+      pinMode(mistConfigs[mistIdx].btnPin, INPUT);
+      int press = 0;
+      for (int y = 0; y < 10; y++)
       {
-        pinMode(mistConfigs[mistIdx].btnPin, INPUT);
-        int press = 0;
-        for (int y = 0; y < 10; y++)
+        int state = digitalRead(mistConfigs[mistIdx].btnPin);
+        if (state != mistConfigs[mistIdx].btnPlr)
         {
-          int state = digitalRead(mistConfigs[mistIdx].btnPin);
-          if (state != mistConfigs[mistIdx].btnPlr)
-          {
-            press++;
-          }
-          delay(100);
+          press++;
         }
-        btnOk = (press <= 5);
+        delay(100);
+      }
+      btnOk = (press <= 5);
 
-        if (!btnOk)
-        {
-          LOGD("Button pin ERROR");
-          ethOk = false;
-        }
-        else
-        {
-          LOGD("Button pin OK");
-        }
+      if (!btnOk)
+      {
+        LOGD("Button pin ERROR");
+        ethOk = false;
       }
       else
       {
-        btnOk = true;
+        LOGD("Button pin OK");
       }
+    }
+    else
+    {
+      btnOk = true;
+    }
 
-      if (btnOk)
+    if (btnOk)
+    {
+      LOGD("Trying Zigbee: %d", zbIdx);
+      esp_task_wdt_reset();
+      Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, zbConfigs[zbIdx].rxPin, zbConfigs[zbIdx].txPin);
+
+      int BSL_PIN_MODE = 0;
+      if (CCTool.begin(zbConfigs[zbIdx].rstPin, zbConfigs[zbIdx].bslPin, BSL_PIN_MODE))
       {
-        LOGD("Trying Zigbee: %d", zbIdx);
-        esp_task_wdt_reset();
-        Serial2.begin(systemCfg.serialSpeed, SERIAL_8N1, zbConfigs[zbIdx].rxPin, zbConfigs[zbIdx].txPin);
-
-        int BSL_PIN_MODE = 0;
-        if (CCTool.begin(zbConfigs[zbIdx].rstPin, zbConfigs[zbIdx].bslPin, BSL_PIN_MODE))
+        if (CCTool.detectChipInfo())
         {
-          if (CCTool.detectChipInfo())
-          {
-            zbOk = true;
-            LOGD("Zigbee config OK: %d", zbIdx);
+          zbOk = true;
+          LOGD("Zigbee config OK: %d", zbIdx);
 
-            bestConfig.zb = zbConfigs[zbIdx];
-            bestConfig.mist = mistConfigs[mistIdx];
-            strlcpy(bestConfig.board, brdConfigs[brdIdx].board, sizeof(bestConfig.board));
-            return &bestConfig;
+          bestConfig.zb = zbConfigs[zbIdx];
+          bestConfig.mist = mistConfigs[mistIdx];
+
+          bool multiCfg = false;
+          int brdNewId = -1;
+          for (int brdNewIdx = 0; brdNewIdx < BOARD_CFG_CNT; brdNewIdx++)
+          {
+            LOGD("%d %d", brdIdx, brdNewIdx);
+            if (brdIdx != brdNewIdx && brdConfigs[brdNewIdx].ethConfigIndex == ethIdx && brdConfigs[brdNewIdx].zbConfigIndex == zbIdx && brdConfigs[brdNewIdx].mistConfigIndex == mistIdx)
+            {
+              multiCfg = true;
+              brdNewId = brdNewIdx;
+              break;
+            }
+          }
+          const char *nameBrd;
+          if (!multiCfg)
+          {
+            nameBrd = brdConfigs[brdIdx].board;
+            strlcpy(bestConfig.board, nameBrd, sizeof(bestConfig.board));
           }
           else
           {
-            zbOk = false;
-            LOGD("Zigbee config ERROR");
+            String nameBrdStr = ("Multi_" + String(brdNewId));
+            nameBrd = nameBrdStr.c_str();
+            // LOGW("%s", nameBrdStr);
+            strlcpy(bestConfig.board, nameBrd, sizeof(bestConfig.board));
           }
+
+          return &bestConfig;
+        }
+        else
+        {
+          zbOk = false;
+          LOGD("Zigbee config ERROR");
         }
       }
     }
@@ -960,47 +991,50 @@ int compareVersions(String v1, String v2)
 
 void checkUpdateAvail()
 {
-  const char *ESPkey = "ESP";
-  const char *ZBkey = "ZB";
-  const char *FoundKey = "Found ";
-  const char *NewFwKey = " new fw: ";
-  const char *TryKey = "try to install";
-  String latestReleaseUrlEsp = fetchLatestEspFw();
-  String latestReleaseUrlZb = fetchLatestZbFw();
-  String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
-  String latestVersionZb = extractVersionFromURL(latestReleaseUrlZb);
-
-  LOGD("%s %s", ESPkey, latestVersionEsp.c_str());
-  LOGD("%s %s", ZBkey, latestVersionZb.c_str());
-
-  if (latestVersionEsp.length() > 0 && compareVersions(latestVersionEsp, VERSION) > 0)
+  if (!vars.apStarted)
   {
-    vars.updateEspAvail = true;
-    printLogMsg(String(FoundKey) + String(ESPkey) + String(NewFwKey) + latestVersionEsp);
-    if (systemCfg.updAutoInst)
+    const char *ESPkey = "ESP";
+    const char *ZBkey = "ZB";
+    const char *FoundKey = "Found ";
+    const char *NewFwKey = " new fw: ";
+    const char *TryKey = "try to install";
+    String latestReleaseUrlEsp = fetchLatestEspFw();
+    String latestReleaseUrlZb = fetchLatestZbFw();
+    String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
+    String latestVersionZb = extractVersionFromURL(latestReleaseUrlZb);
+
+    LOGD("%s %s", ESPkey, latestVersionEsp.c_str());
+    LOGD("%s %s", ZBkey, latestVersionZb.c_str());
+
+    if (latestVersionEsp.length() > 0 && compareVersions(latestVersionEsp, VERSION) > 0)
     {
-      printLogMsg(String(TryKey));
-      getEspUpdate(latestReleaseUrlEsp);
+      vars.updateEspAvail = true;
+      printLogMsg(String(FoundKey) + String(ESPkey) + String(NewFwKey) + latestVersionEsp);
+      if (systemCfg.updAutoInst)
+      {
+        printLogMsg(String(TryKey));
+        getEspUpdate(latestReleaseUrlEsp);
+      }
     }
-  }
-  else
-  {
-    vars.updateEspAvail = false;
-  }
-
-  if (CCTool.chip.fwRev > 0 && latestVersionZb.length() > 0 && compareVersions(latestVersionZb, String(CCTool.chip.fwRev)) > 0)
-  {
-    vars.updateZbAvail = true;
-    printLogMsg(String(FoundKey) + String(ZBkey) + String(NewFwKey) + latestVersionZb);
-    if (systemCfg.updAutoInst)
+    else
     {
-      printLogMsg(String(TryKey));
-      flashZbUrl(latestReleaseUrlZb);
-      ESP.restart();
+      vars.updateEspAvail = false;
     }
-  }
-  else
-  {
-    vars.updateZbAvail = false;
+
+    if (CCTool.chip.fwRev > 0 && latestVersionZb.length() > 0 && compareVersions(latestVersionZb, String(CCTool.chip.fwRev)) > 0)
+    {
+      vars.updateZbAvail = true;
+      printLogMsg(String(FoundKey) + String(ZBkey) + String(NewFwKey) + latestVersionZb);
+      if (systemCfg.updAutoInst)
+      {
+        printLogMsg(String(TryKey));
+        flashZbUrl(latestReleaseUrlZb);
+        ESP.restart();
+      }
+    }
+    else
+    {
+      vars.updateZbAvail = false;
+    }
   }
 }

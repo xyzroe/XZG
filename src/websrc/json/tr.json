@@ -53,8 +53,7 @@
         "ucr": "Güncelleme tamamlandı! \nYeniden başlatılıyor!",
         "vgds": "GitHub'dan {{ver}} sürümü indiriliyor...",
         "wdm": "Cihaz için bekliyor...",
-        "wm": "TÜM soket bağlantılarını kesecek",
-        "bil": "En Son Sürümü Yükle"
+        "wm": "TÜM soket bağlantılarını kesecek"
       },
       "rst": {
         "msg": "Yeniden başlatmak için bekliyor. \nOtomatik olarak kapanacaktır.",
@@ -67,19 +66,17 @@
         "msg": "Ağa bağlanma işlemi sürüyor... Sonucu bekleyin.",
         "nip": "Yeni IP adresi: {{ip}} Yeni ayarların etkili olması için cihaz şimdi yeniden başlatılacak.",
         "tt": "Wi-Fi ağ bağlantısı"
+      },
+      "mc": {
+        "mi": "Tam olarak sizin yapılandırmanıza sahip birden fazla cihaz desteklenir. \nCihazınızı seçmeniz gerekiyor.",
+        "tt": "Cihazınızın modelini seçin"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Doğrulama tamamlandı!",
-        "vt": "doğrulama: %{{per}}"
-      },
-      "cfv": "Mevcut donanım yazılımı revizyonunuz: {{ver}}",
+      "fu": {},
       "dtc": "Koordinatör",
       "dtr": "Yönlendirici",
       "efr": "Ürün yazılımı bilgileri alınırken hata oluştu<br>Ağınızı kontrol edin!",
-      "lcf": "En son koordinatör yazılımı:",
-      "lrf": "En son yönlendirici ürün yazılımı:",
       "ncf": "Koordinatör yazılımı mevcut değil.",
       "nrf": "Yönlendirici ürün yazılımı mevcut değil.",
       "ot": "Zigbee OTA güncellemesi",
@@ -283,7 +280,6 @@
         "mcl": "Müşteri"
       },
       "zbc": {
-        "tt": "Cihaz durumu",
         "op": "Operasyonel mod",
         "opn": "Zigbee Ağı",
         "opu": "Zigbee-USB",
@@ -348,12 +344,9 @@
       "sc": "Sistem kontrolü",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Zigbee dosya güncellemesi",
       "zu": "Zigbee güncellemesi (geliştirilme aşamasında)",
       "saf": "Mevcut ürün yazılımlarını göster",
-      "clzv": "En yeni Zigbee yazılımlarını kontrol edin",
       "zgu": "Git CC2652 güncellemesi",
-      "sri": "Sürümü seçin",
       "eznr": "NVRAM'ı sil"
     },
     "vp": {
