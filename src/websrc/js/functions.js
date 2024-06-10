@@ -1011,7 +1011,7 @@ function dataReplace(values, navOnly = false) {
 					updateProgressBar("prgTemp", valueToSet, 15, 85)
 					break;
 				case "wifiRssi":
-					updateProgressBar("prgRssi", valueToSet, 0, -105)
+					updateProgressBar("prgRssi", valueToSet, -105, 0)
 					valueToSet = valueToSet + " " + "dBm";
 					break;
 				case "connectedSocket": // socket time

@@ -14,6 +14,7 @@
 #include "log.h"
 #include "etc.h"
 #include "zb.h"
+#include "mqtt.h"
 #include "const/keys.h"
 
 extern struct SysVarsStruct vars;
@@ -128,9 +129,11 @@ void nvPrgs(const String &inputMsg)
 
 void zbEraseNV(void *pvParameters)
 {
+    vars.zbFlashing = true;
     CCTool.nvram_reset(nvPrgs);
     logClear();
     printLogMsg("NVRAM erase finish! Restart CC2652!");
+    vars.zbFlashing = false;
     vTaskDelete(NULL);
 }
 
@@ -138,6 +141,7 @@ void flashZbUrl(String url)
 {
     // zbFwCheck();
     ledControl.modeLED.mode = LED_BLINK_3Hz;
+    vars.zbFlashing = true;
 
     checkDNS();
     delay(250);
@@ -264,6 +268,11 @@ void flashZbUrl(String url)
         sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
     }
     ledControl.modeLED.mode = LED_OFF;
+    vars.zbFlashing = false;
+    if (mqttCfg.enable && !vars.mqttConn)
+    {
+        connectToMqtt();
+    }
 }
 
 /*void printBufferAsHex(const byte *buffer, size_t length)

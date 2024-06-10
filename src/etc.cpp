@@ -293,10 +293,12 @@ void factoryReset()
     delay(1000);
   }
 
+  LittleFS.format();
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)) // change to format anyway
   {
     LOGD("Error with LITTLEFS");
   }
+  
   LittleFS.remove(configFileSerial);
   LittleFS.remove(configFileSecurity);
   LittleFS.remove(configFileGeneral);
@@ -641,7 +643,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
     LOGI("Try brd: %d - %s", brdIdx, brdConfigs[brdIdx].board);
 
-    /*if (brdIdx == 3) // T-Internet-POE
+    if (brdIdx == 4) // T-Internet-POE
     {
       pinMode(ethConfigs[ethIdx].pwrPin, OUTPUT);
       delay(50);
@@ -655,7 +657,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
         LOGW("%s", "Looks like not T-Internet-POE!");
         continue;
       }
-    }*/
+    }
 
     if (ethIdx == -1)
     {

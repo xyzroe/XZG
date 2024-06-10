@@ -74,7 +74,6 @@ MDNSResponder mDNS;
 
 void initLan()
 {
-  LOGD("Load cfg %s", hwConfig.board);
 
   if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode)) // hwConfig.eth.pwrAltPin))
   {
@@ -147,9 +146,12 @@ void handleTmrNetworkOverseer()
   // case WORK_MODE_NETWORK:
   if (!networkCfg.wifiEnable && !networkCfg.ethEnable)
   {
-    LOGD("Both interfaces disabled. Start AP");
-    startAP(true);
-    connectWifi();
+    if (!vars.apStarted)
+    {
+      LOGD("Both interfaces disabled. Start AP");
+      startAP(true);
+      connectWifi();
+    }
   }
   if (networkCfg.wifiEnable)
   {
@@ -181,6 +183,10 @@ void handleTmrNetworkOverseer()
     {
       LOGD("LAN CONNECTED");
       tmrNetworkOverseer.stop();
+      if (vars.apStarted)
+      {
+        startAP(false);
+      }
       if (!vars.firstUpdCheck)
       {
         checkUpdateAvail();
@@ -303,7 +309,7 @@ void NetworkEvent(WiFiEvent_t event)
 void startAP(const bool start)
 {
   String tag = "sAP";
-  LOGD("begin s=%d, v=%d", start, vars.apStarted);
+  LOGD("begin cmd=%d, state=%d", start, vars.apStarted);
 
   if (vars.apStarted)
   {
@@ -614,6 +620,7 @@ void setup()
   }
   LOGI("[ESP] FW: %s", String(VERSION));
 
+  LOGD("Load cfg %s", hwConfig.board);
   LOGD("done");
 }
 
@@ -734,117 +741,121 @@ void loop(void)
     }
   }
 
-  if (systemCfg.workMode == WORK_MODE_USB)
+  if (!vars.zbFlashing)
   {
-    if (Serial2.available())
-    {
-      Serial.write(Serial2.read());
-      Serial.flush();
-    }
-    if (Serial.available())
-    {
-      Serial2.write(Serial.read());
-      Serial2.flush();
-    }
-    return;
-  }
 
-  else if (systemCfg.workMode == WORK_MODE_NETWORK)
-  {
-    uint16_t net_bytes_read = 0;
-    uint8_t net_buf[BUFFER_SIZE];
-    uint16_t serial_bytes_read = 0;
-    uint8_t serial_buf[BUFFER_SIZE];
-
-    if (server.hasClient())
+    if (systemCfg.workMode == WORK_MODE_USB)
     {
-      for (byte i = 0; i < MAX_SOCKET_CLIENTS; i++)
+      if (Serial2.available())
       {
-        if (!client[i] || !client[i].connected())
+        Serial.write(Serial2.read());
+        Serial.flush();
+      }
+      if (Serial.available())
+      {
+        Serial2.write(Serial.read());
+        Serial2.flush();
+      }
+      return;
+    }
+
+    else if (systemCfg.workMode == WORK_MODE_NETWORK)
+    {
+      uint16_t net_bytes_read = 0;
+      uint8_t net_buf[BUFFER_SIZE];
+      uint16_t serial_bytes_read = 0;
+      uint8_t serial_buf[BUFFER_SIZE];
+
+      if (server.hasClient())
+      {
+        for (byte i = 0; i < MAX_SOCKET_CLIENTS; i++)
         {
-          if (client[i])
+          if (!client[i] || !client[i].connected())
           {
-            client[i].stop();
-          }
-          if (systemCfg.fwEnabled)
-          {
-            WiFiClient TempClient2 = server.available();
-            if (TempClient2.remoteIP() == systemCfg.fwIp)
+            if (client[i])
             {
-              printLogMsg(String("[SOCK IP WHITELIST] Accepted connection from IP: ") + TempClient2.remoteIP().toString());
-              client[i] = TempClient2;
-              continue;
+              client[i].stop();
+            }
+            if (systemCfg.fwEnabled)
+            {
+              WiFiClient TempClient2 = server.available();
+              if (TempClient2.remoteIP() == systemCfg.fwIp)
+              {
+                printLogMsg(String("[SOCK IP WHITELIST] Accepted connection from IP: ") + TempClient2.remoteIP().toString());
+                client[i] = TempClient2;
+                continue;
+              }
+              else
+              {
+                printLogMsg(String("[SOCK IP WHITELIST] Rejected connection from unknown IP: ") + TempClient2.remoteIP().toString());
+              }
             }
             else
             {
-              printLogMsg(String("[SOCK IP WHITELIST] Rejected connection from unknown IP: ") + TempClient2.remoteIP().toString());
+              client[i] = server.available();
+              continue;
             }
           }
-          else
-          {
-            client[i] = server.available();
-            continue;
-          }
         }
+        WiFiClient TempClient = server.available();
+        TempClient.stop();
       }
-      WiFiClient TempClient = server.available();
-      TempClient.stop();
-    }
 
-    for (byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
-    {
-      if (client[cln])
-      {
-        socketClientConnected(cln, client[cln].remoteIP());
-        while (client[cln].available())
-        { // read from LAN
-          net_buf[net_bytes_read] = client[cln].read();
-          if (net_bytes_read < BUFFER_SIZE - 1)
-            net_bytes_read++;
-        } // send to Zigbee
-        Serial2.write(net_buf, net_bytes_read);
-        // print to web console
-        printRecvSocket(net_bytes_read, net_buf);
-        net_bytes_read = 0;
-      }
-      else
-      {
-        socketClientDisconnected(cln);
-      }
-    }
-
-    if (Serial2.available())
-    {
-      while (Serial2.available())
-      { // read from Zigbee
-        serial_buf[serial_bytes_read] = Serial2.read();
-        if (serial_bytes_read < BUFFER_SIZE - 1)
-          serial_bytes_read++;
-      }
-      // send to LAN
       for (byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
       {
         if (client[cln])
-          client[cln].write(serial_buf, serial_bytes_read);
+        {
+          socketClientConnected(cln, client[cln].remoteIP());
+          while (client[cln].available())
+          { // read from LAN
+            net_buf[net_bytes_read] = client[cln].read();
+            if (net_bytes_read < BUFFER_SIZE - 1)
+              net_bytes_read++;
+          } // send to Zigbee
+          Serial2.write(net_buf, net_bytes_read);
+          // print to web console
+          printRecvSocket(net_bytes_read, net_buf);
+          net_bytes_read = 0;
+        }
+        else
+        {
+          socketClientDisconnected(cln);
+        }
       }
-      // print to web console
-      printSendSocket(serial_bytes_read, serial_buf);
-      serial_bytes_read = 0;
+
+      if (Serial2.available())
+      {
+        while (Serial2.available())
+        { // read from Zigbee
+          serial_buf[serial_bytes_read] = Serial2.read();
+          if (serial_bytes_read < BUFFER_SIZE - 1)
+            serial_bytes_read++;
+        }
+        // send to LAN
+        for (byte cln = 0; cln < MAX_SOCKET_CLIENTS; cln++)
+        {
+          if (client[cln])
+            client[cln].write(serial_buf, serial_bytes_read);
+        }
+        // print to web console
+        printSendSocket(serial_bytes_read, serial_buf);
+        serial_bytes_read = 0;
+      }
+
+      /*if (mqttCfg.enable)
+      {
+        // mqttLoop();
+      }*/
+    }
+    if (vpnCfg.wgEnable && vars.vpnWgInit)
+    {
+      wgLoop();
     }
 
-    /*if (mqttCfg.enable)
+    if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA)
     {
-      // mqttLoop();
-    }*/
+      dnsServer.processNextRequest();
+    }
+    Cron.delay();
   }
-  if (vpnCfg.wgEnable && vars.vpnWgInit)
-  {
-    wgLoop();
-  }
-
-  if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_MODE_APSTA)
-  {
-    dnsServer.processNextRequest();
-  }
-  Cron.delay();
 }

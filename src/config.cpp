@@ -864,7 +864,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
 
     obj[disableLedsKey] = vars.disableLeds;
     // obj[zbLedStateKey] = vars.zbLedState;
-    // obj[zbFlashingKey] = vars.zbFlashing;
+    obj[zbFlashingKey] = vars.zbFlashing;
 
     obj[deviceIdKey] = vars.deviceId;
 
@@ -899,6 +899,10 @@ bool loadFileConfigHW()
 
     if (!configFile)
     {
+        if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
+        {
+            LOGD("Error with LITTLEFS");
+        }
         DynamicJsonDocument config(300);
         config[board] = "";
         writeDefaultConfig(configFileHw, config);
@@ -917,10 +921,11 @@ bool loadFileConfigHW()
     hwConfig.eth.mdiPin = config[mdiPin];
     hwConfig.eth.phyType = config[phyType];
     hwConfig.eth.clkMode = config[clkMode];
-    if (hwConfig.eth.pwrPin == -1) {
+    if (hwConfig.eth.pwrPin == -1)
+    {
         hwConfig.eth.pwrPin = config[pwrAltPin];
     }
-    //hwConfig.eth.pwrAltPin = config[pwrAltPin];
+    // hwConfig.eth.pwrAltPin = config[pwrAltPin];
     hwConfig.mist.btnPin = config[btnPin];
     hwConfig.mist.btnPlr = config[btnPlr];
     hwConfig.mist.uartSelPin = config[uartSelPin];
@@ -936,18 +941,24 @@ bool loadFileConfigHW()
 
     if (hwConfig.board[0] != '\0' && strlen(hwConfig.board) > 0)
     {
-        LOGD("LOAD - OK");
+        LOGD("Load HW - OK");
         return true;
     }
     else
     {
-        LOGI("LOAD - ERROR");
+        LOGI("Load HW - ERROR");
 
         int searchId = 0;
         if (config["searchId"])
         {
             searchId = config["searchId"];
         }
+        String chipId = ESP.getChipModel();
+        LOGW("%s", chipId);
+        //if (chipId == "ESP32-D0WDQ6")
+        //{
+        //    searchId = 12;
+        //}
         ThisConfigStruct *newConfig = findBrdConfig(searchId);
         if (newConfig)
         {
@@ -961,7 +972,7 @@ bool loadFileConfigHW()
             config[mdiPin] = newConfig->eth.mdiPin;
             config[phyType] = newConfig->eth.phyType;
             config[clkMode] = newConfig->eth.clkMode;
-            //config[pwrAltPin] = newConfig->eth.pwrAltPin;
+            // config[pwrAltPin] = newConfig->eth.pwrAltPin;
             config[btnPin] = newConfig->mist.btnPin;
             config[btnPlr] = newConfig->mist.btnPlr;
             config[uartSelPin] = newConfig->mist.uartSelPin;
@@ -1020,7 +1031,7 @@ bool loadFileSystemVar()
     File configFile = LittleFS.open(configFileSystem, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileSystem, msg_open_f);
+        // LOGD("%s %s", configFileSystem, msg_open_f);
         return false;
     }
 
@@ -1055,7 +1066,7 @@ bool loadFileConfigWifi()
     File configFile = LittleFS.open(configFileWifi, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileWifi, msg_open_f);
+        // LOGD("%s %s", configFileWifi, msg_open_f);
         return false;
     }
 
@@ -1094,7 +1105,7 @@ bool loadFileConfigEther()
     File configFile = LittleFS.open(configFileEther, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileEther, msg_open_f);
+        // LOGD("%s %s", configFileEther, msg_open_f);
         return false;
     }
 
@@ -1125,7 +1136,7 @@ bool loadFileConfigGeneral()
     File configFile = LittleFS.open(configFileGeneral, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileGeneral, msg_open_f);
+        // LOGD("%s %s", configFileGeneral, msg_open_f);
         return false;
     }
 
@@ -1170,7 +1181,7 @@ bool loadFileConfigSecurity()
     File configFile = LittleFS.open(configFileSecurity, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileSecurity, msg_open_f);
+        // LOGD("%s %s", configFileSecurity, msg_open_f);
         return false;
     }
 
@@ -1205,7 +1216,7 @@ bool loadFileConfigSerial()
     File configFile = LittleFS.open(configFileSerial, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileSerial, msg_open_f);
+        // LOGD("%s %s", configFileSerial, msg_open_f);
         return false;
     }
 
@@ -1234,7 +1245,7 @@ bool loadFileConfigMqtt()
     File configFile = LittleFS.open(configFileMqtt, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileMqtt, msg_open_f);
+        // LOGD("%s %s", configFileMqtt, msg_open_f);
         return false;
     }
 
@@ -1276,7 +1287,7 @@ bool loadFileConfigWg()
     File configFile = LittleFS.open(configFileWg, FILE_READ);
     if (!configFile)
     {
-        LOGD("%s %s", configFileWg, msg_open_f);
+        // LOGD("%s %s", configFileWg, msg_open_f);
         return false;
     }
 

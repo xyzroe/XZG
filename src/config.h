@@ -100,7 +100,7 @@ struct SysVarsStruct
 
   bool disableLeds;
   // bool zbLedState;
-  // bool zbFlashing;
+  bool zbFlashing;
 
   char deviceId[MAX_DEV_ID_LONG];
 

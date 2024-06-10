@@ -344,8 +344,15 @@ void mqttConnectSetup()
 
 void connectToMqtt()
 {
-    LOGD("Connecting to MQTT...");
-    mqttClient.connect();
+    if (!vars.zbFlashing)
+    {
+        LOGD("Connecting...");
+        mqttClient.connect();
+    }
+    else
+    {
+        LOGD("only after ZB flash");
+    }
 }
 
 void onMqttConnect(bool sessionPresent)
@@ -445,26 +452,32 @@ void mqttPublishIo(const String &io, bool st)
 
 void mqttPublishState()
 {
-    DynamicJsonDocument buffJson(512);
-    for (const auto &item : mqttTopicsConfigs)
+    if (!vars.zbFlashing)
     {
-        if (item.getSensorValue != nullptr)
+        DynamicJsonDocument buffJson(512);
+        for (const auto &item : mqttTopicsConfigs)
         {
-            String sensorValue = item.getSensorValue();
-            if (sensorValue.length() > 0)
+            if (item.getSensorValue != nullptr)
             {
-                buffJson[item.sensorId] = sensorValue;
+                String sensorValue = item.getSensorValue();
+                if (sensorValue.length() > 0)
+                {
+                    buffJson[item.sensorId] = sensorValue;
+                }
             }
         }
+        String topic = mqttCfg.topic + String(stateTopic);
+        String mqttBuffer;
+        serializeJson(buffJson, mqttBuffer);
+
+        LOGD("%s", mqttBuffer.c_str());
+
+        mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
     }
-    String topic = mqttCfg.topic + String(stateTopic);
-    String mqttBuffer;
-    serializeJson(buffJson, mqttBuffer);
-
-    LOGD("%s", mqttBuffer.c_str());
-
-    mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
-
+    else
+    {
+        LOGD("only after ZB flash");
+    }
     xTimerStart(mqttPubStateTimer, 0);
 }
 
