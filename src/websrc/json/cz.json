@@ -114,7 +114,7 @@
           "sa": "Sobota",
           "su": "Neděle",
           "th": "Čtvrtek",
-          "tt": "Pracovní dny",
+          "tt": "Den v týdnu",
           "tu": "Čtvrtek",
           "wd": "Středa"
         },
@@ -232,7 +232,7 @@
     "se": {
       "desc": "Nastavení",
       "web": {
-        "dis": "Zakázat webový server když je připojený socket",
+        "dis": "Zakázat webový server při navazování připojení k Zigbee socketu",
         "auth": "Povolit ověřování webového serveru"
       },
       "fw": {
