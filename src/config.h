@@ -78,6 +78,7 @@ struct SysVarsStruct
   bool hwLedPwrIs = false;
   // bool hwUartSelIs = false;
   bool hwZigbeeIs = false;
+  bool oneWireIs = false;
 
   bool connectedSocket[MAX_SOCKET_CLIENTS]; //[10]
   int connectedClients;
@@ -110,6 +111,9 @@ struct SysVarsStruct
   IPAddress savedEthDNS;
 
   bool firstUpdCheck = false;
+  
+  uint32_t last1wAsk = 0;
+  float temp1w = 0;
 };
 
 // Network configuration structure

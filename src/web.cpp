@@ -1444,6 +1444,12 @@ String getRootData(bool update)
     float CPUtemp = getCPUtemp();
     doc["deviceTemp"] = String(CPUtemp);
 
+    if (vars.oneWireIs)
+    {
+        float temp = get1wire();
+        doc["1wTemp"] = String(temp);
+    }
+
     if (!update)
     {
         doc["hwRev"] = hwConfig.board;

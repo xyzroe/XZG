@@ -5,6 +5,10 @@ void getReadableTime(String &readableTime, unsigned long beginTime);
 
 String sha1(String payloadStr);
 
+int check1wire();
+void setup1wire(int pin);
+float get1wire();
+
 extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
 
 ThisConfigStruct *findBrdConfig(int searchId);
@@ -44,3 +48,5 @@ void ledTask(void *parameter);
 String getTime();
 
 void checkUpdateAvail();
+
+

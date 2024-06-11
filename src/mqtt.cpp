@@ -55,10 +55,16 @@ String getUptime()
     return readableTime;
 }
 
-String getTemperature()
+String getStrCpuTemp()
 {
     float CPUtemp = getCPUtemp();
     return String(CPUtemp);
+}
+
+String getStr1wTemp()
+{
+    float temp = get1wire();
+    return String(temp);
 }
 
 String getWlanIp()
@@ -234,7 +240,16 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
      .valueTemplate = "{{ value_json.temperature }}",
      .deviceClass = "temperature",
      .unitOfMeasurement = "°C",
-     .getSensorValue = getTemperature},
+     .getSensorValue = getStrCpuTemp},
+    {.name = "1W Temperature",
+     .sensorType = haSensor,
+     .sensorId = "temperature1w",
+     .stateTopic = stateTopic,
+     .icon = "mdi:coolant-temperature",
+     .valueTemplate = "{{ value_json.temperature1w }}",
+     .deviceClass = "temperature",
+     .unitOfMeasurement = "°C",
+     .getSensorValue = getStr1wTemp},
     {.name = "Hostname",
      .sensorType = haSensor,
      .sensorId = "hostname",
@@ -457,12 +472,15 @@ void mqttPublishState()
         DynamicJsonDocument buffJson(512);
         for (const auto &item : mqttTopicsConfigs)
         {
-            if (item.getSensorValue != nullptr)
+            if (item.sensorId != "temperature1w" || vars.oneWireIs)
             {
-                String sensorValue = item.getSensorValue();
-                if (sensorValue.length() > 0)
+                if (item.getSensorValue != nullptr)
                 {
-                    buffJson[item.sensorId] = sensorValue;
+                    String sensorValue = item.getSensorValue();
+                    if (sensorValue.length() > 0)
+                    {
+                        buffJson[item.sensorId] = sensorValue;
+                    }
                 }
             }
         }
@@ -498,45 +516,48 @@ void mqttPublishDiscovery()
 
     for (const auto &item : mqttTopicsConfigs)
     {
-        buffJson["dev"] = devInfo;
-        buffJson["name"] = item.name;
-        buffJson["uniq_id"] = String(mqttCfg.topic) + "/" + item.sensorId;
-        buffJson["stat_t"] = mqttCfg.topic + item.stateTopic;
-        buffJson["avty_t"] = mqttCfg.topic + String(availabilityTopic);
-        if (!String(item.commandTopic).isEmpty())
+        if (item.sensorId != "temperature1w" || vars.oneWireIs)
         {
-            buffJson["cmd_t"] = mqttCfg.topic + item.commandTopic;
-        }
+            buffJson["dev"] = devInfo;
+            buffJson["name"] = item.name;
+            buffJson["uniq_id"] = String(mqttCfg.topic) + "/" + item.sensorId;
+            buffJson["stat_t"] = mqttCfg.topic + item.stateTopic;
+            buffJson["avty_t"] = mqttCfg.topic + String(availabilityTopic);
+            if (!String(item.commandTopic).isEmpty())
+            {
+                buffJson["cmd_t"] = mqttCfg.topic + item.commandTopic;
+            }
 
-        if (!String(item.icon).isEmpty())
-        {
-            buffJson["icon"] = item.icon;
-        }
-        if (!String(item.payloadPress).isEmpty())
-        {
-            buffJson["payload_press"] = item.payloadPress;
-        }
-        if (!String(item.valueTemplate).isEmpty())
-        {
-            buffJson["val_tpl"] = item.valueTemplate;
-        }
-        if (!String(item.jsonAttributeTopic).isEmpty())
-        {
-            buffJson["json_attr_t"] = mqttCfg.topic + item.jsonAttributeTopic;
-        }
-        if (!String(item.deviceClass).isEmpty())
-        {
-            buffJson["dev_cla"] = item.deviceClass;
-        }
-        if (!String(item.unitOfMeasurement).isEmpty())
-        {
-            buffJson["unit_of_meas"] = item.unitOfMeasurement;
-        }
+            if (!String(item.icon).isEmpty())
+            {
+                buffJson["icon"] = item.icon;
+            }
+            if (!String(item.payloadPress).isEmpty())
+            {
+                buffJson["payload_press"] = item.payloadPress;
+            }
+            if (!String(item.valueTemplate).isEmpty())
+            {
+                buffJson["val_tpl"] = item.valueTemplate;
+            }
+            if (!String(item.jsonAttributeTopic).isEmpty())
+            {
+                buffJson["json_attr_t"] = mqttCfg.topic + item.jsonAttributeTopic;
+            }
+            if (!String(item.deviceClass).isEmpty())
+            {
+                buffJson["dev_cla"] = item.deviceClass;
+            }
+            if (!String(item.unitOfMeasurement).isEmpty())
+            {
+                buffJson["unit_of_meas"] = item.unitOfMeasurement;
+            }
 
-        String topic = String(homeAssistant) + "/" + item.sensorType + "/" + mqttCfg.topic + "/" + item.sensorId + configTopic;
-        serializeJson(buffJson, mqttBuffer);
-        mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
-        buffJson.clear();
-        mqttBuffer.clear();
+            String topic = String(homeAssistant) + "/" + item.sensorType + "/" + mqttCfg.topic + "/" + item.sensorId + configTopic;
+            serializeJson(buffJson, mqttBuffer);
+            mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
+            buffJson.clear();
+            mqttBuffer.clear();
+        }
     }
 }

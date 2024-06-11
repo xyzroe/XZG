@@ -263,7 +263,8 @@
         "ens": "Stockage NV",
         "ent": "entrées",
         "du": "Temps de disponibilité de l'appareil",
-        "lt": "Heure locale"
+        "lt": "Heure locale",
+        "et1": "Température 1W"
       },
       "te": "Ethernet",
       "tm": "MQTT",

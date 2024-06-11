@@ -1010,6 +1010,10 @@ function dataReplace(values, navOnly = false) {
 				case "deviceTemp":
 					updateProgressBar("prgTemp", valueToSet, 15, 85)
 					break;
+				case "1wTemp":
+					$("#1wBar").removeAttr('hidden');
+					updateProgressBar("prgTemp1w", valueToSet, 0, 100)
+					break;
 				case "wifiRssi":
 					updateProgressBar("prgRssi", valueToSet, -105, 0)
 					valueToSet = valueToSet + " " + "dBm";
@@ -1753,22 +1757,22 @@ function modalConstructor(type, params) {
 			const optionsArray = JSON.parse(params);
 
 			const selectElement = document.createElement('select');
-            selectElement.className = "form-select mt-2";
+			selectElement.className = "form-select mt-2";
 
-            optionsArray.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
-                selectElement.appendChild(optionElement);
-            });
+			optionsArray.forEach(option => {
+				const optionElement = document.createElement('option');
+				optionElement.value = option;
+				optionElement.textContent = option;
+				selectElement.appendChild(optionElement);
+			});
 
 			$(modalBody).append(selectElement);
 
 			$('<button>', {
-                type: "button",
-                "class": "btn btn-warning",
-                text: i18next.t('c.sure'), 
-                click: function () {
+				type: "button",
+				"class": "btn btn-warning",
+				text: i18next.t('c.sure'),
+				click: function () {
 					$(modalBtns).html("");
 					modalAddSpiner();
 					$(modalBody).html("");
@@ -1777,13 +1781,13 @@ function modalConstructor(type, params) {
 						text: i18next.t("md.esp.fu.wdm"),
 						class: "mb-2 text-sm-center"
 					}).appendTo(modalBody);
-                    const selectedBoard = selectElement.value;
-                    $.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_BRD_NAME + "&board=" + selectedBoard, function () {
-                        console.log("board: " + selectedBoard);
+					const selectedBoard = selectElement.value;
+					$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_BRD_NAME + "&board=" + selectedBoard, function () {
+						console.log("board: " + selectedBoard);
 						location.reload();
-                    });
-                }
-            }).appendTo(modalBtns);
+					});
+				}
+			}).appendTo(modalBtns);
 
 			modalAddCancel();
 			break;

@@ -263,7 +263,8 @@
         "ens": "Magazyn NV",
         "ent": "wpisy",
         "du": "Czas pracy urządzenia",
-        "lt": "Czas lokalny"
+        "lt": "Czas lokalny",
+        "et1": "Temperatura 1 W"
       },
       "te": "Ethernet",
       "tm": "MQTT",

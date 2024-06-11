@@ -263,7 +263,8 @@
         "ens": "NV depolama",
         "ent": "girdileri",
         "du": "Cihaz Çalışma Süresi",
-        "lt": "Yerel zaman"
+        "lt": "Yerel zaman",
+        "et1": "1W Sıcaklık"
       },
       "te": "ethernet",
       "tm": "MQTT",

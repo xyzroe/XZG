@@ -30,7 +30,8 @@
         "ent": "záznamů",
         "efss": "Souborový systém",
         "du": "Doba běhu zařízení",
-        "lt": "Místní čas"
+        "lt": "Místní čas",
+        "et1": "1W Temperature"
       },
       "te": "Ethernet",
       "tw": "WiFi",

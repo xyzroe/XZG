@@ -88,6 +88,69 @@ String sha1(String payloadStr)
   return hashStr;
 }
 
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+OneWire *oneWire = nullptr;
+DallasTemperature *sensor = nullptr;
+
+int check1wire()
+{
+  int pin = -1;
+  vars.oneWireIs = false;
+  if (hwConfig.eth.mdcPin != 33 && hwConfig.eth.mdiPin != 33 && hwConfig.eth.pwrPin != 33)
+  {
+    if (hwConfig.zb.rxPin != 33 && hwConfig.zb.txPin != 33 && hwConfig.zb.bslPin != 33 && hwConfig.zb.rstPin != 33)
+    {
+      if (hwConfig.mist.btnPin != 33 && hwConfig.mist.uartSelPin != 33 && hwConfig.mist.ledModePin != 33 && hwConfig.mist.ledPwrPin != 33)
+      {
+        pin = 33;
+        vars.oneWireIs = true;
+      }
+    }
+  }
+  return pin;
+}
+
+void setup1wire(int pin)
+{
+  if (oneWire != nullptr)
+  {
+    delete oneWire;
+  }
+  if (sensor != nullptr)
+  {
+    delete sensor;
+  }
+
+  oneWire = new OneWire(pin);
+  sensor = new DallasTemperature(oneWire);
+
+  sensor->begin();
+  get1wire();
+}
+
+float get1wire()
+{
+  if (sensor == nullptr)
+  {
+    LOGW("1w not init");
+    return -127.0;
+  }
+  if (millis() - vars.last1wAsk > 5000)
+  {
+    sensor->requestTemperatures();
+    vars.temp1w = sensor->getTempCByIndex(0);
+    LOGD("Temp is %f", vars.temp1w);
+    vars.last1wAsk = millis();
+  }
+  if (vars.temp1w == -127)
+  {
+    vars.oneWireIs = false;
+  }
+  return vars.temp1w;
+}
+
 void getReadableTime(String &readableTime, unsigned long beginTime)
 {
   unsigned long currentMillis;
@@ -298,7 +361,7 @@ void factoryReset()
   {
     LOGD("Error with LITTLEFS");
   }
-  
+
   LittleFS.remove(configFileSerial);
   LittleFS.remove(configFileSecurity);
   LittleFS.remove(configFileGeneral);
@@ -643,7 +706,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
     LOGI("Try brd: %d - %s", brdIdx, brdConfigs[brdIdx].board);
 
-    if (brdIdx == 4) // T-Internet-POE
+    /*if (brdIdx == 4) // T-Internet-POE
     {
       pinMode(ethConfigs[ethIdx].pwrPin, OUTPUT);
       delay(50);
@@ -657,7 +720,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
         LOGW("%s", "Looks like not T-Internet-POE!");
         continue;
       }
-    }
+    }*/
 
     if (ethIdx == -1)
     {

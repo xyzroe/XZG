@@ -263,7 +263,8 @@
         "ens": "NV-Speicher",
         "ent": "Einträge",
         "du": "Gerätelaufzeit",
-        "lt": "Ortszeit"
+        "lt": "Ortszeit",
+        "et1": "1W Temperatur"
       },
       "te": "Ethernet",
       "tm": "MQTT",

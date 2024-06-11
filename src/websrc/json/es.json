@@ -260,7 +260,8 @@
         "ens": "Almacenamiento NV",
         "ent": "entradas",
         "du": "Tiempo de actividad del dispositivo",
-        "lt": "Hora local"
+        "lt": "Hora local",
+        "et1": "Temperatura de 1W"
       },
       "te": "Ethernet",
       "tm": "MQTT",

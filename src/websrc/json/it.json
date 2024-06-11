@@ -263,7 +263,8 @@
         "ens": "Stoccaggio NV",
         "ent": "inserimenti",
         "du": "Tempo di attività del dispositivo",
-        "lt": "Ora locale"
+        "lt": "Ora locale",
+        "et1": "Temperatura 1W"
       },
       "te": "Ethernet",
       "tm": "MQTT",

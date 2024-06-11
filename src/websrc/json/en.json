@@ -30,7 +30,8 @@
         "ent": "entries",
         "efss": "File system",
         "du": "Operating time",
-        "lt": "Local time"
+        "lt": "Local time",
+        "et1": "1W Temperature"
       },
       "te": "Ethernet",
       "tw": "WiFi",

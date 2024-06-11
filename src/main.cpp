@@ -620,8 +620,15 @@ void setup()
   }
   LOGI("[ESP] FW: %s", String(VERSION));
 
-  LOGD("Load cfg %s", hwConfig.board);
-  LOGD("done");
+  LOGI("Load cfg %s", hwConfig.board);
+
+  setup1wire(check1wire());
+
+  //LOGI("1w = %f", get1wire());
+  LOGI("done");
+
+  
+
 }
 
 WiFiClient client[10];

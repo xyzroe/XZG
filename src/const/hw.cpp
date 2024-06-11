@@ -18,7 +18,7 @@ ZbConfig zbConfigs[] = {
     {.txPin = 16, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 4 TubesZB-poe
     {.txPin = 16, .rxPin = 5, .rstPin = 13, .bslPin = 4},   // 5 TubesZB-poe-2022
     {.txPin = 4, .rxPin = 36, .rstPin = 5, .bslPin = 16},   // 6 TubesZB-poe-2023
-    {.txPin = 22, .rxPin = 23, .rstPin = 18, .bslPin = 19}, // 7 SLS-classic
+    {.txPin = 23, .rxPin = 22, .rstPin = 18, .bslPin = 19}, // 7 SLS-classic
 };
 
 // Mist configurations
@@ -28,6 +28,7 @@ MistConfig mistConfigs[] = {
     {.btnPin = 35, .btnPlr = 1, .uartSelPin = 33, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1}, // 1
     {.btnPin = 35, .btnPlr = 1, .uartSelPin = 4, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1},  // 2
     {.btnPin = 33, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 3  SLS-classic
+    {.btnPin = 14, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 4 TTGO
 };
 
 // Board configurations
@@ -37,7 +38,7 @@ BrdConfigStruct brdConfigs[] = {
     {"UZG-01", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},           // 1
     {"SLZB-06", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 2},          // 2
     {"WT32-ETH01", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},       // 3
-    {"T-Internet-POE", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 0},   // 4 DON'T MOVE
+    {"T-Internet-POE", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 4},   // 4 DON'T MOVE
     {"Olimex-ESP32-POE", .ethConfigIndex = 0, .zbConfigIndex = 0, .mistConfigIndex = 0}, // 5
     {"China-GW", .ethConfigIndex = 0, .zbConfigIndex = 2, .mistConfigIndex = 0},         // 6
     {"TubesZB-eth", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},      // 7
