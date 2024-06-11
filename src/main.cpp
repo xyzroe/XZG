@@ -589,7 +589,7 @@ void setup()
   }
 
   String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
-  LOGD("Config:\n%s", cfg.c_str());
+  LOGI("Config:\n%s", cfg.c_str());
 
   cfg = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
   LOGI("VARS:\n%s", cfg.c_str());
@@ -624,10 +624,7 @@ void setup()
 
   setup1wire(check1wire());
 
-  //LOGI("1w = %f", get1wire());
   LOGI("done");
-
-  
 
 }
 

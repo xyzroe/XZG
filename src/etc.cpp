@@ -706,22 +706,6 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
     LOGI("Try brd: %d - %s", brdIdx, brdConfigs[brdIdx].board);
 
-    /*if (brdIdx == 4) // T-Internet-POE
-    {
-      pinMode(ethConfigs[ethIdx].pwrPin, OUTPUT);
-      delay(50);
-      digitalWrite(ethConfigs[ethIdx].pwrPin, LOW);
-      delay(50);
-      pinMode(ethConfigs[ethIdx].pwrPin, INPUT);
-      delay(50);
-      bool pwrPinState = digitalRead(ethConfigs[ethIdx].pwrPin);
-      if (pwrPinState)
-      {
-        LOGW("%s", "Looks like not T-Internet-POE!");
-        continue;
-      }
-    }*/
-
     if (ethIdx == -1)
     {
       ethOk = true;
