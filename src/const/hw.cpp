@@ -37,9 +37,9 @@ BrdConfigStruct brdConfigs[] = {
     {"SLS-classic", .ethConfigIndex = -1, .zbConfigIndex = 7, .mistConfigIndex = 3},     // 0
     {"UZG-01", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},           // 1
     {"SLZB-06", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 2},          // 2
-    {"WT32-ETH01", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},       // 3
-    {"T-Internet-POE", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 4},   // 4 
-    {"Olimex-ESP32-POE", .ethConfigIndex = 0, .zbConfigIndex = 0, .mistConfigIndex = 0}, // 5
+    {"ZigStar LAN", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},      // 3
+    {"LilyZig", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 4},          // 4
+    {"Olizig", .ethConfigIndex = 0, .zbConfigIndex = 0, .mistConfigIndex = 0},           // 5
     {"China-GW", .ethConfigIndex = 0, .zbConfigIndex = 2, .mistConfigIndex = 0},         // 6
     {"TubesZB-eth", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},      // 7
     {"TubesZB-eth_usb", .ethConfigIndex = 1, .zbConfigIndex = 3, .mistConfigIndex = 0},  // 8
