@@ -11,9 +11,9 @@ EthConfig ethConfigs[] = {
 // ZigBee configurations
 // !!! Don't forget to edit ZB_CFG_CNT !!!
 ZbConfig zbConfigs[] = {
-    {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32},  // 0 UZG-01 / LilyZig / Olizig /
-    {.txPin = 17, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 1
-    {.txPin = 33, .rxPin = 32, .rstPin = 12, .bslPin = 14}, // 2
+    {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32},  // 0 UZG-01 / LilyZig / Olizig
+    {.txPin = 17, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 1 ZigStar LAN / SLZB-06 / TubesZB-eth
+    {.txPin = 33, .rxPin = 32, .rstPin = 12, .bslPin = 14}, // 2 No name China-GW
     {.txPin = 5, .rxPin = 17, .rstPin = 33, .bslPin = 32},  // 3 TubesZB-eth_usb
     {.txPin = 16, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 4 TubesZB-poe
     {.txPin = 16, .rxPin = 5, .rstPin = 13, .bslPin = 4},   // 5 TubesZB-poe-2022
@@ -27,8 +27,8 @@ MistConfig mistConfigs[] = {
     {.btnPin = -1, .btnPlr = 0, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 0
     {.btnPin = 35, .btnPlr = 1, .uartSelPin = 33, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1}, // 1
     {.btnPin = 35, .btnPlr = 1, .uartSelPin = 4, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1},  // 2
-    {.btnPin = 33, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 3  SLS-classic
-    {.btnPin = 14, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 4  T-Internet-POE
+    {.btnPin = 33, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 3 SLS-classic
+    {.btnPin = 14, .btnPlr = 1, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 4 T-Internet-POE
 };
 
 // Board configurations
