@@ -43,8 +43,8 @@ jobs:
     - name: Commit and push changes
       run: |
         cd mkdocs_branch
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@github.com'
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
         if [[ -n $(git status --porcelain) ]]; then
           git add docs/features.md
           git commit -m 'Update features.md with new device data'
