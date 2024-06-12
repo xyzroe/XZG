@@ -11,7 +11,7 @@ EthConfig ethConfigs[] = {
 // ZigBee configurations
 // !!! Don't forget to edit ZB_CFG_CNT !!!
 ZbConfig zbConfigs[] = {
-    {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32},  // 0 LilyZig / Olizig
+    {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32},  // 0 UZG-01 / LilyZig / Olizig /
     {.txPin = 17, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 1
     {.txPin = 33, .rxPin = 32, .rstPin = 12, .bslPin = 14}, // 2
     {.txPin = 5, .rxPin = 17, .rstPin = 33, .bslPin = 32},  // 3 TubesZB-eth_usb
