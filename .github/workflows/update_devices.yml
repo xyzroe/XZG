@@ -1,0 +1,49 @@
+name: Update devices in wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/const/hw.cpp
+
+jobs:
+  update-devices:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v2
+      with:
+        ref: main
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Run update_devices.py
+      run: python update_devices.py
+
+    - name: Save updated features.md
+      run: |
+        mkdir -p updated_docs
+        cp docs/features.md updated_docs/features.md
+
+    - name: Checkout mkdocs branch
+      uses: actions/checkout@v2
+      with:
+        ref: mkdocs
+
+    - name: Copy updated features.md to mkdocs branch
+      run: |
+        cp updated_docs/features.md docs/features.md
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add docs/features.md
+        git commit -m 'Update features.md based on hw.cpp'
+        git push origin mkdocs
