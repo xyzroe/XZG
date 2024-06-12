@@ -1,5 +1,8 @@
 name: Update devices in wiki
 
+permissions:
+  contents: write
+  
 on:
   workflow_dispatch:
   push:
