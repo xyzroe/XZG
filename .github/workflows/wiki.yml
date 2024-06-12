@@ -1,12 +1,12 @@
 name: Build Wiki
 on:
+  workflow_run:
+    workflows: [update_devices.yml]
+    types:
+      - completed
   push:
     branches:
       - mkdocs
-  workflow_run:
-    workflows: [Update devices in wiki]
-    types:
-      - completed
       
 permissions:
   contents: write
