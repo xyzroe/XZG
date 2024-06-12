@@ -17,6 +17,13 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: main
+        path: main_branch
+
+    - name: Checkout mkdocs branch
+      uses: actions/checkout@v2
+      with:
+        ref: mkdocs
+        path: mkdocs_branch
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -28,23 +35,13 @@ jobs:
         python -m pip install --upgrade pip
 
     - name: Run update_devices.py
-      run: python .github/scripts/update_devices.py
+      run: python main_branch/.github/scripts/update_devices.py
 
-    - name: Save updated features.md
+    - name: Commit and push changes
       run: |
-        mkdir -p updated_docs
-        cp docs/features.md updated_docs/features.md
-
-    - name: Checkout mkdocs branch
-      uses: actions/checkout@v2
-      with:
-        ref: mkdocs
-
-    - name: Copy updated features.md to mkdocs branch
-      run: |
-        cp updated_docs/features.md docs/features.md
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        cd mkdocs_branch
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
         git add docs/features.md
-        git commit -m 'Update features.md based on hw.cpp'
+        git commit -m 'Update features.md with new device data'
         git push origin mkdocs

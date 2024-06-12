@@ -105,8 +105,8 @@ def write_features_file(features_file_path, updated_content):
     print(f"Updated features file: {features_file_path}")
 
 def main():
-    hw_file_path = 'src/const/hw.cpp'
-    features_file_path = 'docs/features.md'
+    hw_file_path = 'main_branch/src//const/hw.cpp'
+    features_file_path = 'mkdocs_branch/docs/features.md'
 
     hw_content = read_hw_file(hw_file_path)
     print(f"Read hw.cpp content: {len(hw_content)} characters")
