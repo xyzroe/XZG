@@ -3,8 +3,14 @@ on:
   push:
     branches:
       - mkdocs
+  workflow_run:
+    workflows: ["Update devices in wiki"]
+    types:
+      - completed
+      
 permissions:
   contents: write
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
