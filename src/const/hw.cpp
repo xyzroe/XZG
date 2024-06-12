@@ -1,7 +1,7 @@
 #include "const/hw.h"
 
 // Ethernet configurations
-// Don't forget to edit ETH_CFG_CNT !!!
+// Don't forget to edit ETH_CFG_CNT !
 EthConfig ethConfigs[] = {
     {.addr = 0, .pwrPin = 12, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT}, // .pwrAltPin = -1},  // 0 Olimex-ESP32-POE
     {.addr = 1, .pwrPin = 16, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO0_IN},   // .pwrAltPin = -1},  // 1 WT32-ETH01 / SLZB-06
@@ -9,7 +9,7 @@ EthConfig ethConfigs[] = {
 };
 
 // ZigBee configurations
-// Don't forget to edit ZB_CFG_CNT !!!
+// Don't forget to edit ZB_CFG_CNT !
 ZbConfig zbConfigs[] = {
     {.txPin = 4, .rxPin = 36, .rstPin = 16, .bslPin = 32},  // 0 UZG-01 / LilyZig / Olizig
     {.txPin = 17, .rxPin = 5, .rstPin = 33, .bslPin = 32},  // 1 ZigStar LAN / SLZB-06 / TubesZB-eth
@@ -22,7 +22,7 @@ ZbConfig zbConfigs[] = {
 };
 
 // Mist configurations
-// Don't forget to edit MIST_CFG_CNT !!!
+// Don't forget to edit MIST_CFG_CNT !
 MistConfig mistConfigs[] = {
     {.btnPin = -1, .btnPlr = 0, .uartSelPin = -1, .uartSelPlr = 0, .ledModePin = -1, .ledModePlr = 0, .ledPwrPin = -1, .ledPwrPlr = 0}, // 0 No mist cfg
     {.btnPin = 35, .btnPlr = 1, .uartSelPin = 33, .uartSelPlr = 1, .ledModePin = 12, .ledModePlr = 1, .ledPwrPin = 14, .ledPwrPlr = 1}, // 1 UZG-01 / CZC-1.0
@@ -32,7 +32,7 @@ MistConfig mistConfigs[] = {
 };
 
 // Board configurations
-// Don't forget to edit BOARD_CFG_CNT !!!
+// Don't forget to edit BOARD_CFG_CNT !
 BrdConfigStruct brdConfigs[] = {
     {"SLS-classic", .ethConfigIndex = -1, .zbConfigIndex = 7, .mistConfigIndex = 3},     // 0
     {"UZG-01", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},           // 1
