@@ -40,21 +40,24 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | Code                  |                                                                                     XZG is developed, coded and tested in Ukraine 🇺🇦                                                                                      |
 | Build                 |                                                    :fontawesome-brands-github: All builds are published using GitHub Actions. No more manual publishing of binaries.                                                     |
 
-## 🎮 Supported devices 
+## 🎮 Supported devices
 
-|                                                             |       Button       |     ESP32 LEDs     | Remote Network / USB mode selection |      Ethernet      |
+| Device Name                                                 |       Button       |     ESP32 LEDs     | Remote Network / USB mode selection |      Ethernet      |
 | :---------------------------------------------------------- | :----------------: | :----------------: | :---------------------------------: | :----------------: |
-| [SLS-classic]()                                             | :white_check_mark: |        :x:         |         :white_check_mark:          |        :x:         |
-| [UZG-01](https://uzg.zig-star.com)                          | :white_check_mark: | :white_check_mark: |         :white_check_mark:          | :white_check_mark: |
-| [SLZB-06]()                                                 | :white_check_mark: | :white_check_mark: |         :white_check_mark:          | :white_check_mark: |
-| [Olizig](https://zig-star.com/projects/zigstar-olizig/)     |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [LilyZig](https://zig-star.com/projects/zigstar-lilyzig/)   |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [ZigStar LAN](https://zig-star.com/projects/zigbee-gw-lan/) |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [TubesZB-eth]()                                             |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [TubesZB-eth_usb]()                                         |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [TubesZB-poe]()                                             |        :x:         |        :x:         |         :white_check_mark:          | :white_check_mark: |
-| [CZC-1.0]()                                                 | :white_check_mark: | :white_check_mark: |         :white_check_mark:          | :white_check_mark: |
-| [HG POE Plus]()                                             | :white_check_mark: | :white_check_mark: |         :white_check_mark:          | :white_check_mark: |
+| SLS-classic | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| [UZG-01](https://uzg.zig-star.com) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| SLZB-06 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [ZigStar LAN](https://zig-star.com/projects/zigbee-gw-lan/) | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| [LilyZig](https://zig-star.com/projects/zigstar-lilyzig/) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
+| [Olizig](https://zig-star.com/projects/zigstar-olizig/) | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| China-GW | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| TubesZB-eth | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| TubesZB-eth_usb | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| TubesZB-poe | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| TubesZB-poe-2022 | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| TubesZB-poe-2023 | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| CZC-1.0 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| HG POE Plus | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 * Some devices do not support all features
 
