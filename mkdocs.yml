@@ -175,6 +175,7 @@ nav:
       - Hardware: hardware.md
       - MQTT: mqtt.md
       - HTTP API: http_api.md
+      - VPN: VPN.md
     - FAQ: faq.md
     - Lifehacks: lifehacks.md
   - About: 
