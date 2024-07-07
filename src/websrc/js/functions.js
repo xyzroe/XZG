@@ -315,14 +315,15 @@ serial:
 
 function fillFileTable(files) {
 	const icon_file = `<svg class="card_icon file_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#file" /></svg>`;
-	const icon_del = `<svg class="card_icon del_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#magic" /></svg>`;
+	//const icon_del = `<svg class="card_icon del_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#magic" /></svg>`;
+	const icon_del = `❌`;
 	files.forEach((elem) => { //.slice(0, files.length - 1)
 		if (elem.size > 0) {
 			let $row = $("<tr>").appendTo("#filelist")
 			$("<td class='col-min-width'>" + icon_file + "</td>").appendTo($row);
 			$("<td><a href='#config_file' onClick=\"readFile(event, '" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
 			$("<td>" + elem.size + "B</td>").appendTo($row);
-			$("<td class='text-end col-min-width'><a href='' onClick=\"delFile(event, '" + elem.filename + "');\">" + icon_del + "</a></td>").appendTo($row);
+			$("<td class='text-end col-min-width'><a href='' style='text-decoration: none !important;' onClick=\"delFile(event, '" + elem.filename + "');\">" + icon_del + "</a></td>").appendTo($row);
 		}
 	});
 }

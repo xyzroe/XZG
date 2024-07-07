@@ -239,7 +239,7 @@ void NetworkEvent(WiFiEvent_t event)
 {
   const char *wifiKey = "WiFi";
   const char *ethKey = "ETH";
-
+  //esp_err_t result5;
   switch (event)
   {
   case ARDUINO_EVENT_ETH_START: // 18: // SYSTEM_EVENT_ETH_START:
@@ -293,6 +293,27 @@ void NetworkEvent(WiFiEvent_t event)
          WiFi.dnsIP().toString().c_str());
     checkDNS(true);
     LOGD("WiFi TX %s", String(WiFi.getTxPower()));
+
+    /*result5 = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+    if (result5 == ESP_OK)
+    {
+      Serial.println("Wi-Fi protocol set successfully.");
+    }
+    else
+    {
+      Serial.printf("Error setting Wi-Fi protocol: %d\n", result5);
+    }
+
+    uint8_t cur_mode;
+    esp_wifi_get_protocol(WIFI_IF_STA, &cur_mode);
+    Serial.print("Current Wi-Fi protocol: ");
+    if (cur_mode & WIFI_PROTOCOL_11B)
+      Serial.print("802.11b ");
+    if (cur_mode & WIFI_PROTOCOL_11G)
+      Serial.print("802.11g ");
+    if (cur_mode & WIFI_PROTOCOL_11N)
+      Serial.print("802.11n ");
+    Serial.println();*/
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
@@ -365,8 +386,14 @@ void connectWifi()
   }
   WiFi.persistent(false);
 
-  // TO-DO protocol and power setup via GUI
-  esp_wifi_set_protocol(WIFI_IF_STA, networkCfg.wifiMode);
+  /*uint8_t cur_mode;
+  esp_wifi_get_protocol(WIFI_IF_STA, &cur_mode);
+  Serial.print("wifi mode ");
+  String result = "";
+  result += String(cur_mode, DEC);
+  Serial.println(result);
+
+  esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N); // networkCfg.wifiMode); // WIFI_PROTOCOL_11B | ); //*/
 
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
@@ -402,6 +429,15 @@ void connectWifi()
     WiFi.setAutoReconnect(true);
     WiFi.setTxPower(networkCfg.wifiPower);
     LOGD("WiFi TX %s", String(WiFi.getTxPower()));
+    /*esp_err_t result = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+    if (result == ESP_OK)
+    {
+      Serial.println("Wi-Fi protocol set successfully.");
+    }
+    else
+    {
+      Serial.printf("Error setting Wi-Fi protocol: %d\n", result);
+    }*/
     LOGD("WiFi.begin");
   }
   else
@@ -625,7 +661,6 @@ void setup()
   setup1wire(check1wire());
 
   LOGI("done");
-
 }
 
 WiFiClient client[10];
