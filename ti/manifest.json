@@ -86,6 +86,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20221226.bin",
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
+            },
+            "CC1352P2_CC2652P_launchpad_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20240710.bin",
+                "notes": ""
             }
         },
         "CC2652P2_other": {
@@ -136,6 +141,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_patched_460800_20221226.bin",
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
+            },
+            "CC1352P2_CC2652P_other_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20240710.bin",
+                "notes": ""
             }
         },
         "CC2652P7": {
@@ -162,6 +172,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_460800_20230507.bin",
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
+            },
+            "CC1352P7_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240710.bin",
+                "notes": ""
             }
         },
         "CC2652RB": {
@@ -170,6 +185,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652RB_coordinator_20240315.bin",
                 "notes": "",
                 "baud": "115200"
+            },
+            "CC2652RB_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652RB_coordinator_20240710.bin",
+                "notes": ""
             }
         },
         "CC2652R7_coordinator": {
@@ -178,6 +198,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R7_coordinator_20240316.bin",
                 "notes": "",
                 "baud": "115200"
+            },
+            "CC2652R7_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R7_coordinator_20240710.bin",
+                "notes": ""
             }
         },
         "CC2652R_coordinator": {
@@ -186,6 +211,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240315.bin",
                 "notes": "",
                 "baud": "115200"
+            },
+            "CC2652R_coordinator_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240710.bin",
+                "notes": ""
             }
         }
     },
