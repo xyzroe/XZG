@@ -36,8 +36,7 @@ Please follow the installation guide tailored to your hardware.
 
 ## 🛠️ Compiling from source
 
-### Local
-
+### VS Code
 - You need npm and Python installed
 - Install Visual Studio Code (VSC)  
 - Install PlatformIO extension to VSC  
@@ -45,6 +44,23 @@ Please follow the installation guide tailored to your hardware.
   `git clone --recurse-submodules https://github.com/xyzroe/XZG.git`
 - Open `XZG.code-workspace` in VSC
 - Press "PlatformIO: Build" and wait until XZG*.bin are generated  
+
+### Linux CLI
+- You need npm ad Python installed
+- Install PlatformIO Core (it's in many package managers)
+- Clone this repository  
+  `git clone --recurse-submodules https://github.com/xyzroe/XZG.git`
+- Use `pio run` to build default environment
+- Binaries output to .pio/build/name_of_env/
+- Use `pio run -t upload` to build and upload
+  firmware image
+- Use `-e` flag to select a specific build:
+  `pio run -e env_name -t upload`
+
+### Language Server Setup
+- LSP (e.g. clandg and Neovim) users need to run
+  `pio run -t compiledb` to
+  generate a "compile_commands.json".
 
 ### Github
  - Fork this repository;
