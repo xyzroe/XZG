@@ -11,7 +11,7 @@
     "erss": "Errore durante il salvataggio delle impostazioni. \nControlla la tua rete",
     "host": "Nome host",
     "init": "Inizializzato",
-    "inst": "Installare",
+    "inst": "Installa",
     "ltr": "Dopo",
     "mac": "Indirizzo MAC",
     "mode": "Modalità",
@@ -19,7 +19,7 @@
     "pass": "Parola d'ordine",
     "proj": "Creato con ❤️ da",
     "save": "Salva",
-    "sure": "Sono sicuro che",
+    "sure": "Sono sicuro",
     "user": "Nome utente",
     "ok": "OK",
     "connecting": "Connessione",
@@ -28,7 +28,7 @@
     "en": "Abilitato",
     "err": "Errore",
     "nc": "Nessuna connessione",
-    "cl": "Vicino",
+    "cl": "Chiudi",
     "t": {
       "e": "Tempo scaduto",
       "s": "Ora di inizio"
@@ -111,14 +111,14 @@
     }
   },
   "l": {
-    "ab": "Di",
+    "ab": "Info",
     "ge": "Generale",
     "lo": "Disconnettersi",
     "mq": "MQTT",
     "ne": "Rete",
     "se": "Sicurezza",
     "st": "Stato",
-    "to": "Utensili",
+    "to": "Strumenti",
     "vp": "VPN",
     "zi": "Zigbee"
   },
@@ -161,12 +161,12 @@
       }
     },
     "lo": {
-      "btn": "Canta",
+      "btn": "Registrazione",
       "lbl": "Per favore accedi",
       "pt": "Accedi - XZG",
       "mlo": "Disconnessione riuscita",
       "mnl": "È necessario effettuare l'accesso",
-      "mwc": "Credenziali sbagliate"
+      "mwc": "Credenziali errate"
     },
     "mq": {
       "broker": {
@@ -236,16 +236,16 @@
         "dm": "Modello del dispositivo",
         "ef": "Processore",
         "efs": "Memoria",
-        "ehs": "Mucchio",
+        "ehs": "Memoria in uso",
         "et": "Temperatura",
-        "kb": "KiB",
+        "kb": "kB",
         "mb": "MB",
         "mhz": "MHz",
         "tt": "Informazioni sul dispositivo",
         "efte": "esterno",
         "efti": "interno",
-        "efss": "Sistema di file",
-        "ens": "Stoccaggio NV",
+        "efss": "File di Sistema",
+        "ens": "Memoria non volatile",
         "ent": "inserimenti",
         "du": "Tempo di attività del dispositivo",
         "lt": "Ora locale"
@@ -273,7 +273,7 @@
         "sccn": "Nessuna connessione",
         "su": "tempo di connessione",
         "sccy": "Sì, {{count}} clienti",
-        "zfs": "Dimensione del flash",
+        "zfs": "Dimensione della flash",
         "zie": "IEEE"
       },
       "c": {
@@ -317,9 +317,9 @@
       "ms": "Selezione modalità",
       "ntw": "Rete",
       "pwr": "Energia",
-      "rd": "Dati grezzi",
+      "rd": "Dati",
       "rr": "Riconnessione del router",
-      "rst": "Ricomincia",
+      "rst": "Riavvia",
       "s": "Misurare",
       "sc": "Controllo del sistema",
       "usb": "USB",
