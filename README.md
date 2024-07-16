@@ -58,9 +58,9 @@ Please follow the installation guide tailored to your hardware.
   `pio run -e env_name -t upload`
 
 ### Language Server Setup
-- LSP (e.g. clandg and Neovim) users need to run
+- LSP (e.g. clangd and Neovim) users need to run
   `pio run -t compiledb` to
-  generate a "compile_commands.json".
+  generate a "compile_commands.json"
 
 ### Github
  - Fork this repository;
