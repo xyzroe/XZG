@@ -68,14 +68,13 @@
 
 extern CCTools CCTool;
 
-extern struct SysVarsStruct vars;
-extern struct ThisConfigStruct hwConfig;
-extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
-
-extern struct SystemConfigStruct systemCfg;
+extern struct SysVarsStruct       vars;
+extern struct ThisConfigStruct    hwConfig;
+extern        BrdConfigStruct     brdConfigs[BOARD_CFG_CNT];
+extern struct SystemConfigStruct  systemCfg;
 extern struct NetworkConfigStruct networkCfg;
-extern struct VpnConfigStruct vpnCfg;
-extern struct MqttConfigStruct mqttCfg;
+extern struct VpnConfigStruct     vpnCfg;
+extern struct MqttConfigStruct    mqttCfg;
 
 extern LEDControl ledControl;
 
@@ -84,19 +83,24 @@ extern IPAddress apIP;
 bool wifiWebSetupInProgress = false;
 
 bool eventOK = false;
-// extern const char *coordMode;
 
-// extern const char *deviceModel;
+// handlerAPI const strings
+const char *apiAction          = "action";
+const char *apiPage            = "page";
+const char *apiParam           = "param";
+const char *apiWrongArgs       = "wrong args";
+const char *apiOk              = "ok";
+const char *apiFilename        = "filename";
 
-const char *contTypeTextHtml = "text/html";
-const char *contTypeTextJs = "text/javascript";
-const char *contTypeTextCss = "text/css";
-const char *contTypeTextSvg = "image/svg+xml";
-const char *checked = "true";
-const char *respHeaderName = "respValuesArr";
-const char *respTimeZonesName = "respTimeZones";
-const char *contTypeJson = "application/json";
-const char *contTypeText = "text/plain";
+const char *contTypeTextHtml   = "text/html";
+const char *contTypeTextJs     = "text/javascript";
+const char *contTypeTextCss    = "text/css";
+const char *contTypeTextSvg    = "image/svg+xml";
+const char *checked            = "true";
+const char *respHeaderName     = "respValuesArr";
+const char *respTimeZonesName  = "respTimeZones";
+const char *contTypeJson       = "application/json";
+const char *contTypeText       = "text/plain";
 
 const char *tempFile = "/fw.hex";
 
@@ -109,6 +113,18 @@ extern bool loadFileConfigWg();
 WebServer serverWeb(80);
 
 WiFiClient eventsClient;
+
+static void apiDefault();
+static void apiGetPage();
+static void apiGetParam();
+static void apiStartWifiScan();
+static void apiWifiScanStatus();
+static void apiGetLog();
+static void apiCMD();
+static void apiWifiConnnectStat();
+static void apiGetFile();
+static void apiDelFile();
+static void apiGetFileList();
 
 void webServerHandleClient()
 {
@@ -413,498 +429,499 @@ void hex2bin(uint8_t *out, const char *in)
     }
 }
 
-void handleApi()
-{ // http://xzg.local/api?action=0&page=0
-    enum API_ACTION_t : uint8_t
-    {
-        API_GET_PAGE,
-        API_GET_PARAM,
-        API_STARTWIFISCAN,
-        API_WIFISCANSTATUS,
-        API_GET_FILELIST,
-        API_GET_FILE,
-        API_SEND_HEX,
-        API_WIFICONNECTSTAT,
-        API_CMD,
-        API_GET_LOG,
-        API_DEL_FILE //,
-        // API_FLASH_ZB
-    };
-    const char *action = "action";
-    const char *page = "page";
-    // const char *Authentication = "Authentication";
-    const char *param = "param";
-    const char *wrongArgs = "wrong args";
-    const char *ok = "ok";
-    const char *argFilename = "filename";
+static void apiGetLog()
+{
+    String result;
+    result = logPrint();
+    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+}
 
-    if (!is_authenticated())
+static void apiCMD()
+{
+    enum CMD_t : uint8_t
+    { // cmd list for buttons starts from 0
+        CMD_ZB_ROUTER_RECON,
+        CMD_ZB_RST,
+        CMD_ZB_BSL,
+        CMD_ESP_RES,
+        CMD_ADAP_LAN,
+        CMD_ADAP_USB,
+        CMD_LED_ACT,
+        CMD_ZB_FLASH,
+        CMD_CLEAR_LOG,
+        CMD_ESP_UPD_URL,
+        CMD_ZB_CHK_FW,
+        CMD_ZB_CHK_HW,
+        CMD_ZB_LED_TOG,
+        CMD_ESP_FAC_RES,
+        CMD_ZB_ERASE_NVRAM,
+        CMD_DNS_CHECK,
+        CMD_BRD_NAME
+    };
+    String result = apiWrongArgs;
+    const char *argCmd = "cmd";
+    const char *argUrl = "url";
+    const char *argConf = "conf";
+    const char *argLed = "led";
+    const char *argAct = "act";
+    const char *errLink = "Error getting link";
+
+    if (serverWeb.hasArg(argCmd))
     {
-        redirectLogin(1);
-        return;
+        result = "ok";
+        switch (serverWeb.arg(argCmd).toInt())
+        {
+        case CMD_CLEAR_LOG:
+            logClear();
+            break;
+        case CMD_ZB_ROUTER_RECON:
+            zigbeeRouterRejoin();
+            break;
+        case CMD_ZB_RST:
+            zigbeeRestart();
+            break;
+        case CMD_ZB_BSL:
+            zigbeeEnableBSL();
+            break;
+        case CMD_DNS_CHECK:
+            checkDNS();
+            break;
+        case CMD_ZB_ERASE_NVRAM:
+            xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);
+            break;
+        case CMD_ESP_RES:
+            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            delay(250);
+            ESP.restart();
+            break;
+        case CMD_ADAP_LAN:
+            usbModeSet(XZG);
+            break;
+        case CMD_ADAP_USB:
+            usbModeSet(ZIGBEE);
+            break;
+        case CMD_ESP_UPD_URL:
+            if (serverWeb.hasArg(argUrl))
+                getEspUpdate(serverWeb.arg(argUrl));
+            else
+            {
+                String link = fetchLatestEspFw();
+                if (link)
+                {
+                    getEspUpdate(link);
+                }
+                else
+                {
+                    LOGW("%s", String(errLink));
+                }
+            }
+            break;
+        case CMD_ZB_CHK_FW:
+            if (zbFwCheck())
+            {
+                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            }
+            else
+            {
+                serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+            }
+            break;
+        case CMD_ZB_CHK_HW:
+            zbHwCheck();
+            break;
+        case CMD_ZB_LED_TOG:
+            if (zbLedToggle())
+            {
+                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            }
+            else
+            {
+                serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+            }
+            break;
+        case CMD_ESP_FAC_RES:
+            if (serverWeb.hasArg(argConf))
+                if (serverWeb.arg(argConf).toInt() == 1)
+                {
+                    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+                    factoryReset();
+                }
+                else
+                {
+                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+                }
+            break;
+        case CMD_LED_ACT:
+            if (serverWeb.hasArg(argLed) && serverWeb.hasArg(argAct))
+            {
+                int ledNum = serverWeb.arg(argLed).toInt();
+                int actNum = serverWeb.arg(argAct).toInt();
+
+                LED_t ledEnum = static_cast<LED_t>(ledNum);
+                LEDMode actEnum = static_cast<LEDMode>(actNum);
+
+                if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
+                {
+                    String tag = "API";
+                    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+                    if (ledNum == MODE_LED)
+                    {
+                        LOGD("%s led %d", ledControl.modeLED.name, actNum);
+                        ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
+                    }
+                    else if (ledNum == POWER_LED)
+                    {
+                        LOGD("%s led %d", ledControl.powerLED.name, actNum);
+                        ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
+                    }
+                }
+                else
+                {
+                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+                }
+            }
+            else
+            {
+                serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+            }
+            break;
+        case CMD_ZB_FLASH:
+            if (serverWeb.hasArg(argUrl))
+                flashZbUrl(serverWeb.arg(argUrl));
+            else
+            {
+                String link = fetchLatestZbFw();
+                if (link)
+                {
+                    flashZbUrl(link);
+                }
+                else
+                {
+                    LOGW("%s", String(errLink));
+                }
+            }
+            break;
+        case CMD_BRD_NAME:
+            if (serverWeb.hasArg("board"))
+            {
+                String brdName = serverWeb.arg("board");
+                brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
+
+                File configFile = LittleFS.open(configFileHw, FILE_READ);
+                if (!configFile)
+                {
+                    Serial.println("Failed to open config file for reading");
+                    return;
+                }
+
+                DynamicJsonDocument config(1024);
+                DeserializationError error = deserializeJson(config, configFile);
+                if (error)
+                {
+                    Serial.println("Failed to parse config file");
+                    configFile.close();
+                    return;
+                }
+
+                configFile.close();
+                config["board"] = hwConfig.board;
+
+                writeDefaultConfig(configFileHw, config);
+                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            }
+            else
+            {
+                serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+            }
+            break;
+        default:
+            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+            break;
+        }
+        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
 
-    if (serverWeb.argName(0) != action)
+}
+
+static void apiWifiConnnectStat()
+{
+    String result;
+    StaticJsonDocument<70> doc;
+    const char *connected = "connected";
+    if (WiFi.status() == WL_CONNECTED)
     {
-        serverWeb.send(500, contTypeText, wrongArgs);
+        doc[connected] = true;
+        doc["ip"] = WiFi.localIP().toString();
     }
     else
     {
-        const uint8_t action = serverWeb.arg(action).toInt();
-        switch (action)
+        doc[connected] = false;
+    }
+    serializeJson(doc, result);
+    serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
+}
+
+static void apiGetFile()
+{
+    String result = apiWrongArgs;
+
+    if (serverWeb.hasArg(apiFilename))
+    {
+        String filename = "/" + serverWeb.arg(apiFilename);
+        File file = LittleFS.open(filename, "r");
+        if (!file)
+            return;
+        result = "";
+        while (file.available() && result.length() < 500)
         {
-        case API_GET_LOG:
-        {
-            String result;
-            result = logPrint();
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            result += (char)file.read();
         }
-        break;
-        case API_CMD:
+        file.close();
+    }
+    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+}
+
+static void apiDelFile()
+{
+    String result = apiWrongArgs;
+
+    if (serverWeb.hasArg(apiFilename))
+    {
+        String filename = "/" + serverWeb.arg(apiFilename);
+        LOGW("Remove file %s", filename.c_str());
+        LittleFS.remove(filename);
+    }
+    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+}
+
+static void apiGetParam()
+{
+    String resp = apiWrongArgs;
+    if (serverWeb.hasArg(apiParam))
+    {
+        if (serverWeb.arg(apiParam) == "refreshLogs")
         {
-            enum CMD_t : uint8_t
-            { // cmd list for buttons starts from 0
-                CMD_ZB_ROUTER_RECON,
-                CMD_ZB_RST,
-                CMD_ZB_BSL,
-                CMD_ESP_RES,
-                CMD_ADAP_LAN,
-                CMD_ADAP_USB,
-                CMD_LED_ACT,
-                CMD_ZB_FLASH,
-                CMD_CLEAR_LOG,
-                CMD_ESP_UPD_URL,
-                CMD_ZB_CHK_FW,
-                CMD_ZB_CHK_HW,
-                CMD_ZB_LED_TOG,
-                CMD_ESP_FAC_RES,
-                CMD_ZB_ERASE_NVRAM,
-                CMD_DNS_CHECK,
-                CMD_BRD_NAME
-            };
-            String result = wrongArgs;
-            const char *argCmd = "cmd";
-            const char *argUrl = "url";
-            const char *argConf = "conf";
-            const char *argLed = "led";
-            const char *argAct = "act";
-            const char *errLink = "Error getting link";
-
-            if (serverWeb.hasArg(argCmd))
-            {
-                result = "ok";
-                switch (serverWeb.arg(argCmd).toInt())
-                {
-                case CMD_CLEAR_LOG:
-                    logClear();
-                    break;
-                case CMD_ZB_ROUTER_RECON:
-                    zigbeeRouterRejoin();
-                    break;
-                case CMD_ZB_RST:
-                    zigbeeRestart();
-                    break;
-                case CMD_ZB_BSL:
-                    zigbeeEnableBSL();
-                    break;
-                case CMD_DNS_CHECK:
-                    checkDNS();
-                    break;
-                case CMD_ZB_ERASE_NVRAM:
-                    xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);
-                    break;
-                case CMD_ESP_RES:
-                    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    delay(250);
-                    ESP.restart();
-                    break;
-                case CMD_ADAP_LAN:
-                    usbModeSet(XZG);
-                    break;
-                case CMD_ADAP_USB:
-                    usbModeSet(ZIGBEE);
-                    break;
-                case CMD_ESP_UPD_URL:
-                    if (serverWeb.hasArg(argUrl))
-                        getEspUpdate(serverWeb.arg(argUrl));
-                    else
-                    {
-                        String link = fetchLatestEspFw();
-                        if (link)
-                        {
-                            getEspUpdate(link);
-                        }
-                        else
-                        {
-                            LOGW("%s", String(errLink));
-                        }
-                    }
-                    break;
-                case CMD_ZB_CHK_FW:
-                    if (zbFwCheck())
-                    {
-                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    }
-                    else
-                    {
-                        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
-                    }
-                    break;
-                case CMD_ZB_CHK_HW:
-                    zbHwCheck();
-                    break;
-                case CMD_ZB_LED_TOG:
-                    if (zbLedToggle())
-                    {
-                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    }
-                    else
-                    {
-                        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
-                    }
-                    break;
-                case CMD_ESP_FAC_RES:
-                    if (serverWeb.hasArg(argConf))
-                        if (serverWeb.arg(argConf).toInt() == 1)
-                        {
-                            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                            factoryReset();
-                        }
-                        else
-                        {
-                            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                        }
-                    break;
-                case CMD_LED_ACT:
-                    if (serverWeb.hasArg(argLed) && serverWeb.hasArg(argAct))
-                    {
-                        int ledNum = serverWeb.arg(argLed).toInt();
-                        int actNum = serverWeb.arg(argAct).toInt();
-
-                        LED_t ledEnum = static_cast<LED_t>(ledNum);
-                        LEDMode actEnum = static_cast<LEDMode>(actNum);
-
-                        if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
-                        {
-                            String tag = "API";
-                            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                            if (ledNum == MODE_LED)
-                            {
-                                LOGD("%s led %d", ledControl.modeLED.name, actNum);
-                                ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
-                            }
-                            else if (ledNum == POWER_LED)
-                            {
-                                LOGD("%s led %d", ledControl.powerLED.name, actNum);
-                                ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
-                            }
-                        }
-                        else
-                        {
-                            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                        }
-                    }
-                    else
-                    {
-                        serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                    }
-                    break;
-                case CMD_ZB_FLASH:
-                    if (serverWeb.hasArg(argUrl))
-                        flashZbUrl(serverWeb.arg(argUrl));
-                    else
-                    {
-                        String link = fetchLatestZbFw();
-                        if (link)
-                        {
-                            flashZbUrl(link);
-                        }
-                        else
-                        {
-                            LOGW("%s", String(errLink));
-                        }
-                    }
-                    break;
-                case CMD_BRD_NAME:
-                    if (serverWeb.hasArg("board"))
-                    {
-                        String brdName = serverWeb.arg("board");
-                        brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
-
-                        File configFile = LittleFS.open(configFileHw, FILE_READ);
-                        if (!configFile)
-                        {
-                            Serial.println("Failed to open config file for reading");
-                            return;
-                        }
-
-                        DynamicJsonDocument config(1024);
-                        DeserializationError error = deserializeJson(config, configFile);
-                        if (error)
-                        {
-                            Serial.println("Failed to parse config file");
-                            configFile.close();
-                            return;
-                        }
-
-                        configFile.close();
-                        config["board"] = hwConfig.board;
-
-                        writeDefaultConfig(configFileHw, config);
-                        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    }
-                    else
-                    {
-                        serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                    }
-                    break;
-                default:
-                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                    break;
-                }
-                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-            }
+            resp = (String)systemCfg.refreshLogs;
         }
-        break;
-        case API_WIFICONNECTSTAT:
+        else if (serverWeb.arg(apiParam) == "update_root")
         {
-            String result;
-            StaticJsonDocument<70> doc;
-            const char *connected = "connected";
-            if (WiFi.status() == WL_CONNECTED)
+            resp = getRootData(true);
+        }
+        else if (serverWeb.arg(apiParam) == "coordMode")
+        {
+            if (wifiWebSetupInProgress)
             {
-                doc[connected] = true;
-                doc["ip"] = WiFi.localIP().toString();
+                resp = "1";
             }
             else
             {
-                doc[connected] = false;
+                resp = (String)systemCfg.workMode;
             }
-            serializeJson(doc, result);
-            serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
         }
-        break;
-        case API_GET_FILE:
+        else if (serverWeb.arg(apiParam) == "zbFwVer")
         {
-            String result = wrongArgs;
+            resp = String(CCTool.chip.fwRev);
+        }
+        else if (serverWeb.arg(apiParam) == "zbHwVer")
+        {
+            resp = String(CCTool.chip.hwRev);
+        }
+        else if (serverWeb.arg(apiParam) == "espVer")
+        {
+            resp = VERSION;
+        }
+        else if (serverWeb.arg(apiParam) == "wifiEnable")
+        {
+            resp = networkCfg.wifiEnable;
+        }
+        else if (serverWeb.arg(apiParam) == "all")
+        {
+            resp = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
+        }
+        else if (serverWeb.arg(apiParam) == "vars")
+        {
+            resp = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
+        }
+        else if (serverWeb.arg(apiParam) == "root")
+        {
+            resp = getRootData();
+        }
+    }
+    serverWeb.send(HTTP_CODE_OK, contTypeText, resp);
+}
 
-            if (serverWeb.hasArg(argFilename))
-            {
-                String filename = "/" + serverWeb.arg(argFilename);
-                File file = LittleFS.open(filename, "r");
-                if (!file)
-                    return;
-                result = "";
-                while (file.available() && result.length() < 500)
-                {
-                    result += (char)file.read();
-                }
-                file.close();
-            }
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-        }
-        break;
-        case API_DEL_FILE:
-        {
-            String result = wrongArgs;
+static void apiStartWifiScan()
+{
+    if (WiFi.getMode() == WIFI_OFF)
+    { // enable wifi for scan
+        WiFi.mode(WIFI_STA);
+    }
+    // } else if (WiFi.getMode() == WIFI_AP) {  // enable sta for scan
+    //     WiFi.mode(WIFI_AP_STA);
+    // }
+    WiFi.scanNetworks(true);
+    serverWeb.send(HTTP_CODE_OK, contTypeTextHtml, apiOk);
+}
 
-            if (serverWeb.hasArg(argFilename))
-            {
-                String filename = "/" + serverWeb.arg(argFilename);
-                LOGW("Remove file %s", filename.c_str());
-                LittleFS.remove(filename);
-            }
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-        }
-        break;
-        case API_GET_PARAM:
+static void apiWifiScanStatus()
+{
+    static uint8_t timeout = 0;
+    DynamicJsonDocument doc(1024);
+    String result = "";
+    int16_t scanRes = WiFi.scanComplete();
+    const char *scanDone = "scanDone";
+    doc[scanDone] = false;
+    if (scanRes == -2)
+    {
+        WiFi.scanNetworks(true);
+    }
+    else if (scanRes > 0)
+    {
+        doc[scanDone] = true;
+        JsonArray wifi = doc.createNestedArray("wifi");
+        for (int i = 0; i < scanRes; ++i)
         {
-            String resp = wrongArgs;
-            if (serverWeb.hasArg(param))
-            {
-                if (serverWeb.arg(param) == "refreshLogs")
-                {
-                    resp = (String)systemCfg.refreshLogs;
-                }
-                else if (serverWeb.arg(param) == "update_root")
-                {
-                    resp = getRootData(true);
-                }
-                else if (serverWeb.arg(param) == "coordMode")
-                {
-                    if (wifiWebSetupInProgress)
-                    {
-                        resp = "1";
-                    }
-                    else
-                    {
-                        resp = (String)systemCfg.workMode;
-                    }
-                }
-                else if (serverWeb.arg(param) == "zbFwVer")
-                {
-                    resp = String(CCTool.chip.fwRev);
-                }
-                else if (serverWeb.arg(param) == "zbHwVer")
-                {
-                    resp = String(CCTool.chip.hwRev);
-                }
-                else if (serverWeb.arg(param) == "espVer")
-                {
-                    resp = VERSION;
-                }
-                else if (serverWeb.arg(param) == "wifiEnable")
-                {
-                    resp = networkCfg.wifiEnable;
-                }
-                else if (serverWeb.arg(param) == "all")
-                {
-                    resp = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
-                }
-                else if (serverWeb.arg(param) == "vars")
-                {
-                    resp = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
-                }
-                else if (serverWeb.arg(param) == "root")
-                {
-                    resp = getRootData();
-                }
-            }
-            serverWeb.send(HTTP_CODE_OK, contTypeText, resp);
+            JsonObject wifi_0 = wifi.createNestedObject();
+            wifi_0["ssid"] = WiFi.SSID(i);
+            wifi_0["rssi"] = WiFi.RSSI(i);
+            wifi_0["channel"] = WiFi.channel(i);
+            wifi_0["secure"] = WiFi.encryptionType(i);
         }
-        break;
-        case API_STARTWIFISCAN:
-            if (WiFi.getMode() == WIFI_OFF)
-            { // enable wifi for scan
-                WiFi.mode(WIFI_STA);
-            }
-            // } else if (WiFi.getMode() == WIFI_AP) {  // enable sta for scan
-            //     WiFi.mode(WIFI_AP_STA);
-            // }
-            WiFi.scanNetworks(true);
-            serverWeb.send(HTTP_CODE_OK, contTypeTextHtml, ok);
-            break;
-        case API_WIFISCANSTATUS:
-        {
-            static uint8_t timeout = 0;
-            DynamicJsonDocument doc(1024);
-            String result = "";
-            int16_t scanRes = WiFi.scanComplete();
-            const char *scanDone = "scanDone";
-            doc[scanDone] = false;
-            if (scanRes == -2)
-            {
-                WiFi.scanNetworks(true);
-            }
-            else if (scanRes > 0)
-            {
-                doc[scanDone] = true;
-                JsonArray wifi = doc.createNestedArray("wifi");
-                for (int i = 0; i < scanRes; ++i)
-                {
-                    JsonObject wifi_0 = wifi.createNestedObject();
-                    wifi_0["ssid"] = WiFi.SSID(i);
-                    wifi_0["rssi"] = WiFi.RSSI(i);
-                    wifi_0["channel"] = WiFi.channel(i);
-                    wifi_0["secure"] = WiFi.encryptionType(i);
-                }
-                WiFi.scanDelete();
-            }
-            if (timeout < 10)
-            {
-                timeout++;
-            }
-            else
-            {
-                doc[scanDone] = true;
-                WiFi.scanDelete();
-                timeout = 0;
-            }
-            serializeJson(doc, result);
-            serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
-            break;
-        }
-        case API_GET_PAGE:
-            if (!serverWeb.arg(page).length() > 0)
-            {
-                LOGW("wrong arg 'page' %s", serverWeb.argName(1));
-                serverWeb.send(500, contTypeText, wrongArgs);
-                return;
-            }
-            switch (serverWeb.arg(page).toInt())
-            {
-            case API_PAGE_ROOT:
-                handleRoot();
-                sendGzip(contTypeTextHtml, PAGE_ROOT_html_gz, PAGE_ROOT_html_gz_len);
-                break;
-            case API_PAGE_GENERAL:
-                handleGeneral();
-                sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
-                break;
-            case API_PAGE_NETWORK:
-                handleNetwork();
-                sendGzip(contTypeTextHtml, PAGE_NETWORK_html_gz, PAGE_NETWORK_html_gz_len);
-                break;
-            case API_PAGE_ZIGBEE:
-                handleSerial();
-                sendGzip(contTypeTextHtml, PAGE_ZIGBEE_html_gz, PAGE_ZIGBEE_html_gz_len);
-                break;
-            case API_PAGE_SECURITY:
-                handleSecurity();
-                sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
-                break;
-            case API_PAGE_TOOLS:
-                handleTools();
-                sendGzip(contTypeTextHtml, PAGE_TOOLS_html_gz, PAGE_TOOLS_html_gz_len);
-                break;
-            case API_PAGE_ABOUT:
-                // handleAbout();
-                sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
-                break;
-            case API_PAGE_MQTT:
-                handleMqtt();
-                sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
-                break;
-            case API_PAGE_VPN:
-                handleVpn();
-                sendGzip(contTypeTextHtml, PAGE_VPN_html_gz, PAGE_VPN_html_gz_len);
-                break;
-            default:
-                break;
-            }
-            break;
-        case API_GET_FILELIST:
-        {
-            String fileList = "";
-            DynamicJsonDocument doc(512);
-            JsonArray files = doc.createNestedArray("files");
-            File root = LittleFS.open("/");
-            File file = root.openNextFile();
-            while (file)
-            {
-                JsonObject jsonfile = files.createNestedObject();
-                jsonfile["filename"] = String(file.name());
-                jsonfile["size"] = file.size();
-                file = root.openNextFile();
-            }
-            root = LittleFS.open("/config/");
-            file = root.openNextFile();
-            while (file)
-            {
-                JsonObject jsonfile = files.createNestedObject();
-                jsonfile["filename"] = String("/config/" + String(file.name()));
-                jsonfile["size"] = file.size();
-                file = root.openNextFile();
-            }
-            serializeJson(doc, fileList);
-            serverWeb.send(HTTP_CODE_OK, contTypeJson, fileList);
-            break;
-        }
+        WiFi.scanDelete();
+    }
+    if (timeout < 10)
+    {
+        timeout++;
+    }
+    else
+    {
+        doc[scanDone] = true;
+        WiFi.scanDelete();
+        timeout = 0;
+    }
+    serializeJson(doc, result);
+    serverWeb.send(HTTP_CODE_OK, contTypeJson, result);
+}
 
-        default:
-            LOGW("switch (action) err");
-            break;
-        }
+static void apiGetPage()
+{
+    if (!serverWeb.arg(apiPage).length())
+    {
+        LOGW("wrong arg 'page' %s", serverWeb.argName(1));
+        serverWeb.send(500, contTypeText, apiWrongArgs);
+        return;
+    }
+    switch (serverWeb.arg(apiPage).toInt())
+    {
+    case API_PAGE_ROOT:
+        handleRoot();
+        sendGzip(contTypeTextHtml, PAGE_ROOT_html_gz, PAGE_ROOT_html_gz_len);
+        break;
+    case API_PAGE_GENERAL:
+        handleGeneral();
+        sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
+        break;
+    case API_PAGE_NETWORK:
+        handleNetwork();
+        sendGzip(contTypeTextHtml, PAGE_NETWORK_html_gz, PAGE_NETWORK_html_gz_len);
+        break;
+    case API_PAGE_ZIGBEE:
+        handleSerial();
+        sendGzip(contTypeTextHtml, PAGE_ZIGBEE_html_gz, PAGE_ZIGBEE_html_gz_len);
+        break;
+    case API_PAGE_SECURITY:
+        handleSecurity();
+        sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
+        break;
+    case API_PAGE_TOOLS:
+        handleTools();
+        sendGzip(contTypeTextHtml, PAGE_TOOLS_html_gz, PAGE_TOOLS_html_gz_len);
+        break;
+    case API_PAGE_ABOUT:
+        // handleAbout();
+        sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
+        break;
+    case API_PAGE_MQTT:
+        handleMqtt();
+        sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
+        break;
+    case API_PAGE_VPN:
+        handleVpn();
+        sendGzip(contTypeTextHtml, PAGE_VPN_html_gz, PAGE_VPN_html_gz_len);
+        break;
+    default:
+        break;
+    }
+}
+
+static void apiGetFileList()
+{
+    String fileList = "";
+    DynamicJsonDocument doc(512);
+    JsonArray files = doc.createNestedArray("files");
+    File root = LittleFS.open("/");
+    File file = root.openNextFile();
+    while (file)
+    {
+        JsonObject jsonfile = files.createNestedObject();
+        jsonfile["filename"] = String(file.name());
+        jsonfile["size"] = file.size();
+        file = root.openNextFile();
+    }
+    root = LittleFS.open("/config/");
+    file = root.openNextFile();
+    while (file)
+    {
+        JsonObject jsonfile = files.createNestedObject();
+        jsonfile["filename"] = String("/config/" + String(file.name()));
+        jsonfile["size"] = file.size();
+        file = root.openNextFile();
+    }
+    serializeJson(doc, fileList);
+    serverWeb.send(HTTP_CODE_OK, contTypeJson, fileList);
+}
+
+static void apiDefault()
+{
+    LOGW("switch (action) err");
+}
+
+void handleApi()
+{ 
+    // Example api invocation:
+    // http://xzg.local/api?action=0&page=0
+
+    // apiFunctions[] will need to correspond to the
+    // values set in the JS frontend for "action"
+    static void (*apiFunctions[])() = {
+        apiDefault,
+        apiGetPage,
+        apiGetParam,
+        apiStartWifiScan,
+        apiWifiScanStatus,
+        apiGetFileList,
+        apiGetFile,
+        apiDefault,   // invoked by what was previously API_SEND_HEX.
+        apiWifiConnnectStat,
+        apiCMD,
+        apiGetLog,
+        apiDelFile
+    };
+    constexpr int numFunctions = sizeof(apiFunctions) / sizeof(apiFunctions[0]);
+    if (!is_authenticated()) {
+        redirectLogin(1);
+        return;
+    }
+    if (serverWeb.argName(0) == apiAction) {
+        // I add 1 to allow 0 to be default+overflow/invalid case.
+        // Ideally, the client would send 1-indexed "action"s
+        // but then I'd need to modify this in ALL of the client code...
+        const uint8_t action      = serverWeb.arg(apiAction).toInt() + 1;
+        const bool    boundsCheck = action < numFunctions;
+        apiFunctions[action * boundsCheck]();
+    }
+    else {
+        serverWeb.send(500, contTypeText, apiWrongArgs);
     }
 }
 
