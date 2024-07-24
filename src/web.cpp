@@ -98,7 +98,7 @@ const char *apiWrongArgs       = "wrong args";
 const char *apiOk              = "ok";
 const char *errLink            = "Error getting link";
 
-// MIME types and misc stuff
+// MIME types
 const char *contTypeTextHtml   = "text/html";
 const char *contTypeTextJs     = "text/javascript";
 const char *contTypeTextCss    = "text/css";
@@ -338,18 +338,25 @@ void handleNotFound()
 
     for (uint8_t i = 0; i < serverWeb.args(); i++)
     {
-        message += String(F(" ")) + serverWeb.argName(i) + F(": ") + serverWeb.arg(i) + F("\n");
+        message += String(F(" "))
+                   + serverWeb.argName(i)
+                   + F(": ")
+                   + serverWeb.arg(i)
+                   + F("\n");
     }
-    serverWeb.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    serverWeb.sendHeader("Pragma", "no-cache");
-    serverWeb.sendHeader("Expires", "-1");
-    serverWeb.send(404, "text/plain", message);
+    serverWeb.sendHeader ("Cache-Control", "no-cache, no-store, must-revalidate");
+    serverWeb.sendHeader ("Pragma", "no-cache");
+    serverWeb.sendHeader ("Expires", "-1");
+    serverWeb.send       (404, "text/plain", message);
 }
 
 void handleUpdateRequest()
 {
-    serverWeb.sendHeader("Connection", "close");
-    serverWeb.send(HTTP_CODE_OK, contTypeText, "Upload OK. Try to flash...");
+    serverWeb.sendHeader ("Connection",
+                          "close");
+    serverWeb.send       (HTTP_CODE_OK,
+                          contTypeText,
+                          "Upload OK. Try to flash...");
 }
 
 void handleEspUpdateUpload()
@@ -363,11 +370,16 @@ void handleEspUpdateUpload()
     static long contentLength = 0;
     if (upload.status == UPLOAD_FILE_START)
     {
-        LOGD("hostHeader: %s", serverWeb.hostHeader());
         contentLength = serverWeb.header("Content-Length").toInt();
-        LOGD("contentLength: %s", String(contentLength));
-        LOGD("Update ESP from file %s size: %s", String(upload.filename.c_str()), String(upload.totalSize));
-        LOGD("upload.currentSize %s", String(upload.currentSize));
+        LOGD ("hostHeader: %s",
+              serverWeb.hostHeader());
+        LOGD ("contentLength: %s",
+              String(contentLength));
+        LOGD ("Update ESP from file %s size: %s",
+              String(upload.filename.c_str()),
+              String(upload.totalSize));
+        LOGD ("upload.currentSize %s",
+              String(upload.currentSize));
         if (!Update.begin(contentLength))
         {
             Update.printError(Serial);
@@ -407,18 +419,20 @@ void handleEvents()
         eventsClient = serverWeb.client();
         if (eventsClient)
         {
-            eventsClient.println("HTTP/1.1 200 OK");
-            eventsClient.println("Content-Type: text/event-stream;");
-            eventsClient.println("Connection: close");
-            eventsClient.println("Access-Control-Allow-Origin: *");
-            eventsClient.println("Cache-Control: no-cache");
-            eventsClient.println();
-            eventsClient.flush();
+            eventsClient.println ("HTTP/1.1 200 OK");
+            eventsClient.println ("Content-Type: text/event-stream;");
+            eventsClient.println ("Connection: close");
+            eventsClient.println ("Access-Control-Allow-Origin: *");
+            eventsClient.println ("Cache-Control: no-cache");
+            eventsClient.println ();
+            eventsClient.flush   ();
         }
     }
 }
 
-void sendEvent(const char *event, const uint8_t evsz, const String data)
+void sendEvent(const char *event,
+               const uint8_t evsz,
+               const String data)
 {
     if (eventsClient)
     {
@@ -430,10 +444,16 @@ void sendEvent(const char *event, const uint8_t evsz, const String data)
     }
 }
 
-void sendGzip(const char *contentType, const uint8_t content[], uint16_t contentLen)
+void sendGzip(const char *contentType,
+              const uint8_t content[],
+              uint16_t contentLen)
 {
-    serverWeb.sendHeader(F("Content-Encoding"), F("gzip"));
-    serverWeb.send_P(HTTP_CODE_OK, contentType, (const char *)content, contentLen);
+    serverWeb.sendHeader (F("Content-Encoding"),
+                          F("gzip"));
+    serverWeb.send_P     (HTTP_CODE_OK,
+                          contentType,
+                          (const char *)content,
+                          contentLen);
 }
 
 // This isn't called from anywhere,
@@ -471,7 +491,9 @@ static void apiGetLog()
 static void apiCmdUpdateUrl(String &result)
 {
     if (serverWeb.hasArg(argUrl))
+    {
         getEspUpdate(serverWeb.arg(argUrl));
+    }
     else
     {
         String link = fetchLatestEspFw();
@@ -513,6 +535,7 @@ static void apiCmdZbLedToggle(String &result)
 static void apiCmdFactoryReset(String &result)
 {
     if (serverWeb.hasArg(argConf))
+    {
         if (serverWeb.arg(argConf).toInt() == 1)
         {
             serverWeb.send(HTTP_CODE_OK, contTypeText, result);
@@ -522,6 +545,7 @@ static void apiCmdFactoryReset(String &result)
         {
             serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
         }
+    }
 }
 
 static void apiCmdLedAct(String &result)
@@ -531,7 +555,7 @@ static void apiCmdLedAct(String &result)
         int ledNum = serverWeb.arg(argLed).toInt();
         int actNum = serverWeb.arg(argAct).toInt();
 
-        LED_t ledEnum = static_cast<LED_t>(ledNum);
+        LED_t   ledEnum = static_cast<LED_t>(ledNum);
         LEDMode actEnum = static_cast<LEDMode>(actNum);
 
         if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
@@ -563,9 +587,10 @@ static void apiCmdLedAct(String &result)
 static void apiCmdZbFlash(String &result)
 {
     if (serverWeb.hasArg(argUrl))
-        flashZbUrl(serverWeb.arg(argUrl));
-    else
     {
+        flashZbUrl(serverWeb.arg(argUrl));
+    }
+    else {
         String link = fetchLatestZbFw();
         if (link)
         {
@@ -672,7 +697,8 @@ static void apiCmdDnsCheck(String &result)
 
 static void apiCmd()
 {
-    static void (*apiCmdFunctions[])(String &result) = {
+    static void (*apiCmdFunctions[])(String &result) =
+    {
         apiCmdDefault,
         apiCmdZbRouterRecon,
         apiCmdZbRestart,
@@ -704,9 +730,9 @@ static void apiCmd()
         // but then I'd need to modify this in ALL of the client code...
         uint8_t command     = serverWeb.arg(argCmd).toInt() + 1;
         bool    boundsCheck = command < numFunctions;
-        {
-            apiCmdFunctions[command * boundsCheck](result);
-        }
+
+        apiCmdFunctions[command * boundsCheck](result);
+
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
 
@@ -720,7 +746,7 @@ static void apiWifiConnnectStat()
     if (WiFi.status() == WL_CONNECTED)
     {
         doc[connected] = true;
-        doc["ip"] = WiFi.localIP().toString();
+        doc["ip"]      = WiFi.localIP().toString();
     }
     else
     {
@@ -739,10 +765,11 @@ static void apiGetFile()
         String filename = "/" + serverWeb.arg(argFilename);
         File file = LittleFS.open(filename, "r");
         if (!file)
-            return;
-        result = "";
-        while (file.available() && result.length() < 500)
         {
+            return;
+        }
+        result = "";
+        while (file.available() && result.length() < 500) {
             result += (char)file.read();
         }
         file.close();
@@ -834,11 +861,12 @@ static void apiStartWifiScan()
 
 static void apiWifiScanStatus()
 {
-    static uint8_t timeout = 0;
-    DynamicJsonDocument doc(1024);
-    String result = "";
-    int16_t scanRes = WiFi.scanComplete();
-    const char *scanDone = "scanDone";
+    static uint8_t       timeout  = 0;
+    DynamicJsonDocument  doc(1024);
+    String               result   = "";
+    int16_t              scanRes  = WiFi.scanComplete();
+    const char          *scanDone = "scanDone";
+
     doc[scanDone] = false;
     if (scanRes == -2)
     {
@@ -851,10 +879,10 @@ static void apiWifiScanStatus()
         for (int i = 0; i < scanRes; ++i)
         {
             JsonObject wifi_0 = wifi.createNestedObject();
-            wifi_0["ssid"] = WiFi.SSID(i);
-            wifi_0["rssi"] = WiFi.RSSI(i);
+            wifi_0["ssid"]    = WiFi.SSID(i);
+            wifi_0["rssi"]    = WiFi.RSSI(i);
             wifi_0["channel"] = WiFi.channel(i);
-            wifi_0["secure"] = WiFi.encryptionType(i);
+            wifi_0["secure"]  = WiFi.encryptionType(i);
         }
         WiFi.scanDelete();
     }
