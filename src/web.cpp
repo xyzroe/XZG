@@ -281,8 +281,8 @@ void initWebServer()
 
     /* ----- OTA | END -----*/
 
-    const char *headerkeys[] = {"Content-Length", "Cookie"};
-    size_t headerkeyssize = sizeof(headerkeys) / sizeof(char *);
+    const char       *headerkeys[]   = {"Content-Length", "Cookie"};
+    constexpr size_t  headerkeyssize = sizeof(headerkeys) / sizeof(char *);
     serverWeb.collectHeaders(headerkeys, headerkeyssize);
     serverWeb.begin();
     LOGD("done");
@@ -1413,8 +1413,7 @@ void handleSerial()
     }
 
     doc[socketPortKey] = String(systemCfg.socketPort);
-
-    doc[zbRoleKey] = systemCfg.zbRole;
+    doc[zbRoleKey]     = systemCfg.zbRole;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1429,12 +1428,12 @@ void handleMqtt()
     {
         doc["enableMqtt"] = checked;
     }
-    doc["serverMqtt"] = mqttCfg.server;
-    doc["portMqtt"] = mqttCfg.port;
-    doc["userMqtt"] = mqttCfg.user;
-    doc["passMqtt"] = mqttCfg.pass;
-    doc["topicMqtt"] = mqttCfg.topic;
-    doc["intervalMqtt"] = mqttCfg.updateInt;
+    doc["serverMqtt"]    = mqttCfg.server;
+    doc["portMqtt"]      = mqttCfg.port;
+    doc["userMqtt"]      = mqttCfg.user;
+    doc["passMqtt"]      = mqttCfg.pass;
+    doc["topicMqtt"]     = mqttCfg.topic;
+    doc["intervalMqtt"]  = mqttCfg.updateInt;
     doc["mqttReconnect"] = mqttCfg.reconnectInt;
 
     if (mqttCfg.discovery)
@@ -1455,16 +1454,16 @@ void handleVpn()
     {
         doc[wgEnableKey] = checked;
     }
-    doc[wgLocalIPKey] = vpnCfg.wgLocalIP.toString();
-    doc[wgLocalSubnetKey] = vpnCfg.wgLocalSubnet.toString();
-    doc[wgLocalPortKey] = vpnCfg.wgLocalPort;
+    doc[wgLocalIPKey]      = vpnCfg.wgLocalIP.toString();
+    doc[wgLocalSubnetKey]  = vpnCfg.wgLocalSubnet.toString();
+    doc[wgLocalPortKey]    = vpnCfg.wgLocalPort;
     doc[wgLocalGatewayKey] = vpnCfg.wgLocalGateway.toString();
     doc[wgLocalPrivKeyKey] = vpnCfg.wgLocalPrivKey;
-    doc[wgEndAddrKey] = vpnCfg.wgEndAddr;
-    doc[wgEndPubKeyKey] = vpnCfg.wgEndPubKey;
-    doc[wgEndPortKey] = vpnCfg.wgEndPort;
-    doc[wgAllowedIPKey] = vpnCfg.wgAllowedIP.toString();
-    doc[wgAllowedMaskKey] = vpnCfg.wgAllowedMask.toString();
+    doc[wgEndAddrKey]      = vpnCfg.wgEndAddr;
+    doc[wgEndPubKeyKey]    = vpnCfg.wgEndPubKey;
+    doc[wgEndPortKey]      = vpnCfg.wgEndPort;
+    doc[wgAllowedIPKey]    = vpnCfg.wgAllowedIP.toString();
+    doc[wgAllowedMaskKey]  = vpnCfg.wgAllowedMask.toString();
     if (vpnCfg.wgMakeDefault)
     {
         doc[wgMakeDefaultKey] = checked;
@@ -1477,7 +1476,7 @@ void handleVpn()
     }
     doc[hnJoinCodeKey] = vpnCfg.hnJoinCode;
     doc[hnHostNameKey] = vpnCfg.hnHostName;
-    doc[hnDashUrlKey] = vpnCfg.hnDashUrl;
+    doc[hnDashUrlKey]  = vpnCfg.hnDashUrl;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1491,12 +1490,12 @@ String getRootData(bool update)
     String readableTime;
     getReadableTime(readableTime, vars.socketTime);
     const char *connectedSocketStatus = "connectedSocketStatus";
-    const char *connectedSocket = "connectedSocket";
-    const char *noConn = "noConn";
+    const char *connectedSocket       = "connectedSocket";
+    const char *noConn                = "noConn";
 
     doc[connectedSocketStatus] = vars.connectedClients;
-    doc[connectedSocket] = vars.socketTime;
-    doc["localTime"] = getTime();
+    doc[connectedSocket]       = vars.socketTime;
+    doc["localTime"]           = getTime();
 
     if (!update)
     {
@@ -1518,14 +1517,14 @@ String getRootData(bool update)
         doc[operationalMode] = systemCfg.workMode;
 
         doc[espUpdAvailKey] = vars.updateEspAvail;
-        doc[zbUpdAvailKey] = vars.updateZbAvail;
+        doc[zbUpdAvailKey]  = vars.updateZbAvail;
     }
 
     // ETHERNET TAB
     const char *ethConn = "ethConn";
-    const char *ethMac = "ethMac";
-    const char *ethSpd = "ethSpd";
-    const char *ethDns = "ethDns";
+    const char *ethMac  = "ethMac";
+    const char *ethSpd  = "ethSpd";
+    const char *ethDns  = "ethDns";
 
     if (networkCfg.ethEnable)
     {
@@ -1533,23 +1532,23 @@ String getRootData(bool update)
         {
             doc[ethMac] = ETH.macAddress();
         }
-        doc[ethConn] = vars.connectedEther ? 1 : 0;
+        doc[ethConn]    = vars.connectedEther ? 1 : 0;
         doc[ethDhcpKey] = networkCfg.ethDhcp ? 1 : 0;
         if (vars.connectedEther)
         {
-            doc[ethSpd] = ETH.linkSpeed();
-            doc[ethIpKey] = ETH.localIP().toString();
+            doc[ethSpd]     = ETH.linkSpeed();
+            doc[ethIpKey]   = ETH.localIP().toString();
             doc[ethMaskKey] = ETH.subnetMask().toString();
             doc[ethGateKey] = ETH.gatewayIP().toString();
-            doc[ethDns] = vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
+            doc[ethDns]     = vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
         else
         {
-            doc[ethSpd] = noConn;
-            doc[ethIpKey] = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
+            doc[ethSpd]     = noConn;
+            doc[ethIpKey]   = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
             doc[ethMaskKey] = networkCfg.ethDhcp ? noConn : ETH.subnetMask().toString();
             doc[ethGateKey] = networkCfg.ethDhcp ? noConn : ETH.gatewayIP().toString();
-            doc[ethDns] = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
+            doc[ethDns]     = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
     }
 
@@ -1566,10 +1565,10 @@ String getRootData(bool update)
 
     if (!update)
     {
-        doc["hwRev"] = hwConfig.board;
+        doc["hwRev"]    = hwConfig.board;
         doc["espModel"] = String(ESP.getChipModel());
         doc["espCores"] = ESP.getChipCores();
-        doc["espFreq"] = ESP.getCpuFreqMHz();
+        doc["espFreq"]  = ESP.getCpuFreqMHz();
 
         esp_chip_info_t chip_info;
         esp_chip_info(&chip_info);
@@ -1594,22 +1593,19 @@ String getRootData(bool update)
         else
         {
             doc["zigbeeFwRev"] = String(systemCfg.zbFw);
-            doc["zbFwSaved"] = true;
+            doc["zbFwSaved"]   = true;
         }
 
-        doc["zigbeeHwRev"] = CCTool.chip.hwRev;
-
-        doc["zigbeeIeee"] = CCTool.chip.ieee;
-
+        doc["zigbeeHwRev"]  = CCTool.chip.hwRev;
+        doc["zigbeeIeee"]   = CCTool.chip.ieee;
         doc["zigbeeFlSize"] = String(CCTool.chip.flashSize / 1024);
 
         unsigned int totalFs = LittleFS.totalBytes() / 1024;
-        unsigned int usedFs = LittleFS.usedBytes() / 1024;
-
+        unsigned int usedFs  = LittleFS.usedBytes() / 1024;
         doc["espFsSize"] = totalFs;
         doc["espFsUsed"] = usedFs;
 
-        doc[zbRoleKey] = systemCfg.zbRole;
+        doc[zbRoleKey]       = systemCfg.zbRole;
         doc["zigbeeFwSaved"] = systemCfg.zbFw;
     }
     int heapSize = ESP.getHeapSize() / 1024;
@@ -1628,7 +1624,7 @@ String getRootData(bool update)
     const char *wifiRssi = "wifiRssi";
     const char *wifiConn = "wifiConn";
     const char *wifiMode = "wifiMode";
-    const char *wifiDns = "wifiDns";
+    const char *wifiDns  = "wifiDns";
 
     if (!update)
     {
@@ -1648,15 +1644,11 @@ String getRootData(bool update)
 
                 for (int brdNewIdx = 0; brdNewIdx < BOARD_CFG_CNT; brdNewIdx++)
                 {
-                    if (brdConfigs[brdNewIdx].ethConfigIndex == brdConfigs[boardNum].ethConfigIndex)
+                    if (brdConfigs[brdNewIdx].ethConfigIndex == brdConfigs[boardNum].ethConfigIndex
+                        && brdConfigs[brdNewIdx].zbConfigIndex == brdConfigs[boardNum].zbConfigIndex
+                        && brdConfigs[brdNewIdx].mistConfigIndex == brdConfigs[boardNum].mistConfigIndex)
                     {
-                        if (brdConfigs[brdNewIdx].zbConfigIndex == brdConfigs[boardNum].zbConfigIndex)
-                        {
-                            if (brdConfigs[brdNewIdx].mistConfigIndex == brdConfigs[boardNum].mistConfigIndex)
-                            {
-                                boardArray[arrayIndex++] = brdConfigs[brdNewIdx].board;
-                            }
-                        }
+                        boardArray[arrayIndex++] = brdConfigs[brdNewIdx].board;
                     }
                 }
 
@@ -1678,27 +1670,27 @@ String getRootData(bool update)
 
     if (networkCfg.wifiEnable)
     {
-        doc[wifiMode] = 1; //"Client";
+        doc[wifiMode]    = 1; //"Client";
         doc[wifiDhcpKey] = networkCfg.wifiDhcp ? 1 : 0;
         if (WiFi.status() == WL_CONNECTED)
         { // STA connected
             doc[wifiSsidKey] = WiFi.SSID();
-            doc[wifiRssi] = WiFi.RSSI();
-            doc[wifiConn] = 1;
-            doc[wifiIpKey] = WiFi.localIP().toString();
+            doc[wifiRssi]    = WiFi.RSSI();
+            doc[wifiConn]    = 1;
+            doc[wifiIpKey]   = WiFi.localIP().toString();
             doc[wifiMaskKey] = WiFi.subnetMask().toString();
             doc[wifiGateKey] = WiFi.gatewayIP().toString();
-            doc[wifiDns] = vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
+            doc[wifiDns]     = vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
         else
         {
             doc[wifiSsidKey] = networkCfg.wifiSsid;
-            doc[wifiRssi] = noConn;
-            doc[wifiConn] = 0;
-            doc[wifiIpKey] = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
+            doc[wifiRssi]    = noConn;
+            doc[wifiConn]    = 0;
+            doc[wifiIpKey]   = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
             doc[wifiMaskKey] = networkCfg.wifiDhcp ? noConn : WiFi.subnetMask().toString();
             doc[wifiGateKey] = networkCfg.wifiDhcp ? noConn : WiFi.gatewayIP().toString();
-            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
+            doc[wifiDns]     = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
     }
 
@@ -1706,57 +1698,53 @@ String getRootData(bool update)
     { // AP active
         String AP_NameString;
 
-        doc[wifiMode] = 2;
-        doc[wifiConn] = 1;
+        doc[wifiMode]    = 2;
+        doc[wifiConn]    = 1;
         doc[wifiSsidKey] = vars.deviceId;
-        doc[wifiIpKey] = WiFi.localIP().toString(); //"192.168.1.1 (XZG web interface)";
+        doc[wifiIpKey  ] = WiFi.localIP().toString(); //"192.168.1.1 (XZG web interface)";
         doc[wifiMaskKey] = "255.255.255.0 (Access point)";
         doc[wifiGateKey] = "192.168.1.1 (this device)";
         doc[wifiDhcpKey] = "On (Access point)";
-        doc[wifiMode] = 2;      //"AP";
-        doc[wifiRssi] = noConn; //"N/A";
+        doc[wifiMode]    = 2;      //"AP";
+        doc[wifiRssi]    = noConn; //"N/A";
     }
 
     // MQTT
     if (mqttCfg.enable)
     {
         const char *mqConnect = "mqConnect";
-        const char *mqBroker = "mqBroker";
+        const char *mqBroker  = "mqBroker";
 
-        doc[mqBroker] = mqttCfg.server;
-
+        doc[mqBroker]  = mqttCfg.server;
         doc[mqConnect] = vars.mqttConn ? 1 : 0;
     }
 
     // VPN WireGuard
     if (vpnCfg.wgEnable)
     {
-        const char *wgInit = "wgInit";
+        const char *wgInit       = "wgInit";
         const char *wgDeviceAddr = "wgDeviceAddr";
         const char *wgRemoteAddr = "wgRemoteAddr";
-        const char *wgConnect = "wgConnect";
-        const char *wgRemoteIP = "wgRemoteIp";
+        const char *wgConnect    = "wgConnect";
+        const char *wgRemoteIP   = "wgRemoteIp";
         // const char *wgEndPort = "wgEndPort";
 
-        doc[wgInit] = vars.vpnWgInit ? 1 : 0;
+        doc[wgInit]       = vars.vpnWgInit ? 1 : 0;
         doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();
         doc[wgRemoteAddr] = vpnCfg.wgEndAddr;
+        doc[wgConnect]    = vars.vpnWgConnect ? 1 : 0;
+        doc[wgRemoteIP]   = vars.vpnWgPeerIp.toString();
         // doc[wgEndPort] = vpnCfg.wgEndPort;
-
-        doc[wgConnect] = vars.vpnWgConnect ? 1 : 0;
-
-        doc[wgRemoteIP] = vars.vpnWgPeerIp.toString();
     }
     // VPN Husarnet
     if (vpnCfg.hnEnable)
     {
-        const char *hnInit = "hnInit";
+        const char *hnInit     = "hnInit";
         const char *hnHostName = "hnHostName";
 
         // doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();//WgSettings.localAddr;
         doc[hnHostName] = vpnCfg.hnHostName;
-
-        doc[hnInit] = vars.vpnHnInit ? 1 : 0;
+        doc[hnInit]     = vars.vpnHnInit ? 1 : 0;
     }
 
     String result;
@@ -1776,12 +1764,12 @@ void handleTools()
     String result;
     DynamicJsonDocument doc(512);
 
-    doc[hwBtnIsKey] = vars.hwBtnIs;
-    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    doc[hwBtnIsKey]    = vars.hwBtnIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
-    // doc["hostname"] = systemCfg.hostname;
-    // doc["refreshLogs"] = systemCfg.refreshLogs;
+    // doc[hwUartSelIsKey] = vars.hwUartSelIs;
+    // doc["hostname"]     = systemCfg.hostname;
+    // doc["refreshLogs"]  = systemCfg.refreshLogs;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1798,8 +1786,9 @@ void handleSavefile()
     else
     {
         String filename = "/" + serverWeb.arg(0);
-        String content = serverWeb.arg(1);
-        File file = LittleFS.open(filename, "w");
+        String content  = serverWeb.arg(1);
+        File   file     = LittleFS.open(filename, "w");
+
         LOGD("try %s", filename.c_str());
 
         if (!file)
@@ -1807,7 +1796,6 @@ void handleSavefile()
             LOGW("Failed to open file for reading");
             return;
         }
-
         int bytesWritten = file.print(content);
         if (bytesWritten > 0)
         {
@@ -1827,7 +1815,6 @@ void handleSavefile()
 /* ----- Multi-tool support | START -----*/
 void handleZigbeeBSL()
 {
-
     zigbeeEnableBSL();
     serverWeb.send(HTTP_CODE_OK, contTypeText, "Zigbee BSL");
 }
@@ -1887,7 +1874,6 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
 */
 void progressFunc(unsigned int progress, unsigned int total)
 {
-
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
