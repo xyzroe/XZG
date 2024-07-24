@@ -84,25 +84,33 @@ bool wifiWebSetupInProgress = false;
 
 bool eventOK = false;
 
-// handlerAPI const strings
-const char *apiAction          = "action";
-const char *apiPage            = "page";
-const char *apiParam           = "param";
+// API strings
+const char *argAction          = "action";
+const char *argPage            = "page";
+const char *argParam           = "param";
+const char *argFilename        = "filename";
+const char *argCmd             = "cmd";
+const char *argUrl             = "url";
+const char *argConf            = "conf";
+const char *argLed             = "led";
+const char *argAct             = "act";
 const char *apiWrongArgs       = "wrong args";
 const char *apiOk              = "ok";
-const char *apiFilename        = "filename";
+const char *errLink            = "Error getting link";
 
+// MIME types and misc stuff
 const char *contTypeTextHtml   = "text/html";
 const char *contTypeTextJs     = "text/javascript";
 const char *contTypeTextCss    = "text/css";
 const char *contTypeTextSvg    = "image/svg+xml";
-const char *checked            = "true";
-const char *respHeaderName     = "respValuesArr";
-const char *respTimeZonesName  = "respTimeZones";
 const char *contTypeJson       = "application/json";
 const char *contTypeText       = "text/plain";
 
-const char *tempFile = "/fw.hex";
+// Misc. strings
+const char *checked            = "true";
+const char *respHeaderName     = "respValuesArr";
+const char *respTimeZonesName  = "respTimeZones";
+const char *tempFile           = "/fw.hex";
 
 bool opened = false;
 File fwFile;
@@ -114,17 +122,39 @@ WebServer serverWeb(80);
 
 WiFiClient eventsClient;
 
-static void apiDefault();
-static void apiGetPage();
-static void apiGetParam();
-static void apiStartWifiScan();
-static void apiWifiScanStatus();
-static void apiGetLog();
-static void apiCMD();
-static void apiWifiConnnectStat();
-static void apiGetFile();
-static void apiDelFile();
-static void apiGetFileList();
+// apiHandler() handler functions,
+// listed in index order
+static void apiDefault          ();
+static void apiGetPage          ();
+static void apiGetParam         ();
+static void apiStartWifiScan    ();
+static void apiWifiScanStatus   ();
+static void apiGetLog           ();
+static void apiCmd              ();
+static void apiWifiConnnectStat ();
+static void apiGetFile          ();
+static void apiDelFile          ();
+static void apiGetFileList      ();
+
+// apiCMD() handler functions,
+// listed in index order
+static void apiCmdDefault         (String &result);
+static void apiCmdZbRouterRecon   (String &result);
+static void apiCmdZbRestart       (String &result);
+static void apiCmdZbEnableBsl     (String &result);
+static void apiCmdEspReset        (String &result);
+static void apiCmdAdapterLan      (String &result);
+static void apiCmdAdapterUsb      (String &result);
+static void apiCmdLedAct          (String &result);
+static void apiCmdZbFlash         (String &result);
+static void apiCmdClearLog        (String &result);
+static void apiCmdUpdateUrl       (String &result);
+static void apiCmdZbCheckFirmware (String &result);
+static void apiCmdZbLedToggle     (String &result);
+static void apiCmdFactoryReset    (String &result);
+static void apiCmdDnsCheck        (String &result);
+static void apiCmdBoardName       (String &result);
+
 
 void webServerHandleClient()
 {
@@ -406,6 +436,8 @@ void sendGzip(const char *contentType, const uint8_t content[], uint16_t content
     serverWeb.send_P(HTTP_CODE_OK, contentType, (const char *)content, contentLen);
 }
 
+// This isn't called from anywhere,
+// does it even work?
 void hex2bin(uint8_t *out, const char *in)
 {
     // uint8_t sz = 0;
@@ -436,207 +468,244 @@ static void apiGetLog()
     serverWeb.send(HTTP_CODE_OK, contTypeText, result);
 }
 
-static void apiCMD()
+static void apiCmdUpdateUrl(String &result)
 {
-    enum CMD_t : uint8_t
-    { // cmd list for buttons starts from 0
-        CMD_ZB_ROUTER_RECON,
-        CMD_ZB_RST,
-        CMD_ZB_BSL,
-        CMD_ESP_RES,
-        CMD_ADAP_LAN,
-        CMD_ADAP_USB,
-        CMD_LED_ACT,
-        CMD_ZB_FLASH,
-        CMD_CLEAR_LOG,
-        CMD_ESP_UPD_URL,
-        CMD_ZB_CHK_FW,
-        CMD_ZB_CHK_HW,
-        CMD_ZB_LED_TOG,
-        CMD_ESP_FAC_RES,
-        CMD_ZB_ERASE_NVRAM,
-        CMD_DNS_CHECK,
-        CMD_BRD_NAME
+    if (serverWeb.hasArg(argUrl))
+        getEspUpdate(serverWeb.arg(argUrl));
+    else
+    {
+        String link = fetchLatestEspFw();
+        if (link)
+        {
+            getEspUpdate(link);
+        }
+        else
+        {
+            LOGW("%s", String(errLink));
+        }
+    }
+}
+
+static void apiCmdZbCheckFirmware(String &result)
+{
+    if (zbFwCheck())
+    {
+        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+    }
+    else
+    {
+        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+    }
+}
+
+static void apiCmdZbLedToggle(String &result)
+{
+    if (zbLedToggle())
+    {
+        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+    }
+    else
+    {
+        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
+    }
+}
+
+static void apiCmdFactoryReset(String &result)
+{
+    if (serverWeb.hasArg(argConf))
+        if (serverWeb.arg(argConf).toInt() == 1)
+        {
+            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            factoryReset();
+        }
+        else
+        {
+            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+        }
+}
+
+static void apiCmdLedAct(String &result)
+{
+    if (serverWeb.hasArg(argLed) && serverWeb.hasArg(argAct))
+    {
+        int ledNum = serverWeb.arg(argLed).toInt();
+        int actNum = serverWeb.arg(argAct).toInt();
+
+        LED_t ledEnum = static_cast<LED_t>(ledNum);
+        LEDMode actEnum = static_cast<LEDMode>(actNum);
+
+        if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
+        {
+            String tag = "API";
+            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+            if (ledNum == MODE_LED)
+            {
+                LOGD("%s led %d", ledControl.modeLED.name, actNum);
+                ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
+            }
+            else if (ledNum == POWER_LED)
+            {
+                LOGD("%s led %d", ledControl.powerLED.name, actNum);
+                ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
+            }
+        }
+        else
+        {
+            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+        }
+    }
+    else
+    {
+        serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+    }
+}
+
+static void apiCmdZbFlash(String &result)
+{
+    if (serverWeb.hasArg(argUrl))
+        flashZbUrl(serverWeb.arg(argUrl));
+    else
+    {
+        String link = fetchLatestZbFw();
+        if (link)
+        {
+            flashZbUrl(link);
+        }
+        else
+        {
+            LOGW("%s", String(errLink));
+        }
+    }
+}
+
+static void apiCmdBoardName(String &result)
+{
+    if (serverWeb.hasArg("board"))
+    {
+        String brdName = serverWeb.arg("board");
+        brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
+
+        File configFile = LittleFS.open(configFileHw, FILE_READ);
+        if (!configFile)
+        {
+            Serial.println("Failed to open config file for reading");
+            return;
+        }
+
+        DynamicJsonDocument config(1024);
+        DeserializationError error = deserializeJson(config, configFile);
+        if (error)
+        {
+            Serial.println("Failed to parse config file");
+            configFile.close();
+            return;
+        }
+
+        configFile.close();
+        config["board"] = hwConfig.board;
+
+        writeDefaultConfig(configFileHw, config);
+        serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+    }
+    else
+    {
+        serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+    }
+}
+
+static void apiCmdDefault(String &result)
+{
+    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
+}
+
+static void apiCmdZbRouterRecon(String &result)
+{
+    zigbeeRouterRejoin();
+}
+
+static void apiCmdZbRestart(String &result)
+{
+    zigbeeRestart();
+}
+
+static void apiCmdZbEnableBsl(String &result)
+{
+    zigbeeEnableBSL();
+}
+
+static void apiCmdEspReset(String &result)
+{
+    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
+    delay(250);
+    ESP.restart();
+}
+
+static void apiCmdAdapterLan(String &result)
+{
+    usbModeSet(XZG);
+}
+
+static void apiCmdAdapterUsb(String &result)
+{
+    usbModeSet(ZIGBEE);
+}
+
+static void apiCmdClearLog(String &result)
+{
+    logClear();
+}
+
+static void apiCmdZbCheckHardware(String &result)
+{
+    zbHwCheck();
+}
+
+static void apiCmdEraseNvram(String &result)
+{
+    xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);
+}
+
+static void apiCmdDnsCheck(String &result)
+{
+    checkDNS();
+}
+
+static void apiCmd()
+{
+    static void (*apiCmdFunctions[])(String &result) = {
+        apiCmdDefault,
+        apiCmdZbRouterRecon,
+        apiCmdZbRestart,
+        apiCmdZbEnableBsl,
+        apiCmdEspReset,
+        apiCmdAdapterLan,
+        apiCmdAdapterUsb,
+        apiCmdLedAct,
+        apiCmdZbFlash,
+        apiCmdClearLog,
+        apiCmdUpdateUrl,
+        apiCmdZbCheckFirmware,
+        apiCmdZbCheckHardware,
+        apiCmdZbLedToggle,
+        apiCmdFactoryReset,
+        apiCmdEraseNvram,
+        apiCmdDnsCheck,
+        apiCmdBoardName
     };
+    constexpr int numFunctions = sizeof(apiCmdFunctions) / sizeof(apiCmdFunctions[0]);
     String result = apiWrongArgs;
-    const char *argCmd = "cmd";
-    const char *argUrl = "url";
-    const char *argConf = "conf";
-    const char *argLed = "led";
-    const char *argAct = "act";
-    const char *errLink = "Error getting link";
 
     if (serverWeb.hasArg(argCmd))
     {
         result = "ok";
-        switch (serverWeb.arg(argCmd).toInt())
+
+        // I add 1 to allow 0 to be default+overflow/invalid case.
+        // Ideally, the client would send 1-indexed "cmd"s
+        // but then I'd need to modify this in ALL of the client code...
+        uint8_t command     = serverWeb.arg(argCmd).toInt() + 1;
+        bool    boundsCheck = command < numFunctions;
         {
-        case CMD_CLEAR_LOG:
-            logClear();
-            break;
-        case CMD_ZB_ROUTER_RECON:
-            zigbeeRouterRejoin();
-            break;
-        case CMD_ZB_RST:
-            zigbeeRestart();
-            break;
-        case CMD_ZB_BSL:
-            zigbeeEnableBSL();
-            break;
-        case CMD_DNS_CHECK:
-            checkDNS();
-            break;
-        case CMD_ZB_ERASE_NVRAM:
-            xTaskCreate(zbEraseNV, "zbEraseNV", 2048, NULL, 5, NULL);
-            break;
-        case CMD_ESP_RES:
-            serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-            delay(250);
-            ESP.restart();
-            break;
-        case CMD_ADAP_LAN:
-            usbModeSet(XZG);
-            break;
-        case CMD_ADAP_USB:
-            usbModeSet(ZIGBEE);
-            break;
-        case CMD_ESP_UPD_URL:
-            if (serverWeb.hasArg(argUrl))
-                getEspUpdate(serverWeb.arg(argUrl));
-            else
-            {
-                String link = fetchLatestEspFw();
-                if (link)
-                {
-                    getEspUpdate(link);
-                }
-                else
-                {
-                    LOGW("%s", String(errLink));
-                }
-            }
-            break;
-        case CMD_ZB_CHK_FW:
-            if (zbFwCheck())
-            {
-                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-            }
-            else
-            {
-                serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
-            }
-            break;
-        case CMD_ZB_CHK_HW:
-            zbHwCheck();
-            break;
-        case CMD_ZB_LED_TOG:
-            if (zbLedToggle())
-            {
-                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-            }
-            else
-            {
-                serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, result);
-            }
-            break;
-        case CMD_ESP_FAC_RES:
-            if (serverWeb.hasArg(argConf))
-                if (serverWeb.arg(argConf).toInt() == 1)
-                {
-                    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    factoryReset();
-                }
-                else
-                {
-                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                }
-            break;
-        case CMD_LED_ACT:
-            if (serverWeb.hasArg(argLed) && serverWeb.hasArg(argAct))
-            {
-                int ledNum = serverWeb.arg(argLed).toInt();
-                int actNum = serverWeb.arg(argAct).toInt();
-
-                LED_t ledEnum = static_cast<LED_t>(ledNum);
-                LEDMode actEnum = static_cast<LEDMode>(actNum);
-
-                if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
-                {
-                    String tag = "API";
-                    serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-                    if (ledNum == MODE_LED)
-                    {
-                        LOGD("%s led %d", ledControl.modeLED.name, actNum);
-                        ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
-                    }
-                    else if (ledNum == POWER_LED)
-                    {
-                        LOGD("%s led %d", ledControl.powerLED.name, actNum);
-                        ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
-                    }
-                }
-                else
-                {
-                    serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-                }
-            }
-            else
-            {
-                serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-            }
-            break;
-        case CMD_ZB_FLASH:
-            if (serverWeb.hasArg(argUrl))
-                flashZbUrl(serverWeb.arg(argUrl));
-            else
-            {
-                String link = fetchLatestZbFw();
-                if (link)
-                {
-                    flashZbUrl(link);
-                }
-                else
-                {
-                    LOGW("%s", String(errLink));
-                }
-            }
-            break;
-        case CMD_BRD_NAME:
-            if (serverWeb.hasArg("board"))
-            {
-                String brdName = serverWeb.arg("board");
-                brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
-
-                File configFile = LittleFS.open(configFileHw, FILE_READ);
-                if (!configFile)
-                {
-                    Serial.println("Failed to open config file for reading");
-                    return;
-                }
-
-                DynamicJsonDocument config(1024);
-                DeserializationError error = deserializeJson(config, configFile);
-                if (error)
-                {
-                    Serial.println("Failed to parse config file");
-                    configFile.close();
-                    return;
-                }
-
-                configFile.close();
-                config["board"] = hwConfig.board;
-
-                writeDefaultConfig(configFileHw, config);
-                serverWeb.send(HTTP_CODE_OK, contTypeText, result);
-            }
-            else
-            {
-                serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-            }
-            break;
-        default:
-            serverWeb.send(HTTP_CODE_BAD_REQUEST, contTypeText, result);
-            break;
+            apiCmdFunctions[command * boundsCheck](result);
         }
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
@@ -665,9 +734,9 @@ static void apiGetFile()
 {
     String result = apiWrongArgs;
 
-    if (serverWeb.hasArg(apiFilename))
+    if (serverWeb.hasArg(argFilename))
     {
-        String filename = "/" + serverWeb.arg(apiFilename);
+        String filename = "/" + serverWeb.arg(argFilename);
         File file = LittleFS.open(filename, "r");
         if (!file)
             return;
@@ -685,9 +754,9 @@ static void apiDelFile()
 {
     String result = apiWrongArgs;
 
-    if (serverWeb.hasArg(apiFilename))
+    if (serverWeb.hasArg(argFilename))
     {
-        String filename = "/" + serverWeb.arg(apiFilename);
+        String filename = "/" + serverWeb.arg(argFilename);
         LOGW("Remove file %s", filename.c_str());
         LittleFS.remove(filename);
     }
@@ -697,17 +766,17 @@ static void apiDelFile()
 static void apiGetParam()
 {
     String resp = apiWrongArgs;
-    if (serverWeb.hasArg(apiParam))
+    if (serverWeb.hasArg(argParam))
     {
-        if (serverWeb.arg(apiParam) == "refreshLogs")
+        if (serverWeb.arg(argParam) == "refreshLogs")
         {
             resp = (String)systemCfg.refreshLogs;
         }
-        else if (serverWeb.arg(apiParam) == "update_root")
+        else if (serverWeb.arg(argParam) == "update_root")
         {
             resp = getRootData(true);
         }
-        else if (serverWeb.arg(apiParam) == "coordMode")
+        else if (serverWeb.arg(argParam) == "coordMode")
         {
             if (wifiWebSetupInProgress)
             {
@@ -718,31 +787,31 @@ static void apiGetParam()
                 resp = (String)systemCfg.workMode;
             }
         }
-        else if (serverWeb.arg(apiParam) == "zbFwVer")
+        else if (serverWeb.arg(argParam) == "zbFwVer")
         {
             resp = String(CCTool.chip.fwRev);
         }
-        else if (serverWeb.arg(apiParam) == "zbHwVer")
+        else if (serverWeb.arg(argParam) == "zbHwVer")
         {
             resp = String(CCTool.chip.hwRev);
         }
-        else if (serverWeb.arg(apiParam) == "espVer")
+        else if (serverWeb.arg(argParam) == "espVer")
         {
             resp = VERSION;
         }
-        else if (serverWeb.arg(apiParam) == "wifiEnable")
+        else if (serverWeb.arg(argParam) == "wifiEnable")
         {
             resp = networkCfg.wifiEnable;
         }
-        else if (serverWeb.arg(apiParam) == "all")
+        else if (serverWeb.arg(argParam) == "all")
         {
             resp = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
         }
-        else if (serverWeb.arg(apiParam) == "vars")
+        else if (serverWeb.arg(argParam) == "vars")
         {
             resp = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
         }
-        else if (serverWeb.arg(apiParam) == "root")
+        else if (serverWeb.arg(argParam) == "root")
         {
             resp = getRootData();
         }
@@ -805,13 +874,13 @@ static void apiWifiScanStatus()
 
 static void apiGetPage()
 {
-    if (!serverWeb.arg(apiPage).length())
+    if (!serverWeb.arg(argPage).length())
     {
         LOGW("wrong arg 'page' %s", serverWeb.argName(1));
         serverWeb.send(500, contTypeText, apiWrongArgs);
         return;
     }
-    switch (serverWeb.arg(apiPage).toInt())
+    switch (serverWeb.arg(argPage).toInt())
     {
     case API_PAGE_ROOT:
         handleRoot();
@@ -887,7 +956,7 @@ static void apiDefault()
 }
 
 void handleApi()
-{ 
+{
     // Example api invocation:
     // http://xzg.local/api?action=0&page=0
 
@@ -903,7 +972,7 @@ void handleApi()
         apiGetFile,
         apiDefault,   // invoked by what was previously API_SEND_HEX.
         apiWifiConnnectStat,
-        apiCMD,
+        apiCmd,
         apiGetLog,
         apiDelFile
     };
@@ -912,11 +981,11 @@ void handleApi()
         redirectLogin(1);
         return;
     }
-    if (serverWeb.argName(0) == apiAction) {
+    if (serverWeb.argName(0) == argAction) {
         // I add 1 to allow 0 to be default+overflow/invalid case.
         // Ideally, the client would send 1-indexed "action"s
         // but then I'd need to modify this in ALL of the client code...
-        const uint8_t action      = serverWeb.arg(apiAction).toInt() + 1;
+        const uint8_t action      = serverWeb.arg(argAction).toInt() + 1;
         const bool    boundsCheck = action < numFunctions;
         apiFunctions[action * boundsCheck]();
     }

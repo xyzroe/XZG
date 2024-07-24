@@ -1,4 +1,4 @@
 // AUTO GENERATED FILE
 #ifndef VERSION
-    #define VERSION "20240723"
+    #define VERSION "20240724"
 #endif
