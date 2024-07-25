@@ -10,7 +10,9 @@
 #include <WiFi.h>
 #include <Ticker.h>
 #include <CCTools.h>
+#include <memory>
 
+#include "ArduinoJson/Document/DynamicJsonDocument.hpp"
 #include "config.h"
 #include "web.h"
 #include "log.h"
@@ -155,6 +157,25 @@ static void apiCmdFactoryReset    (String &result);
 static void apiCmdDnsCheck        (String &result);
 static void apiCmdBoardName       (String &result);
 
+// functions called exactly once each
+// from getRootData():
+static inline void getRootEthTab       (DynamicJsonDocument &doc,
+                                        bool update,
+                                        const String &noConn);
+static inline void getRootWifi         (DynamicJsonDocument &doc,
+                                        bool update,
+                                        const String &noConn);
+static inline void getRootHwMisc       (DynamicJsonDocument &doc,
+                                        bool update);
+static inline void getRootVpnWireGuard (DynamicJsonDocument &doc);
+static inline void getRootVpnHusarnet  (DynamicJsonDocument &doc);
+static inline void getRootUptime       (DynamicJsonDocument &doc);
+static inline void getRootCpuTemp      (DynamicJsonDocument &doc);
+static inline void getRootOneWireTemp  (DynamicJsonDocument &doc);
+static inline void getRootHeapsize     (DynamicJsonDocument &doc);
+static inline void getRootNvsStats     (DynamicJsonDocument &doc);
+static inline void getRootSockets      (DynamicJsonDocument &doc);
+static inline void getRootTime         (DynamicJsonDocument &doc);
 
 void webServerHandleClient()
 {
@@ -1303,59 +1324,59 @@ void handleNetwork()
 
     switch (networkCfg.wifiMode)
     {
-    case WIFI_PROTOCOL_11B:
-        doc["1"] = checked;
-        break;
-    case WIFI_PROTOCOL_11G:
-        doc["2"] = checked;
-        break;
-    case WIFI_PROTOCOL_11N:
-        doc["4"] = checked;
-        break;
-    case WIFI_PROTOCOL_LR:
-        doc["8"] = checked;
-        break;
-    default:
-        break;
+        case WIFI_PROTOCOL_11B:
+            doc["1"] = checked;
+            break;
+        case WIFI_PROTOCOL_11G:
+            doc["2"] = checked;
+            break;
+        case WIFI_PROTOCOL_11N:
+            doc["4"] = checked;
+            break;
+        case WIFI_PROTOCOL_LR:
+            doc["8"] = checked;
+            break;
+        default:
+            break;
     }
 
     switch (networkCfg.wifiPower)
     {
-    case WIFI_POWER_19_5dBm:
-        doc["78"] = checked;
-        break;
-    case WIFI_POWER_19dBm:
-        doc["76"] = checked;
-        break;
-    case WIFI_POWER_18_5dBm:
-        doc["74"] = checked;
-        break;
-    case WIFI_POWER_17dBm:
-        doc["68"] = checked;
-        break;
-    case WIFI_POWER_15dBm:
-        doc["60"] = checked;
-        break;
-    case WIFI_POWER_13dBm:
-        doc["52"] = checked;
-        break;
-    case WIFI_POWER_11dBm:
-        doc["44"] = checked;
-        break;
-    case WIFI_POWER_8_5dBm:
-        doc["34"] = checked;
-        break;
-    case WIFI_POWER_7dBm:
-        doc["28"] = checked;
-        break;
-    case WIFI_POWER_5dBm:
-        doc["20"] = checked;
-        break;
-    case WIFI_POWER_2dBm:
-        doc["8"] = checked;
-        break;
-    default:
-        break;
+        case WIFI_POWER_19_5dBm:
+            doc["78"] = checked;
+            break;
+        case WIFI_POWER_19dBm:
+            doc["76"] = checked;
+            break;
+        case WIFI_POWER_18_5dBm:
+            doc["74"] = checked;
+            break;
+        case WIFI_POWER_17dBm:
+            doc["68"] = checked;
+            break;
+        case WIFI_POWER_15dBm:
+            doc["60"] = checked;
+            break;
+        case WIFI_POWER_13dBm:
+            doc["52"] = checked;
+            break;
+        case WIFI_POWER_11dBm:
+            doc["44"] = checked;
+            break;
+        case WIFI_POWER_8_5dBm:
+            doc["34"] = checked;
+            break;
+        case WIFI_POWER_7dBm:
+            doc["28"] = checked;
+            break;
+        case WIFI_POWER_5dBm:
+            doc["20"] = checked;
+            break;
+        case WIFI_POWER_2dBm:
+            doc["8"] = checked;
+            break;
+        default:
+            break;
     }
 
     if (hwConfig.eth.mdcPin == -1 || hwConfig.eth.mdiPin == -1)
@@ -1482,44 +1503,10 @@ void handleVpn()
     serverWeb.sendHeader(respHeaderName, result);
 }
 
-String getRootData(bool update)
+static void getRootEthTab(DynamicJsonDocument &doc,
+                          bool update,
+                          const String &noConn)
 {
-    String tag = "root_data";
-    DynamicJsonDocument doc(2048);
-
-    String readableTime;
-    getReadableTime(readableTime, vars.socketTime);
-    const char *connectedSocketStatus = "connectedSocketStatus";
-    const char *connectedSocket       = "connectedSocket";
-    const char *noConn                = "noConn";
-
-    doc[connectedSocketStatus] = vars.connectedClients;
-    doc[connectedSocket]       = vars.socketTime;
-    doc["localTime"]           = getTime();
-
-    if (!update)
-    {
-        char verArr[25];
-        const char *env = STRINGIFY(BUILD_ENV_NAME);
-
-        if (strcasestr(env, "debug") != NULL)
-        {
-            sprintf(verArr, "%s (%s)", VERSION, env);
-        }
-        else
-        {
-            sprintf(verArr, "%s", VERSION);
-        }
-
-        doc["VERSION"] = String(verArr);
-
-        const char *operationalMode = "operationalMode";
-        doc[operationalMode] = systemCfg.workMode;
-
-        doc[espUpdAvailKey] = vars.updateEspAvail;
-        doc[zbUpdAvailKey]  = vars.updateZbAvail;
-    }
-
     // ETHERNET TAB
     const char *ethConn = "ethConn";
     const char *ethMac  = "ethMac";
@@ -1552,75 +1539,12 @@ String getRootData(bool update)
         }
     }
 
-    doc["uptime"] = millis(); // readableTime;
+}
 
-    float CPUtemp = getCPUtemp();
-    doc["deviceTemp"] = String(CPUtemp);
-
-    if (vars.oneWireIs)
-    {
-        float temp = get1wire();
-        doc["1wTemp"] = String(temp);
-    }
-
-    if (!update)
-    {
-        doc["hwRev"]    = hwConfig.board;
-        doc["espModel"] = String(ESP.getChipModel());
-        doc["espCores"] = ESP.getChipCores();
-        doc["espFreq"]  = ESP.getCpuFreqMHz();
-
-        esp_chip_info_t chip_info;
-        esp_chip_info(&chip_info);
-
-        const char *espFlashType = "espFlashType";
-        if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
-        {
-            doc[espFlashType] = 1;
-        }
-        else
-        {
-            doc[espFlashType] = 2;
-        }
-
-        doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
-
-        // doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
-        if (CCTool.chip.fwRev > 0)
-        {
-            doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
-        }
-        else
-        {
-            doc["zigbeeFwRev"] = String(systemCfg.zbFw);
-            doc["zbFwSaved"]   = true;
-        }
-
-        doc["zigbeeHwRev"]  = CCTool.chip.hwRev;
-        doc["zigbeeIeee"]   = CCTool.chip.ieee;
-        doc["zigbeeFlSize"] = String(CCTool.chip.flashSize / 1024);
-
-        unsigned int totalFs = LittleFS.totalBytes() / 1024;
-        unsigned int usedFs  = LittleFS.usedBytes() / 1024;
-        doc["espFsSize"] = totalFs;
-        doc["espFsUsed"] = usedFs;
-
-        doc[zbRoleKey]       = systemCfg.zbRole;
-        doc["zigbeeFwSaved"] = systemCfg.zbFw;
-    }
-    int heapSize = ESP.getHeapSize() / 1024;
-    int heapFree = ESP.getFreeHeap() / 1024;
-
-    doc["espHeapSize"] = heapSize;
-    doc["espHeapUsed"] = heapSize - heapFree;
-
-    int total, used;
-    getNvsStats(&total, &used);
-
-    doc["espNvsSize"] = total;
-    doc["espNvsUsed"] = used;
-
-    // wifi
+static inline void getRootWifi(DynamicJsonDocument &doc,
+                        bool update,
+                        const String &noConn)
+{
     const char *wifiRssi = "wifiRssi";
     const char *wifiConn = "wifiConn";
     const char *wifiMode = "wifiMode";
@@ -1637,7 +1561,7 @@ String getRootData(bool update)
             {
                 String boardNumber = boardStr.substring(underscoreIndex + 1);
                 boardNumber.trim();
-                int boardNum = boardNumber.toInt();
+                const int boardNum = boardNumber.toInt();
 
                 String boardArray[BOARD_CFG_CNT];
                 int arrayIndex = 0;
@@ -1708,8 +1632,10 @@ String getRootData(bool update)
         doc[wifiMode]    = 2;      //"AP";
         doc[wifiRssi]    = noConn; //"N/A";
     }
+}
 
-    // MQTT
+static inline void getRootMqtt(DynamicJsonDocument &doc)
+{
     if (mqttCfg.enable)
     {
         const char *mqConnect = "mqConnect";
@@ -1718,8 +1644,10 @@ String getRootData(bool update)
         doc[mqBroker]  = mqttCfg.server;
         doc[mqConnect] = vars.mqttConn ? 1 : 0;
     }
+}
 
-    // VPN WireGuard
+static inline void getRootVpnWireGuard(DynamicJsonDocument &doc)
+{
     if (vpnCfg.wgEnable)
     {
         const char *wgInit       = "wgInit";
@@ -1736,7 +1664,10 @@ String getRootData(bool update)
         doc[wgRemoteIP]   = vars.vpnWgPeerIp.toString();
         // doc[wgEndPort] = vpnCfg.wgEndPort;
     }
-    // VPN Husarnet
+}
+
+static inline void getRootVpnHusarnet(DynamicJsonDocument &doc)
+{
     if (vpnCfg.hnEnable)
     {
         const char *hnInit     = "hnInit";
@@ -1746,6 +1677,152 @@ String getRootData(bool update)
         doc[hnHostName] = vpnCfg.hnHostName;
         doc[hnInit]     = vars.vpnHnInit ? 1 : 0;
     }
+}
+
+static inline void getRootUptime(DynamicJsonDocument &doc)
+{
+    doc["uptime"] = millis(); // readableTime;
+}
+
+static inline void getRootCpuTemp(DynamicJsonDocument &doc)
+{
+    float CPUtemp = getCPUtemp();
+    doc["deviceTemp"] = String(CPUtemp);
+}
+
+static inline void getRootOneWireTemp(DynamicJsonDocument &doc)
+{
+    if (vars.oneWireIs)
+    {
+        float temp = get1wire();
+        doc["1wTemp"] = String(temp);
+    }
+}
+
+// Some misc hardware info,
+// maybe organise this more
+static inline void getRootHwMisc(DynamicJsonDocument &doc, bool update)
+{
+    if (update)
+    {
+        return;
+    }
+    char verArr[25];
+    const char *env = STRINGIFY(BUILD_ENV_NAME);
+
+    if (strcasestr(env, "debug") != NULL)
+    {
+        sprintf(verArr, "%s (%s)", VERSION, env);
+    }
+    else
+    {
+        sprintf(verArr, "%s", VERSION);
+    }
+
+    doc["VERSION"] = String(verArr);
+
+    const char *operationalMode = "operationalMode";
+    doc[operationalMode] = systemCfg.workMode;
+
+    doc[espUpdAvailKey] = vars.updateEspAvail;
+    doc[zbUpdAvailKey]  = vars.updateZbAvail;
+
+    doc["hwRev"]    = hwConfig.board;
+    doc["espModel"] = String(ESP.getChipModel());
+    doc["espCores"] = ESP.getChipCores();
+    doc["espFreq"]  = ESP.getCpuFreqMHz();
+
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
+    const char *espFlashType = "espFlashType";
+    if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
+    {
+        doc[espFlashType] = 1;
+    }
+    else
+    {
+        doc[espFlashType] = 2;
+    }
+
+    doc["espFlashSize"] = ESP.getFlashChipSize() / (1024 * 1024);
+
+    // doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+    if (CCTool.chip.fwRev > 0)
+    {
+        doc["zigbeeFwRev"] = String(CCTool.chip.fwRev);
+    }
+    else
+    {
+        doc["zigbeeFwRev"] = String(systemCfg.zbFw);
+        doc["zbFwSaved"]   = true;
+    }
+
+    doc["zigbeeHwRev"]  = CCTool.chip.hwRev;
+    doc["zigbeeIeee"]   = CCTool.chip.ieee;
+    doc["zigbeeFlSize"] = String(CCTool.chip.flashSize / 1024);
+
+    unsigned int totalFs = LittleFS.totalBytes() / 1024;
+    unsigned int usedFs  = LittleFS.usedBytes() / 1024;
+    doc["espFsSize"] = totalFs;
+    doc["espFsUsed"] = usedFs;
+
+    doc[zbRoleKey]       = systemCfg.zbRole;
+    doc["zigbeeFwSaved"] = systemCfg.zbFw;
+}
+
+static inline void getRootHeapsize(DynamicJsonDocument &doc)
+{
+    int heapSize = ESP.getHeapSize() / 1024;
+    int heapFree = ESP.getFreeHeap() / 1024;
+
+    doc["espHeapSize"] = heapSize;
+    doc["espHeapUsed"] = heapSize - heapFree;
+}
+
+static inline void getRootNvsStats(DynamicJsonDocument &doc)
+{
+    int total, used;
+    getNvsStats(&total, &used);
+
+    doc["espNvsSize"] = total;
+    doc["espNvsUsed"] = used;
+}
+
+static inline void getRootSockets(DynamicJsonDocument &doc)
+{
+    const char *connectedSocketStatus = "connectedSocketStatus";
+    const char *connectedSocket       = "connectedSocket";
+
+    doc[connectedSocketStatus] = vars.connectedClients;
+    doc[connectedSocket]       = vars.socketTime;
+}
+
+static inline void getRootTime(DynamicJsonDocument &doc)
+{
+    doc["localTime"] = getTime();
+}
+
+String getRootData(bool update)
+{
+    DynamicJsonDocument doc(2048);
+
+    const char *noConn = "noConn";
+    getRootEthTab       (doc, update, noConn);
+    getRootWifi         (doc, update, noConn);
+
+    getRootHwMisc       (doc, update);
+
+    getRootSockets      (doc);
+    getRootTime         (doc);
+    getRootUptime       (doc);
+    getRootCpuTemp      (doc);
+    getRootOneWireTemp  (doc);
+    getRootHeapsize     (doc);
+    getRootNvsStats     (doc);
+    getRootMqtt         (doc);
+    getRootVpnWireGuard (doc);
+    getRootVpnHusarnet  (doc);
 
     String result;
     serializeJson(doc, result);
@@ -1872,6 +1949,7 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
 #endif
 };
 */
+
 void progressFunc(unsigned int progress, unsigned int total)
 {
     const uint8_t eventLen = 11;
