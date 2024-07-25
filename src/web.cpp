@@ -10,9 +10,7 @@
 #include <WiFi.h>
 #include <Ticker.h>
 #include <CCTools.h>
-#include <memory>
 
-#include "ArduinoJson/Document/DynamicJsonDocument.hpp"
 #include "config.h"
 #include "web.h"
 #include "log.h"
