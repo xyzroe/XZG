@@ -184,7 +184,8 @@
             "CC1352P7_coordinator_20dbm_20240711.bin": {
                 "ver": "20240711",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20dbm_20240711.bin",
-                "notes": ""
+                "notes": "CCS 12.8 + 20 dBm. BETA",
+                "baud": "115200"
             }
         },
         "CC2652RB": {
