@@ -180,6 +180,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_460800_20230507.bin",
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
+            },
+            "CC1352P7_coordinator_20dbm_20240711.bin": {
+                "ver": "20240711",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20dbm_20240711.bin",
+                "notes": ""
             }
         },
         "CC2652RB": {
