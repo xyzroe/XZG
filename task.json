@@ -24,5 +24,9 @@
     {"type": "coordinator", "link": "https://github.com/Andrik45719/Z-Stack-firmware/releases/download/20240315/CC1352P2_CC2652P_other_coordinator_20240315_patched_460800.zip"},
     {"type": "thread", "link":  "https://github.com/tube0013/tube_gateways/raw/main/openthread_boarder_router_fw/rcp_LP_CC2652PSIP_tirtos7_ticlang_SDK_7_10_01_24.hex.zip"},
     {"type": "thread", "link":  "https://github.com/tube0013/tube_gateways/raw/main/openthread_boarder_router_fw/old/rcp_LP_CC2652PSIP_tirtos_ticlang.hex.zip"},
-    {"type": "coordinator", "link": "https://github.com/user-attachments/files/16203584/20240710.zip"}
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/blob/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/blob/master/coordinator/Z-Stack_3.x.0/bin/CC1352P7_coordinator_20240710.zip"},
+    {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/blob/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20240710.zip"},
+    {"type": "coordinator", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/blob/main/CC1352P7_coordinator_20240711_20dbm_20240909/CC1352P7_coordinator_20240711.hex"},
+    {"type": "router", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/blob/main/CC1352P7_router_20221103_20dbm_20240909/CC1352P7_router_20221103.hex"}
 ]
