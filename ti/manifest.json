@@ -34,6 +34,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/zr_genericapp_LP_CC1352P7_4_tirtos7_ticlang_20231201.bin",
                 "notes": "Special [build](https://github.com/mercenaruss/zigstar_gateways/blob/main/files/Firmware/CC1352P7_Router.zip) from @mercenaruss \ud83c\udf1f",
                 "baud": "115200"
+            },
+            "CC1352P7_router_20221103.bin": {
+                "ver": "20221103",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20221103.bin",
+                "notes": ""
             }
         }
     },
@@ -192,6 +197,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20dbm_20240711.bin",
                 "notes": "CCS 12.8 + 20 dBm. [Full description](https://t.me/XZG_FW/16/2383) Thanks to @agriadsi",
                 "baud": "115200"
+            },
+            "CC1352P7_coordinator_20240711.bin": {
+                "ver": "20240711",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240711.bin",
+                "notes": ""
             }
         },
         "CC2652RB": {
