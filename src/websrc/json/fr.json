@@ -42,14 +42,14 @@
         "tt": "AVERTISSEMENT DE RÉINITIALISATION D'USINE"
       },
       "fu": {
-        "fri": "Récupération des informations sur le microLOGDciel...",
+        "fri": "Récupération des informations sur le micrologiciel...",
         "glm": "Mise à jour vers la dernière version de GitHub.",
         "gvm": "Mise à jour vers la version {{ver}} de GitHub.",
         "gvt": "Versions de GitHub",
         "lfm": "Mise à jour à partir d'un fichier local.",
         "lgds": "Téléchargement de la dernière version de GitHub...",
         "prgs": "Mise à jour : {{per}} %",
-        "tt": "MISE À JOUR DU MICROLOGDCIEL XZG",
+        "tt": "MISE À JOUR DU MICROLOGICIEL XZG",
         "ucr": "Mise à jour terminée! \nRedémarrage !",
         "vgds": "Téléchargement de la version {{ver}} depuis GitHub...",
         "wdm": "En attente de l'appareil...",
