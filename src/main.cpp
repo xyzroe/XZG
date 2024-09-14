@@ -197,7 +197,7 @@ void handleTmrNetworkOverseer()
     {
       if (tmrNetworkOverseer.counter() > overseerMaxRetry)
       {
-        LOGD("LAN counter overflow");
+        LOGD("LAN counter overflow!");
         startAP(true);
       }
     }
