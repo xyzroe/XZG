@@ -13,23 +13,29 @@ def download_and_extract(url, extract_to):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        zip_path = os.path.join(extract_to, os.path.basename(url))
-        with open(zip_path, "wb") as f:
+        file_name = os.path.basename(url)
+        file_path = os.path.join(extract_to, file_name)
+        
+        with open(file_path, "wb") as f:
             f.write(response.content)
         
-        with ZipFile(zip_path, "r") as zip_ref:
-            for zip_info in zip_ref.infolist():
-                zip_ref.extract(zip_info, extract_to)
-                extracted_path = os.path.join(extract_to, zip_info.filename)
-                date_time = datetime(*zip_info.date_time)
-                mod_time = date_time.timestamp()
-                os.utime(extracted_path, (mod_time, mod_time))
-        
-        os.remove(zip_path)
+        if file_name.endswith('.zip'):
+            try:
+                with ZipFile(file_path, "r") as zip_ref:
+                    for zip_info in zip_ref.infolist():
+                        zip_ref.extract(zip_info, extract_to)
+                        extracted_path = os.path.join(extract_to, zip_info.filename)
+                        date_time = datetime(*zip_info.date_time)
+                        mod_time = date_time.timestamp()
+                        os.utime(extracted_path, (mod_time, mod_time))
+                os.remove(file_path)
+            except BadZipFile as e:
+                print(f"Error unpacking archive: {e}")
+        else:
+            print(f"Downloaded file saved to {file_path}")
     except requests.RequestException as e:
         print(f"Error downloading from {url}: {e}")
-    except BadZipFile as e:
-        print(f"Error unpacking archive: {e}")
+
 
 def update_manifest(root, file, chip, version):
     manifest_path = os.path.join("ti", "manifest.json")
