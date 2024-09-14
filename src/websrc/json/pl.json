@@ -168,7 +168,8 @@
           "th": "Czwartek",
           "tt": "Dzień tygodnia",
           "tu": "Wtorek",
-          "wd": "Środa"
+          "wd": "Środa",
+          "du": "Wyłączyć"
         },
         "h": "Czas sprawdzania nowego oprogramowania sprzętowego"
       }

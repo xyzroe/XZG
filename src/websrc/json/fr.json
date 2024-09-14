@@ -168,7 +168,8 @@
           "th": "Jeudi",
           "tt": "Jour de la semaine",
           "tu": "Mardi",
-          "wd": "Mercredi"
+          "wd": "Mercredi",
+          "du": "Désactiver"
         },
         "h": "Heure de vérification du nouveau firmware"
       }

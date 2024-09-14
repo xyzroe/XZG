@@ -168,7 +168,8 @@
           "th": "Giovedì",
           "tt": "Giorno della settimana",
           "tu": "Martedì",
-          "wd": "Mercoledì"
+          "wd": "Mercoledì",
+          "du": "Disabilita"
         },
         "h": "Orario di verifica del nuovo firmware"
       }

@@ -565,19 +565,26 @@ void setupCron()
 
   String wday = systemCfg.updCheckDay;
 
-  seconds = random(1, 59);
+  if (wday != "0")
+  {
+    seconds = random(1, 59);
 
-  // char timeArray[6];
-  // String(systemCfg.updCheckTime).toCharArray(timeArray, sizeof(timeArray));
+    // char timeArray[6];
+    // String(systemCfg.updCheckTime).toCharArray(timeArray, sizeof(timeArray));
 
-  sscanf(systemCfg.updCheckTime, "%d:%d", &hours, &minutes);
+    sscanf(systemCfg.updCheckTime, "%d:%d", &hours, &minutes);
 
-  snprintf(formattedTime, sizeof(formattedTime), "%d %d %d * * %s", seconds, minutes, hours, wday);
+    snprintf(formattedTime, sizeof(formattedTime), "%d %d %d * * %s", seconds, minutes, hours, wday);
 
-  // LOGD("UPD cron %s", String(formattedTime));
-  printLogMsg("[UPD_CHK] cron " + String(formattedTime));
+    // LOGD("UPD cron %s", String(formattedTime));
+    printLogMsg("[UPD_CHK] cron " + String(formattedTime));
 
-  Cron.create(const_cast<char *>(formattedTime), checkUpdateAvail, false); // 0 0 */6 * * *
+    Cron.create(const_cast<char *>(formattedTime), checkUpdateAvail, false); // 0 0 */6 * * *
+  }
+  else
+  {
+    printLogMsg("[UPD_CHK] cron disabled");
+  }
 
   if (systemCfg.nmEnable)
   {

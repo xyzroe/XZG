@@ -116,7 +116,8 @@
           "th": "Thursday",
           "fr": "Friday",
           "sa": "Saturday",
-          "su": "Sunday"
+          "su": "Sunday",
+          "du": "Disable"
         },
         "ai": "Auto install updates (ESP32 and Zigbee)"
       }

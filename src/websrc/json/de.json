@@ -168,7 +168,8 @@
           "th": "Donnerstag",
           "tt": "Wochentag",
           "tu": "Dienstag",
-          "wd": "Mittwoch"
+          "wd": "Mittwoch",
+          "du": "Deaktivieren"
         },
         "h": "Neue Firmware-Prüfzeit"
       }

@@ -168,7 +168,8 @@
           "th": "Perşembe",
           "tt": "Haftanın günü",
           "tu": "Salı",
-          "wd": "Çarşamba"
+          "wd": "Çarşamba",
+          "du": "Devre dışı bırakmak"
         },
         "h": "Yeni ürün yazılımı kontrol zamanı"
       }
