@@ -35,16 +35,11 @@
                 "notes": "Special [build](https://github.com/mercenaruss/zigstar_gateways/blob/main/files/Firmware/CC1352P7_Router.zip) from @mercenaruss \ud83c\udf1f",
                 "baud": "115200"
             },
-            "CC1352P7_router_20221103.bin": {
-                "ver": "20dBm_20221103",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20221103.bin",
-                "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/main/CC1352P7_router_20221103_20dbm_20240909/readme_ru.txt",
-                "baud": "115200"
-            },
             "CC1352P7_router_20221102_20dbm_20240909.bin": {
-                "ver": "20240909",
+                "ver": "20dBm_20240909",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20221102_20dbm_20240909.bin",
-                "notes": ""
+                "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/XZG_20240909/router/README.md",
+                "baud": "115200"
             }
         }
     },
@@ -192,27 +187,11 @@
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
             },
-            "CC1352P7_coordinator_20dbm_20240909.bin": {
-                "ver": "20dBm_20240909",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20dbm_20240909.bin",
-                "notes": "BETA [Full description](https://t.me/XZG_FW/16/2418) Thanks to @agriadsi",
-                "baud": "115200"
-            },
-            "CC1352P7_coordinator_20240711.bin": {
-                "ver": "20dBm_20240711",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240711.bin",
-                "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/main/CC1352P7_coordinator_20240711_20dbm_20240909/readme_en.txt",
-                "baud": "115200"
-            },
             "CC1352P7_coordinator_20240710_20dbm_20240909.bin": {
-                "ver": "20240909",
+                "ver": "20dBm_20240909",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240710_20dbm_20240909.bin",
-                "notes": ""
-            },
-            "CC1352P7_coordinator_20dbm_20240711.bin": {
-                "ver": "20240711",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20dbm_20240711.bin",
-                "notes": ""
+                "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/XZG_20240909/coordinator/README.md",
+                "baud": "115200"
             }
         },
         "CC2652RB": {
