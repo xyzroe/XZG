@@ -27,6 +27,6 @@
     {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip"},
     {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P7_coordinator_20240710.zip"},
     {"type": "coordinator", "link": "https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_other_coordinator_20240710.zip"},
-    {"type": "coordinator", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/raw/main/CC1352P7_coordinator_20240711_20dbm_20240909/CC1352P7_coordinator_20240711.hex"},
-    {"type": "router", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/raw/main/CC1352P7_router_20221103_20dbm_20240909/CC1352P7_router_20221103.hex"}
+    {"type": "coordinator", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/raw/XZG_20240909/coordinator/CC1352P7_coordinator_20240710_20dbm_20240909.hex"},
+    {"type": "router", "link": "https://github.com/agriadsi/MOD-Z-Stack-Firmware/raw/XZG_20240909/router/CC1352P7_router_20221102_20dbm_20240909.hex"}
 ]
