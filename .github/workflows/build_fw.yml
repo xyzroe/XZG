@@ -53,7 +53,7 @@ jobs:
           python-version: "3.9"
 
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio==6.1.11
+        run: pip install --upgrade platformio==6.1.15
 
       - name: Build PlatformIO Project
         run: pio run
