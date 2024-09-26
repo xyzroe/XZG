@@ -34,18 +34,18 @@ MistConfig mistConfigs[] = {
 // Board configurations
 // Don't forget to edit BOARD_CFG_CNT !
 BrdConfigStruct brdConfigs[] = {
-    {"SLS-classic", .ethConfigIndex = -1, .zbConfigIndex = 7, .mistConfigIndex = 3},     // 0
-    {"UZG-01", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},           // 1
-    {"SLZB-06", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 2},          // 2
-    {"ZigStar LAN", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},      // 3
-    {"LilyZig", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 4},          // 4
-    {"Olizig", .ethConfigIndex = 0, .zbConfigIndex = 0, .mistConfigIndex = 0},           // 5
-    {"China-GW", .ethConfigIndex = 0, .zbConfigIndex = 2, .mistConfigIndex = 0},         // 6
-    {"TubesZB-eth", .ethConfigIndex = 1, .zbConfigIndex = 1, .mistConfigIndex = 0},      // 7
-    {"TubesZB-eth_usb", .ethConfigIndex = 1, .zbConfigIndex = 3, .mistConfigIndex = 0},  // 8
-    {"TubesZB-poe", .ethConfigIndex = 0, .zbConfigIndex = 4, .mistConfigIndex = 0},      // 9
-    {"TubesZB-poe-2022", .ethConfigIndex = 0, .zbConfigIndex = 5, .mistConfigIndex = 0}, // 10
-    {"TubesZB-poe-2023", .ethConfigIndex = 0, .zbConfigIndex = 6, .mistConfigIndex = 0}, // 11
-    {"CZC-1.0", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},          // 12
-    {"HG POE Plus", .ethConfigIndex = 2, .zbConfigIndex = 0, .mistConfigIndex = 1},      // 13
+    {"SLS-classic", -1, 7, 3},     // 0
+    {"UZG-01", 2, 0, 1},           // 1
+    {"SLZB-06", 1, 1, 2},          // 2
+    {"ZigStar LAN", 1, 1, 0},      // 3
+    {"LilyZig", 2, 0, 4},          // 4
+    {"Olizig", 0, 0, 0},           // 5
+    {"China-GW", 0, 2, 0},         // 6
+    {"TubesZB-eth", 1, 1, 0},      // 7
+    {"TubesZB-eth_usb", 1, 3, 0},  // 8
+    {"TubesZB-poe", 0, 4, 0},      // 9
+    {"TubesZB-poe-2022", 0, 5, 0}, // 10
+    {"TubesZB-poe-2023", 0, 6, 0}, // 11
+    {"CZC-1.0", 2, 0, 1},          // 12
+    {"HG POE Plus", 2, 0, 1},      // 13
 };

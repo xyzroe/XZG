@@ -297,7 +297,7 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
 void mqttConnectSetup()
 {
     LOGD("mqttConnectSetup");
-    if (checkDNS())
+    if (true) // checkDNS())
     {
         if (mqttCfg.reconnectInt == 0)
         {
@@ -392,6 +392,9 @@ void onMqttConnect(bool sessionPresent)
     mqttPublishIo("update_zb", vars.updateZbAvail);
     mqttPublishState();
 
+    mqttPublishUpdate(UPD_ESP);
+    mqttPublishUpdate(UPD_ZB);
+
     mqttPublishAvail();
 }
 
@@ -406,24 +409,34 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 
 void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
 {
+    static char json[512];
+    static DynamicJsonDocument doc(512);
+
     String topicStr(topic);
     if (topicStr.endsWith("/cmd"))
     {
-        char json[len + 1];
-        memcpy(json, payload, len);
-        json[len] = '\0';
-
-        DynamicJsonDocument doc(512);
-        deserializeJson(doc, json);
-        const char *command = doc["cmd"];
-
-        LOGD("cmd - %s", String(json));
-
-        if (command)
+        if (len < sizeof(json))
         {
-            executeCommand(command);
+            memcpy(json, payload, len);
+            json[len] = '\0';
+
+            doc.clear();
+            deserializeJson(doc, json);
+            const char *command = doc["cmd"];
+
+            LOGD("cmd - %s", String(json));
+
+            if (command)
+            {
+                executeCommand(command);
+            }
+        }
+        else
+        {
+            LOGW("Payload too large");
         }
     }
+    topicStr.clear();
 }
 
 void executeCommand(const char *command)
@@ -465,11 +478,55 @@ void mqttPublishIo(const String &io, bool st)
     }
 }
 
+void mqttPublishUpdate(updInfoType chip)
+{
+    // String state = st ? "ON" : "OFF";
+    if (mqttClient.connected())
+    {
+        /*
+        String topic = String(mqttCfg.topic) + "/io/" + io;
+        LOGD("Pub Io %s at %s", state.c_str(), topic.c_str());
+        mqttClient.publish(topic.c_str(), 0, true, state.c_str());*/
+        static DynamicJsonDocument jsonBuff(256);
+        static String mqttBuffer;
+        char verArr[25];
+        const char *env = STRINGIFY(BUILD_ENV_NAME);
+
+        switch (chip)
+        {
+        case UPD_ESP:
+
+            sprintf(verArr, "%s (%s)", VERSION, env);
+            jsonBuff["installed_version"] = String(verArr);
+            jsonBuff["latest_version"] = String(vars.lastESPVer);
+            break;
+
+        case UPD_ZB:
+            jsonBuff["installed_version"] = String(getZigbeeFWver());
+            jsonBuff["latest_version"] = String(vars.lastZBVer);
+            break;
+        }
+
+
+        String topic = String(mqttCfg.topic) + "/upd/" + chip;
+        LOGD("Pub upd %s at %s", chip == UPD_ESP ? "ESP" : "Zigbee", topic.c_str());
+
+        serializeJson(jsonBuff, mqttBuffer);
+
+        mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
+        jsonBuff.clear();
+        mqttBuffer.clear();
+    }
+}
+
 void mqttPublishState()
 {
     if (!vars.zbFlashing)
     {
-        DynamicJsonDocument buffJson(512);
+        static DynamicJsonDocument buffJson(512);
+        static String mqttBuffer;
+
+        buffJson.clear();
         for (const auto &item : mqttTopicsConfigs)
         {
             if (item.sensorId != "temperature1w" || vars.oneWireIs)
@@ -485,12 +542,14 @@ void mqttPublishState()
             }
         }
         String topic = mqttCfg.topic + String(stateTopic);
-        String mqttBuffer;
         serializeJson(buffJson, mqttBuffer);
 
         LOGD("%s", mqttBuffer.c_str());
 
         mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
+
+        topic.clear();
+        mqttBuffer.clear();
     }
     else
     {
@@ -501,7 +560,11 @@ void mqttPublishState()
 
 void mqttPublishDiscovery()
 {
-    DynamicJsonDocument devInfo(256);
+    static DynamicJsonDocument devInfo(256);
+    static DynamicJsonDocument buffJson(2048);
+    static String mqttBuffer;
+
+    devInfo.clear();
     devInfo["ids"] = vars.deviceId;
     devInfo["name"] = systemCfg.hostname;
     devInfo["mf"] = "XZG";
@@ -511,9 +574,7 @@ void mqttPublishDiscovery()
     sprintf(verArr, "%s (%s)", VERSION, env);
     devInfo["sw"] = String(verArr);
 
-    DynamicJsonDocument buffJson(2048);
-    String mqttBuffer;
-
+    buffJson.clear();
     for (const auto &item : mqttTopicsConfigs)
     {
         if (item.sensorId != "temperature1w" || vars.oneWireIs)
@@ -560,4 +621,8 @@ void mqttPublishDiscovery()
             mqttBuffer.clear();
         }
     }
+
+    devInfo.clear();
+    buffJson.clear();
+    mqttBuffer.clear();
 }

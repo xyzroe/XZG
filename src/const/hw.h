@@ -1,3 +1,6 @@
+#ifndef HW_H
+#define HW_H
+
 #include <ETH.h>
 
 // Ethernet settings structure
@@ -9,7 +12,7 @@ struct EthConfig
     int mdiPin;
     eth_phy_type_t phyType;
     eth_clock_mode_t clkMode;
-    int pwrAltPin;
+    //int pwrAltPin;
 };
 
 // ZigBee settings structure
@@ -55,3 +58,5 @@ struct ThisConfigStruct
     ZbConfig zb;
     MistConfig mist;
 };
+
+#endif // HW_H

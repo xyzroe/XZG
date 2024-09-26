@@ -54,6 +54,8 @@ extern int btnFlag;
 
 bool updWeb = false;
 
+int networkOverseerCounter = 0;
+
 void mDNS_start();
 void connectWifi();
 // void handleLongBtn();
@@ -62,7 +64,8 @@ void setupCoordinatorMode();
 void startAP(const bool start);
 // void toggleUsbMode();
 
-Ticker tmrNetworkOverseer(handleTmrNetworkOverseer, overseerInterval, 0, MILLIS);
+// Ticker tmrNetworkOverseer(handleTmrNetworkOverseer, overseerInterval, 0, MILLIS);
+Ticker tmrNetworkOverseer;
 
 IPAddress apIP(192, 168, 1, 1);
 DNSServer dnsServer;
@@ -74,16 +77,25 @@ MDNSResponder mDNS;
 
 void initLan()
 {
-
+// ETH.begin(ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].addr, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].clkMode)
+//
+#ifdef TASMOTA_PLATFORM
+  if (ETH.begin(hwConfig.eth.phyType, hwConfig.eth.addr, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.pwrPin, hwConfig.eth.clkMode))
+#else
   if (ETH.begin(hwConfig.eth.addr, hwConfig.eth.pwrPin, hwConfig.eth.mdcPin, hwConfig.eth.mdiPin, hwConfig.eth.phyType, hwConfig.eth.clkMode)) // hwConfig.eth.pwrAltPin))
+#endif
   {
     String modeString = networkCfg.ethDhcp ? "DHCP" : "Static";
-    LOGD("LAN start ok, %s", modeString);
+    LOGD("LAN start ok, %s", modeString.c_str());
     // ConfigSettings.disconnectEthTime = millis();
     if (!networkCfg.ethDhcp)
     {
+      LOGD("Static IP");
       ETH.config(networkCfg.ethIp, networkCfg.ethGate, networkCfg.ethMask, networkCfg.ethDns1, networkCfg.ethDns2);
     }
+    ETH.enableIpV6();
+    // ETH.enableIPv6();
+    // ETH.printTo(Serial);
   }
   else
   {
@@ -144,6 +156,7 @@ void handleTmrNetworkOverseer()
   // switch (systemCfg.workMode)
   //{
   // case WORK_MODE_NETWORK:
+  networkOverseerCounter++;
   if (!networkCfg.wifiEnable && !networkCfg.ethEnable)
   {
     if (!vars.apStarted)
@@ -155,12 +168,13 @@ void handleTmrNetworkOverseer()
   }
   if (networkCfg.wifiEnable)
   {
-    LOGD("WiFi.status = %s", String(WiFi.status()));
+    LOGD("WiFi.status = %s", String(WiFi.status()).c_str());
 
     if (WiFi.isConnected())
     {
       LOGD("WIFI CONNECTED");
-      tmrNetworkOverseer.stop();
+      // tmrNetworkOverseer.stop();
+      tmrNetworkOverseer.detach();
       if (!vars.firstUpdCheck)
       {
         checkUpdateAvail();
@@ -169,7 +183,8 @@ void handleTmrNetworkOverseer()
     }
     else
     {
-      if (tmrNetworkOverseer.counter() > overseerMaxRetry)
+      // if (tmrNetworkOverseer.counter() > overseerMaxRetry)
+      if (networkOverseerCounter > overseerMaxRetry)
       {
         LOGD("WIFI counter overflow");
         startAP(true);
@@ -182,7 +197,8 @@ void handleTmrNetworkOverseer()
     if (vars.connectedEther)
     {
       LOGD("LAN CONNECTED");
-      tmrNetworkOverseer.stop();
+      // tmrNetworkOverseer.stop();
+      tmrNetworkOverseer.detach();
       if (vars.apStarted)
       {
         startAP(false);
@@ -195,7 +211,8 @@ void handleTmrNetworkOverseer()
     }
     else
     {
-      if (tmrNetworkOverseer.counter() > overseerMaxRetry)
+      // if (tmrNetworkOverseer.counter() > overseerMaxRetry)
+      if (networkOverseerCounter > overseerMaxRetry)
       {
         LOGD("LAN counter overflow!");
         startAP(true);
@@ -239,7 +256,7 @@ void NetworkEvent(WiFiEvent_t event)
 {
   const char *wifiKey = "WiFi";
   const char *ethKey = "ETH";
-  //esp_err_t result5;
+  // esp_err_t result5;
   switch (event)
   {
   case ARDUINO_EVENT_ETH_START: // 18: // SYSTEM_EVENT_ETH_START:
@@ -261,26 +278,38 @@ void NetworkEvent(WiFiEvent_t event)
          ETH.linkSpeed());
 
     vars.connectedEther = true;
-    checkDNS(true);
-    // ConfigSettings.disconnectEthTime = 0;
+    // checkDNS(true);
+    //  ConfigSettings.disconnectEthTime = 0;
     break;
+
+  case ARDUINO_EVENT_ETH_GOT_IP6:
+    LOGI("ETH IPv6 %s", ETH.localIPv6().toString().c_str());
+    vars.connectedEther = true;
+    vars.ethIPv6 = true;
+    break;
+
   case ARDUINO_EVENT_ETH_DISCONNECTED: // 21:  //SYSTEM_EVENT_ETH_DISCONNECTED:
     LOGD("%s Disconnected", ethKey);
     vars.connectedEther = false;
+    vars.ethIPv6 = false;
     // ConfigSettings.disconnectEthTime = millis();
-    if (tmrNetworkOverseer.state() == STOPPED) //&& systemCfg.workMode == WORK_MODE_NETWORK)
+    // if (tmrNetworkOverseer.state() == STOPPED) //&& systemCfg.workMode == WORK_MODE_NETWORK)
+    if (!tmrNetworkOverseer.active())
     {
-      tmrNetworkOverseer.start();
+      // tmrNetworkOverseer.start();
+      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
-  case SYSTEM_EVENT_ETH_STOP: // 27:
+  case 27: // case SYSTEM_EVENT_ETH_STOP: // 27:
   case ARDUINO_EVENT_ETH_STOP:
     LOGD("%s Stopped", ethKey);
     vars.connectedEther = false;
     // ConfigSettings.disconnectEthTime = millis();
-    if (tmrNetworkOverseer.state() == STOPPED)
+    // if (tmrNetworkOverseer.state() == STOPPED)
+    if (!tmrNetworkOverseer.active())
     {
-      tmrNetworkOverseer.start();
+      // tmrNetworkOverseer.start();
+      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
@@ -291,8 +320,8 @@ void NetworkEvent(WiFiEvent_t event)
          WiFi.subnetMask().toString().c_str(),
          WiFi.gatewayIP().toString().c_str(),
          WiFi.dnsIP().toString().c_str());
-    checkDNS(true);
-    LOGD("WiFi TX %s", String(WiFi.getTxPower()));
+    // checkDNS(true);
+    LOGD("WiFi TX %s", String(WiFi.getTxPower()).c_str());
 
     /*result5 = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
     if (result5 == ESP_OK)
@@ -315,11 +344,16 @@ void NetworkEvent(WiFiEvent_t event)
       Serial.print("802.11n ");
     Serial.println();*/
     break;
+  case ARDUINO_EVENT_WIFI_STA_GOT_IP6: // SYSTEM_EVENT_STA_GOT_IP6:
+    LOGI("WiFi IPv6 %s", WiFi.localIPv6().toString().c_str());
+    break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
-    if (tmrNetworkOverseer.state() == STOPPED)
+    // if (tmrNetworkOverseer.state() == STOPPED)
+    if (!tmrNetworkOverseer.active())
     {
-      tmrNetworkOverseer.start();
+      // tmrNetworkOverseer.start();
+      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
   default:
@@ -393,15 +427,26 @@ void connectWifi()
   result += String(cur_mode, DEC);
   Serial.println(result);
 
-  esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N); // networkCfg.wifiMode); // WIFI_PROTOCOL_11B | ); //*/
+    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N); // networkCfg.wifiMode); // WIFI_PROTOCOL_11B | ); //
+
+  Serial.print("wifi mode setup ");
+  esp_err_t result2 = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+  Serial.println(result2);
+
+  cur_mode = -1;
+  esp_wifi_get_protocol(WIFI_IF_STA, &cur_mode);
+  Serial.print("wifi mode ");
+  result = "";
+  result += String(cur_mode, DEC);
+  Serial.println(result);*/
 
   if ((strlen(networkCfg.wifiSsid) >= 2) && (strlen(networkCfg.wifiPass) >= 8))
   {
     LOGD("Ok SSID & PASS");
     if (vars.apStarted)
     {
-      // LOGD("WiFi.mode(WIFI_AP_STA)");
-      // WiFi.mode(WIFI_AP_STA);
+      LOGD("WiFi.mode(WIFI_AP_STA)");
+      WiFi.mode(WIFI_AP_STA);
     }
     else
     {
@@ -425,10 +470,67 @@ void connectWifi()
     }
     WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
     WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
-    WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
+
     WiFi.setAutoReconnect(true);
+
+    /*uint8_t wifiProtocols = WIFI_PROTOCOL_LR;
+
+    uint8_t currentProtocols;
+    esp_err_t resultGetProt = esp_wifi_get_protocol(WIFI_IF_STA, &currentProtocols);
+    if (resultGetProt == ESP_OK)
+    {
+      Serial.printf("Current WiFi protocols: 0x%X\n", currentProtocols);
+    }
+    else
+    {
+      Serial.printf("Failed to get current WiFi protocols: 0x%X\n", resultGetProt);
+    }
+
+    // Объединение текущих и желаемых настроек протоколов
+    uint8_t newProtocols = wifiProtocols;
+
+    // Установка новых протоколов WiFi перед началом подключения
+    esp_err_t resultWifiProtSet = esp_wifi_set_protocol(WIFI_IF_STA, newProtocols);
+    if (resultWifiProtSet == ESP_OK)
+    {
+      Serial.println("WiFi protocols set successfully");
+      resultGetProt = esp_wifi_get_protocol(WIFI_IF_STA, &currentProtocols);
+      if (resultGetProt == ESP_OK)
+      {
+        Serial.printf("Current WiFi protocols: 0x%X\n", currentProtocols);
+      }
+      else
+      {
+        Serial.printf("Failed to get current WiFi protocols: 0x%X\n", resultGetProt);
+      }
+    }
+    else
+    {
+      Serial.printf("Failed to set WiFi protocols: 0x%X\n", resultWifiProtSet);
+      if (resultWifiProtSet == ESP_ERR_WIFI_NOT_INIT)
+      {
+        Serial.println("WiFi is not initialized by esp_wifi_init");
+      }
+      else if (resultWifiProtSet == ESP_ERR_WIFI_IF)
+      {
+        Serial.println("Invalid interface");
+      }
+      else if (resultWifiProtSet == ESP_ERR_INVALID_ARG)
+      {
+        Serial.println("Invalid argument");
+      }
+      else
+      {
+        Serial.println("Unknown error");
+      }
+    }
+    */
+
+    WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
     WiFi.setTxPower(networkCfg.wifiPower);
-    LOGD("WiFi TX %s", String(WiFi.getTxPower()));
+    WiFi.enableIpV6();
+    LOGD("WiFi TX %s", String(WiFi.getTxPower()).c_str());
+
     /*esp_err_t result = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
     if (result == ESP_OK)
     {
@@ -470,7 +572,7 @@ void mDNS_start()
   }
   else
   {
-    LOGI("mDNS responder started on %s.local", String(systemCfg.hostname));
+    LOGI("mDNS responder started on %s.local", String(systemCfg.hostname).c_str());
     //----- WEB ------
     mDNS.addService(http, tcp, 80);
     //--zeroconf zha--
@@ -492,13 +594,17 @@ void setupCoordinatorMode()
   }
 
   String workModeString = systemCfg.workMode ? "USB" : "Network";
-  LOGI("%s", workModeString);
+  LOGI("%s", workModeString.c_str());
 
   // if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
   //{ // start network overseer
-  if (tmrNetworkOverseer.state() == STOPPED)
+  // if (tmrNetworkOverseer.state() == STOPPED)
+  if (!tmrNetworkOverseer.active())
   {
-    tmrNetworkOverseer.start();
+    // tmrNetworkOverseer.start();
+    tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
+    
+
   }
   WiFi.onEvent(NetworkEvent);
   if (networkCfg.ethEnable)
@@ -549,7 +655,7 @@ void setup()
   loadMqttConfig(mqttCfg);
 
   // LOAD System vars and create FS / start
-  if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10))
+  if (!LittleFS.begin(false, "/lfs2", 10))
   {
     LOGD("Error with LITTLEFS");
     return;
@@ -558,20 +664,67 @@ void setup()
   // LOAD System vars and create FS / end
 
   // READ file to support migrate from old firmware
-  loadFileSystemVar();
-  loadFileConfigSerial();
-  loadFileConfigWifi();
-  loadFileConfigEther();
-  loadFileConfigGeneral();
-  loadFileConfigSecurity();
-  loadFileConfigMqtt();
-  loadFileConfigWg();
+  /*
+    loadFileSystemVar();
+    loadFileConfigSerial();
+    loadFileConfigWifi();
+    loadFileConfigEther();
+    loadFileConfigGeneral();
+    loadFileConfigSecurity();
+    loadFileConfigMqtt();
+    loadFileConfigWg();
+  */
   // READ file to support migrate from old firmware
 
   // String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
   // LOGD("After READ OLD config\n %s", cfg.c_str());
 
-  loadFileConfigHW();
+  // delay(3000);
+
+  loadHwConfig(hwConfig);
+  if (String(hwConfig.board).length() < 4)
+  {
+    LOGD("No HW config in NVS. Try to load from file");
+    if (!loadFileConfigHW())
+    {
+      int searchId = 0;
+      if (hwConfig.board[0] == 'i')
+      {
+        // Проверка, что второй и третий символы являются цифрами
+        if (isdigit(hwConfig.board[1]) && isdigit(hwConfig.board[2]))
+        {
+          searchId = (hwConfig.board[1] - '0') * 10 + (hwConfig.board[2] - '0');
+        }
+        else
+        {
+          LOGD("Invalid board ID format: %s", hwConfig.board);
+        }
+      }
+      LOGD("hwConfig.board: %s", hwConfig.board);
+      LOGD("searchId: %d", searchId);
+      ThisConfigStruct *newConfig = findBrdConfig(searchId);
+      if (newConfig)
+      {
+        LOGD("Find. Saving config");
+        saveHwConfig(*newConfig);
+
+        if (!newConfig->eth.mdcPin == -1 && !newConfig->eth.mdiPin == -1)
+        {
+          networkCfg.ethEnable = true;
+          saveNetworkConfig(networkCfg);
+        }
+
+        LOGD("Calc and save temp offset");
+        float CPUtemp = getCPUtemp(true);
+        int offset = CPUtemp - 30;
+        systemCfg.tempOffset = int(offset);
+        saveSystemConfig(systemCfg);
+
+        LOGD("Restarting...");
+        ESP.restart();
+      }
+    }
+  }
 
   if (hwConfig.eth.mdcPin == -1 || hwConfig.eth.mdiPin == -1)
   {
@@ -624,18 +777,18 @@ void setup()
     buttonSetup();
   }
 
-  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg);
-  LOGI("Config:\n%s", cfg.c_str());
+  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, NULL, NULL);
+  LOGI("\n%s", cfg.c_str());
 
-  cfg = makeJsonConfig(NULL, NULL, NULL, NULL, &vars);
-  LOGI("VARS:\n%s", cfg.c_str());
+  cfg = makeJsonConfig(NULL, NULL, NULL, NULL, &vars, NULL);
+  LOGI("\n%s", cfg.c_str());
 
   setLedsDisable(); // with setup ?? // move to vars ?
 
   setupCoordinatorMode();
   vars.connectedClients = 0;
 
-  xTaskCreate(updateWebTask, "update Web Task", 2048, NULL, 8, NULL);
+  xTaskCreate(updateWebTask, "update Web Task", 8192, NULL, 8, NULL);
 
   printNVSFreeSpace();
 
@@ -652,9 +805,9 @@ void setup()
   }
   else
   {
-    LOGI("[ZB] role: %s", String(systemCfg.zbRole));
+    LOGI("[ZB] role: %s", String(systemCfg.zbRole).c_str());
   }
-  LOGI("[ESP] FW: %s", String(VERSION));
+  LOGI("[ESP] FW: %s", String(VERSION).c_str());
 
   LOGI("Load cfg %s", hwConfig.board);
 
@@ -699,7 +852,7 @@ void socketClientDisconnected(int client)
 
 void printRecvSocket(size_t bytes_read, uint8_t net_buf[BUFFER_SIZE])
 {
-  char output_sprintf[2];
+  char output_sprintf[3];
   if (bytes_read > 0)
   {
     String tmpTime;
@@ -729,7 +882,7 @@ void printRecvSocket(size_t bytes_read, uint8_t net_buf[BUFFER_SIZE])
 
 void printSendSocket(size_t bytes_read, uint8_t serial_buf[BUFFER_SIZE])
 {
-  char output_sprintf[2];
+  char output_sprintf[3];
   String tmpTime;
   String buff = "";
   unsigned long timeLog = millis();
@@ -767,7 +920,7 @@ void loop(void)
     buttonLoop();
   }
 
-  tmrNetworkOverseer.update();
+  // tmrNetworkOverseer.update();
   if (updWeb)
   {
     webServerHandleClient();
@@ -817,16 +970,23 @@ void loop(void)
             }
             if (systemCfg.fwEnabled)
             {
-              WiFiClient TempClient2 = server.available();
-              if (TempClient2.remoteIP() == systemCfg.fwIp)
+              if (server.hasClient())
               {
-                printLogMsg(String("[SOCK IP WHITELIST] Accepted connection from IP: ") + TempClient2.remoteIP().toString());
-                client[i] = TempClient2;
-                continue;
-              }
-              else
-              {
-                printLogMsg(String("[SOCK IP WHITELIST] Rejected connection from unknown IP: ") + TempClient2.remoteIP().toString());
+                WiFiClient TempClient2 = server.available();
+                IPAddress clientIp = TempClient2.remoteIP();
+
+                if (isValidIp(clientIp) && isIpInSubnet(clientIp, systemCfg.fwIp, systemCfg.fwMask))
+                {
+                  printLogMsg(String("[SOCK IP FW] Accepted from IP: ") + clientIp.toString());
+                  client[i] = TempClient2;
+                  // TempClient2.stop();
+                  continue;
+                }
+                else
+                {
+                  printLogMsg(String("[SOCK IP FW] Rejected from IP: ") + clientIp.toString());
+                  // TempClient2.stop();
+                }
               }
             }
             else

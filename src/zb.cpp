@@ -6,6 +6,7 @@
 #include <ETH.h>
 #include <HTTPClient.h>
 
+// #include <WiFiClientSecure.h>
 // #include <esp_task_wdt.h>
 #include <CCTools.h>
 
@@ -66,8 +67,8 @@ void zbHwCheck()
     {
         printLogMsg(tag_ZB + " Chip: " + CCTool.chip.hwRev);
         printLogMsg(tag_ZB + " IEEE: " + CCTool.chip.ieee);
-        LOGI("modeCfg %s", String((CCTool.chip.modeCfg), HEX));
-        LOGI("bslCfg %s", String((CCTool.chip.bslCfg), HEX));
+        LOGI("modeCfg %s", String((CCTool.chip.modeCfg), HEX).c_str());
+        LOGI("bslCfg %s", String((CCTool.chip.bslCfg), HEX).c_str());
         printLogMsg(tag_ZB + " Flash size: " + String(CCTool.chip.flashSize / 1024) + " KB");
 
         vars.hwZigbeeIs = true;
@@ -143,7 +144,7 @@ void flashZbUrl(String url)
     ledControl.modeLED.mode = LED_BLINK_3Hz;
     vars.zbFlashing = true;
 
-    checkDNS();
+    // checkDNS();
     delay(250);
 
     Serial2.updateBaudRate(500000);
@@ -224,7 +225,7 @@ void flashZbUrl(String url)
 
             // LOGD("%s %s", String(preLastSlash), String(lastSlashIndex));
             String zbRole = clear_url.substring(preLastSlash + 1, lastSlashIndex);
-            LOGI("%s", zbRole);
+            LOGI("%s", zbRole.c_str());
 
             if (zbRole.indexOf("coordinator") > -1)
             {
@@ -296,8 +297,8 @@ void flashZbUrl(String url)
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
 {
     HTTPClient http;
-    WiFiClientSecure client;
-    client.setInsecure();
+    // WiFiClientSecure client;
+    // client.setInsecure();
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
 
     int loadedSize = 0;
@@ -309,6 +310,18 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
     while (retryCount < maxRetries && !isSuccess)
     {
+        IPAddress ip;
+        String host = getHostFromUrl(url);
+
+        // DNS lookup
+        if (!WiFi.hostByName(host.c_str(), ip))
+        {
+            printLogMsg("DNS lookup failed for host: " + host + ". Check your network connection and DNS settings.");
+            retryCount = +3;
+            delay(retryDelay * 3);
+            continue;
+        }
+
         if (loadedSize == 0)
         {
             CCTool.eraseFlash();
@@ -316,7 +329,8 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
             printLogMsg("Erase completed!");
         }
 
-        http.begin(client, url);
+        // http.begin(client, url);
+        http.begin(url);
         http.addHeader("Content-Type", "application/octet-stream");
 
         if (loadedSize > 0)
@@ -345,13 +359,36 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
         if (loadedSize == 0)
         {
-            if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+            try
             {
+                if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+                {
+                    http.end();
+                    printLogMsg("Error initializing flash process");
+                    continue;
+                }
+                printLogMsg("Begin flash");
+            }
+            catch (const std::bad_alloc &e)
+            {
+                char buffer[100];
+                snprintf(buffer, sizeof(buffer), "Memory allocation failed: %s", e.what());
+                printLogMsg(buffer);
                 http.end();
-                printLogMsg("Error initializing flash process");
+                retryCount++;
+                delay(retryDelay);
                 continue;
             }
-            printLogMsg("Begin flash");
+            catch (const std::exception &e)
+            {
+                char buffer[100];
+                snprintf(buffer, sizeof(buffer), "Exception occurred: %s", e.what());
+                printLogMsg(buffer);
+                http.end();
+                retryCount++;
+                delay(retryDelay);
+                continue;
+            }
         }
 
         byte buffer[CCTool.TRANSFER_SIZE];
@@ -359,24 +396,47 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
         while (http.connected() && loadedSize < totalSize)
         {
-            size_t size = stream->available();
-            if (size > 0)
+            try
             {
-                int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
-                if (!CCTool.processFlash(buffer, c))
+                size_t size = stream->available();
+                if (size > 0)
                 {
-                    loadedSize = 0;
-                    retryCount++;
-                    delay(retryDelay);
-                    break;
+                    int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
+                    if (!CCTool.processFlash(buffer, c))
+                    {
+                        loadedSize = 0;
+                        retryCount++;
+                        delay(retryDelay);
+                        break;
+                    }
+                    loadedSize += c;
+                    float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+                    progressShow(percent);
                 }
-                loadedSize += c;
-                float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
-                progressShow(percent);
+                else
+                {
+                    delay(1); // Yield to the WiFi stack
+                }
             }
-            else
+            catch (const std::bad_alloc &e)
             {
-                delay(1); // Yield to the WiFi stack
+                char buffer[100];
+                snprintf(buffer, sizeof(buffer), "Memory allocation failed: %s", e.what());
+                printLogMsg(buffer);
+                http.end();
+                retryCount++;
+                delay(retryDelay);
+                continue;
+            }
+            catch (const std::exception &e)
+            {
+                char buffer[100];
+                snprintf(buffer, sizeof(buffer), "Exception occurred: %s", e.what());
+                printLogMsg(buffer);
+                http.end();
+                retryCount++;
+                delay(retryDelay);
+                continue;
             }
         }
 
@@ -391,6 +451,214 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
     CCTool.restart();
     return isSuccess;
 }
+
+/*
+#include <WiFi.h>
+#include <lwip/sockets.h>
+#include <lwip/netdb.h>
+
+// Функция для извлечения хоста из URL
+
+
+// Функция для получения размера файла
+int getFileSize(const char* url) {
+
+    LOGD("URL %s", url);
+    const int httpsPort = 443;
+    String host = getHostFromUrl(url);
+
+    // Создание сокета
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd < 0) {
+        Serial.println("Failed to create socket");
+        return -1;
+    }
+
+    // Настройка адреса сервера
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(httpsPort);
+
+    struct hostent* server = gethostbyname(host.c_str());
+    if (server == NULL) {
+        Serial.println("Failed to resolve hostname");
+        close(sockfd);
+        return -1;
+    }
+
+    memcpy(&server_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+
+    // Установка соединения
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        Serial.println("Connection failed");
+        close(sockfd);
+        return -1;
+    }
+
+    // Отправка HTTP-запроса
+    String request = "HEAD " + String(url) + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
+    if (send(sockfd, request.c_str(), request.length(), 0) < 0) {
+        Serial.println("Failed to send request");
+        close(sockfd);
+        return -1;
+    }
+
+    // Чтение ответа
+    char buffer[1024];
+    int bytes;
+    int contentLength = -1;
+    while ((bytes = recv(sockfd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+        buffer[bytes] = 0;
+        String response(buffer);
+
+        // Поиск заголовка Content-Length
+        int index = response.indexOf("Content-Length: ");
+        if (index != -1) {
+            int endIndex = response.indexOf("\r\n", index);
+            if (endIndex != -1) {
+                String lengthStr = response.substring(index + 16, endIndex);
+                contentLength = lengthStr.toInt();
+                break;
+            }
+        }
+    }
+
+    close(sockfd);
+    return contentLength;
+}
+
+// Функция для загрузки файла
+bool downloadFile(const char* url, std::function<void(float)> progressShow, CCTools &CCTool, int &loadedSize, int &totalSize) {
+    const int httpsPort = 443;
+    String host = getHostFromUrl(url);
+
+    // Создание сокета
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd < 0) {
+        Serial.println("Failed to create socket");
+        return false;
+    }
+
+    // Настройка адреса сервера
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(httpsPort);
+
+    struct hostent* server = gethostbyname(host.c_str());
+    if (server == NULL) {
+        Serial.println("Failed to resolve hostname");
+        close(sockfd);
+        return false;
+    }
+
+    memcpy(&server_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+
+    // Установка соединения
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        Serial.println("Connection failed");
+        close(sockfd);
+        return false;
+    }
+
+    // Отправка HTTP-запроса
+    String request = "GET " + String(url) + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n";
+    if (loadedSize > 0) {
+        request += "Range: bytes=" + String(loadedSize) + "-\r\n";
+    }
+    request += "\r\n";
+
+    if (send(sockfd, request.c_str(), request.length(), 0) < 0) {
+        Serial.println("Failed to send request");
+        close(sockfd);
+        return false;
+    }
+
+    // Чтение ответа
+    char buffer[1024];
+    int bytes;
+    bool headersEnded = false;
+    while ((bytes = recv(sockfd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+        buffer[bytes] = 0;
+        String response(buffer);
+
+        if (!headersEnded) {
+            int headerEnd = response.indexOf("\r\n\r\n");
+            if (headerEnd != -1) {
+                headersEnded = true;
+                response = response.substring(headerEnd + 4);
+            } else {
+                continue;
+            }
+        }
+
+        if (headersEnded) {
+            int c = response.length();
+            if (!CCTool.processFlash((byte*)response.c_str(), c)) {
+                loadedSize = 0;
+                close(sockfd);
+                return false;
+            }
+            loadedSize += c;
+            float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
+            progressShow(percent);
+        }
+    }
+
+    close(sockfd);
+    return true;
+}
+
+bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
+{
+    int loadedSize = 0;
+    int totalSize = 0;
+    int maxRetries = 7;
+    int retryCount = 0;
+    int retryDelay = 500;
+    bool isSuccess = false;
+
+    while (retryCount < maxRetries && !isSuccess)
+    {
+        if (loadedSize == 0)
+        {
+            CCTool.eraseFlash();
+            sendEvent("ZB_FW_info", 11, String("erase"));
+            printLogMsg("Erase completed!");
+        }
+
+        if (loadedSize == 0)
+        {
+            // Получение размера файла
+            totalSize = getFileSize(url);
+            if (totalSize <= 0) {
+                printLogMsg("Failed to get file size");
+                retryCount++;
+                delay(retryDelay);
+                continue;
+            }
+
+            if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+            {
+                printLogMsg("Error initializing flash process");
+                retryCount++;
+                delay(retryDelay);
+                continue;
+            }
+            printLogMsg("Begin flash");
+        }
+
+        if (downloadFile(url, progressShow, CCTool, loadedSize, totalSize)) {
+            isSuccess = true;
+        } else {
+            retryCount++;
+            delay(retryDelay);
+        }
+    }
+
+    CCTool.restart();
+    return isSuccess;
+}
+*/
 
 #include <FS.h>
 #include <LittleFS.h>

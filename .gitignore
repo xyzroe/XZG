@@ -12,3 +12,7 @@ todo*
 !platformio.ini
 **/__pycache__
 tools/.no_web_update*
+managed_components
+old?
+data/*
+/tools/webfilesbuilder/.npm_install_marker*

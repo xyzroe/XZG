@@ -125,7 +125,7 @@
     "ne": {
       "descEth": "Ethernet",
       "dhcp": "DHCP",
-      "ip": "IP",
+      "ip": "IPv4",
       "mask": "Subnet",
       "gw": "Gateway",
       "dns": "DNS",
@@ -142,7 +142,8 @@
         "nnf": "WiFi networks not found",
         "mode": "Mode",
         "power": "Tx Power"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "zi": {
       "so": "Serial settings",
@@ -238,7 +239,8 @@
       },
       "fw": {
         "desc": "IP whitelist for Zigbee socket connection",
-        "ip": "Allowed IP"
+        "ip": "Allowed IP",
+        "mask": "Allowed Mask"
       }
     },
     "to": {

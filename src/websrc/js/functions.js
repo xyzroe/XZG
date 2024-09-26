@@ -579,9 +579,9 @@ function apiGetPage(page, doneCall, loader = true) {
 				}
 
 				const btn = $("form.saveParams button[type='submit']");
-				$(':disabled').each(function (e) {
+				/*$(':disabled').each(function (e) {
 					$(this).removeAttr('disabled');
-				});
+				});*/
 				spiner.appendTo(btn);
 				spiner2.appendTo(btn);
 				btn.prop("disabled", true);
@@ -962,6 +962,9 @@ function dataReplace(values, navOnly = false) {
 			} else if (values[property] == 3) {
 				document.querySelectorAll('.zfs_thread').forEach(card => card.classList.add('selected'));
 			}
+		}
+		if (property == "ethIPv6") {
+			showDivById("ethIPv6");
 		}
 		if (property == "espUpdAvail" && values[property] == 1) {
 			toastConstructor("espUpdAvail");
@@ -2109,7 +2112,7 @@ function modalConstructor(type, params) {
 							}
 						}).appendTo(modalBtns);
 					} else {*/
-					body += i18next.t('md.ss.rr');
+					body += "<br>" + i18next.t('md.ss.rr');
 					$('<button>', {
 						type: "button",
 						"class": "btn btn-warning",
@@ -2173,31 +2176,31 @@ function getWifiList() {
 							$("<td>" + elem.ssid + "</td>").appendTo($row);
 							let encryptType = "";
 							switch (elem.secure) {
-								case 2:
-									encryptType = "WPA"
-									break;
-
-								case 3:
-									encryptType = "WPA2"
-									break;
-
-								case 4:
-									encryptType = "WPA2"
-									break;
-
-								case 5:
-									encryptType = "WEP"
-									break;
-
-								case 7:
+								case 0:
 									encryptType = "OPEN"
 									break;
+								case 1:
+									encryptType = "WEP"
+									break;
+								case 2:
+									encryptType = "WPA PSK"
+									break;
+								case 3:
+									encryptType = "WPA2 PSK"
+									break;
+								case 4:
+									encryptType = "WPA WPA2 PSK"
+									break;
 
-								case 8:
-									encryptType = "AUTO"
+								case 6:
+									encryptType = "WPA3 PSK"
+									break;
+								case 7:
+									encryptType = "WPA2 WPA3 PSK"
 									break;
 
 								default:
+									encryptType = "?"
 									break;
 							}
 							$("<td>" + encryptType + "</td>").appendTo($row);
@@ -2358,12 +2361,13 @@ function HnInputDsbl(state) {
 function SeqInputDsbl(state) {
 	$("#webUser").prop(disbl, state);
 	$("#webPass").prop(disbl, state);
-	$('#div_show1').toggle(this.checked);
+	//$('#div_show1').toggle(this.checked);
 }
 
 function SeqInputDsblFw(state) {
 	$("#fwIp").prop(disbl, state);
-	$('#div_show2').toggle(this.checked);
+	$("#fwMask").prop(disbl, state);
+	//$('#div_show2').toggle(this.checked);
 }
 
 function readFile(event, file) {

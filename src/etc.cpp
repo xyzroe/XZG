@@ -41,14 +41,14 @@ extern CCTools CCTool;
 const char *coordMode = "coordMode"; // coordMode node name ?? not name but text field with mode
 // const char *prevCoordMode = "prevCoordMode"; // prevCoordMode node name ?? not name but text field with mode
 
-const char *configFileSystem = "/config/system.json";
+/*const char *configFileSystem = "/config/system.json";
 const char *configFileWifi = "/config/configWifi.json";
 const char *configFileEther = "/config/configEther.json";
 const char *configFileGeneral = "/config/configGeneral.json";
 const char *configFileSecurity = "/config/configSecurity.json";
 const char *configFileSerial = "/config/configSerial.json";
 const char *configFileMqtt = "/config/configMqtt.json";
-const char *configFileWg = "/config/configWg.json";
+const char *configFileWg = "/config/configWg.json";*/
 const char *configFileHw = "/configHw.json";
 
 #include "mbedtls/md.h"
@@ -88,11 +88,15 @@ String sha1(String payloadStr)
   return hashStr;
 }
 
-#include <OneWire.h>
-#include <DallasTemperature.h>
+// #include <OneWire.h>
+// #include <DallasTemperature.h>
+
+// OneWire *oneWire = nullptr;
+// DallasTemperature *sensor = nullptr;
+#include "DS18B20.h"
 
 OneWire *oneWire = nullptr;
-DallasTemperature *sensor = nullptr;
+DS18B20 *sensor = nullptr;
 
 int check1wire()
 {
@@ -114,6 +118,7 @@ int check1wire()
 
 void setup1wire(int pin)
 {
+
   if (oneWire != nullptr)
   {
     delete oneWire;
@@ -124,30 +129,59 @@ void setup1wire(int pin)
   }
 
   oneWire = new OneWire(pin);
-  sensor = new DallasTemperature(oneWire);
+  sensor = new DS18B20(oneWire);
 
   sensor->begin();
+  sensor->setResolution(10);
+
+#ifdef DEBUG
+  uint32_t start, stop;
+
+  start = micros();
+  sensor->requestTemperatures();
+
+  int n = 0;
+  //  wait until sensor ready, do some counting for fun.
+  while (!sensor->isConversionComplete())
+    n++;
+
+  stop = micros();
+  LOGD("Convert %lu\t%d", stop - start, n);
+
+  // delay(100);
+  start = micros();
+  float f = sensor->getTempC();
+  stop = micros();
+
+  LOGD("getTemp %lu\t%.2f", stop - start, f);
+#endif
+
   get1wire();
 }
 
 float get1wire()
 {
+
   if (sensor == nullptr)
   {
     LOGW("1w not init");
+    vars.oneWireIs = false;
     return -127.0;
   }
   if (millis() - vars.last1wAsk > 5000)
   {
     sensor->requestTemperatures();
-    vars.temp1w = sensor->getTempCByIndex(0);
+    vars.temp1w = sensor->getTempC();
     LOGD("Temp is %f", vars.temp1w);
     vars.last1wAsk = millis();
   }
+
   if (vars.temp1w == -127)
   {
     vars.oneWireIs = false;
+    LOGW("1w not connected");
   }
+
   return vars.temp1w;
 }
 
@@ -312,7 +346,7 @@ void getDeviceID(char *arr)
   // sprintf(arr, "%s-%s", hwConfig.board, buf);
 
   String devicePref = "XZG"; // hwConfig.board
-  snprintf(arr, MAX_DEV_ID_LONG, "%s-%s", devicePref, buf);
+  snprintf(arr, MAX_DEV_ID_LONG + 1, "%s-%s", devicePref.c_str(), buf);
 }
 
 void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
@@ -350,28 +384,30 @@ void factoryReset()
   ledControl.powerLED.mode = LED_FLASH_3Hz;
   ledControl.modeLED.mode = LED_FLASH_3Hz;
 
-  for (uint8_t i = 0; i < TIMEOUT_FACTORY_RESET; i++)
+  /*for (uint8_t i = 0; i < TIMEOUT_FACTORY_RESET; i++)
   {
     LOGD("%d, sec", TIMEOUT_FACTORY_RESET - i);
     delay(1000);
-  }
+  }*/
 
-  LittleFS.format();
+  /*LittleFS.format();
   if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED, "/lfs2", 10)) // change to format anyway
   {
     LOGD("Error with LITTLEFS");
-  }
+  }*/
 
-  LittleFS.remove(configFileSerial);
+  /*LittleFS.remove(configFileSerial);
   LittleFS.remove(configFileSecurity);
   LittleFS.remove(configFileGeneral);
   LittleFS.remove(configFileEther);
   LittleFS.remove(configFileWifi);
   LittleFS.remove(configFileSystem);
-  LittleFS.remove(configFileWg);
-  LittleFS.remove(configFileHw);
   LittleFS.remove(configFileMqtt);
-  LOGD("FS Done");
+  LittleFS.remove(configFileWg);*/
+  // LittleFS.remove(configFileHw);
+
+  // LOGD("FS Done");
+
   eraseNVS();
   LOGD("NVS Done");
 
@@ -383,7 +419,7 @@ void factoryReset()
 
 void setClock(void *pvParameters)
 {
-  checkDNS();
+  // checkDNS();
   configTime(0, 0, systemCfg.ntpServ1, systemCfg.ntpServ2);
 
   const time_t targetTime = 946684800; // 946684800 - is 01.01.2000 in timestamp
@@ -439,7 +475,7 @@ void setLedsDisable(bool all)
 {
   if (vars.hwLedPwrIs || vars.hwLedUsbIs)
   {
-    LOGD("setLedsDisable", "%s", String(all));
+    LOGD("[setLedsDisable] %s", String(all).c_str());
     if (all)
     {
       ledControl.powerLED.active = false;
@@ -464,7 +500,7 @@ void nmDeactivate()
   LOGD("end");
   setLedsDisable();
 }
-
+/*
 bool checkDNS(bool setup)
 {
   const char *wifiKey = "WiFi";
@@ -549,6 +585,7 @@ bool checkDNS(bool setup)
   }
   return true;
 }
+*/
 
 /*void reCheckDNS()
 {
@@ -574,7 +611,7 @@ void setupCron()
 
     sscanf(systemCfg.updCheckTime, "%d:%d", &hours, &minutes);
 
-    snprintf(formattedTime, sizeof(formattedTime), "%d %d %d * * %s", seconds, minutes, hours, wday);
+    snprintf(formattedTime, sizeof(formattedTime), "%d %d %d * * %s", seconds, minutes, hours, wday.c_str());
 
     // LOGD("UPD cron %s", String(formattedTime));
     printLogMsg("[UPD_CHK] cron " + String(formattedTime));
@@ -630,8 +667,8 @@ void setupCron()
     char endCron[30];
     strcpy(startCron, convertTimeToCron(String(systemCfg.nmStart)));
     strcpy(endCron, convertTimeToCron(String(systemCfg.nmEnd)));
-    LOGD("cron", "NM start %s", startCron);
-    LOGD("cron", "NM end %s", endCron);
+    LOGD("[cron] NM start %s", const_cast<char *>(startCron));
+    LOGD("[cron] NM end %s", const_cast<char *>(endCron));
 
     Cron.create(const_cast<char *>(startCron), nmActivate, false);
     Cron.create(const_cast<char *>(endCron), nmDeactivate, false);
@@ -717,8 +754,13 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
     {
       ethOk = true;
       LOGD("NO ethernet OK: %d", ethIdx);
-    }
+    } // egin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_POWER, ETH_CLK_MODE);
+
+#ifdef TASMOTA_PLATFORM
+    else if (ETH.begin(ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].addr, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].clkMode)) // ethConfigs[ethIdx].pwrAltPin))
+#else
     else if (ETH.begin(ethConfigs[ethIdx].addr, ethConfigs[ethIdx].pwrPin, ethConfigs[ethIdx].mdcPin, ethConfigs[ethIdx].mdiPin, ethConfigs[ethIdx].phyType, ethConfigs[ethIdx].clkMode)) // ethConfigs[ethIdx].pwrAltPin))
+#endif
     {
       ethOk = true;
       bestConfig.eth = ethConfigs[ethIdx];
@@ -809,9 +851,12 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
     }
 
     LOGI("Config error with: %s", brdConfigs[brdIdx].board);
-    DynamicJsonDocument config(300);
-    config["searchId"] = brdIdx + 1;
-    writeDefaultConfig(configFileHw, config);
+    // DynamicJsonDocument config(300);
+    // config["searchId"] = brdIdx + 1;
+    // writeDefaultConfig(configFileHw, config);
+
+    snprintf(hwConfig.board, sizeof(hwConfig.board), "i%02d", brdIdx + 1);
+    saveHwConfig(hwConfig);
 
     LOGD("Restarting...");
     delay(500);
@@ -834,7 +879,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
 
 void wgBegin()
 {
-  checkDNS();
+  // checkDNS();
   if (!wg.is_initialized())
   {
 
@@ -920,7 +965,8 @@ void wgLoop()
           {
             LOGD("Peer disconnect");
           }
-          vars.vpnWgPeerIp.clear();
+          // vars.vpnWgPeerIp.clear();
+          vars.vpnWgPeerIp.fromString("0.0.0.0");
           vars.vpnWgConnect = false;
         }
       }
@@ -1056,7 +1102,10 @@ void checkUpdateAvail()
     const char *TryKey = "try to install";
     String latestReleaseUrlEsp = fetchLatestEspFw();
     String latestReleaseUrlZb = fetchLatestZbFw();
+    
     String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
+    //String latestVersionEsp = "1.2.3";
+
     String latestVersionZb = extractVersionFromURL(latestReleaseUrlZb);
 
     LOGD("%s %s", ESPkey, latestVersionEsp.c_str());
@@ -1065,11 +1114,15 @@ void checkUpdateAvail()
     if (latestVersionEsp.length() > 0 && compareVersions(latestVersionEsp, VERSION) > 0)
     {
       vars.updateEspAvail = true;
+      
+      strncpy(vars.lastESPVer, latestVersionEsp.c_str(), sizeof(vars.lastESPVer) - 1);
+      vars.lastESPVer[sizeof(vars.lastESPVer) - 1] = '\0';
+
       printLogMsg(String(FoundKey) + String(ESPkey) + String(NewFwKey) + latestVersionEsp);
       if (systemCfg.updAutoInst)
       {
         printLogMsg(String(TryKey));
-        getEspUpdate(latestReleaseUrlEsp);
+        //getEspUpdate(latestReleaseUrlEsp);
       }
     }
     else
@@ -1080,12 +1133,16 @@ void checkUpdateAvail()
     if (CCTool.chip.fwRev > 0 && latestVersionZb.length() > 0 && compareVersions(latestVersionZb, String(CCTool.chip.fwRev)) > 0)
     {
       vars.updateZbAvail = true;
+
+      strncpy(vars.lastZBVer, latestVersionZb.c_str(), sizeof(vars.lastZBVer) - 1);
+      vars.lastZBVer[sizeof(vars.lastZBVer) - 1] = '\0';
+
       printLogMsg(String(FoundKey) + String(ZBkey) + String(NewFwKey) + latestVersionZb);
       if (systemCfg.updAutoInst)
       {
         printLogMsg(String(TryKey));
-        flashZbUrl(latestReleaseUrlZb);
-        ESP.restart();
+        //flashZbUrl(latestReleaseUrlZb);
+        //ESP.restart();
       }
     }
     else
@@ -1093,4 +1150,36 @@ void checkUpdateAvail()
       vars.updateZbAvail = false;
     }
   }
+  else
+  { 
+    LOGW("AP is started, skip update check");
+  }
+}
+
+bool isIpInSubnet(IPAddress ip, IPAddress subnetBase, IPAddress subnetMask)
+{
+  for (int i = 0; i < 4; i++)
+  {
+    if ((ip[i] & subnetMask[i]) != (subnetBase[i] & subnetMask[i]))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool isValidIp(IPAddress ip)
+{
+  return ip != IPAddress(0, 0, 0, 0);
+}
+
+String getHostFromUrl(const String &url)
+{
+  int startIndex = url.indexOf("://") + 3;
+  int endIndex = url.indexOf('/', startIndex);
+  if (endIndex == -1)
+  {
+    endIndex = url.length();
+  }
+  return url.substring(startIndex, endIndex);
 }

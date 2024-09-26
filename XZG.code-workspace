@@ -11,7 +11,9 @@
 		],
 		"cSpell.useGitignore": false,
 		"files.associations": {
-			"*.tpp": "cpp"
+			"*.tpp": "cpp",
+			"typeinfo": "cpp",
+			"*.ipp": "cpp"
 		},
 		"i18n-ally.keysInUse": [
 			"p.lo.mlo",

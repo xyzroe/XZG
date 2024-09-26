@@ -97,6 +97,30 @@ jobs:
           EOF
           echo "Manifest file created."
 
+      - name: Create xzg.json for firmware update
+        run: |
+          cat << EOF > xzg.json
+          {
+            "name": "XZG Firmware",
+            "version": "${{ steps.get_tag.outputs.tag }}",
+            "files": [
+              {
+                "chip": "dual",
+                "type": "ota",
+                "commit": "${{ github.sha }}",
+                "url": "https://raw.githubusercontent.com/${{ github.repository }}/releases/latest/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin",
+              },
+              {
+                "chip": "dual",
+                "type": "fs",
+                "commit": "${{ github.sha }}",
+                "url": "https://raw.githubusercontent.com/${{ github.repository }}/releases/latest/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin",
+              }
+            ]
+          }
+          EOF
+          echo "xzg.json file created."
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -120,6 +144,20 @@ jobs:
           cp manifest.json releases/${{ steps.get_tag.outputs.tag }}/
           echo "Files copied to releases directory."
 
+      - name: Prepare latest release directory
+        run: |
+          if [ -d releases/latest ]; then
+            rm -rf releases/latest
+          fi
+          mkdir -p releases/latest
+
+      - name: Copy files to latest release directory
+        run: |
+          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin releases/latest/
+          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin releases/latest/
+          cp xzg.json releases/latest/
+          echo "Files copied to latest release directory."
+          
       - name: Commit and push files to releases branch
         run: |
           cd releases
@@ -127,26 +165,26 @@ jobs:
           git config --local user.name "GitHub Action"
           if [[ -n $(git status --porcelain) ]]; then
             git add .
-            git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
+            git commit -m "${{ steps.get_tag.outputs.tag }}"
             git push origin releases
           else
             echo "No changes to commit"
           fi
 
-      - name: Send Telegram Notification about release
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ${{ env.commitMessage }}
+# - name: Send Telegram Notification about release
+#   uses: appleboy/telegram-action@master
+#   with:
+#     to: ${{ secrets.TELEGRAM_CHAT_ID }}
+#     token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+#     format: markdown
+#     message: |
+#       ${{ env.commitMessage }}
+#
+#       [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
 
-            [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
-
-      - name: Send Discord Notification about release
-        run: |
-          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
-          curl -H "Content-Type: application/json" \
-               -d "$json_payload" \
-               ${{ secrets.DISCORD_WEBHOOK }}
+# - name: Send Discord Notification about release
+#   run: |
+#     json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
+#     curl -H "Content-Type: application/json" \
+#          -d "$json_payload" \
+#          ${{ secrets.DISCORD_WEBHOOK }}

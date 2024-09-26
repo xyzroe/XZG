@@ -23,7 +23,8 @@ void handleEspUpdateUpload();
 void handleNotFound();
 bool captivePortal();
 
-void sendGzip(const char* contentType, const uint8_t content[], uint16_t contentLen);
+//void sendGzip(const char* contentType, const uint8_t content[], uint16_t contentLen);
+void sendGzipFromFS(const char* path, const char* contentType);
 void handleTools();
 void printLogTime();
 void printLogMsg(String msg);

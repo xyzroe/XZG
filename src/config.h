@@ -8,6 +8,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include "const/hw.h"
 
 #define DEBOUNCE_TIME 70
 #define MAX_DEV_ID_LONG 50
@@ -85,6 +86,7 @@ struct SysVarsStruct
   unsigned long socketTime;
 
   bool connectedEther = false;
+  bool ethIPv6 = false;
 
   bool apStarted = false;
   bool wifiWebSetupInProgress = false;
@@ -107,8 +109,11 @@ struct SysVarsStruct
 
   bool updateEspAvail;
   bool updateZbAvail;
-  IPAddress savedWifiDNS;
-  IPAddress savedEthDNS;
+
+  char lastESPVer[20];
+  char lastZBVer[20];
+  //IPAddress savedWifiDNS;
+  //IPAddress savedEthDNS;
 
   bool firstUpdCheck = false;
   
@@ -205,7 +210,8 @@ struct SystemConfigStruct
   char webPass[50];
 
   bool fwEnabled; // firewall for socket connection
-  IPAddress fwIp; // allowed IP
+  IPAddress fwIp; // allowed IP base
+  IPAddress fwMask; // allowed mask
 
   int serialSpeed;
   int socketPort;
@@ -247,6 +253,7 @@ void serializeVpnConfigToJson(const VpnConfigStruct &config, JsonObject obj);
 void serializeMqttConfigToJson(const MqttConfigStruct &config, JsonObject obj);
 void serializeSystemConfigToJson(const SystemConfigStruct &config, JsonObject obj);
 void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj);
+void serializeHwConfigToJson(const ThisConfigStruct &config, JsonObject obj);
 
 void updateConfiguration(WebServer &server, SystemConfigStruct &configSys, NetworkConfigStruct &configNet, VpnConfigStruct &configVpn, MqttConfigStruct &configMqtt);
 
@@ -261,11 +268,16 @@ String makeJsonConfig(const NetworkConfigStruct *networkCfg = nullptr,
                       const VpnConfigStruct *vpnCfg = nullptr,
                       const MqttConfigStruct *mqttCfg = nullptr,
                       const SystemConfigStruct *systemCfg = nullptr,
-                      const SysVarsStruct *systemVars = nullptr);
+                      const SysVarsStruct *systemVars = nullptr,
+                      const ThisConfigStruct *hwCfg = nullptr);
 
 bool loadFileConfigHW();
 
+void saveHwConfig(const ThisConfigStruct &config);
+void loadHwConfig(ThisConfigStruct &config);
+
 /* Previous firmware read config support. start */
+/*
 bool loadFileSystemVar();
 bool loadFileConfigWifi();
 bool loadFileConfigEther();
@@ -274,6 +286,7 @@ bool loadFileConfigSecurity();
 bool loadFileConfigSerial();
 bool loadFileConfigMqtt();
 bool loadFileConfigWg();
+*/
 /* Previous firmware read config support. end */
 
 /* ----- Define functions | START -----*/
@@ -303,16 +316,16 @@ uint8_t temprature_sens_read();
 // Set the current logging level here
 #define CURRENT_LOG_LEVEL LOG_LEVEL_DEBUG
 
-#define DEBUG_PRINT(x) Serial.print(String(x))
-#define DEBUG_PRINTLN(x) Serial.println(String(x))
+//#define DEBUG_PRINT(x) Serial.print(String(x))
+//#define DEBUG_PRINTLN(x) Serial.println(String(x))
 
 #else
 
 // Set the current logging level here
 #define CURRENT_LOG_LEVEL LOG_LEVEL_INFO
 
-#define DEBUG_PRINT(x)
-#define DEBUG_PRINTLN(x)
+//#define DEBUG_PRINT(x)
+//#define DEBUG_PRINTLN(x)
 #endif
 
 #endif
@@ -329,7 +342,7 @@ uint8_t temprature_sens_read();
 #define LOGW(format, ...)                                                                                                                           \
   if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                      \
   {                                                                                                                                                 \
-    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    Serial.printf(ANSI_COLOR_PURPLE "%lu " ANSI_COLOR_RESET ANSI_COLOR_RED "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
   }
 #else
 #define LOGW(format, ...) // Nothing
@@ -339,7 +352,7 @@ uint8_t temprature_sens_read();
 #define LOGI(format, ...)                                                                                                                             \
   if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                        \
   {                                                                                                                                                   \
-    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    Serial.printf(ANSI_COLOR_PURPLE "%lu " ANSI_COLOR_RESET ANSI_COLOR_GREEN "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
   }
 #else
 #define LOGI(format, ...) // Nothing
@@ -349,7 +362,7 @@ uint8_t temprature_sens_read();
 #define LOGD(format, ...)                                                                                                                              \
   if (systemCfg.workMode == WORK_MODE_NETWORK)                                                                                                         \
   {                                                                                                                                                    \
-    Serial.printf(ANSI_COLOR_PURPLE "%d " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
+    Serial.printf(ANSI_COLOR_PURPLE "%lu " ANSI_COLOR_RESET ANSI_COLOR_YELLOW "[%s] " ANSI_COLOR_RESET format "\n", millis(), __func__, ##__VA_ARGS__); \
   }
 #else
 #define LOGD(format, ...) // Nothing
@@ -384,8 +397,14 @@ struct LEDControl
   LEDSettings powerLED;
 };
 
-enum usbMode
+enum usbMode : uint8_t
 {
   XZG,
   ZIGBEE
+};
+
+enum updInfoType : uint8_t
+{
+    UPD_ESP,
+    UPD_ZB
 };

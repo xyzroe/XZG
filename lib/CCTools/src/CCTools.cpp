@@ -184,7 +184,8 @@ bool CommandInterface::_checkLastCmd()
         else
         {
             const char *stat_str = _getStatusString(stat[0]);
-            if (stat_str == "Unknown")
+            //if (stat_str == "Unknown")
+            if (strcmp(stat_str, "Unknown") == 0)
             {
                 DEBUG_PRINTLN("Warning: unrecognized status returned 0x" + String(stat[0]));
             }
@@ -796,7 +797,8 @@ bool CCTools::detectChipInfo()
     delete[] ieee_b2;
 
     String chip_str;
-    if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
+    //if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
+    if ((protocols & PROTO_MASK_IEEE) == PROTO_MASK_IEEE)
     {
         uint32_t test = 360372;
         // DEBUG_PRINT(test, HEX);

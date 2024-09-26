@@ -9,6 +9,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
 void executeCommand(const char *command);
 void mqttPublishAvail();
 void mqttPublishIo(const String &io, bool st);
+void mqttPublishUpdate(updInfoType chip);
 void mqttPublishState();
 void mqttPublishDiscovery();
 

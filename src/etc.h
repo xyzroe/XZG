@@ -31,7 +31,7 @@ void factoryReset();
 void setLedsDisable(bool all = false);
 void cronTest();
 void nmActivate();
-bool checkDNS(bool setup = false);
+//bool checkDNS(bool setup = false);
 void setupCron();
 
 void setClock(void *pvParameters);
@@ -49,4 +49,6 @@ String getTime();
 
 void checkUpdateAvail();
 
-
+bool isIpInSubnet(IPAddress ip, IPAddress subnet, IPAddress subnetMask);
+bool isValidIp(IPAddress ip);
+String getHostFromUrl(const String& url);

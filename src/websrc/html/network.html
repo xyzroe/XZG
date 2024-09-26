@@ -1,0 +1,149 @@
+<div id="main">
+    <form class="saveParams" method="POST" action="saveParams" id="netCfg">
+        <div class="col-12 cardPadding" id="ethCfg">
+            <div class="card">
+                <div class="card-header fw-bold"><svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="icons.svg#ethernet" />
+                    </svg><span data-i18n="p.ne.descEth"></span></div>
+                <div class="card-body">
+                    <div class="mb-2 switches-container">
+                        <div class="form-check form-switch"><input data-r2v="ethEnbl" class="form-check-input"
+                                id="ethEnbl" type="checkbox" role="switch" name="ethEnbl"
+                                onclick="EthEnbl(this.checked)"> <label class="form-check-label" for="ethEnbl"
+                                data-i18n="c.enable"></label></div>
+                        <div class="form-check form-switch"><input data-r2v="ethDhcp" class="form-check-input"
+                                id="ethDhcp" type="checkbox" role="switch" name="ethDhcp"
+                                onclick="EthDhcpDsbl(this.checked)"> <label class="form-check-label" for="ethDhcp"
+                                data-i18n="p.ne.dhcp"></label></div>
+                    </div>
+                    <div class="mb-2"><label for="ip" data-i18n="p.ne.ip"></label> <input data-r2v="ethIp"
+                            class="form-control" id="ethIp" name="ethIp" placeholder="192.168.x.x"></div>
+                    <div class="mb-2"><label for="mask" data-i18n="p.ne.mask"></label> <input data-r2v="ethMask"
+                            class="form-control" id="ethMask" name="ethMask" placeholder="255.255.255.0"></div>
+                    <div class="mb-2"><label for="gateway" data-i18n="p.ne.gw"></label> <input data-r2v="ethGate"
+                            class="form-control" id="ethGate" name="ethGate" placeholder="192.168.x.x"></div>
+                    <div class="mb-2"><label for="ethDns1"><span data-i18n="p.ne.dns"></span> 1</label> <input
+                            data-r2v="ethDns1" class="form-control" id="ethDns1" name="ethDns1" placeholder="X.X.X.X">
+                    </div>
+                    <div class="mb-2"><label for="ethDns2"><span data-i18n="p.ne.dns"></span> 2</label> <input
+                            data-r2v="ethDns2" class="form-control" id="ethDns2" name="ethDns2" placeholder="X.X.X.X">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 cardPadding">
+            <div class="card">
+                <div class="card-header fw-bold"><svg class="card_icon" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="icons.svg#wifi" />
+                    </svg><span data-i18n="p.ne.descWifi"></span></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <div class="mb-2 switches-container">
+                                <div class="form-check form-switch"><input data-r2v="wifiEnbl" class="form-check-input"
+                                        id="wifiEnbl" type="checkbox" role="switch" name="wifiEnbl"
+                                        onclick="WifiEnbl(this.checked)"> <label class="form-check-label" for="wifiEnbl"
+                                        data-i18n="c.enable"></label></div>
+                                <div class="form-check form-switch"><input data-r2v="wifiDhcp" class="form-check-input"
+                                        id="wifiDhcp" type="checkbox" role="switch" name="wifiDhcp"
+                                        onclick="WifiDhcpDsbl(this.checked)"> <label class="form-check-label"
+                                        for="wifiDhcp" data-i18n="p.ne.dhcp"></label></div>
+                            </div>
+                            <div class="mb-2"><label for="wifiMode" data-i18n="p.ne.wifi.mode"></label> <select
+                                    class="form-select" id="wifiMode" name="wifiMode">
+                                    <option data-r2v="1" value="1">11B</option>
+                                    <option data-r2v="2" value="2">11G</option>
+                                    <option data-r2v="4" value="4">11N</option>
+                                    <option data-r2v="8" value="8">LR</option>
+                                </select></div>
+                            <div class="mb-2"><label for="wifiPwr" data-i18n="p.ne.wifi.power"></label> <select
+                                    class="form-select" id="wifiPwr" name="wifiPwr">
+                                    <option data-r2v="78" value="78">19.5 dBm</option>
+                                    <option data-r2v="76" value="76">19 dBm</option>
+                                    <option data-r2v="74" value="74">18.5 dBm</option>
+                                    <option data-r2v="68" value="68">17 dBm</option>
+                                    <option data-r2v="60" value="60">15 dBm</option>
+                                    <option data-r2v="52" value="52">13 dBm</option>
+                                    <option data-r2v="44" value="44">11 dBm</option>
+                                    <option data-r2v="34" value="34">8.5 dBm</option>
+                                    <option data-r2v="28" value="28">7 dBm</option>
+                                    <option data-r2v="20" value="20">5 dBm</option>
+                                    <option data-r2v="8" value="8">2 dBm</option>
+                                </select></div>
+                            <div class="mb-2"><label for="wifiIp" data-i18n="p.ne.ip"></label> <input data-r2v="wifiIp"
+                                    class="form-control" id="wifiIp" name="wifiIp" placeholder="192.168.x.x"></div>
+                            <div class="mb-2"><label for="wifiMask" data-i18n="p.ne.mask"></label> <input
+                                    data-r2v="wifiMask" class="form-control" id="wifiMask" name="wifiMask"
+                                    placeholder="255.255.255.0"></div>
+                            <div class="mb-2"><label for="wifiGate" data-i18n="p.ne.gw"></label> <input
+                                    data-r2v="wifiGate" class="form-control" id="wifiGate" name="wifiGate"
+                                    placeholder="192.168.x.x"></div>
+                            <div class="mb-2"><label for="wifiDns1"><span data-i18n="p.ne.dns"></span> 1</label> <input
+                                    data-r2v="wifiDns1" class="form-control" id="wifiDns1" name="wifiDns1"
+                                    placeholder="X.X.X.X"></div>
+                            <div class="mb-2"><label for="wifiDns2"><span data-i18n="p.ne.dns"></span> 2</label> <input
+                                    data-r2v="wifiDns2" class="form-control" id="wifiDns2" name="wifiDns2"
+                                    placeholder="X.X.X.X"></div>
+                        </div><br>
+                        <div class="mb-2 col-sm-12 col-md-6">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" data-i18n="p.ne.wifi.ssid"></th>
+                                        <th scope="col" data-i18n="p.ne.wifi.sc"></th>
+                                        <th scope="col" data-i18n="p.ne.wifi.ch"></th>
+                                        <th scope="col" data-i18n="p.ne.wifi.rssi"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wifiTable">
+                                    <tr id="wifiScanPreloader" class="visually-hidden">
+                                        <td colspan="4">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" aria-label="Animated striped example"
+                                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                                    style="width: 100%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="wifiScanButton">
+                                        <td colspan="4">
+                                            <div class="row my-3 justify-content-md-center"><button type="button"
+                                                    class="btn btn-outline-primary col-sm-12 col-md-6"
+                                                    onclick="getWifiList()" data-i18n="p.ne.wifi.btn.scan"></button>
+                                            </div>
+                                            <div class="row my-3 justify-content-md-center"><button type="button"
+                                                    class="btn btn-outline-warning col-sm-12 col-md-6"
+                                                    onclick="showWifiCreds();WifiEnbl(true);"
+                                                    data-i18n="p.ne.wifi.btn.man"></button></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="collapse" id="collapseWifiPass">
+                                <div class="card card-body">
+                                    <div class="mb-2"><label for="wifiSsid" data-i18n="p.ne.wifi.ssid"></label> <input
+                                            data-r2v="wifiSsid" class="form-control" name="wifiSsid" id="wifiSsid"
+                                            value="" minlength="2" maxlength="50" required></div>
+                                    <div class="mb-2"><label for="pass" data-i18n="c.pass"></label>
+                                        <div class="input-group mb-3"><input type="password" id="wifiPass"
+                                                data-r2v="wifiPass" class="form-control" placeholder="Password"
+                                                aria-label="Password" aria-describedby="tglPassViewVisibility"
+                                                name="wifiPass" minlength="8" maxlength="80" required> <button
+                                                class="btn inline_btn" type="button" id="tglPassViewVisibility"
+                                                onclick="tglPassView(this)"><svg viewBox="0 0 16 16"
+                                                    class="inline_icon">
+                                                    <use xlink:href="icons.svg#eye-fill"></use>
+                                                </svg></button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 d-flex justify-content-center"><button type="submit" class="btn btn-outline-primary col-6"
+                name="save" data-i18n="c.save"></button></div>
+    </form>
+</div>

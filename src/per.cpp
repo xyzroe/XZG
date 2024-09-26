@@ -40,7 +40,10 @@ extern CCTools CCTool;
 // extern int btnFlag;
 int btnFlag = 0;
 
-Ticker tmrBtnLongPress(handleLongBtn, 1000, 0, MILLIS);
+#include <Ticker.h> 
+
+//Ticker tmrBtnLongPress(handleLongBtn, 1000, 0, MILLIS);
+Ticker tmrBtnLongPress; // Объявление объекта Ticker без параметров
 
 void handleLongBtn()
 {
@@ -71,7 +74,8 @@ void handleLongBtn()
             setLedsDisable(!vars.disableLeds);
             vars.disableLeds = !vars.disableLeds;
         }
-        tmrBtnLongPress.stop();
+        //tmrBtnLongPress.stop();
+        tmrBtnLongPress.detach(); // Использование метода detach() вместо stop()
         btnFlag = false;
     }
     if (btnFlag >= 5)
@@ -79,7 +83,8 @@ void handleLongBtn()
         ledControl.modeLED.mode = LED_FLASH_3Hz;
         printLogMsg("BTN - 5sec - zigbeeEnableBSL");
         zigbeeEnableBSL();
-        tmrBtnLongPress.stop();
+        //tmrBtnLongPress.stop();
+        tmrBtnLongPress.detach(); // Использование метода detach() вместо stop()
         btnFlag = false;
     }
 }
@@ -95,7 +100,7 @@ void toggleUsbMode()
         systemCfg.workMode = WORK_MODE_NETWORK;
     }
     saveSystemConfig(systemCfg);
-    LOGD("Change mode to %s", String(systemCfg.workMode));
+    LOGD("Change mode to %s", String(systemCfg.workMode).c_str());
 
     if (vars.hwLedUsbIs)
     {
@@ -148,12 +153,14 @@ void buttonLoop()
 {
     if (digitalRead(hwConfig.mist.btnPin) != hwConfig.mist.btnPlr) // pressed
     {
-        if (tmrBtnLongPress.state() == STOPPED)
+        //if (tmrBtnLongPress.state() == STOPPED)
+        if (!tmrBtnLongPress.active()) // Проверка активности таймера с помощью метода active()
         {
-            tmrBtnLongPress.start();
+            //tmrBtnLongPress.start();
+            tmrBtnLongPress.attach(1, handleLongBtn); // Запуск таймера с интервалом 1 секунда и функцией обратного вызова handleLongBtn
         }
     }
-    tmrBtnLongPress.update();
+    //tmrBtnLongPress.update();
 }
 
 IRAM_ATTR bool debounce()
