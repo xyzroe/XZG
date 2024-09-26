@@ -6,13 +6,13 @@
       "chip": "dual",
       "type": "ota",
       "commit": "ae1b13707131791c9093c26ef628e3f9abb24829",
-      "url": "https://raw.githubusercontent.com/xyzroe/XZG/releases/latest/XZG_20240926.2.ota.bin",
+      "url": "https://raw.githubusercontent.com/xyzroe/XZG/releases/latest/XZG_20240926.2.ota.bin"
     },
     {
       "chip": "dual",
       "type": "fs",
       "commit": "ae1b13707131791c9093c26ef628e3f9abb24829",
-      "url": "https://raw.githubusercontent.com/xyzroe/XZG/releases/latest/XZG_20240926.2.fs.bin",
+      "url": "https://raw.githubusercontent.com/xyzroe/XZG/releases/latest/XZG_20240926.2.fs.bin"
     }
   ]
 }
