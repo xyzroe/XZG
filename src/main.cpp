@@ -179,6 +179,7 @@ void handleTmrNetworkOverseer()
       {
         checkUpdateAvail();
         vars.firstUpdCheck = true;
+        setupCoordinatorMode();
       }
     }
     else
@@ -207,6 +208,7 @@ void handleTmrNetworkOverseer()
       {
         checkUpdateAvail();
         vars.firstUpdCheck = true;
+        setupCoordinatorMode();
       }
     }
     else
@@ -297,7 +299,7 @@ void NetworkEvent(WiFiEvent_t event)
     if (!tmrNetworkOverseer.active())
     {
       // tmrNetworkOverseer.start();
-      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
+      tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
   case 27: // case SYSTEM_EVENT_ETH_STOP: // 27:
@@ -309,7 +311,7 @@ void NetworkEvent(WiFiEvent_t event)
     if (!tmrNetworkOverseer.active())
     {
       // tmrNetworkOverseer.start();
-      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
+      tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
   case ARDUINO_EVENT_WIFI_STA_GOT_IP: // SYSTEM_EVENT_STA_GOT_IP:
@@ -353,7 +355,7 @@ void NetworkEvent(WiFiEvent_t event)
     if (!tmrNetworkOverseer.active())
     {
       // tmrNetworkOverseer.start();
-      tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
+      tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
     }
     break;
   default:
@@ -398,7 +400,7 @@ void startAP(const bool start)
     dnsServer.start(53, "*", apIP);
     WiFi.setSleep(false);
     // ConfigSettings.wifiAPenblTime = millis();
-    LOGD("startServers()");
+    //LOGD("startServers()");
     startServers();
     vars.apStarted = true;
   }
@@ -585,6 +587,31 @@ void mDNS_start()
   }
 }
 
+void networkStart()
+{
+  // if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
+  //{ // start network overseer
+  // if (tmrNetworkOverseer.state() == STOPPED)
+  if (!tmrNetworkOverseer.active())
+  {
+    // tmrNetworkOverseer.start();
+    tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
+  }
+  WiFi.onEvent(NetworkEvent);
+  if (networkCfg.ethEnable)
+    initLan();
+  if (networkCfg.wifiEnable)
+    connectWifi();
+  //}
+
+  // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
+  //   updWeb = true; // handle web server
+  if (!systemCfg.disableWeb)
+    updWeb = true; // handle web server
+  // if (systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb)
+  //   connectWifi(); // try 2 connect wifi
+}
+
 void setupCoordinatorMode()
 {
   if (systemCfg.workMode > 2 || systemCfg.workMode < 0)
@@ -595,23 +622,6 @@ void setupCoordinatorMode()
 
   String workModeString = systemCfg.workMode ? "USB" : "Network";
   LOGI("%s", workModeString.c_str());
-
-  // if ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb)
-  //{ // start network overseer
-  // if (tmrNetworkOverseer.state() == STOPPED)
-  if (!tmrNetworkOverseer.active())
-  {
-    // tmrNetworkOverseer.start();
-    tmrNetworkOverseer.attach_ms(overseerInterval, handleTmrNetworkOverseer);
-    
-
-  }
-  WiFi.onEvent(NetworkEvent);
-  if (networkCfg.ethEnable)
-    initLan();
-  if (networkCfg.wifiEnable)
-    connectWifi();
-  //}
 
   switch (systemCfg.workMode)
   {
@@ -630,20 +640,13 @@ void setupCoordinatorMode()
   default:
     break;
   }
-
-  // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
-  //   updWeb = true; // handle web server
-  if (!systemCfg.disableWeb)
-    updWeb = true; // handle web server
-  // if (systemCfg.workMode == WORK_MODE_USB && systemCfg.keepWeb)
-  //   connectWifi(); // try 2 connect wifi
 }
 
 void setup()
 {
   Serial.begin(115200); // todo ifdef DEBUG
 
-  String tag = "SETUP";
+  // String tag = "SETUP";
 
   initNVS();
 
@@ -657,29 +660,10 @@ void setup()
   // LOAD System vars and create FS / start
   if (!LittleFS.begin(false, "/lfs2", 10))
   {
-    LOGD("Error with LITTLEFS");
-    return;
+    LOGD("Error with FS - try to download");
+    vars.needFsDownload = true;
+    // return;
   }
-
-  // LOAD System vars and create FS / end
-
-  // READ file to support migrate from old firmware
-  /*
-    loadFileSystemVar();
-    loadFileConfigSerial();
-    loadFileConfigWifi();
-    loadFileConfigEther();
-    loadFileConfigGeneral();
-    loadFileConfigSecurity();
-    loadFileConfigMqtt();
-    loadFileConfigWg();
-  */
-  // READ file to support migrate from old firmware
-
-  // String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, &vars);
-  // LOGD("After READ OLD config\n %s", cfg.c_str());
-
-  // delay(3000);
 
   loadHwConfig(hwConfig);
   if (String(hwConfig.board).length() < 4)
@@ -735,7 +719,25 @@ void setup()
     }
   }
 
+  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, NULL, NULL);
+  LOGI("\n%s", cfg.c_str());
+
   vars.apStarted = false;
+
+  networkStart();
+
+  if (vars.needFsDownload)
+  {
+    while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
+    {
+      delay(1000);
+      LOGD("Wait for network");
+    }
+    //String url = fetchLatestEspFw("fs");
+    FirmwareInfo fwInfo = fetchLatestEspFw("fs");
+    
+    getEspUpdate(fwInfo.url);
+  }
 
   // AVOID USING PIN 0
   if (hwConfig.mist.btnPin > 0)
@@ -777,15 +779,8 @@ void setup()
     buttonSetup();
   }
 
-  String cfg = makeJsonConfig(&networkCfg, &vpnCfg, &mqttCfg, &systemCfg, NULL, NULL);
-  LOGI("\n%s", cfg.c_str());
-
-  cfg = makeJsonConfig(NULL, NULL, NULL, NULL, &vars, NULL);
-  LOGI("\n%s", cfg.c_str());
-
   setLedsDisable(); // with setup ?? // move to vars ?
 
-  setupCoordinatorMode();
   vars.connectedClients = 0;
 
   xTaskCreate(updateWebTask, "update Web Task", 8192, NULL, 8, NULL);
@@ -794,14 +789,15 @@ void setup()
 
   if (systemCfg.zbRole == COORDINATOR || systemCfg.zbRole == UNDEFINED)
   {
-    if (zbFwCheck())
+    /*if (zbFwCheck())
     {
       if (systemCfg.zbRole == UNDEFINED)
       {
         systemCfg.zbRole = COORDINATOR;
         saveSystemConfig(systemCfg);
       }
-    }
+    }*/
+    zbFwCheck();
   }
   else
   {
@@ -809,9 +805,12 @@ void setup()
   }
   LOGI("[ESP] FW: %s", String(VERSION).c_str());
 
-  LOGI("Load cfg %s", hwConfig.board);
+  // LOGI("Load cfg %s", hwConfig.board);
 
   setup1wire(check1wire());
+
+  cfg = makeJsonConfig(NULL, NULL, NULL, NULL, &vars, NULL);
+  LOGI("\n%s", cfg.c_str());
 
   LOGI("done");
 }

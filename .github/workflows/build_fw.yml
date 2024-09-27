@@ -97,30 +97,29 @@ jobs:
           EOF
           echo "Manifest file created."
 
+      - name: Get the latest commit SHA for the whole project
+        id: get_fw_commit_sha
+        run: echo "::set-output name=fw_commit_sha::$(git log -n 1 --pretty=format:%h)"
+  
+      - name: Get the latest commit SHA in src/websrc
+        id: get_fs_commit_sha
+        run: echo "::set-output name=fs_commit_sha::$(git log -n 1 --pretty=format:%h -- src/websrc)"
+  
       - name: Create xzg.json for firmware update
         run: |
           cat << EOF > xzg.json
           {
             "name": "XZG Firmware",
             "version": "${{ steps.get_tag.outputs.tag }}",
-            "files": [
-              {
-                "chip": "dual",
-                "type": "ota",
-                "commit": "${{ github.sha }}",
-                "url": "https://raw.githubusercontent.com/${{ github.repository }}/releases/latest/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin",
-              },
-              {
-                "chip": "dual",
-                "type": "fs",
-                "commit": "${{ github.sha }}",
-                "url": "https://raw.githubusercontent.com/${{ github.repository }}/releases/latest/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin",
-              }
-            ]
+            "fw_sha": "${{ steps.get_fw_commit_sha.outputs.fw_commit_sha }}",
+            "fs_sha": "${{ steps.get_fs_commit_sha.outputs.fs_commit_sha }}"
           }
           EOF
           echo "xzg.json file created."
-
+    
+      - name: Display xzg.json
+        run: cat xzg.json
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -130,6 +129,7 @@ jobs:
           files: |
             bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin
             bin/XZG_${{ steps.get_tag.outputs.tag }}.full.bin
+            bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin
 
       - name: Checkout releases branch
         uses: actions/checkout@v3
@@ -151,12 +151,10 @@ jobs:
           fi
           mkdir -p releases/latest
 
-      - name: Copy files to latest release directory
+      - name: Copy file to latest release directory
         run: |
-          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin releases/latest/
-          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin releases/latest/
           cp xzg.json releases/latest/
-          echo "Files copied to latest release directory."
+          echo "File copied to latest release directory."
           
       - name: Commit and push files to releases branch
         run: |

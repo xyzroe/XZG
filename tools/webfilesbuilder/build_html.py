@@ -19,7 +19,7 @@ import subprocess
 import logging
 from SCons.Script import DefaultEnvironment
 
-# Настройка логирования
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,12 +38,11 @@ def get_directory_size(directory, block_size=4096):
 def build_filesystem(env):
     filesystem_dir = os.path.join(env['PROJECT_DIR'], 'data')
     size = get_directory_size(filesystem_dir)
-    size = (size + 4095) // 4096 * 4096  # округление до ближайшего блока 4KB
-
-    # Добавляем дополнительное пространство для метаданных и выравнивания
-    metadata_overhead = 0.10  # 10% от общего размера данных
+    size = (size + 4095) // 4096 * 4096  
+    
+    metadata_overhead = 0.10  
     size = int(size * (1 + metadata_overhead))
-    size = (size + 4095) // 4096 * 4096  # округление до ближайшего блока 4KB
+    size = (size + 4095) // 4096 * 4096  
 
     filesystem_image = os.path.join(env['BUILD_DIR'], 'littlefs.bin')
     mklittlefs_path = os.path.join(env['PROJECT_PACKAGES_DIR'], 'tool-mklittlefs', 'mklittlefs')
@@ -81,8 +80,16 @@ def build_html():
         print("")
         time.sleep(1)
 
-        # os.makedirs("./src/webh", exist_ok=True)
         os.makedirs("./data", exist_ok=True)
+        
+        try:
+            result = subprocess.run(["git", "log", "-n", "1", "--pretty=format:%h", "--", "src/websrc"], capture_output=True, text=True, check=True)
+            git_commit_sha = result.stdout.strip()
+            with open("./data/commit", "w") as f:
+                f.write(git_commit_sha)
+            print(f"Git commit SHA saved to ./data/commit: {git_commit_sha}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to get Git commit SHA: {e}")
         
         os.chdir("./tools/webfilesbuilder/")
 
@@ -112,7 +119,7 @@ def build_html():
         if not current_env:
             raise ValueError("Environment variable PIOENV is not set")
         
-        #env.Execute(f"pio run -e {current_env} --target buildfs")
+
         build_filesystem(env)
         print("File system built successfully")
 
@@ -125,9 +132,8 @@ def build_html():
         
         if any(target in sys.argv for target in ["buildfs"]):
             sys.exit(0)
-            # print_logo()
+            
 
-#if not any(target in sys.argv for target in ["--clean", "erase"]):
 if  not any(target in sys.argv for target in ["--clean", "erase"]):
     #print(sys.argv)
     build_html()

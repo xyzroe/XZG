@@ -30,9 +30,12 @@ TimerHandle_t mqttPubStateTimer;
 
 const char *homeAssistant = "homeassistant";
 const char *haSensor = "sensor";
+const char *haUpdate = "update";
 const char *haButton = "button";
 const char *haBinarySensor = "binary_sensor";
 const char *willMessage = "offline"; // to do
+const char *haUpdateLogoUrl = "https://xzg.xyzroe.cc/assets/images/logo.svg";
+const char *haUpdateAttrTemplate = "{\"in_progress\": {{ value_json['state'] }} }";
 
 const char *availabilityTopic = "/avty";
 const char *configTopic = "/config";
@@ -135,6 +138,7 @@ String getWorkMode()
     return "Error";
 }
 
+/*
 String getRole()
 {
     String role;
@@ -155,73 +159,88 @@ String getRole()
     }
     return role;
 }
+*/
+
+String getRole()
+{
+    String role = getRadioRoleKey();
+    if (role.length() > 0)
+    {
+        role[0] = role[0] == ' ' ? role[0] : role[0] - 32;
+    }
+    return role;
+}
+
+const char *rst_esp = "rst_esp";
+const char *rst_zig = "rst_zig";
+const char *enbl_bsl = "enbl_bsl";
+const char *io = "/io/";
+const char *cmd = "/cmd";
+const char *upd_esp = "upd_esp";
+const char *upd_zb = "upd_zb";
+const char *upd_esp_slash = "/upd/esp";
+const char *upd_zb_slash = "/upd/zb";
+const char *mdiPrefix = "mdi:";
+const char *coolant_temperature = "coolant-temperature";
+const char *access_point = "access-point";
+const char *temperature = "temperature";
+const char *diagnostic = "diagnostic";
+const char *config = "config";
+const char *restart = "restart";
+
 
 mqttTopicsConfig mqttTopicsConfigs[] = {
     {.name = "Restart ESP",
      .sensorType = haButton,
-     .sensorId = "rst_esp",
-     .stateTopic = "/io/rst_esp",
-     .commandTopic = "/cmd",
-     .icon = "mdi:restore-alert",
-     .payloadPress = "{cmd:\"rst_esp\"}",
-     .deviceClass = "restart"},
+     .sensorId = rst_esp,
+     .stateTopic = String(io) + rst_esp,
+     .commandTopic = cmd,
+     .icon = String(mdiPrefix) + "restore-alert",
+     .payloadPress = rst_esp,
+     .deviceClass = restart},
     {.name = "Restart Zigbee",
      .sensorType = haButton,
-     .sensorId = "rst_zig",
-     .stateTopic = "/io/rst_zig",
-     .commandTopic = "/cmd",
-     .icon = "mdi:restart",
-     .payloadPress = "{cmd:\"rst_zig\"}",
-     .deviceClass = "restart"},
+     .sensorId = rst_zig,
+     .stateTopic = String(io) + rst_zig,
+     .commandTopic = cmd,
+     .icon = String(mdiPrefix) + restart,
+     .payloadPress = rst_zig,
+     .deviceClass = restart},
     {.name = "Enable BSL",
      .sensorType = haButton,
-     .sensorId = "enbl_bsl",
-     .stateTopic = "/io/enbl_bsl",
-     .commandTopic = "/cmd",
+     .sensorId = enbl_bsl,
+     .stateTopic = String(io) + enbl_bsl,
+     .commandTopic = cmd,
      .icon = "mdi:flash",
-     .payloadPress = "{cmd:\"enbl_bsl\"}",
+     .payloadPress = enbl_bsl,
      .deviceClass = "identify"},
     {.name = "Socket",
      .sensorType = haBinarySensor,
      .sensorId = "socket",
      .stateTopic = "/io/socket",
      .deviceClass = "connectivity"},
-    {.name = "Update ESP32",
-     .sensorType = haBinarySensor,
-     .sensorId = "update_esp",
-     .stateTopic = "/io/update_esp",
-     .deviceClass = "update"},
-    {.name = "Update Zigbee",
-     .sensorType = haBinarySensor,
-     .sensorId = "update_zb",
-     .stateTopic = "/io/update_zb",
-     .deviceClass = "update"},
     {.name = "Uptime",
      .sensorType = haSensor,
      .sensorId = "uptime",
      .stateTopic = stateTopic,
-     .icon = "mdi:clock",
-     .valueTemplate = "{{ value_json.uptime }}",
+     .icon = String(mdiPrefix) + "clock",
      .getSensorValue = getUptime},
     {.name = "WLAN IP",
      .sensorType = haSensor,
      .sensorId = "wlanIp",
      .stateTopic = stateTopic,
-     .icon = "mdi:wifi-check",
-     .valueTemplate = "{{ value_json.wlanIp }}",
+     .icon = String(mdiPrefix) + "wifi-check",
      .getSensorValue = getWlanIp},
     {.name = "WLAN SSID",
      .sensorType = haSensor,
      .sensorId = "wlanSsid",
      .stateTopic = stateTopic,
-     .icon = "mdi:wifi-marker",
-     .valueTemplate = "{{ value_json.wlanSsid }}",
+     .icon = String(mdiPrefix) + "wifi-marker",
      .getSensorValue = getWlanSsid},
     {.name = "WLAN RSSI",
      .sensorType = haSensor,
      .sensorId = "wlanRssi",
      .stateTopic = stateTopic,
-     .valueTemplate = "{{ value_json.wlanRssi }}",
      .deviceClass = "signal_strength",
      .unitOfMeasurement = "dBm",
      .getSensorValue = getWlanRssi},
@@ -229,70 +248,88 @@ mqttTopicsConfig mqttTopicsConfigs[] = {
      .sensorType = haSensor,
      .sensorId = "lanIp",
      .stateTopic = stateTopic,
-     .icon = "mdi:check-network",
-     .valueTemplate = "{{ value_json.lanIp }}",
+     .icon = String(mdiPrefix) + "check-network",
      .getSensorValue = getLanIp},
     {.name = "ESP Temperature",
      .sensorType = haSensor,
-     .sensorId = "temperature",
+     .sensorId = temperature,
      .stateTopic = stateTopic,
-     .icon = "mdi:coolant-temperature",
-     .valueTemplate = "{{ value_json.temperature }}",
-     .deviceClass = "temperature",
+     .icon = String(mdiPrefix) + coolant_temperature,
+     .deviceClass = temperature,
      .unitOfMeasurement = "°C",
      .getSensorValue = getStrCpuTemp},
     {.name = "1W Temperature",
      .sensorType = haSensor,
      .sensorId = "temperature1w",
      .stateTopic = stateTopic,
-     .icon = "mdi:coolant-temperature",
-     .valueTemplate = "{{ value_json.temperature1w }}",
-     .deviceClass = "temperature",
+     .icon = String(mdiPrefix) + coolant_temperature,
+     .deviceClass = temperature,
      .unitOfMeasurement = "°C",
      .getSensorValue = getStr1wTemp},
     {.name = "Hostname",
      .sensorType = haSensor,
      .sensorId = "hostname",
      .stateTopic = stateTopic,
-     .icon = "mdi:account-network",
-     .valueTemplate = "{{ value_json.hostname }}",
+     .icon = String(mdiPrefix) + "account-network",
      .getSensorValue = getHostname},
     {.name = "Socket Connections",
      .sensorType = haSensor,
      .sensorId = "connections",
      .stateTopic = stateTopic,
-     .icon = "mdi:check-network-outline",
-     .valueTemplate = "{{ value_json.connections }}",
+     .icon = String(mdiPrefix) + "check-network-outline",
      .getSensorValue = getConnections},
     {.name = "Mode",
      .sensorType = haSensor,
      .sensorId = "mode",
      .stateTopic = stateTopic,
-     .icon = "mdi:access-point-network",
-     .valueTemplate = "{{ value_json.mode }}",
+     .icon = String(mdiPrefix) + access_point + "-network",
      .deviceClass = "enum",
+     .entityCategory = diagnostic,
      .getSensorValue = getWorkMode},
-    {.name = "Zigbee FW version",
-     .sensorType = haSensor,
-     .sensorId = "zbfw",
-     .stateTopic = stateTopic,
-     .icon = "mdi:access-point",
-     .valueTemplate = "{{ value_json.zbfw }}",
-     .getSensorValue = getZigbeeFWver},
-    {.name = "Zigbee HW revision",
+    {.name = "Radio chip",
      .sensorType = haSensor,
      .sensorId = "zbhw",
      .stateTopic = stateTopic,
-     .icon = "mdi:access-point",
-     .valueTemplate = "{{ value_json.zbhw }}",
+     .icon = String(mdiPrefix) + access_point,
+     .entityCategory = diagnostic,
      .getSensorValue = getZigbeeHWrev},
     {.name = "Zigbee Role",
      .sensorType = haSensor,
      .sensorId = "zbrl",
      .stateTopic = stateTopic,
-     .icon = "mdi:access-point",
-     .valueTemplate = "{{ value_json.zbrl }}",
-     .getSensorValue = getRole}};
+     .icon = String(mdiPrefix) + access_point,
+     .entityCategory = diagnostic,
+     .getSensorValue = getRole},
+    {.name = "ESP32 firmware",
+     .sensorType = haUpdate,
+     .sensorId = upd_esp,
+     .stateTopic = upd_esp_slash,
+     .commandTopic = cmd,
+     .entityCategory = config,
+     .entityPicture = haUpdateLogoUrl,
+     .payloadInstall = upd_esp,
+     //.releaseUrl = "zb_upd",
+     .jsonAttrTemplate = haUpdateAttrTemplate,
+     .jsonAttrTopic = upd_esp_slash},
+    {.name = "Radio firmware",
+     .sensorType = haUpdate,
+     .sensorId = upd_zb,
+     .stateTopic = upd_zb_slash,
+     .commandTopic = cmd,
+     .entityCategory = config,
+     .entityPicture = haUpdateLogoUrl,
+     .payloadInstall = upd_zb,
+     //.releaseUrl = "zb_upd",
+     .jsonAttrTemplate = haUpdateAttrTemplate,
+     .jsonAttrTopic = upd_zb_slash}};
+
+/*{.name = "Zigbee FW version",
+.sensorType = haSensor,
+.sensorId = "zbfw",
+.stateTopic = stateTopic,
+.icon = "mdi:access-point",
+.valueTemplate = "{{ value_json.zbfw }}",
+.getSensorValue = getZigbeeFWver},*/
 
 void mqttConnectSetup()
 {
@@ -302,12 +339,12 @@ void mqttConnectSetup()
         if (mqttCfg.reconnectInt == 0)
         {
             mqttCfg.reconnectInt = 30;
-            LOGI("Reconnect Int didn't set. So use %d seconds", mqttCfg.reconnectInt);
+            LOGD("Reconnect Int didn't set. So use %d seconds", mqttCfg.reconnectInt);
         }
         if (mqttCfg.updateInt == 0)
         {
             mqttCfg.updateInt = 60;
-            LOGI("Update Int didn't set. So use %d seconds", mqttCfg.updateInt);
+            LOGD("Update Int didn't set. So use %d seconds", mqttCfg.updateInt);
         }
         mqttReconnectTimer = xTimerCreate("mqttReconnectTimer", pdMS_TO_TICKS(mqttCfg.reconnectInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
         mqttPubStateTimer = xTimerCreate("mqttPubStateTimer", pdMS_TO_TICKS(mqttCfg.updateInt * 1000), pdFALSE, (void *)0, reinterpret_cast<TimerCallbackFunction_t>(mqttPublishState));
@@ -350,10 +387,11 @@ void mqttConnectSetup()
 
         mqttClient.onMessage(onMqttMessage);
 
-        if (xTimerStart(mqttReconnectTimer, 0) != pdPASS)
+        connectToMqtt();
+        /*if (xTimerStart(mqttReconnectTimer, 0) != pdPASS)
         {
             LOGD("Failed to start timer");
-        }
+        }*/
     }
 }
 
@@ -392,8 +430,8 @@ void onMqttConnect(bool sessionPresent)
     mqttPublishIo("update_zb", vars.updateZbAvail);
     mqttPublishState();
 
-    mqttPublishUpdate(UPD_ESP);
-    mqttPublishUpdate(UPD_ZB);
+    mqttPublishUpdate("esp");
+    mqttPublishUpdate("zb");
 
     mqttPublishAvail();
 }
@@ -410,7 +448,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
 {
     static char json[512];
-    static DynamicJsonDocument doc(512);
+    // static DynamicJsonDocument doc(512);
 
     String topicStr(topic);
     if (topicStr.endsWith("/cmd"))
@@ -420,20 +458,20 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
             memcpy(json, payload, len);
             json[len] = '\0';
 
-            doc.clear();
-            deserializeJson(doc, json);
-            const char *command = doc["cmd"];
+            LOGD("json - %s", String(json));
 
-            LOGD("cmd - %s", String(json));
-
-            if (command)
+            if (strlen(json) > 0)
             {
-                executeCommand(command);
+                executeCommand(json);
+            }
+            else
+            {
+                LOGD("empty cmnd");
             }
         }
         else
         {
-            LOGW("Payload too large");
+            LOGW("cmnd too large");
         }
     }
     topicStr.clear();
@@ -459,6 +497,20 @@ void executeCommand(const char *command)
         printLogMsg("Zigbee BSL enable MQTT");
         zigbeeEnableBSL();
     }
+
+    if (strcmp(command, "upd_esp") == 0)
+    {
+        mqttPublishUpdate("esp", true);
+        printLogMsg("Going to update ESP");
+        // to - do
+    }
+
+    if (strcmp(command, "upd_zb") == 0)
+    {
+        mqttPublishUpdate("zb", true);
+        printLogMsg("Going to update ESP");
+        // to - do
+    }
 }
 
 void mqttPublishAvail()
@@ -478,7 +530,7 @@ void mqttPublishIo(const String &io, bool st)
     }
 }
 
-void mqttPublishUpdate(updInfoType chip)
+void mqttPublishUpdate(const String &chip, bool instState)
 {
     // String state = st ? "ON" : "OFF";
     if (mqttClient.connected())
@@ -491,25 +543,27 @@ void mqttPublishUpdate(updInfoType chip)
         static String mqttBuffer;
         char verArr[25];
         const char *env = STRINGIFY(BUILD_ENV_NAME);
+        
+        const char *installed_version = "installed_version";
+        const char *latest_version = "latest_version";
+        const char *state = "state";
 
-        switch (chip)
+        if (chip == "esp")
         {
-        case UPD_ESP:
-
             sprintf(verArr, "%s (%s)", VERSION, env);
-            jsonBuff["installed_version"] = String(verArr);
-            jsonBuff["latest_version"] = String(vars.lastESPVer);
-            break;
-
-        case UPD_ZB:
-            jsonBuff["installed_version"] = String(getZigbeeFWver());
-            jsonBuff["latest_version"] = String(vars.lastZBVer);
-            break;
+            jsonBuff[installed_version] = String(verArr);
+            jsonBuff[latest_version] = String(vars.lastESPVer);
+            jsonBuff[state] = int(instState);
+        }
+        else if (chip == "zb")
+        {
+            jsonBuff[installed_version] = String(getZigbeeFWver());
+            jsonBuff[latest_version] = String(vars.lastZBVer);
+            jsonBuff[state] = int(instState);
         }
 
-
         String topic = String(mqttCfg.topic) + "/upd/" + chip;
-        LOGD("Pub upd %s at %s", chip == UPD_ESP ? "ESP" : "Zigbee", topic.c_str());
+        LOGD("Pub upd %s at %s", chip, topic.c_str());
 
         serializeJson(jsonBuff, mqttBuffer);
 
@@ -566,7 +620,7 @@ void mqttPublishDiscovery()
 
     devInfo.clear();
     devInfo["ids"] = vars.deviceId;
-    devInfo["name"] = systemCfg.hostname;
+    devInfo["name"] = systemCfg.hostname; // mqttCfg.topic;
     devInfo["mf"] = "XZG";
     devInfo["mdl"] = hwConfig.board;
     char verArr[25];
@@ -581,7 +635,7 @@ void mqttPublishDiscovery()
         {
             buffJson["dev"] = devInfo;
             buffJson["name"] = item.name;
-            buffJson["uniq_id"] = String(mqttCfg.topic) + "/" + item.sensorId;
+            buffJson["uniq_id"] = String(vars.deviceId) + "_" + item.sensorId;
             buffJson["stat_t"] = mqttCfg.topic + item.stateTopic;
             buffJson["avty_t"] = mqttCfg.topic + String(availabilityTopic);
             if (!String(item.commandTopic).isEmpty())
@@ -591,19 +645,15 @@ void mqttPublishDiscovery()
 
             if (!String(item.icon).isEmpty())
             {
-                buffJson["icon"] = item.icon;
+                buffJson["ic"] = item.icon;
             }
             if (!String(item.payloadPress).isEmpty())
             {
-                buffJson["payload_press"] = item.payloadPress;
+                buffJson["pl_prs"] = item.payloadPress;
             }
-            if (!String(item.valueTemplate).isEmpty())
+            if (item.sensorType == haSensor)
             {
-                buffJson["val_tpl"] = item.valueTemplate;
-            }
-            if (!String(item.jsonAttributeTopic).isEmpty())
-            {
-                buffJson["json_attr_t"] = mqttCfg.topic + item.jsonAttributeTopic;
+                buffJson["val_tpl"] = "{{ value_json." + item.sensorId + " }}";
             }
             if (!String(item.deviceClass).isEmpty())
             {
@@ -613,9 +663,34 @@ void mqttPublishDiscovery()
             {
                 buffJson["unit_of_meas"] = item.unitOfMeasurement;
             }
+            if (!String(item.entityCategory).isEmpty())
+            {
+                buffJson["ent_cat"] = item.entityCategory;
+            }
+            if (!String(item.entityPicture).isEmpty())
+            {
+                buffJson["ent_pic"] = item.entityPicture;
+            }
+            if (!String(item.payloadInstall).isEmpty())
+            {
+                buffJson["pl_inst"] = item.payloadInstall;
+            }
+            if (!String(item.releaseUrl).isEmpty())
+            {
+                buffJson["rel_u"] = item.releaseUrl;
+            }
+            if (!String(item.jsonAttrTemplate).isEmpty())
+            {
+                buffJson["json_attr_tpl"] = item.jsonAttrTemplate;
+            }
+            if (!String(item.jsonAttrTopic).isEmpty())
+            {
+                buffJson["json_attr_t"] = mqttCfg.topic + item.jsonAttrTopic;
+            }
 
             String topic = String(homeAssistant) + "/" + item.sensorType + "/" + mqttCfg.topic + "/" + item.sensorId + configTopic;
             serializeJson(buffJson, mqttBuffer);
+            LOGD("%s at %s", mqttBuffer.c_str(), topic.c_str());
             mqttClient.publish(topic.c_str(), 1, true, mqttBuffer.c_str());
             buffJson.clear();
             mqttBuffer.clear();

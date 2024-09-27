@@ -9,7 +9,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
 void executeCommand(const char *command);
 void mqttPublishAvail();
 void mqttPublishIo(const String &io, bool st);
-void mqttPublishUpdate(updInfoType chip);
+void mqttPublishUpdate(const String &chip, bool state = false);
 void mqttPublishState();
 void mqttPublishDiscovery();
 
@@ -24,8 +24,13 @@ struct mqttTopicsConfig {
     String icon;
     String payloadPress;
     String valueTemplate;
-    String jsonAttributeTopic;
     String deviceClass;
     String unitOfMeasurement;
+    String entityCategory;
+    String entityPicture;
+    String payloadInstall;
+    String releaseUrl;
+    String jsonAttrTemplate;
+    String jsonAttrTopic;
     SensorValueFunction getSensorValue;
 };

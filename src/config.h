@@ -37,7 +37,7 @@
 #define NEED_BSL_PIN 15  // CC2652 pin number (FOR BSL VALIDATION!)
 #define NEED_BSL_LEVEL 1 // 0-ERROR 1-LOW 2-HIGH
 
-const int16_t overseerInterval = 5 * 1000; // check lan or wifi connection every 5sec
+const int16_t overseerInterval = 5; // check lan or wifi connection every 5sec
 const uint8_t overseerMaxRetry = 3;        // 5x12 = 60sec delay for AP start
 
 enum WORK_MODE_t : uint8_t
@@ -119,6 +119,8 @@ struct SysVarsStruct
   
   uint32_t last1wAsk = 0;
   float temp1w = 0;
+
+  bool needFsDownload = false;
 };
 
 // Network configuration structure

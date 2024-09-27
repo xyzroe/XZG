@@ -870,6 +870,7 @@ bool CCTools::checkFirmwareVersion()
     {
         restart();
     }
+    _cleanBuffer();
     zbInfoStruct temp = _checkFwVer();
     chip.fwRev = temp.fwRev;
     chip.maintrel = temp.maintrel;
@@ -967,4 +968,9 @@ bool CCTools::nvram_reset(void (*logFunction)(const String&))
     restart();
 
     return success;
+}
+
+void CCTools::cleanBuffer()
+{
+    _cleanBuffer();
 }

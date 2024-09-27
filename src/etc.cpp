@@ -119,44 +119,47 @@ int check1wire()
 void setup1wire(int pin)
 {
 
-  if (oneWire != nullptr)
+  if (pin > 0)
   {
-    delete oneWire;
-  }
-  if (sensor != nullptr)
-  {
-    delete sensor;
-  }
+    if (oneWire != nullptr)
+    {
+      delete oneWire;
+    }
+    if (sensor != nullptr)
+    {
+      delete sensor;
+    }
 
-  oneWire = new OneWire(pin);
-  sensor = new DS18B20(oneWire);
+    oneWire = new OneWire(pin);
+    sensor = new DS18B20(oneWire);
 
-  sensor->begin();
-  sensor->setResolution(10);
+    sensor->begin();
+    sensor->setResolution(10);
 
 #ifdef DEBUG
-  uint32_t start, stop;
+    uint32_t start, stop;
 
-  start = micros();
-  sensor->requestTemperatures();
+    start = micros();
+    sensor->requestTemperatures();
 
-  int n = 0;
-  //  wait until sensor ready, do some counting for fun.
-  while (!sensor->isConversionComplete())
-    n++;
+    int n = 0;
+    //  wait until sensor ready, do some counting for fun.
+    while (!sensor->isConversionComplete())
+      n++;
 
-  stop = micros();
-  LOGD("Convert %lu\t%d", stop - start, n);
+    stop = micros();
+    LOGD("Convert %lu\t%d", stop - start, n);
 
-  // delay(100);
-  start = micros();
-  float f = sensor->getTempC();
-  stop = micros();
+    // delay(100);
+    start = micros();
+    float f = sensor->getTempC();
+    stop = micros();
 
-  LOGD("getTemp %lu\t%.2f", stop - start, f);
+    LOGD("getTemp %lu\t%.2f", stop - start, f);
 #endif
 
-  get1wire();
+    get1wire();
+  }
 }
 
 float get1wire()
@@ -349,7 +352,7 @@ void getDeviceID(char *arr)
   snprintf(arr, MAX_DEV_ID_LONG + 1, "%s-%s", devicePref.c_str(), buf);
 }
 
-void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
+/*void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
 {
   LOGD("Write defaults to %s", path);
   serializeJsonPretty(doc, Serial);
@@ -374,7 +377,7 @@ void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)
     serializeJsonPretty(doc, configFile);
   }
   configFile.close();
-}
+}*/
 
 void factoryReset()
 {
@@ -1100,29 +1103,36 @@ void checkUpdateAvail()
     const char *FoundKey = "Found ";
     const char *NewFwKey = " new fw: ";
     const char *TryKey = "try to install";
-    String latestReleaseUrlEsp = fetchLatestEspFw();
+    //String latestReleaseUrlEsp = fetchLatestEspFw();
     String latestReleaseUrlZb = fetchLatestZbFw();
-    
-    String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
-    //String latestVersionEsp = "1.2.3";
+
+    //String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
+
+    FirmwareInfo esp_fw = fetchLatestEspFw();
+    String latestVersionEsp = esp_fw.version;
+    // String latestVersionEsp = "1.2.3";
 
     String latestVersionZb = extractVersionFromURL(latestReleaseUrlZb);
 
-    LOGD("%s %s", ESPkey, latestVersionEsp.c_str());
-    LOGD("%s %s", ZBkey, latestVersionZb.c_str());
+    strncpy(vars.lastESPVer, latestVersionEsp.c_str(), sizeof(vars.lastESPVer) - 1);
+    vars.lastESPVer[sizeof(vars.lastESPVer) - 1] = '\0';
+
+    LOGD("lastESPVer %s", vars.lastESPVer);
+
+    strncpy(vars.lastZBVer, latestVersionZb.c_str(), sizeof(vars.lastZBVer) - 1);
+    vars.lastZBVer[sizeof(vars.lastZBVer) - 1] = '\0';
+
+    LOGD("lastZBVer %s", vars.lastZBVer);
 
     if (latestVersionEsp.length() > 0 && compareVersions(latestVersionEsp, VERSION) > 0)
     {
       vars.updateEspAvail = true;
-      
-      strncpy(vars.lastESPVer, latestVersionEsp.c_str(), sizeof(vars.lastESPVer) - 1);
-      vars.lastESPVer[sizeof(vars.lastESPVer) - 1] = '\0';
 
       printLogMsg(String(FoundKey) + String(ESPkey) + String(NewFwKey) + latestVersionEsp);
       if (systemCfg.updAutoInst)
       {
         printLogMsg(String(TryKey));
-        //getEspUpdate(latestReleaseUrlEsp);
+        // getEspUpdate(latestReleaseUrlEsp);
       }
     }
     else
@@ -1134,15 +1144,12 @@ void checkUpdateAvail()
     {
       vars.updateZbAvail = true;
 
-      strncpy(vars.lastZBVer, latestVersionZb.c_str(), sizeof(vars.lastZBVer) - 1);
-      vars.lastZBVer[sizeof(vars.lastZBVer) - 1] = '\0';
-
       printLogMsg(String(FoundKey) + String(ZBkey) + String(NewFwKey) + latestVersionZb);
       if (systemCfg.updAutoInst)
       {
         printLogMsg(String(TryKey));
-        //flashZbUrl(latestReleaseUrlZb);
-        //ESP.restart();
+        // flashZbUrl(latestReleaseUrlZb);
+        // ESP.restart();
       }
     }
     else
@@ -1151,7 +1158,7 @@ void checkUpdateAvail()
     }
   }
   else
-  { 
+  {
     LOGW("AP is started, skip update check");
   }
 }
@@ -1182,4 +1189,25 @@ String getHostFromUrl(const String &url)
     endIndex = url.length();
   }
   return url.substring(startIndex, endIndex);
+}
+
+String getRadioRoleKey()
+{
+  String role;
+  switch (systemCfg.zbRole)
+  {
+  case COORDINATOR:
+    role = "coordinator";
+    break;
+  case ROUTER:
+    role = "router";
+    break;
+  case OPENTHREAD:
+    role = "thread";
+    break;
+  default:
+    role = "unknown";
+    break;
+  }
+  return role;
 }

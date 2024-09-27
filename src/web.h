@@ -1,3 +1,8 @@
+#ifndef WEB_H
+#define WEB_H
+
+#include "etc.h" // Включение заголовочного файла etc.h
+
 #include <Arduino.h>
 void handleEvents();
 void initWebServer();
@@ -37,7 +42,10 @@ void progressFunc(unsigned int progress, unsigned int total);
 
 void getEspUpdate(String esp_fw_url);
 void runEspUpdateFirmware(uint8_t *data, size_t len);
-String fetchLatestEspFw();
+
+
+
+FirmwareInfo fetchLatestEspFw(String type = "ota");
 String fetchLatestZbFw();
 String extractVersionFromURL(String url);
 
@@ -57,3 +65,5 @@ enum API_PAGE_t : uint8_t
     API_PAGE_VPN,
 
 };
+
+#endif // WEB_H

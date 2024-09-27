@@ -1,3 +1,8 @@
+#ifndef ETC_H
+#define ETC_H
+
+#include <Arduino.h>
+
 #include <ETH.h>
 #include "const/hw.h"
 
@@ -22,7 +27,7 @@ void zigbeeRestart();
 void usbModeSet(usbMode mode);
 
 void getDeviceID(char *arr);
-void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
+//void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
 
 #define TIMEOUT_FACTORY_RESET 3
 
@@ -52,3 +57,11 @@ void checkUpdateAvail();
 bool isIpInSubnet(IPAddress ip, IPAddress subnet, IPAddress subnetMask);
 bool isValidIp(IPAddress ip);
 String getHostFromUrl(const String& url);
+String getRadioRoleKey();
+
+struct FirmwareInfo {
+    String url;
+    String version;
+};
+
+#endif // ETC_H

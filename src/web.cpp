@@ -10,6 +10,7 @@
 #include <WiFi.h>
 #include <Ticker.h>
 #include <CCTools.h>
+#include <esp_task_wdt.h>
 
 #include "config.h"
 #include "web.h"
@@ -625,10 +626,11 @@ static void apiCmdUpdateUrl(String &result)
     }
     else
     {
-        String link = fetchLatestEspFw();
-        if (link)
+        //String link = fetchLatestEspFw();
+        FirmwareInfo fwInfo = fetchLatestEspFw();
+        if (fwInfo.url)
         {
-            getEspUpdate(link);
+            getEspUpdate(fwInfo.url);
         }
         else
         {
@@ -740,7 +742,7 @@ static void apiCmdBoardName(String &result)
         String brdName = serverWeb.arg("board");
         brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
 
-        File configFile = LittleFS.open(configFileHw, FILE_READ);
+        /*File configFile = LittleFS.open(configFileHw, FILE_READ);
         if (!configFile)
         {
             Serial.println("Failed to open config file for reading");
@@ -759,7 +761,14 @@ static void apiCmdBoardName(String &result)
         configFile.close();
         config["board"] = hwConfig.board;
 
-        writeDefaultConfig(configFileHw, config);
+        writeDefaultConfig(configFileHw, config);*/
+
+        brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
+
+        hwConfig.board[sizeof(hwConfig.board) - 1] = '\0';
+
+        saveHwConfig(hwConfig);
+
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
     else
@@ -2074,6 +2083,7 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
 
 void progressFunc(unsigned int progress, unsigned int total)
 {
+
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
@@ -2127,17 +2137,33 @@ void getEspUpdate(String esp_fw_url)
             // transfer to local variable
             int len = totalLength;
             // this is required to start firmware update process
-            Update.begin(totalLength);
+
+            int updateType = 0;
+            bool isSpiffsUpdate = false;
+            if (esp_fw_url.endsWith(".fs.bin"))
+
+            {
+                updateType = U_SPIFFS;
+                isSpiffsUpdate = true;
+            }
+            else
+            {
+                updateType = U_FLASH;
+                isSpiffsUpdate = false;
+            }
+
+            Update.begin(totalLength, updateType);
             Update.onProgress(progressFunc);
-            LOGI("FW Size: %s", String(totalLength).c_str());
+            LOGI("File size: %s", String(totalLength).c_str());
             // create buffer for read
             uint8_t buff[128] = {0};
             // get tcp stream
             WiFiClient *stream = http.getStreamPtr();
             // read all data from server
-            LOGI("Updating firmware...");
+            LOGI("Updating %s ...", isSpiffsUpdate ? "file system" : "firmware");
             while (http.connected() && (len > 0 || len == -1))
             {
+                esp_task_wdt_reset();
                 // get available data size
                 size_t size = stream->available();
                 if (size)
@@ -2176,64 +2202,58 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     ESP.restart();
 }
 
-String fetchLatestEspFw()
+FirmwareInfo fetchLatestEspFw(String type)
 {
-    HTTPClient http;
-    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-    http.begin("https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/20240914/manifest.json");
-    int httpCode = http.GET();
+    FirmwareInfo info = {"", ""};
 
-    String browser_download_url = "";
-
-    if (httpCode > 0)
+    if (type == "fs" || type == "ota")
     {
-        String payload = http.getString();
+        HTTPClient http;
+        http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+        http.begin("https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/xzg.json");
+        int httpCode = http.GET();
 
-        DynamicJsonDocument doc(4096);
-        DeserializationError error = deserializeJson(doc, payload);
-
-        if (error)
+        if (httpCode > 0)
         {
-            LOGD("deserializeJson() failed: %s", error.c_str());
-            return "";
-        }
+            String payload = http.getString();
 
-        size_t usedMemory = doc.memoryUsage();
-        LOGD("doc used: %s bytes", String(usedMemory).c_str());
+            DynamicJsonDocument doc(4096);
+            DeserializationError error = deserializeJson(doc, payload);
 
-        JsonObject release = doc.as<JsonObject>();
-
-        if (release.containsKey("builds") && release["builds"].is<JsonArray>())
-        {
-            JsonArray builds = release["builds"].as<JsonArray>();
-            if (builds.size() > 0)
+            if (!error)
             {
-                JsonObject firstBuild = builds[0].as<JsonObject>();
-                if (firstBuild.containsKey("parts") && firstBuild["parts"].is<JsonArray>())
+                size_t usedMemory = doc.memoryUsage();
+                LOGD("doc used: %s bytes", String(usedMemory).c_str());
+
+                JsonObject release = doc.as<JsonObject>();
+
+                if (release.containsKey("version"))
                 {
-                    JsonArray parts = firstBuild["parts"].as<JsonArray>();
-                    if (parts.size() > 0)
-                    {
-                        JsonObject firstPart = parts[0].as<JsonObject>();
-                        if (firstPart.containsKey("path"))
-                        {
-                            String path = firstPart["path"].as<String>();
-                            path.replace(".full.", ".ota.");
-                            browser_download_url = path;
-                        }
-                    }
+                    info.version = release["version"].as<String>();
+                    info.url = "https://github.com/xyzroe/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
+                    LOGD("Latest version: %s | url %s", info.version.c_str(), info.url.c_str());
+                }
+                else
+                {
+                    LOGD("No version found");
                 }
             }
+            else
+            {
+                LOGD("deserializeJson failed: %s", error.c_str());
+            }
         }
-        LOGD("browser_download_url: %s", browser_download_url.c_str());
+        else
+        {
+            LOGD("Error on HTTP request: %d", httpCode);
+        }
+        http.end();
     }
-    else
     {
-        LOGD("Error on HTTP request: %d", httpCode);
+        LOGD("Invalid type: %s", type.c_str());
+        
     }
-
-    http.end();
-    return browser_download_url;
+    return info;
 }
 
 String fetchLatestZbFw()
@@ -2261,8 +2281,9 @@ String fetchLatestZbFw()
         size_t usedMemory = doc.memoryUsage();
         LOGD("doc used: %s bytes", String(usedMemory).c_str());
 
-        String roleKey;
-        if (systemCfg.zbRole == COORDINATOR)
+        String roleKey = getRadioRoleKey();
+
+        /*if (systemCfg.zbRole == COORDINATOR)
         {
             roleKey = "coordinator";
         }
@@ -2273,7 +2294,7 @@ String fetchLatestZbFw()
         else if (systemCfg.zbRole == OPENTHREAD)
         {
             roleKey = "thread";
-        }
+        }*/
 
         if (doc.containsKey(roleKey) && doc[roleKey].containsKey(CCTool.chip.hwRev))
         {

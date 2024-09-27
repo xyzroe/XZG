@@ -1447,7 +1447,7 @@ function connectEvents() {
 			}
 			data = i18next.t('md.zg.fu.nv', { ver: ver });
 			setTimeout(function () {
-				espReboot();
+				//espReboot();
 				restartWait();
 			}, 1250);
 		}

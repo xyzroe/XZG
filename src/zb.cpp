@@ -41,18 +41,22 @@ bool zbFwCheck()
 {
     const int maxAttempts = 3;
     for (int attempt = 0; attempt < maxAttempts; attempt++)
-    {
+    {   
+        LOGD("Try: %d", attempt+1);
+        delay(500 * (attempt * 2));
         if (CCTool.checkFirmwareVersion())
         {
             printLogMsg(tag_ZB + " FW: " + String(CCTool.chip.fwRev));
+            if (systemCfg.zbRole == UNDEFINED)
+            {
+                systemCfg.zbRole = COORDINATOR;
+                saveSystemConfig(systemCfg);
+            }
             return true;
         }
         else
         {
-            CCTool.restart();
-            int val = attempt + 1;
-            LOGD("Try: %d", val);
-            delay(500 * (val * val));
+            CCTool.restart();            
         }
     }
     printLogMsg(tag_ZB + " FW: Unknown! Check serial speed!");
@@ -254,9 +258,9 @@ void flashZbUrl(String url)
         if (systemCfg.zbRole == COORDINATOR)
         {
             zbFwCheck();
-            zbLedToggle();
-            delay(1000);
-            zbLedToggle();
+            //zbLedToggle();
+            //delay(1000);
+            //zbLedToggle();
         }
         sendEvent(tagZB_FW_file, eventLen, String(systemCfg.zbFw));
         delay(500);
