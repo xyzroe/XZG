@@ -13,15 +13,8 @@ NO_WEB_UPDATE = "tools/.no_web_update"
 sys.path.append("./tools")
 from func import print_logo
 
-
-import os
 import subprocess
-import logging
 from SCons.Script import DefaultEnvironment
-
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 env = DefaultEnvironment()
 
@@ -36,44 +29,58 @@ def get_directory_size(directory, block_size=4096):
                 total_size += rounded_size
     return total_size
 
-def calculate_filesystem_size(directory, metadata_overhead=0.10, block_size=4096):
+def calculate_filesystem_size(directory, metadata_overhead=0.12, block_size=4096):
     size = get_directory_size(directory, block_size)
-    size = int(size * (1 + metadata_overhead)) 
+    size = int(size * (1 + metadata_overhead))  
     size = (size + block_size - 1) // block_size * block_size  
     return size
 
 def build_filesystem(env):
-    filesystem_dir = os.path.join(env['PROJECT_DIR'], 'data')
-    filesystem_size = calculate_filesystem_size(filesystem_dir)
+    try:
+        filesystem_dir = os.path.join(env['PROJECT_DIR'], 'data')
+        size_file_path = os.path.join(env['PROJECT_DIR'], 'src', 'websrc', 'size.fs')
 
-    filesystem_image = os.path.join(env['BUILD_DIR'], 'littlefs.bin')
-    mklittlefs_path = os.path.join(env['PROJECT_PACKAGES_DIR'], 'tool-mklittlefs', 'mklittlefs')
+        if os.path.exists(size_file_path):
+            with open(size_file_path, 'r') as size_file:
+                filesystem_size = int(size_file.read().strip())
+            print(f"Using existing filesystem size from {size_file_path}: {filesystem_size} bytes")
+        else:
+            filesystem_size = calculate_filesystem_size(filesystem_dir)
+            with open(size_file_path, 'w') as size_file:
+                size_file.write(str(filesystem_size))
+            print(f"Calculated and saved filesystem size to {size_file_path}: {filesystem_size} bytes")
 
-    if not os.path.exists(mklittlefs_path):
-        logger.error(f"Path to mklittlefs tool is not set or invalid: {mklittlefs_path}")
-        return
+        filesystem_image = os.path.join(env['BUILD_DIR'], 'littlefs.bin')
+        mklittlefs_path = os.path.join(env['PROJECT_PACKAGES_DIR'], 'tool-mklittlefs', 'mklittlefs')
 
-    logger.info(f"Building filesystem image at {filesystem_image}")
-    logger.info(f"Using mklittlefs tool at {mklittlefs_path}")
-    logger.info(f"Filesystem directory: {filesystem_dir}")
-    logger.info(f"Calculated filesystem size: {filesystem_size} bytes")
+        if not os.path.exists(mklittlefs_path):
+            print(f"Path to mklittlefs tool is not set or invalid: {mklittlefs_path}")
+            return False
 
-    cmd = [
-        mklittlefs_path,
-        '-c', filesystem_dir,
-        '-b', '4096',
-        '-p', '256',
-        '-s', str(filesystem_size),
-        filesystem_image
-    ]
+        print(f"Building filesystem image at {filesystem_image}")
+        print(f"Using mklittlefs tool at {mklittlefs_path}")
+        print(f"Filesystem directory: {filesystem_dir}")
+        print(f"Filesystem size: {filesystem_size} bytes")
 
-    logger.info(f"Executing: {' '.join(cmd)}")
-    result = env.Execute(" ".join(cmd))
-    if result == 0:
-        logger.info("Filesystem image built successfully")
-    else:
-        logger.error("Failed to build filesystem image")
-    
+        cmd = [
+            mklittlefs_path,
+            '-c', filesystem_dir,
+            '-b', '4096',
+            '-p', '256',
+            '-s', str(filesystem_size),
+            filesystem_image
+        ]
+
+        print(f"Executing: {' '.join(cmd)}")
+        result = env.Execute(" ".join(cmd))
+        if result == 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
 def build_html():
     if (not os.path.exists(NO_WEB_UPDATE)) or any(target in sys.argv for target in ["buildfs"]):
 
@@ -122,7 +129,9 @@ def build_html():
             raise ValueError("Environment variable PIOENV is not set")
         
 
-        build_filesystem(env)
+        if not build_filesystem(env):
+            print("Failed to build filesystem. Exiting.")
+            sys.exit(1)
         print("File system built successfully")
 
         src_fs_path = f"./.pio/build/{current_env}/littlefs.bin"
