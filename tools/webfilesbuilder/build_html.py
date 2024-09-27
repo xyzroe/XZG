@@ -30,19 +30,21 @@ def get_directory_size(directory, block_size=4096):
     for dirpath, dirnames, filenames in os.walk(directory):
         for f in filenames:
             fp = os.path.join(dirpath, f)
-            file_size = os.path.getsize(fp)
-            # Учитываем размер блоков и выравнивание
-            total_size += (file_size + block_size - 1) // block_size * block_size
+            if os.path.exists(fp):
+                file_size = os.path.getsize(fp)
+                total_size += (file_size + block_size - 1) // block_size * block_size # round up to the nearest block size
     return total_size
+
+def calculate_filesystem_size(directory, metadata_overhead=0.10, block_size=4096):
+    size = get_directory_size(directory, block_size)
+    size = int(size * (1 + metadata_overhead)) 
+    size = (size + block_size - 1) // block_size * block_size  # round up to the nearest block size
+
+    return size
 
 def build_filesystem(env):
     filesystem_dir = os.path.join(env['PROJECT_DIR'], 'data')
-    size = get_directory_size(filesystem_dir)
-    size = (size + 4095) // 4096 * 4096  
-    
-    metadata_overhead = 0.10  
-    size = int(size * (1 + metadata_overhead))
-    size = (size + 4095) // 4096 * 4096  
+    filesystem_size = calculate_filesystem_size(filesystem_dir)
 
     filesystem_image = os.path.join(env['BUILD_DIR'], 'littlefs.bin')
     mklittlefs_path = os.path.join(env['PROJECT_PACKAGES_DIR'], 'tool-mklittlefs', 'mklittlefs')
@@ -54,14 +56,14 @@ def build_filesystem(env):
     logger.info(f"Building filesystem image at {filesystem_image}")
     logger.info(f"Using mklittlefs tool at {mklittlefs_path}")
     logger.info(f"Filesystem directory: {filesystem_dir}")
-    logger.info(f"Calculated filesystem size: {size} bytes")
+    logger.info(f"Calculated filesystem size: {filesystem_size} bytes")
 
     cmd = [
         mklittlefs_path,
         '-c', filesystem_dir,
         '-b', '4096',
         '-p', '256',
-        '-s', str(size),
+        '-s', str(filesystem_size),
         filesystem_image
     ]
 
