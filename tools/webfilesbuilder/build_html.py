@@ -32,14 +32,14 @@ def get_directory_size(directory, block_size=4096):
             fp = os.path.join(dirpath, f)
             if os.path.exists(fp):
                 file_size = os.path.getsize(fp)
-                total_size += (file_size + block_size - 1) // block_size * block_size # round up to the nearest block size
+                rounded_size = (file_size + block_size - 1) // block_size * block_size
+                total_size += rounded_size
     return total_size
 
 def calculate_filesystem_size(directory, metadata_overhead=0.10, block_size=4096):
     size = get_directory_size(directory, block_size)
     size = int(size * (1 + metadata_overhead)) 
-    size = (size + block_size - 1) // block_size * block_size  # round up to the nearest block size
-
+    size = (size + block_size - 1) // block_size * block_size  
     return size
 
 def build_filesystem(env):
@@ -85,7 +85,7 @@ def build_html():
         os.makedirs("./data", exist_ok=True)
         
         try:
-            result = subprocess.run(["git", "log", "-n", "1", "--pretty=format:%h", "--", "src/websrc"], capture_output=True, text=True, check=True)
+            result = subprocess.run(["git", "log", "-n", "1", "--pretty=format:%h", "--", "./src/websrc"], capture_output=True, text=True, check=True)
             git_commit_sha = result.stdout.strip()
             with open("./data/commit", "w") as f:
                 f.write(git_commit_sha)
