@@ -57,7 +57,6 @@ bool updWeb = false;
 
 int networkOverseerCounter = 0;
 
-
 // Ticker tmrNetworkOverseer(handleTmrNetworkOverseer, overseerInterval, 0, MILLIS);
 Ticker tmrNetworkOverseer;
 
@@ -644,6 +643,19 @@ void setupCoordinatorMode()
   }
 }
 
+void getEspUpdateTask(void *pvParameters)
+{
+  TaskParams *params = static_cast<TaskParams *>(pvParameters);
+  getEspUpdate(params->url);
+  vTaskDelete(NULL); 
+}
+
+void timerCallback(TimerHandle_t xTimer)
+{
+  TaskParams *params = static_cast<TaskParams *>(pvTimerGetTimerID(xTimer));
+  xTaskCreate(getEspUpdateTask, "getEspUpdateTask", 8192, params, 1, NULL);
+}
+
 void checkFileSys()
 {
   FirmwareInfo fwInfo = fetchLatestEspFw("fs");
@@ -668,10 +680,18 @@ void checkFileSys()
     commitFile.close();
   }
 
-  if (vars.needFsDownload)
+  if (vars.needFsDownload && 1 > 2)
   {
     LOGI("Downloading FS");
-    getEspUpdate(fwInfo.url);
+
+    static String urlString = fwInfo.url;
+    static TaskParams params = {urlString.c_str()};
+
+    TimerHandle_t timer = xTimerCreate("StartTaskTimer", pdMS_TO_TICKS(5000), pdFALSE, &params, timerCallback);
+    if (timer != NULL)
+    {
+      xTimerStart(timer, 0);
+    }
   }
 }
 

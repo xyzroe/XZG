@@ -155,8 +155,8 @@ jobs:
       - name: Copy file to latest release directory
         run: |
           cp xzg.json releases/latest/
-          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin releases/latest/XZG.ota.bin
-          cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin releases/latest/XZG.fs.bin
+            # cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin releases/latest/XZG.ota.bin
+            # cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin releases/latest/XZG.fs.bin
           echo "File copied to latest release directory."
           
       - name: Commit and push files to releases branch

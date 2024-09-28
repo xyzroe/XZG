@@ -15,5 +15,10 @@ void startAP(const bool start);
 void stopWifi();
 void checkFileSys();
 
+struct TaskParams
+{
+  const char *url;
+};
+
 
 #endif // MAIN_H

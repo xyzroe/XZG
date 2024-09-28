@@ -630,7 +630,7 @@ static void apiCmdUpdateUrl(String &result)
         if (serverWeb.hasArg(argType))
         {
             // String link = fetchLatestEspFw();
-            FirmwareInfo fwInfo = fetchLatestEspFw();
+            FirmwareInfo fwInfo = fetchLatestEspFw(serverWeb.arg(argType));
             if (fwInfo.url)
             {
                 getEspUpdate(fwInfo.url);
@@ -2227,8 +2227,8 @@ FirmwareInfo fetchLatestEspFw(String type)
                 if (release.containsKey("version"))
                 {
                     info.version = release["version"].as<String>();
-                    //info.url = "https://github.com/xyzroe/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
-                    info.url = "https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
+                    info.url = "https://github.com/xyzroe/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
+                    //info.url = "https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
                     LOGD("Latest version: %s | url %s", info.version.c_str(), info.url.c_str());
                 }
                 else
