@@ -646,6 +646,7 @@ void setupCoordinatorMode()
 void getEspUpdateTask(void *pvParameters)
 {
   TaskParams *params = static_cast<TaskParams *>(pvParameters);
+  LOGI("getEspUpdateTask %s", params->url);
   getEspUpdate(params->url);
   vTaskDelete(NULL); 
 }
@@ -680,7 +681,7 @@ void checkFileSys()
     commitFile.close();
   }
 
-  if (vars.needFsDownload && 1 > 2)
+  if (vars.needFsDownload)
   {
     LOGI("Downloading FS");
 
