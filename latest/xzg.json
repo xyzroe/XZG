@@ -1,6 +1,6 @@
 {
   "name": "XZG Firmware",
-  "version": "20240928.1",
-  "fw_sha": "ccce3b2",
+  "version": "20240928",
+  "fw_sha": "3647c6a",
   "fs_sha": "b37784c"
 }
