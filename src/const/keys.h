@@ -105,7 +105,7 @@ extern const char *deviceIdKey;
 extern const char *timeZoneNameKey;
 extern const char *zbRoleKey;
 extern const char *zbFwKey;
-extern const char *zbUpdAvailKey;
+extern const char *rcpUpdAvailKey;
 extern const char *espUpdAvailKey;
 extern const char *tagZB_FW_info;
 extern const char *tagZB_FW_file;

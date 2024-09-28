@@ -188,7 +188,6 @@ const char *diagnostic = "diagnostic";
 const char *config = "config";
 const char *restart = "restart";
 
-
 mqttTopicsConfig mqttTopicsConfigs[] = {
     {.name = "Restart ESP",
      .sensorType = haButton,
@@ -395,6 +394,62 @@ void mqttConnectSetup()
     }
 }
 
+void mqttDisconnectCleanup()
+{
+    LOGD("mqttDisconnectCleanup");
+
+    // Остановить и удалить таймеры
+    if (mqttReconnectTimer != NULL)
+    {
+        if (xTimerStop(mqttReconnectTimer, 0) == pdPASS)
+        {
+            if (xTimerDelete(mqttReconnectTimer, 0) == pdPASS)
+            {
+                mqttReconnectTimer = NULL;
+                LOGD("mqttReconnectTimer stopped and deleted");
+            }
+            else
+            {
+                LOGD("Failed to delete mqttReconnectTimer");
+            }
+        }
+        else
+        {
+            LOGD("Failed to stop mqttReconnectTimer");
+        }
+    }
+
+    if (mqttPubStateTimer != NULL)
+    {
+        if (xTimerStop(mqttPubStateTimer, 0) == pdPASS)
+        {
+            if (xTimerDelete(mqttPubStateTimer, 0) == pdPASS)
+            {
+                mqttPubStateTimer = NULL;
+                LOGD("mqttPubStateTimer stopped and deleted");
+            }
+            else
+            {
+                LOGD("Failed to delete mqttPubStateTimer");
+            }
+        }
+        else
+        {
+            LOGD("Failed to stop mqttPubStateTimer");
+        }
+    }
+
+    // Отключить MQTT-клиент
+    if (mqttClient.connected())
+    {
+        mqttClient.disconnect();
+        LOGD("MQTT client disconnected");
+    }
+
+    // Очистить любые другие ресурсы, если необходимо
+    // Например, очистить буферы, закрыть соединения и т.д.
+}
+
 void connectToMqtt()
 {
     if (!vars.zbFlashing)
@@ -424,10 +479,9 @@ void onMqttConnect(bool sessionPresent)
     mqttPublishIo("rst_esp", 0);
     mqttPublishIo("rst_zig", 0);
     mqttPublishIo("enbl_bsl", 0);
-    bool socket_state = vars.connectedClients ? 1 : 0;
-    mqttPublishIo("socket", socket_state);
-    mqttPublishIo("update_esp", vars.updateEspAvail);
-    mqttPublishIo("update_zb", vars.updateZbAvail);
+    mqttPublishIo("socket", vars.connectedClients ? 1 : 0);
+    // mqttPublishIo("update_esp", vars.updateEspAvail);
+    // mqttPublishIo("update_zb", vars.updateZbAvail);
     mqttPublishState();
 
     mqttPublishUpdate("esp");
@@ -442,7 +496,10 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 
     vars.mqttConn = false;
 
-    xTimerStart(mqttReconnectTimer, 0);
+    if (!vars.zbFlashing)
+    {
+        xTimerStart(mqttReconnectTimer, 0);
+    }
 }
 
 void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
@@ -483,7 +540,7 @@ void executeCommand(const char *command)
     if (strcmp(command, "rst_esp") == 0)
     {
         printLogMsg("ESP restart MQTT");
-        ESP.restart();
+        restartDevice();
     }
 
     if (strcmp(command, "rst_zig") == 0)
@@ -543,7 +600,7 @@ void mqttPublishUpdate(const String &chip, bool instState)
         static String mqttBuffer;
         char verArr[25];
         const char *env = STRINGIFY(BUILD_ENV_NAME);
-        
+
         const char *installed_version = "installed_version";
         const char *latest_version = "latest_version";
         const char *state = "state";

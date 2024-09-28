@@ -82,21 +82,22 @@ def build_filesystem(env):
         return False
 
 def build_html():
-    if (not os.path.exists(NO_WEB_UPDATE)) or any(target in sys.argv for target in ["buildfs"]):
+    if (not os.path.exists(NO_WEB_UPDATE)) or any(target in sys.argv for target in ["buildfs", "uploadfs"]):
 
         print("")
         print("Try to build WEB files")
         print("")
-        time.sleep(1)
+        # time.sleep(1)
 
         os.makedirs("./data", exist_ok=True)
         
         try:
             result = subprocess.run(["git", "log", "-n", "1", "--pretty=format:%h", "--", "./src/websrc"], capture_output=True, text=True, check=True)
             git_commit_sha = result.stdout.strip()
-            with open("./data/commit", "w") as f:
+            os.makedirs("./data/x", exist_ok=True)
+            with open("./data/x/commit", "w") as f:
                 f.write(git_commit_sha)
-            print(f"Git commit SHA saved to ./data/commit: {git_commit_sha}")
+            print(f"Git commit SHA saved to ./data/x/commit: {git_commit_sha}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to get Git commit SHA: {e}")
         
@@ -106,12 +107,11 @@ def build_html():
 
         if not os.path.exists(marker_file):
 
-            os.system("npm install --silent")
+            os.system("npm install")
             
             with open(marker_file, 'w') as f:
                 f.write("npm install executed")
 
-            print("npm install executed and marker file created.")
         else:
             print("npm install already executed. Skipping.")
 

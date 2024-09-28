@@ -358,7 +358,8 @@
       "e": "End time",
       "s": "Start time"
     },
-    "cerp": "Events reconnection max retries reached. Refresh page to continue."
+    "cerp": "Events reconnection max retries reached. Refresh page to continue.",
+    "more": "More info"
   },
   "md": {
     "esp": {
@@ -434,7 +435,7 @@
     "esp": {
       "upd": {
         "tt": "ESP32 update available 🚀",
-        "msg": "New firmware ({{ver}}) was found on GitHub. It was downloaded {{count}} times."
+        "msg": "A newer version of XZG firmware has been found"
       },
       "beta": {
         "tt": "FW beta feedback",
@@ -451,7 +452,8 @@
         "tt": "No firmware found"
       },
       "upd": {
-        "tt": "New Zigbee firmware found 🌟"
+        "tt": "New Zigbee firmware found 🌟",
+        "msg": "A newer version of firmware for the RCP module has been found"
       }
     }
   }

@@ -58,10 +58,17 @@ bool isIpInSubnet(IPAddress ip, IPAddress subnet, IPAddress subnetMask);
 bool isValidIp(IPAddress ip);
 String getHostFromUrl(const String& url);
 String getRadioRoleKey();
+String removeLeadingZeros(const String& block);
+String getShortenedIPv6(const String& ipv6);
+void restartDevice();
+void freeHeapPrint();
+bool dnsLookup(const String &url);
+void firstUpdCheck();
 
 struct FirmwareInfo {
     String url;
     String version;
+    String sha;
 };
 
 #endif // ETC_H

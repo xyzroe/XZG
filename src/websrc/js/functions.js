@@ -83,8 +83,8 @@ const IconsStatusCodes = {
 	ERROR: 3
 };
 
-let intervalIdUpdateRoot;
-let intervalTimeUpdateRoot;
+//let intervalIdUpdateRoot;
+//let intervalTimeUpdateRoot;
 
 let updateValues = {};
 
@@ -565,7 +565,7 @@ function apiGetPage(page, doneCall, loader = true) {
 
 			$("form.saveParams").on("submit", function (e) {
 				e.preventDefault();
-				showWifiCreds();
+				//showWifiCreds();
 				if (this.id === "netCfg") {
 					var ethEnblSw = document.getElementById('ethEnbl').checked;
 					var wifiEnblSw = document.getElementById('wifiEnbl').checked;
@@ -969,8 +969,8 @@ function dataReplace(values, navOnly = false) {
 		if (property == "espUpdAvail" && values[property] == 1) {
 			toastConstructor("espUpdAvail");
 		}
-		if (property == "zbUpdAvail" && values[property] == 1) {
-			toastConstructor("zbUpdAvail");
+		if (property == "rcpUpdAvail" && values[property] == 1) {
+			toastConstructor("rcpUpdAvail");
 		}
 		if (property == "zbFwSaved" && values[property] == 1) {
 			$('td[data-r2v="zigbeeFwRev"]').addClass('fst-italic');
@@ -1190,7 +1190,7 @@ function toastConstructor(params, text) {
 	switch (params) {
 		case "espUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.esp.upd.tt"));
-			$("#toastBody").text("ESP32 UPD text");
+			$("#toastBody").text(i18next.t("ts.esp.upd.msg"));
 			//$("#toastBody").text(text);
 			/*$('<button>', {
 				type: "button",
@@ -1204,7 +1204,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("c.now"),
+				text: i18next.t("c.more"),
 				click: function () {
 					$('.toast').toast('hide');
 					modalConstructor("fetchGitReleases");
@@ -1220,9 +1220,9 @@ function toastConstructor(params, text) {
 				}
 			}).appendTo("#toastButtons");
 			break;
-		case "zbUpdAvail":
+		case "rcpUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.zb.upd.tt"));
-			$("#toastBody").text("ZB UPD text");
+			$("#toastBody").text(i18next.t("ts.zb.upd.msg"));
 			/*$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-danger",
@@ -1235,7 +1235,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("c.now"),
+				text: i18next.t("c.more"),
 				click: function () {
 					$('.toast').toast('hide');
 					modalConstructor("flashZB");
@@ -2112,7 +2112,7 @@ function modalConstructor(type, params) {
 							}
 						}).appendTo(modalBtns);
 					} else {*/
-					body += "<br>" + i18next.t('md.ss.rr');
+					body += i18next.t('md.ss.rr');
 					$('<button>', {
 						type: "button",
 						"class": "btn btn-warning",

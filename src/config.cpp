@@ -986,7 +986,7 @@ void serializeSysVarsToJson(const SysVarsStruct &vars, JsonObject obj)
     obj[deviceIdKey] = vars.deviceId;
 
     obj[espUpdAvailKey] = vars.updateEspAvail;
-    obj[zbUpdAvailKey] = vars.updateZbAvail;
+    obj[rcpUpdAvailKey] = vars.updateZbAvail;
 }
 
 void serializeHwConfigToJson(const ThisConfigStruct &config, JsonObject obj)
@@ -1147,8 +1147,7 @@ else
         systemCfg.tempOffset = int(offset);
         saveSystemConfig(systemCfg);
 
-        LOGD("Restarting...");
-        ESP.restart();
+        restartDevice();
     }
 }
 return false;

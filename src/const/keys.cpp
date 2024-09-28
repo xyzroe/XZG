@@ -109,7 +109,7 @@ const char *deviceIdKey = "deviceId";
 const char *timeZoneNameKey = "timeZoneName";
 const char *zbRoleKey = "zbRole";
 const char *zbFwKey = "zbFw";
-const char *zbUpdAvailKey = "zbUpdAvail";
+const char *rcpUpdAvailKey = "rcpUpdAvail";
 const char *espUpdAvailKey = "espUpdAvail";
 
 const char *tagZB_FW_info = "zb.fi";

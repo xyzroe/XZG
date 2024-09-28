@@ -142,7 +142,8 @@
         "nnf": "Sítě Wi-Fi nebyly nalezeny",
         "mode": "Režim",
         "power": "Tx výkon"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "zi": {
       "so": "Sériová linka",
@@ -238,7 +239,8 @@
       },
       "fw": {
         "desc": "Seznam povolených IP pro socket",
-        "ip": "Povolená IP"
+        "ip": "Povolená IP",
+        "mask": "Povolená maska"
       }
     },
     "to": {
@@ -356,7 +358,8 @@
       "e": "Čas ukončení",
       "s": "Čas spuštění"
     },
-    "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku"
+    "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku",
+    "more": "Více informací"
   },
   "md": {
     "esp": {
@@ -432,7 +435,7 @@
     "esp": {
       "upd": {
         "tt": "K dispozici aktualizace ESP32 🚀",
-        "msg": "Na GitHubu byl nalezen nový firmware ({{ver}}). Byl stažen {{count}}krát."
+        "msg": "Byla nalezena novější verze firmwaru XZG"
       },
       "beta": {
         "tt": "Zpětná vazba FW beta",
@@ -449,7 +452,8 @@
         "tt": "Nebyl nalezen žádný firmware"
       },
       "upd": {
-        "tt": "Byl nalezen nový firmware Zigbee 🌟"
+        "tt": "Byl nalezen nový firmware Zigbee 🌟",
+        "msg": "Byla nalezena novější verze firmwaru pro RCP"
       }
     }
   }

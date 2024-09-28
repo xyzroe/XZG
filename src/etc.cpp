@@ -16,6 +16,7 @@
 #include "const/zones.h"
 // #include "const/hw.h"
 #include "zb.h"
+#include "main.h"
 
 #include <WireGuard-ESP32.h>
 static WireGuard wg;
@@ -363,8 +364,7 @@ void getDeviceID(char *arr)
     if (LittleFS.mkdir(path))
     {
       LOGD("Config dir created");
-      delay(500);
-      ESP.restart();
+      estartDevice();
     }
     else
     {
@@ -416,8 +416,7 @@ void factoryReset()
 
   ledControl.powerLED.mode = LED_OFF;
   ledControl.modeLED.mode = LED_OFF;
-  delay(500);
-  ESP.restart();
+  restartDevice();
 }
 
 void setClock(void *pvParameters)
@@ -861,9 +860,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
     snprintf(hwConfig.board, sizeof(hwConfig.board), "i%02d", brdIdx + 1);
     saveHwConfig(hwConfig);
 
-    LOGD("Restarting...");
-    delay(500);
-    ESP.restart();
+    restartDevice();
 
     return nullptr;
   }
@@ -1103,10 +1100,10 @@ void checkUpdateAvail()
     const char *FoundKey = "Found ";
     const char *NewFwKey = " new fw: ";
     const char *TryKey = "try to install";
-    //String latestReleaseUrlEsp = fetchLatestEspFw();
+    // String latestReleaseUrlEsp = fetchLatestEspFw();
     String latestReleaseUrlZb = fetchLatestZbFw();
 
-    //String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
+    // String latestVersionEsp = extractVersionFromURL(latestReleaseUrlEsp);
 
     FirmwareInfo esp_fw = fetchLatestEspFw();
     String latestVersionEsp = esp_fw.version;
@@ -1149,7 +1146,7 @@ void checkUpdateAvail()
       {
         printLogMsg(String(TryKey));
         // flashZbUrl(latestReleaseUrlZb);
-        // ESP.restart();
+        // restartDevice();
       }
     }
     else
@@ -1210,4 +1207,152 @@ String getRadioRoleKey()
     break;
   }
   return role;
+}
+
+// Функция для удаления ведущих нулей из блока IPv6
+String removeLeadingZeros(const String &block)
+{
+  int i = 0;
+  while (i < block.length() - 1 && block[i] == '0')
+  {
+    i++;
+  }
+  return block.substring(i);
+}
+
+// Функция для сокращения IPv6-адреса
+String getShortenedIPv6(const String &ipv6)
+{
+  String result = "";
+  int start = 0;
+  int end = ipv6.indexOf(':');
+  bool zeroBlock = false;
+  bool inZeroBlock = false;
+
+  while (end != -1)
+  {
+    String block = ipv6.substring(start, end);
+    block = removeLeadingZeros(block);
+
+    if (block == "0")
+    {
+      if (!inZeroBlock)
+      {
+        if (zeroBlock)
+        {
+          result += ":";
+        }
+        result += ":";
+        inZeroBlock = true;
+      }
+    }
+    else
+    {
+      if (inZeroBlock)
+      {
+        inZeroBlock = false;
+      }
+      else if (zeroBlock)
+      {
+        result += ":";
+      }
+      result += block;
+      zeroBlock = true;
+    }
+
+    start = end + 1;
+    end = ipv6.indexOf(':', start);
+  }
+
+  // Обработка последнего блока
+  String block = ipv6.substring(start);
+  block = removeLeadingZeros(block);
+  if (block == "0")
+  {
+    if (!inZeroBlock)
+    {
+      if (zeroBlock)
+      {
+        result += ":";
+      }
+      result += ":";
+    }
+  }
+  else
+  {
+    if (inZeroBlock)
+    {
+      inZeroBlock = false;
+    }
+    else if (zeroBlock)
+    {
+      result += ":";
+    }
+    result += block;
+  }
+
+  // Удаление лишнего двоеточия в начале, если есть
+  if (result.startsWith("::") && result.length() > 2)
+  {
+    result = result.substring(1);
+  }
+
+  return result;
+}
+
+void restartDevice()
+{
+  LOGD("Restarting device...");
+  delay(100);
+  ESP.restart();
+}
+
+void freeHeapPrint()
+{
+  heap_caps_free(NULL);
+  size_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+  size_t minFreeHeap = heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT);
+  LOGD("Free heap: %d, min free heap: %d", freeHeap, minFreeHeap);
+}
+
+bool dnsLookup(const String &url)
+{
+  IPAddress ip;
+  String host = getHostFromUrl(url);
+
+  // DNS lookup
+  if (!WiFi.hostByName(host.c_str(), ip))
+  {
+    printLogMsg("DNS lookup failed for host: " + host + ". Check your network connection and DNS settings.");
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+void firstUpdCheck()
+{
+  int retryCount = 0;
+  int maxRetries = 3;
+  const int retryDelay = 500;
+  bool isSuccess = false;
+
+  while (retryCount < maxRetries && !isSuccess)
+  {
+    if (!dnsLookup("google.com"))
+    {
+      retryCount++;
+      printLogMsg("DNS lookup failed. Retrying...");
+      delay(retryDelay * 3);
+    }
+    else
+    {
+      isSuccess = true;
+      vars.firstUpdCheck = true;
+      checkUpdateAvail();
+      checkFileSys();
+    }
+  }
 }

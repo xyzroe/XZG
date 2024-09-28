@@ -33,7 +33,8 @@
       "e": "Heure de fin",
       "s": "Heure de début"
     },
-    "cerp": "Nombre maximal de tentatives de reconnexion aux événements atteint. \nActualisez la page pour continuer."
+    "cerp": "Nombre maximal de tentatives de reconnexion aux événements atteint. \nActualisez la page pour continuer.",
+    "more": "Plus d'informations"
   },
   "md": {
     "esp": {
@@ -244,7 +245,8 @@
         "nnf": "Réseaux WiFi introuvables",
         "mode": "Mode",
         "power": "Puissance d'émission"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -307,7 +309,8 @@
       "desc": "Configuration de sécurité",
       "fw": {
         "desc": "Liste blanche IP pour le socket",
-        "ip": "IP autorisée"
+        "ip": "IP autorisée",
+        "mask": "Masque autorisé"
       },
       "web": {
         "auth": "Activer l'authentification du serveur Web",
@@ -443,7 +446,7 @@
         "tt": "Commentaires sur la version bêta du firmware"
       },
       "upd": {
-        "msg": "Un nouveau firmware ({{ver}}) a été trouvé sur GitHub. \nIl a été téléchargé {{count}} fois.",
+        "msg": "Une version plus récente du firmware XZG a été trouvée",
         "tt": "Mise à jour ESP32 disponible 🚀"
       }
     },
@@ -452,7 +455,8 @@
         "tt": "Aucun firmware trouvé"
       },
       "upd": {
-        "tt": "Nouveau firmware Zigbee trouvé 🌟"
+        "tt": "Nouveau firmware Zigbee trouvé 🌟",
+        "msg": "Une version plus récente du firmware pour le module RCP a été trouvée"
       }
     }
   }

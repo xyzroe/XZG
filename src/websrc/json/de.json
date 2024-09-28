@@ -33,7 +33,8 @@
       "e": "Endzeit",
       "s": "Startzeit"
     },
-    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren."
+    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren.",
+    "more": "Weitere Informationen"
   },
   "md": {
     "esp": {
@@ -244,7 +245,8 @@
         "nnf": "WLAN-Netzwerke nicht gefunden",
         "mode": "Modus",
         "power": "Sendeleistung"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -307,7 +309,8 @@
       "desc": "Sicherheitskonfiguration",
       "fw": {
         "desc": "IP-Whitelist für Socket",
-        "ip": "Erlaubte IP-Adresse"
+        "ip": "Erlaubte IP-Adresse",
+        "mask": "Erlaubte Maske"
       },
       "web": {
         "auth": "Aktivieren Sie die Webserver-Authentifizierung",
@@ -443,7 +446,7 @@
         "tt": "Feedback zur FW-Beta"
       },
       "upd": {
-        "msg": "Eine neue Firmware ({{ver}}) ist auf Github verfügbar. \nDiese wurde bereits {{count}} Mal heruntergeladen.",
+        "msg": "Es wurde eine neuere Version der XZG-Firmware gefunden",
         "tt": "ESP32-Update verfügbar 🚀"
       }
     },
@@ -452,7 +455,8 @@
         "tt": "Keine neue Firmware gefunden"
       },
       "upd": {
-        "tt": "Neue Zigbee-Firmware gefunden 🌟"
+        "tt": "Neue Zigbee-Firmware gefunden 🌟",
+        "msg": "Es wurde eine neuere Firmware-Version für das RCP-Modul gefunden"
       }
     }
   }

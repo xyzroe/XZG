@@ -33,7 +33,8 @@
       "e": "Koniec czasu",
       "s": "Czas rozpoczęcia"
     },
-    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować."
+    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować.",
+    "more": "Więcej informacji"
   },
   "md": {
     "esp": {
@@ -244,7 +245,8 @@
         "nnf": "Nie znaleziono sieci Wi-Fi",
         "mode": "Tryb",
         "power": "Moc wysyłania"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -307,7 +309,8 @@
       "desc": "Konfiguracja zabezpieczeń",
       "fw": {
         "desc": "Biała lista adresów IP dla gniazda",
-        "ip": "Dozwolone IP"
+        "ip": "Dozwolone IP",
+        "mask": "Dozwolona maska"
       },
       "web": {
         "auth": "Włącz uwierzytelnianie serwera WWW",
@@ -443,7 +446,7 @@
         "tt": "Opinia o wersji beta FW"
       },
       "upd": {
-        "msg": "W GitHubie znaleziono nowe oprogramowanie sprzętowe ({{ver}}). \nZostał pobrany {{count}} razy.",
+        "msg": "Znaleziono nowszą wersję oprogramowania XZG",
         "tt": "Dostępna aktualizacja ESP32 🚀"
       }
     },
@@ -452,7 +455,8 @@
         "tt": "Nie znaleziono oprogramowania sprzętowego"
       },
       "upd": {
-        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟"
+        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟",
+        "msg": "Znaleziono nowszą wersję oprogramowania modułu RCP"
       }
     }
   }

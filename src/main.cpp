@@ -27,6 +27,7 @@
 #include "version.h"
 // #include "const/hw.h"
 #include "per.h"
+#include "main.h"
 
 #include "esp_system.h"
 #include "esp_task_wdt.h"
@@ -56,13 +57,6 @@ bool updWeb = false;
 
 int networkOverseerCounter = 0;
 
-void mDNS_start();
-void connectWifi();
-// void handleLongBtn();
-void handleTmrNetworkOverseer();
-void setupCoordinatorMode();
-void startAP(const bool start);
-// void toggleUsbMode();
 
 // Ticker tmrNetworkOverseer(handleTmrNetworkOverseer, overseerInterval, 0, MILLIS);
 Ticker tmrNetworkOverseer;
@@ -177,19 +171,19 @@ void handleTmrNetworkOverseer()
       tmrNetworkOverseer.detach();
       if (!vars.firstUpdCheck)
       {
-        checkUpdateAvail();
-        vars.firstUpdCheck = true;
-        setupCoordinatorMode();
+        firstUpdCheck();
       }
     }
     else
     {
-      // if (tmrNetworkOverseer.counter() > overseerMaxRetry)
-      if (networkOverseerCounter > overseerMaxRetry)
+      if (!vars.zbFlashing)
       {
-        LOGD("WIFI counter overflow");
-        startAP(true);
-        connectWifi();
+        if (networkOverseerCounter > overseerMaxRetry)
+        {
+          LOGD("WIFI counter overflow");
+          startAP(true);
+          connectWifi();
+        }
       }
     }
   }
@@ -206,9 +200,7 @@ void handleTmrNetworkOverseer()
       }
       if (!vars.firstUpdCheck)
       {
-        checkUpdateAvail();
-        vars.firstUpdCheck = true;
-        setupCoordinatorMode();
+        firstUpdCheck();
       }
     }
     else
@@ -400,10 +392,17 @@ void startAP(const bool start)
     dnsServer.start(53, "*", apIP);
     WiFi.setSleep(false);
     // ConfigSettings.wifiAPenblTime = millis();
-    //LOGD("startServers()");
+    // LOGD("startServers()");
     startServers();
     vars.apStarted = true;
   }
+}
+
+void stopWifi()
+{
+  LOGD("stopWifi");
+  WiFi.disconnect();
+  WiFi.mode(WIFI_OFF);
 }
 
 void connectWifi()
@@ -421,6 +420,8 @@ void connectWifi()
     LOGD("timeout");
   }
   WiFi.persistent(false);
+
+  // Dont work on Arduino framework
 
   /*uint8_t cur_mode;
   esp_wifi_get_protocol(WIFI_IF_STA, &cur_mode);
@@ -475,6 +476,7 @@ void connectWifi()
 
     WiFi.setAutoReconnect(true);
 
+    // Dont work on Arduino framework
     /*uint8_t wifiProtocols = WIFI_PROTOCOL_LR;
 
     uint8_t currentProtocols;
@@ -531,7 +533,7 @@ void connectWifi()
     WiFi.begin(networkCfg.wifiSsid, networkCfg.wifiPass);
     WiFi.setTxPower(networkCfg.wifiPower);
     WiFi.enableIpV6();
-    LOGD("WiFi TX %s", String(WiFi.getTxPower()).c_str());
+    // LOGD("WiFi TX %s", String(WiFi.getTxPower()).c_str());
 
     /*esp_err_t result = esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
     if (result == ESP_OK)
@@ -642,6 +644,37 @@ void setupCoordinatorMode()
   }
 }
 
+void checkFileSys()
+{
+  FirmwareInfo fwInfo = fetchLatestEspFw("fs");
+  File commitFile = LittleFS.open("/x/commit", "r");
+  if (!commitFile)
+  {
+    LOGI("Commit file not found");
+    vars.needFsDownload = true;
+  }
+  else
+  {
+    String gitSha = fwInfo.sha.substring(0, 7);
+    String fileSha = commitFile.readString().substring(0, 7).c_str();
+
+    LOGI("Commit file found: Git: %s, File: %s", gitSha.c_str(), fileSha.c_str());
+
+    if (gitSha.length() == 7 && gitSha != fileSha)
+    {
+      LOGI("Found new FS commit");
+      vars.needFsDownload = true;
+    }
+    commitFile.close();
+  }
+
+  if (vars.needFsDownload)
+  {
+    LOGI("Downloading FS");
+    getEspUpdate(fwInfo.url);
+  }
+}
+
 void setup()
 {
   Serial.begin(115200); // todo ifdef DEBUG
@@ -704,8 +737,7 @@ void setup()
         systemCfg.tempOffset = int(offset);
         saveSystemConfig(systemCfg);
 
-        LOGD("Restarting...");
-        ESP.restart();
+        restartDevice();
       }
     }
   }
@@ -726,18 +758,11 @@ void setup()
 
   networkStart();
 
-  if (vars.needFsDownload)
+  /*while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
   {
-    while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
-    {
-      delay(1000);
-      LOGD("Wait for network");
-    }
-    //String url = fetchLatestEspFw("fs");
-    FirmwareInfo fwInfo = fetchLatestEspFw("fs");
-    
-    getEspUpdate(fwInfo.url);
-  }
+    delay(1000);
+    LOGD("Wait for network");
+  }*/
 
   // AVOID USING PIN 0
   if (hwConfig.mist.btnPin > 0)
@@ -798,14 +823,17 @@ void setup()
       }
     }*/
     zbFwCheck();
+    LOGI("[RCP] FW: %s", String(CCTool.chip.fwRev).c_str());
   }
   else
   {
-    LOGI("[ZB] role: %s", String(systemCfg.zbRole).c_str());
+    LOGI("[RCP] role: %s", String(systemCfg.zbRole).c_str());
   }
   LOGI("[ESP] FW: %s", String(VERSION).c_str());
 
   // LOGI("Load cfg %s", hwConfig.board);
+
+  setupCoordinatorMode();
 
   setup1wire(check1wire());
 

@@ -97,6 +97,7 @@ const char *argParam = "param";
 const char *argFilename = "filename";
 const char *argCmd = "cmd";
 const char *argUrl = "url";
+const char *argType = "type";
 const char *argConf = "conf";
 const char *argLed = "led";
 const char *argAct = "act";
@@ -120,8 +121,8 @@ const char *tempFile = "/fw.hex";
 bool opened = false;
 File fwFile;
 
-extern bool loadFileConfigMqtt();
-extern bool loadFileConfigWg();
+// extern bool loadFileConfigMqtt();
+// extern bool loadFileConfigWg();
 
 WebServer serverWeb(80);
 
@@ -492,7 +493,7 @@ void handleEspUpdateUpload()
             {
                 LOGD("Firmware Update success. Rebooting...");
             }
-            ESP.restart();
+            restartDevice();
         }
         else
         {
@@ -626,15 +627,18 @@ static void apiCmdUpdateUrl(String &result)
     }
     else
     {
-        //String link = fetchLatestEspFw();
-        FirmwareInfo fwInfo = fetchLatestEspFw();
-        if (fwInfo.url)
+        if (serverWeb.hasArg(argType))
         {
-            getEspUpdate(fwInfo.url);
-        }
-        else
-        {
-            LOGW("%s", String(errLink).c_str());
+            // String link = fetchLatestEspFw();
+            FirmwareInfo fwInfo = fetchLatestEspFw();
+            if (fwInfo.url)
+            {
+                getEspUpdate(fwInfo.url);
+            }
+            else
+            {
+                LOGW("%s", String(errLink).c_str());
+            }
         }
     }
 }
@@ -643,6 +647,7 @@ static void apiCmdZbCheckFirmware(String &result)
 {
     if (zbFwCheck())
     {
+        printLogMsg("[RCP] " + CCTool.chip.fwRev);
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
     else
@@ -801,7 +806,7 @@ static void apiCmdEspReset(String &result)
 {
     serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     delay(250);
-    ESP.restart();
+    restartDevice();
 }
 
 static void apiCmdAdapterLan(String &result)
@@ -1659,7 +1664,7 @@ static void getRootEthTab(DynamicJsonDocument &doc,
             doc[ethGateKey] = ETH.gatewayIP().toString();
             doc[ethDns] = ETH.dnsIP().toString(); // vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
             if (vars.ethIPv6)
-                doc[ethIPv6Key] = ETH.localIPv6().toString();
+                doc[ethIPv6Key] = getShortenedIPv6(ETH.localIPv6().toString());
         }
         else
         {
@@ -1856,7 +1861,7 @@ static inline void getRootHwMisc(DynamicJsonDocument &doc, bool update)
     doc[operationalMode] = systemCfg.workMode;
 
     doc[espUpdAvailKey] = vars.updateEspAvail;
-    doc[zbUpdAvailKey] = vars.updateZbAvail;
+    doc[rcpUpdAvailKey] = vars.updateZbAvail;
 
     doc["hwRev"] = hwConfig.board;
     doc["espModel"] = String(ESP.getChipModel());
@@ -2113,15 +2118,7 @@ void getEspUpdate(String esp_fw_url)
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
     // http.begin(client, esp_fw_url);
 
-    IPAddress ip;
-    String host = getHostFromUrl(esp_fw_url);
-
-    // DNS lookup
-    if (!WiFi.hostByName(host.c_str(), ip))
-    {
-        printLogMsg("DNS lookup failed for host: " + host + ". Check your network connection and DNS settings.");
-    }
-    else
+    if (dnsLookup(esp_fw_url))
     {
         http.begin(esp_fw_url);
         http.addHeader("Content-Type", "application/octet-stream");
@@ -2199,7 +2196,7 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     Update.end(true);
     LOGD("Update success. Rebooting...");
     // Restart ESP32 to see changes
-    ESP.restart();
+    restartDevice();
 }
 
 FirmwareInfo fetchLatestEspFw(String type)
@@ -2237,6 +2234,24 @@ FirmwareInfo fetchLatestEspFw(String type)
                 {
                     LOGD("No version found");
                 }
+
+                String needKey;
+                if (type == "fs")
+                {
+                    needKey = "fs_sha";
+                }
+                else
+                {
+                    needKey = "fw_sha";
+                }
+                if (release.containsKey(needKey))
+                {
+                    info.sha = release[needKey].as<String>();
+                }
+                else
+                {
+                    LOGD("No SHA for %s found", type.c_str());
+                }
             }
             else
             {
@@ -2249,9 +2264,9 @@ FirmwareInfo fetchLatestEspFw(String type)
         }
         http.end();
     }
+    else
     {
         LOGD("Invalid type: %s", type.c_str());
-        
     }
     return info;
 }

@@ -33,7 +33,8 @@
       "e": "Hora de finalización",
       "s": "Hora de inicio"
     },
-    "cerp": "Se alcanzó el número máximo de reintentos de reconexión de eventos. Actualiza la página para continuar."
+    "cerp": "Se alcanzó el número máximo de reintentos de reconexión de eventos. Actualiza la página para continuar.",
+    "more": "Más información"
   },
   "md": {
     "esp": {
@@ -97,7 +98,7 @@
     },
     "zg": {
       "fu": {
-        "f": "Va a flashear: {{archivo}}",
+        "f": "Va a flashear: {{file}}",
         "fn": "¡El firmware se ha instalado con éxito!",
         "nv": "Nueva versión: {{ver}}",
         "st": "Iniciando CC2652 flash...",
@@ -241,7 +242,8 @@
         "nnf": "Redes Wifi no encontradas",
         "mode": "Modo",
         "power": "Poder TX"
-      }
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -304,7 +306,8 @@
       "desc": "Configuración de seguridad",
       "fw": {
         "desc": "Lista blanca de IP para socket",
-        "ip": "IP permitida"
+        "ip": "IP permitida",
+        "mask": "Máscara permitida"
       },
       "web": {
         "auth": "Habilitar la autenticación del servidor web",
@@ -440,7 +443,7 @@
         "tt": "Comentarios sobre la versión beta del firmware"
       },
       "upd": {
-        "msg": "Se encontró nuevo firmware ({{ver}}) en GitHub. \nSe descargó {{count}} veces.",
+        "msg": "Se ha encontrado una versión más nueva del firmware XZG",
         "tt": "Actualización ESP32 disponible 🚀"
       }
     },
@@ -449,7 +452,8 @@
         "tt": "No se encontró firmware"
       },
       "upd": {
-        "tt": "Nuevo firmware Zigbee encontrado 🌟"
+        "tt": "Nuevo firmware Zigbee encontrado 🌟",
+        "msg": "Se ha encontrado una versión más reciente del firmware para el módulo RCP."
       }
     }
   }

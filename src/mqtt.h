@@ -2,6 +2,7 @@
 #include <AsyncMqttClient.h>
 
 void mqttConnectSetup();
+void mqttDisconnectCleanup();
 void connectToMqtt();
 void onMqttConnect(bool sessionPresent);
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);

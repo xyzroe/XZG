@@ -106,7 +106,7 @@ void toggleUsbMode()
     {
         ledControl.modeLED.mode = LED_ON;
     }
-    ESP.restart();
+    restartDevice();
 }
 
 void buttonInit()
