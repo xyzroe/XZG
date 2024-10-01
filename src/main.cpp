@@ -566,7 +566,8 @@ void connectWifi()
 
 void mDNS_start()
 {
-  const char *host = "_xzg";
+  const char *names[] = {"_xzg", "_zigbee-gateway", "_zigstar_gw"};
+
   const char *http = "_http";
   const char *tcp = "_tcp";
   if (!mDNS.begin(systemCfg.hostname))
@@ -579,12 +580,16 @@ void mDNS_start()
     //----- WEB ------
     mDNS.addService(http, tcp, 80);
     //--zeroconf zha--
-    mDNS.addService(host, tcp, systemCfg.socketPort);
-    mDNS.addServiceTxt(host, tcp, "version", "1.0");
-    mDNS.addServiceTxt(host, tcp, "radio_type", "znp");
-    mDNS.addServiceTxt(host, tcp, "baud_rate", String(systemCfg.serialSpeed));
-    mDNS.addServiceTxt(host, tcp, "data_flow_control", "software");
-    mDNS.addServiceTxt(host, tcp, "board", String(hwConfig.board));
+    for (int i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+    {
+      mDNS.addService(names[i], tcp, systemCfg.socketPort);
+      mDNS.addServiceTxt(names[i], tcp, "version", "1.0");
+      mDNS.addServiceTxt(names[i], tcp, "radio_type", "znp");
+      mDNS.addServiceTxt(names[i], tcp, "serial_number", String(CCTool.chip.ieee));
+      mDNS.addServiceTxt(names[i], tcp, "baud_rate", String(systemCfg.serialSpeed));
+      mDNS.addServiceTxt(names[i], tcp, "data_flow_control", "software");
+      mDNS.addServiceTxt(names[i], tcp, "board", String(hwConfig.board));
+    }
   }
 }
 
@@ -648,7 +653,7 @@ void getEspUpdateTask(void *pvParameters)
   TaskParams *params = static_cast<TaskParams *>(pvParameters);
   LOGI("getEspUpdateTask %s", params->url);
   getEspUpdate(params->url);
-  vTaskDelete(NULL); 
+  vTaskDelete(NULL);
 }
 
 void timerCallback(TimerHandle_t xTimer)

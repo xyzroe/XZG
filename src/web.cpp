@@ -1108,6 +1108,8 @@ static void apiGetFileList()
     String fileList = "";
     DynamicJsonDocument doc(512);
     JsonArray files = doc.createNestedArray("files");
+
+    // Открываем корневую директорию
     File root = LittleFS.open("/");
     File file = root.openNextFile();
     while (file)
@@ -1115,17 +1117,24 @@ static void apiGetFileList()
         JsonObject jsonfile = files.createNestedObject();
         jsonfile["filename"] = String(file.name());
         jsonfile["size"] = file.size();
+        file.close(); // Закрываем файл после использования
         file = root.openNextFile();
     }
-    root = LittleFS.open("/config/");
+    root.close(); // Закрываем корневую директорию
+
+    // Открываем директорию /x/
+    root = LittleFS.open("/x/");
     file = root.openNextFile();
     while (file)
     {
         JsonObject jsonfile = files.createNestedObject();
-        jsonfile["filename"] = String("/config/" + String(file.name()));
+        jsonfile["filename"] = String("/x/" + String(file.name()));
         jsonfile["size"] = file.size();
+        file.close(); // Закрываем файл после использования
         file = root.openNextFile();
     }
+    root.close(); // Закрываем директорию /x/
+
     serializeJson(doc, fileList);
     serverWeb.send(HTTP_CODE_OK, contTypeJson, fileList);
 }
