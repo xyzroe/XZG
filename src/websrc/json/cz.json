@@ -31,7 +31,7 @@
         "efss": "Souborový systém",
         "du": "Doba běhu zařízení",
         "lt": "Místní čas",
-        "et1": "1W Temperature"
+        "et1": "Teplota 1W"
       },
       "te": "Ethernet",
       "tw": "WiFi",
@@ -74,7 +74,7 @@
       "host": {
         "n": "Název hostitele",
         "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
-        "tt": "Písmena latinky a číslice, bez mezer"
+        "tt": "Písmena latinky a číslice bez mezer"
       },
       "refresh": {
         "n": "Interval obnovování webu",
@@ -117,7 +117,7 @@
           "tt": "Den v týdnu",
           "tu": "Čtvrtek",
           "wd": "Středa",
-          "du": "Disable"
+          "du": "Nekontrolovat"
         },
         "h": "Čas kontroly nového firmwaru"
       }
@@ -163,7 +163,7 @@
       },
       "fws": {
         "tt": "Role zařízení",
-        "alarm": "Změna firmwaru v běžící síti způsobí rozpad sítě!"
+        "alarm": "Změna firmwaru za chodu sítě povede k jejímu zničení!"
       }
     },
     "mq": {
@@ -196,11 +196,11 @@
       },
       "user": {
         "ph": "Uživatelské jméno",
-        "tt": "Zadejte uživatelské jméno od vašeho brokera"
+        "tt": "Zadejte uživatelské jméno vašeho brokera"
       },
       "pass": {
         "ph": "Heslo",
-        "tt": "Zadejte heslo od svého brokera"
+        "tt": "Zadejte heslo vašeho brokera"
       },
       "reconnect": {
         "n": "Opětovné připojení",
@@ -264,7 +264,7 @@
       "pwr": "Napájení",
       "mode": "Režim",
       "dc": "Debug konzole",
-      "rd": "Nezpracovaná data",
+      "rd": "Raw data",
       "cc": "Vymazat konzoli",
       "czc": "Zkontrolovat připojení Zigbee",
       "czv": "Zkontrolovat verzi Zigbee",
@@ -272,7 +272,7 @@
       "fn": "Název souboru",
       "s": "Velikost",
       "egu": "ESP32",
-      "efu": "Manuální flashování ESP32",
+      "efu": "Ruční flashování ESP32",
       "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
       "zu": "Aktualizace Zigbee (ve vývoji)",
@@ -423,11 +423,11 @@
     },
     "zg": {
       "fu": {
-        "f": "Chystám se flashovat: {{file}}",
+        "f": "Připravuje se flashování: {{file}}",
         "fn": "Firmware byl úspěšně nainstalován!",
         "nv": "Nová verze: {{ver}}",
         "st": "Flash CC2652 se spouští...",
-        "er": "Mazání dokončeno"
+        "er": "Vymazání dokončeno"
       }
     }
   },
