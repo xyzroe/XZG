@@ -33,7 +33,8 @@
       "e": "Endzeit",
       "s": "Startzeit"
     },
-    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren."
+    "cerp": "Die maximale Anzahl an Wiederholungsversuchen für die Wiederverbindung wurde erreicht. \nAktualisieren Sie die Seite, um fortzufahren.",
+    "more": "Weitere Informationen"
   },
   "md": {
     "esp": {
@@ -53,8 +54,7 @@
         "ucr": "Aktualisierung abgeschlossen! \nNeustart!",
         "vgds": "Veröffentlichung {{ver}} wird von GitHub heruntergeladen...",
         "wdm": "Warten auf Gerät...",
-        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt",
-        "bil": "Neueste Version installieren"
+        "wm": "Dadurch werden ALLE Socket-Verbindungen getrennt"
       },
       "rst": {
         "msg": "Warten auf Neustart. \nWird automatisch geschlossen.",
@@ -67,25 +67,24 @@
         "msg": "Verbindung zum Netzwerk wird gerade hergestellt... Warten Sie auf das Ergebnis.",
         "nip": "Die neue IP-Adresse lautet {{ip}}. Das Gerät wird jetzt neu gestartet, damit die neuen Einstellungen wirksam werden.",
         "tt": "Wi-Fi-Netzwerkverbindung"
+      },
+      "mc": {
+        "mi": "Es werden mehr als ein Gerät mit genau Ihrer Konfiguration unterstützt. \nSie müssen Ihr Gerät auswählen.",
+        "tt": "Wählen Sie Ihr Gerätemodell aus"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Überprüfung abgeschlossen!",
-        "vt": "überprüfen: {{per}} %"
-      },
-      "cfv": "Ihre aktuelle Firmware-Version: {{ver}}",
+      "fu": {},
       "dtc": "Koordinator",
       "dtr": "Router",
       "efr": "Fehler beim Abrufen der Firmware-Informationen<br>Überprüfen Sie Ihr Netzwerk!",
-      "lcf": "Neueste Koordinator-Firmware:",
-      "lrf": "Neueste Router-Firmware:",
       "ncf": "Keine Koordinator-Firmware verfügbar.",
       "nrf": "Keine Router-Firmware verfügbar.",
       "ot": "Zigbee OTA-Update",
       "rfm": "Firmware-Informationen werden abgerufen...",
       "dtt": "OpenThread",
-      "ntf": "Die Thread-Firmware fehlt."
+      "ntf": "Die Thread-Firmware fehlt.",
+      "cte": "Klicken Sie, um die Informationen zu erweitern"
     },
     "kw": {
       "msg": "Mit dieser Funktion können Sie einen der Kommunikationskanäle aktiv lassen und auf die Weboberfläche zugreifen. \nDas Gerät wählt selbst je nach Priorität einen verfügbaren Kanal aus: WIFI, ETHERNET, WIFI AP"
@@ -158,6 +157,22 @@
           "net": "Netzwerkmodus",
           "usb": "USB-Modus"
         }
+      },
+      "u": {
+        "ai": "Automatische Installation von Updates (ESP32 und Zigbee)",
+        "d": {
+          "ev": "Täglich",
+          "fr": "Freitag",
+          "mn": "Montag",
+          "sa": "Samstag",
+          "su": "Sonntag",
+          "th": "Donnerstag",
+          "tt": "Wochentag",
+          "tu": "Dienstag",
+          "wd": "Mittwoch",
+          "du": "Deaktivieren"
+        },
+        "h": "Neue Firmware-Prüfzeit"
       }
     },
     "lo": {
@@ -227,8 +242,11 @@
         "rssi": "RSSI",
         "sc": "Sicherheit",
         "ssid": "SSID",
-        "nnf": "WLAN-Netzwerke nicht gefunden"
-      }
+        "nnf": "WLAN-Netzwerke nicht gefunden",
+        "mode": "Modus",
+        "power": "Sendeleistung"
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -248,7 +266,8 @@
         "ens": "NV-Speicher",
         "ent": "Einträge",
         "du": "Gerätelaufzeit",
-        "lt": "Ortszeit"
+        "lt": "Ortszeit",
+        "et1": "1W Temperatur"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -265,7 +284,6 @@
         "mcl": "Client"
       },
       "zbc": {
-        "tt": "Gerätestatus",
         "op": "Betriebsmodus",
         "opn": "Zigbee-Netzwerk",
         "opu": "Zigbee-USB",
@@ -278,14 +296,21 @@
       },
       "c": {
         "fv": "FW-Revision",
-        "hv": "HW-Version"
+        "hv": "HW-Version",
+        "r": "Rolle"
+      },
+      "zr": {
+        "c": "Koordinator",
+        "r": "Router",
+        "t": "OpenTread"
       }
     },
     "se": {
       "desc": "Sicherheitskonfiguration",
       "fw": {
         "desc": "IP-Whitelist für Socket",
-        "ip": "Erlaubte IP-Adresse"
+        "ip": "Erlaubte IP-Adresse",
+        "mask": "Erlaubte Maske"
       },
       "web": {
         "auth": "Aktivieren Sie die Webserver-Authentifizierung",
@@ -324,12 +349,9 @@
       "sc": "Systemkontrolle",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Aktualisierung der Zigbee-Datei",
       "zu": "Zigbee-Update (in Entwicklung)",
       "saf": "Verfügbare Firmwares anzeigen",
-      "clzv": "Überprüfen Sie die neuesten Zigbee-Firmwares",
       "zgu": "Git CC2652-Update",
-      "sri": "Version auswählen",
       "eznr": "NVRAM löschen"
     },
     "vp": {
@@ -424,13 +446,17 @@
         "tt": "Feedback zur FW-Beta"
       },
       "upd": {
-        "msg": "Eine neue Firmware ({{ver}}) ist auf Github verfügbar. \nDiese wurde bereits {{count}} Mal heruntergeladen.",
+        "msg": "Es wurde eine neuere Version der XZG-Firmware gefunden",
         "tt": "ESP32-Update verfügbar 🚀"
       }
     },
     "zb": {
       "nzfa": {
         "tt": "Keine neue Firmware gefunden"
+      },
+      "upd": {
+        "tt": "Neue Zigbee-Firmware gefunden 🌟",
+        "msg": "Es wurde eine neuere Firmware-Version für das RCP-Modul gefunden"
       }
     }
   }

@@ -60,17 +60,17 @@ bool CommandInterface::_wait_for_ack(unsigned long timeout = 1)
             uint8_t received = _stream.read();
             if (received == ACK_BYTE)
             {
-                // Serial.println("ACK received");
+                // DEBUG_PRINTLN("ACK received");
                 return true;
             }
             else if (received == NACK_BYTE)
             {
-                // Serial.println("NACK received");
+                // DEBUG_PRINTLN("NACK received");
                 return false;
             }
         }
     }
-    Serial.println("Timeout waiting for ACK/NACK");
+    DEBUG_PRINTLN("Timeout waiting for ACK/NACK");
     return false;
 }
 
@@ -119,7 +119,7 @@ uint32_t CommandInterface::_cmdGetChipId()
     {
         // 4 byte answ, the 2 LSB hold chip ID
         byte *version = _receivePacket();
-        // Serial.println("size " + String(sizeof(version)));
+        // DEBUG_PRINTLN("size " + String(sizeof(version)));
         if (_checkLastCmd())
         {
 
@@ -128,12 +128,12 @@ uint32_t CommandInterface::_cmdGetChipId()
             value |= uint32_t(version[2]) << 8;
             value |= uint32_t(version[1]) << 16;
             value |= uint32_t(version[0]) << 24; // Most significant byte
-            // Serial.print("ChipId ");
-            // Serial.println(value, HEX);
+            // DEBUG_PRINT("ChipId ");
+            // DEBUG_PRINTLN(value, HEX);
 
             if (sizeof(version) != 4)
             {
-                Serial.println("Unreasonable chip. Looks upper"); // repr(version) ?
+                DEBUG_PRINTLN("Unreasonable chip. Looks upper"); // repr(version) ?
                 return uint32_t(0);
             }
 
@@ -160,7 +160,7 @@ byte *CommandInterface::_cmdGetStatus()
         byte *stat = _receivePacket();
         return stat;
     }
-    Serial.print("Error _cmdGetStatus");
+    DEBUG_PRINT("Error _cmdGetStatus");
     return nullptr;
 }
 
@@ -170,27 +170,28 @@ bool CommandInterface::_checkLastCmd()
     byte *stat = _cmdGetStatus();
     if (stat == nullptr)
     {
-        Serial.println("No response from target on status request.");
-        Serial.println("(Did you disable the bootloader?)");
+        DEBUG_PRINTLN("No response from target on status request.");
+        DEBUG_PRINTLN("(Did you disable the bootloader?)");
         return 0;
     }
     else
     {
         if (stat[0] == COMMAND_RET_SUCCESS)
         {
-            // Serial.println("Command Successful");
+            // DEBUG_PRINTLN("Command Successful");
             return 1;
         }
         else
         {
             const char *stat_str = _getStatusString(stat[0]);
-            if (stat_str == "Unknown")
+            //if (stat_str == "Unknown")
+            if (strcmp(stat_str, "Unknown") == 0)
             {
-                Serial.println("Warning: unrecognized status returned 0x" + String(stat[0]));
+                DEBUG_PRINTLN("Warning: unrecognized status returned 0x" + String(stat[0]));
             }
             else
             {
-                Serial.println("Target returned: 0x" + String(stat[0]) + " " + String(stat_str));
+                DEBUG_PRINTLN("Target returned: 0x" + String(stat[0]) + " " + String(stat_str));
             }
             return 0;
         }
@@ -241,9 +242,9 @@ bool CommandInterface::_cmdDownload(uint32_t address, unsigned long size)
     if (size % 4 != 0)
     {
         // If size is not a multiple of 4, handle the error
-        Serial.print("Invalid data size: ");
-        Serial.print(size);
-        Serial.println(". Size must be a multiple of 4.");
+        DEBUG_PRINT("Invalid data size: ");
+        DEBUG_PRINT(size);
+        DEBUG_PRINTLN(". Size must be a multiple of 4.");
         return false;
     }
 
@@ -265,7 +266,7 @@ bool CommandInterface::_cmdDownload(uint32_t address, unsigned long size)
     _stream.write(sizeBytes[2]);                    // # send size
     _stream.write(sizeBytes[3]);                    // # send size
 
-    // Serial.println("*** Mem Read (0x2A)");
+    // DEBUG_PRINTLN("*** Mem Read (0x2A)");
     if (_wait_for_ack())
     {
         byte *data = _receivePacket();
@@ -285,9 +286,9 @@ bool CommandInterface::_cmdSendData(byte *data, unsigned int dataSize)
     // Check if data size exceeds maximum limit
     if (dataSize > maxDataSize)
     {
-        Serial.print("Data size too large: ");
-        Serial.print(dataSize);
-        Serial.println(". Maximum size allowed is 252 bytes.");
+        DEBUG_PRINT("Data size too large: ");
+        DEBUG_PRINT(dataSize);
+        DEBUG_PRINTLN(". Maximum size allowed is 252 bytes.");
         return false;
     }
 
@@ -310,7 +311,7 @@ bool CommandInterface::_cmdSendData(byte *data, unsigned int dataSize)
     }
 
     // Optionally print debug information to the serial monitor
-    // Serial.println("*** Send Data (0x24)");
+    // DEBUG_PRINTLN("*** Send Data (0x24)");
 
     // Assume _wait_for_ack() and _checkLastCmd() are implemented similarly to your previous method
     if (_wait_for_ack())
@@ -348,7 +349,7 @@ byte *CommandInterface::_cmdMemRead(uint32_t address)
     _stream.write(1);                            // # send width, 4 bytes
     _stream.write(1);                            // # send number of reads
 
-    // Serial.println("*** Mem Read (0x2A)");
+    // DEBUG_PRINTLN("*** Mem Read (0x2A)");
     if (_wait_for_ack())
     {
         byte *data = _receivePacket();
@@ -379,10 +380,10 @@ byte *CommandInterface::_receivePacket()
         return nullptr;
     }
 
-    // Debugging output, might use Serial.print in Arduino
-    // Serial.print(F("*** received "));
-    // Serial.print(size, HEX);
-    // Serial.println(F(" bytes"));
+    // Debugging output, might use DEBUG_PRINT in Arduino
+    // DEBUG_PRINT(F("*** received "));
+    // DEBUG_PRINT(size, HEX);
+    // DEBUG_PRINTLN(F(" bytes"));
 
     // Calculate checksum
     byte calculatedChks = 0;
@@ -475,7 +476,7 @@ bool CommandInterface::_ledToggle(bool ledState)
 bool CommandInterface::_nvram_osal_delete(uint16_t nvid)
 {
     // DEBUG_PRINT("Checking OsalNvIds ID: ");
-    // Serial.print(nvid, HEX);
+    // DEBUG_PRINT(nvid, HEX);
     // DEBUG_PRINT(" - ");
 
     const uint8_t cmd1 = 0x21;
@@ -504,21 +505,21 @@ bool CommandInterface::_nvram_osal_delete(uint16_t nvid)
 
     _stream.flush();
 
-    // Serial.println("");
-    // Serial.println("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(fcs, HEX));
+    // DEBUG_PRINTLN("");
+    // DEBUG_PRINTLN("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(fcs, HEX));
 
     std::unique_ptr<byte[]> data(_receive_SRSP());
     if (!data)
     {
         return false;
     }
-    // Serial.println("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(data[4], HEX));
+    // DEBUG_PRINTLN("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(data[4], HEX));
 
     if (data[2] > 0 || data[3] > 0)
     {
         /*
         DEBUG_PRINT("* Deleting OsalNvIds ID: ");
-        Serial.print(nvid, HEX);
+        DEBUG_PRINT(nvid, HEX);
         DEBUG_PRINT(" - ");
         */
 
@@ -547,15 +548,15 @@ bool CommandInterface::_nvram_osal_delete(uint16_t nvid)
 
         _stream.flush();
 
-        // Serial.println("");
-        // Serial.println("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(fcs, HEX));
+        // DEBUG_PRINTLN("");
+        // DEBUG_PRINTLN("> " + String(cmd1, HEX) + " " + String(cmd2, HEX) + " " + String(lowByte, HEX) + " " + String(highByte, HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX) + " " + String(fcs, HEX));
 
         std::unique_ptr<byte[]> data(_receive_SRSP());
         if (!data)
         {
             return false;
         }
-        // Serial.println("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX));
+        // DEBUG_PRINTLN("< " + String(data[0], HEX) + " " + String(data[1], HEX) + " " + String(data[2], HEX) + " " + String(data[3], HEX));
     }
     return true;
 }
@@ -565,9 +566,9 @@ bool CommandInterface::_nvram_ex_delete(uint16_t nvid, uint16_t subID)
     /*
     DEBUG_PRINT("Deleting ExNvIds sub ID: ");
 
-    Serial.print(nvid, HEX);
+    DEBUG_PRINT(nvid, HEX);
     DEBUG_PRINT(" ");
-    Serial.print(subID, HEX);
+    DEBUG_PRINT(subID, HEX);
     DEBUG_PRINT(" - ");
     */
     const uint8_t cmd1 = 0x21;
@@ -611,7 +612,7 @@ bool CommandInterface::_nvram_ex_delete(uint16_t nvid, uint16_t subID)
     {
         return false;
     }
-    // Serial.println(String(data[2], HEX));
+    // DEBUG_PRINTLN(String(data[2], HEX));
 
     if (data[2] == 0x0A)
     { // error
@@ -649,7 +650,7 @@ CommandInterface::zbInfoStruct CommandInterface::_checkFwVer()
             chip.transportrev = zbVerBuf[0];
             _cleanBuffer();
 
-            DEBUG_PRINTLN("ZB v: " + String(chip.fwRev) + " Main: " + chip.maintrel + " Min: " + chip.minorrel + " Maj: " + chip.majorrel + " T: " + chip.transportrev + " P: " + chip.product);
+            // DEBUG_PRINTLN("ZB v: " + String(chip.fwRev) + " Main: " + chip.maintrel + " Min: " + chip.minorrel + " Maj: " + chip.majorrel + " T: " + chip.transportrev + " P: " + chip.product);
 
             return chip;
         }
@@ -735,10 +736,10 @@ bool CCTools::detectChipInfo()
 
     uint32_t chip_id = _cmdGetChipId();
 
-    // Serial.println(chip_id, HEX);
+    // DEBUG_PRINTLN(chip_id, HEX);
 
     byte *device_id = _cmdMemRead(ICEPICK_DEVICE_ID);
-    // Serial.println(sizeof(device_id));
+    // DEBUG_PRINTLN(sizeof(device_id));
 
     uint32_t wafer_id = (((device_id[3] & 0x0F) << 16) +
                          (device_id[2] << 8) +
@@ -748,33 +749,33 @@ bool CCTools::detectChipInfo()
 
     // We can now detect the exact device
 
-    // Serial.print("wafer_id: ");
-    // Serial.println(wafer_id, HEX);
-    // Serial.print("pg_rev: ");
-    // Serial.println(pg_rev, HEX);
+    // DEBUG_PRINT("wafer_id: ");
+    // DEBUG_PRINTLN(wafer_id, HEX);
+    // DEBUG_PRINT("pg_rev: ");
+    // DEBUG_PRINTLN(pg_rev, HEX);
 
     byte *user_id = _cmdMemRead(FCFG_USER_ID);
 
-    // Serial.println("Package: " + _getPackageString(user_id[2]));
+    // DEBUG_PRINTLN("Package: " + _getPackageString(user_id[2]));
 
     byte protocols = user_id[1] >> 4;
-    // Serial.print("protocols: ");
-    // Serial.println(protocols, HEX);
+    // DEBUG_PRINT("protocols: ");
+    // DEBUG_PRINTLN(protocols, HEX);
 
     byte *flash_size = _cmdMemRead(FLASH_SIZE);
-    // Serial.print("flash_size: ");
-    // Serial.println(flash_size[0], HEX);
+    // DEBUG_PRINT("flash_size: ");
+    // DEBUG_PRINTLN(flash_size[0], HEX);
 
     // byte *ram_size = _cmdMemRead(PRCM_RAMHWOPT);
-    // Serial.print("ram_size: ");
-    // Serial.println(ram_size[0], HEX);
+    // DEBUG_PRINT("ram_size: ");
+    // DEBUG_PRINTLN(ram_size[0], HEX);
 
     byte *ieee_b1 = _cmdMemRead(addr_ieee_address_primary + 4);
     byte *ieee_b2 = _cmdMemRead(addr_ieee_address_primary);
 
     if (ieee_b1 == nullptr || ieee_b2 == nullptr)
     {
-        Serial.println("Error read IEEE");
+        DEBUG_PRINTLN("Error read IEEE");
         return false;
     }
 
@@ -796,10 +797,11 @@ bool CCTools::detectChipInfo()
     delete[] ieee_b2;
 
     String chip_str;
-    if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
+    //if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
+    if ((protocols & PROTO_MASK_IEEE) == PROTO_MASK_IEEE)
     {
         uint32_t test = 360372;
-        // Serial.print(test, HEX);
+        // DEBUG_PRINT(test, HEX);
         byte *b_val = _cmdMemRead(test);
 
         chip.hwRev = _getChipDescription(chip_id, wafer_id, pg_rev, b_val[1]);
@@ -811,22 +813,16 @@ bool CCTools::detectChipInfo()
         chip.flashSize = flash_size[0] * page_size;
 
         test = chip.flashSize - 88 + 0xC;
-        Serial.print(test, HEX);
+        //DEBUG_PRINT(test, HEX);
         b_val = _cmdMemRead(test);
-        Serial.print(" MODE_CONF: ");
-        Serial.print(b_val[0], HEX);
-        Serial.print(b_val[1], HEX);
-        Serial.print(b_val[2], HEX);
-        Serial.println(b_val[3], HEX);
+
+        chip.modeCfg = _decodeAddr(b_val[3], b_val[2], b_val[1], b_val[0]);
 
         uint32_t bsl_adr = chip.flashSize - 88 + 0x30;
-        Serial.print(bsl_adr, HEX);
+        //DEBUG_PRINT(bsl_adr, HEX);
         byte *bsl_val = _cmdMemRead(bsl_adr);
-        Serial.print(" bsl_val: ");
-        Serial.print(bsl_val[0], HEX);
-        Serial.print(bsl_val[1], HEX);
-        Serial.print(bsl_val[2], HEX);
-        Serial.println(bsl_val[3], HEX);
+
+        chip.bslCfg = _decodeAddr(bsl_val[3], bsl_val[2], bsl_val[1], bsl_val[0]);
 
         return true;
     }
@@ -874,6 +870,7 @@ bool CCTools::checkFirmwareVersion()
     {
         restart();
     }
+    _cleanBuffer();
     zbInfoStruct temp = _checkFwVer();
     chip.fwRev = temp.fwRev;
     chip.maintrel = temp.maintrel;
@@ -971,4 +968,9 @@ bool CCTools::nvram_reset(void (*logFunction)(const String&))
     restart();
 
     return success;
+}
+
+void CCTools::cleanBuffer()
+{
+    _cleanBuffer();
 }

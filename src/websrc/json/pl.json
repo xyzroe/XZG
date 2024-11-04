@@ -33,7 +33,8 @@
       "e": "Koniec czasu",
       "s": "Czas rozpoczęcia"
     },
-    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować."
+    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować.",
+    "more": "Więcej informacji"
   },
   "md": {
     "esp": {
@@ -53,8 +54,7 @@
         "ucr": "Aktualizacja zakończona! \nPonowne uruchamianie!",
         "vgds": "Pobieram wersję {{ver}} z GitHub...",
         "wdm": "Oczekiwanie na urządzenie...",
-        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd",
-        "bil": "Zainstaluj najnowsze"
+        "wm": "Spowoduje to rozłączenie WSZYSTKICH połączeń gniazd"
       },
       "rst": {
         "msg": "Czekając na ponowne uruchomienie. \nZamknie się automatycznie.",
@@ -67,25 +67,24 @@
         "msg": "Trwa łączenie z siecią... Poczekaj na wynik.",
         "nip": "Nowy adres IP to {{ip}}. Urządzenie uruchomi się teraz ponownie, aby nowe ustawienia zaczęły obowiązywać.",
         "tt": "Połączenie z siecią Wi-Fi"
+      },
+      "mc": {
+        "mi": "Obsługiwane jest więcej niż jedno urządzenie o dokładnie takiej konfiguracji. \nMusisz wybrać swoje urządzenie.",
+        "tt": "Wybierz model swojego urządzenia"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Weryfikacja zakończona!",
-        "vt": "zatwierdź: {{per}}%"
-      },
-      "cfv": "Twoja aktualna wersja oprogramowania: {{ver}}",
+      "fu": {},
       "dtc": "Koordynator",
       "dtr": "Routera",
       "efr": "Błąd podczas pobierania informacji o oprogramowaniu sprzętowym<br>Sprawdź swoją sieć!",
-      "lcf": "Najnowsze oprogramowanie koordynatora:",
-      "lrf": "Najnowsze oprogramowanie routera:",
       "ncf": "Brak dostępnego oprogramowania sprzętowego koordynatora.",
       "nrf": "Brak dostępnego oprogramowania sprzętowego routera.",
       "ot": "Aktualizacja Zigbee OTA",
       "rfm": "Pobieram informacje o oprogramowaniu sprzętowym...",
       "dtt": "Otwórz wątek",
-      "ntf": "Brak oprogramowania sprzętowego Thread."
+      "ntf": "Brak oprogramowania sprzętowego Thread.",
+      "cte": "Kliknij, aby rozwinąć informacje"
     },
     "kw": {
       "msg": "Dzięki tej funkcji możesz pozostawić jeden z kanałów komunikacji aktywnym i mieć dostęp do interfejsu WWW. \nUrządzenie samo wybierze dostępny kanał według priorytetu: WIFI, ETHERNET, WIFI AP"
@@ -158,6 +157,22 @@
           "net": "Tryb sieciowy",
           "usb": "Tryb USB"
         }
+      },
+      "u": {
+        "ai": "Automatyczna instalacja aktualizacji (ESP32 i Zigbee)",
+        "d": {
+          "ev": "Codziennie",
+          "fr": "Piątek",
+          "mn": "Poniedziałek",
+          "sa": "Sobota",
+          "su": "Niedziela",
+          "th": "Czwartek",
+          "tt": "Dzień tygodnia",
+          "tu": "Wtorek",
+          "wd": "Środa",
+          "du": "Wyłączyć"
+        },
+        "h": "Czas sprawdzania nowego oprogramowania sprzętowego"
       }
     },
     "lo": {
@@ -227,8 +242,11 @@
         "rssi": "RSSI",
         "sc": "Bezpieczeństwo",
         "ssid": "SSID",
-        "nnf": "Nie znaleziono sieci Wi-Fi"
-      }
+        "nnf": "Nie znaleziono sieci Wi-Fi",
+        "mode": "Tryb",
+        "power": "Moc wysyłania"
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -248,7 +266,8 @@
         "ens": "Magazyn NV",
         "ent": "wpisy",
         "du": "Czas pracy urządzenia",
-        "lt": "Czas lokalny"
+        "lt": "Czas lokalny",
+        "et1": "Temperatura 1 W"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -265,7 +284,6 @@
         "mcl": "Klient"
       },
       "zbc": {
-        "tt": "Status urządzenia",
         "op": "Tryb działania",
         "opn": "Sieć Zigbee",
         "opu": "Zigbee-USB",
@@ -278,14 +296,21 @@
       },
       "c": {
         "fv": "Wersja oprogramowania sprzętowego",
-        "hv": "Wersja sprzętowa"
+        "hv": "Wersja sprzętowa",
+        "r": "Rola"
+      },
+      "zr": {
+        "c": "Koordynator",
+        "r": "Routera",
+        "t": "OtwórzTread"
       }
     },
     "se": {
       "desc": "Konfiguracja zabezpieczeń",
       "fw": {
         "desc": "Biała lista adresów IP dla gniazda",
-        "ip": "Dozwolone IP"
+        "ip": "Dozwolone IP",
+        "mask": "Dozwolona maska"
       },
       "web": {
         "auth": "Włącz uwierzytelnianie serwera WWW",
@@ -324,12 +349,9 @@
       "sc": "Sterowanie systemem",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Aktualizacja pliku Zigbee",
       "zu": "Aktualizacja Zigbee (w przygotowaniu)",
       "saf": "Pokaż dostępne oprogramowanie sprzętowe",
-      "clzv": "Sprawdź najnowsze oprogramowanie sprzętowe Zigbee",
       "zgu": "Aktualizacja Gita CC2652",
-      "sri": "Wybierz wersję",
       "eznr": "Wymaż NVRAM"
     },
     "vp": {
@@ -424,13 +446,17 @@
         "tt": "Opinia o wersji beta FW"
       },
       "upd": {
-        "msg": "W GitHubie znaleziono nowe oprogramowanie sprzętowe ({{ver}}). \nZostał pobrany {{count}} razy.",
+        "msg": "Znaleziono nowszą wersję oprogramowania XZG",
         "tt": "Dostępna aktualizacja ESP32 🚀"
       }
     },
     "zb": {
       "nzfa": {
         "tt": "Nie znaleziono oprogramowania sprzętowego"
+      },
+      "upd": {
+        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟",
+        "msg": "Znaleziono nowszą wersję oprogramowania modułu RCP"
       }
     }
   }

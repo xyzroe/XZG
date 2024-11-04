@@ -28,7 +28,7 @@ const modalBtns = ".modal-footer";
 const pages = {
 	API_PAGE_ROOT: { num: 0, str: "/" },
 	API_PAGE_GENERAL: { num: 1, str: "/general" },
-//	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
+	//	API_PAGE_ETHERNET: { num: 2, str: "/ethernet" },
 	API_PAGE_NETWORK: { num: 2, str: "/network" },
 	API_PAGE_ZIGBEE: { num: 3, str: "/zigbee" },
 	API_PAGE_SECURITY: { num: 4, str: "/security" },
@@ -52,7 +52,10 @@ const commands = {
 	CMD_ZB_CHK_FW: 10,
 	CMD_ZB_CHK_HW: 11,
 	CMD_ZB_LED_TOG: 12,
-	CMD_ESP_FAC_RES: 13
+	CMD_ESP_FAC_RES: 13,
+	CMD_ZB_ERASE_NVRAM: 14,
+	CMD_DNS_CHECK: 15,
+	CMD_BRD_NAME: 16
 }
 
 const api = {
@@ -80,8 +83,8 @@ const IconsStatusCodes = {
 	ERROR: 3
 };
 
-let intervalIdUpdateRoot;
-let intervalTimeUpdateRoot;
+//let intervalIdUpdateRoot;
+//let intervalTimeUpdateRoot;
 
 let updateValues = {};
 
@@ -128,11 +131,7 @@ document.addEventListener("scroll", function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-	setTimeout(updateRootEvents(function (connected) {
-		if (connected) {
-			//console.log("ok");
-		}
-	}), 300);
+	setTimeout(connectEvents(), 300);
 	const savedLang = localStorage.getItem("selected-lang");
 	const browserLang = navigator.language ? navigator.language.substring(0, 2) : navigator.userLanguage;
 	let preferredLang = savedLang || (languages.some(lang => lang.value === browserLang) ? browserLang : 'en'); // 'en' как fallback
@@ -316,14 +315,15 @@ serial:
 
 function fillFileTable(files) {
 	const icon_file = `<svg class="card_icon file_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#file" /></svg>`;
-	const icon_del = `<svg class="card_icon del_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#magic" /></svg>`;
+	//const icon_del = `<svg class="card_icon del_icon" viewBox="0 0 16 16"><use xlink:href="icons.svg#magic" /></svg>`;
+	const icon_del = `❌`;
 	files.forEach((elem) => { //.slice(0, files.length - 1)
 		if (elem.size > 0) {
 			let $row = $("<tr>").appendTo("#filelist")
 			$("<td class='col-min-width'>" + icon_file + "</td>").appendTo($row);
 			$("<td><a href='#config_file' onClick=\"readFile(event, '" + elem.filename + "');\">" + elem.filename + "</a></td>").appendTo($row);
 			$("<td>" + elem.size + "B</td>").appendTo($row);
-			$("<td class='text-end col-min-width'><a href='' onClick=\"delFile(event, '" + elem.filename + "');\">" + icon_del + "</a></td>").appendTo($row);
+			$("<td class='text-end col-min-width'><a href='' style='text-decoration: none !important;' onClick=\"delFile(event, '" + elem.filename + "');\">" + icon_del + "</a></td>").appendTo($row);
 		}
 	});
 }
@@ -367,6 +367,7 @@ function setIconGlow(iconId, state, show = true) {
 
 function loadPage(url) {
 
+	delete updateValues.zbRole;
 
 	if (window.location.pathname !== url) {
 		window.history.pushState("", document.title, url);
@@ -395,11 +396,11 @@ function loadPage(url) {
 			apiGetPage(api.pages.API_PAGE_ROOT);
 			break;
 		case api.pages.API_PAGE_GENERAL.str:
-			apiGetPage(api.pages.API_PAGE_GENERAL, () => {
-				if (!$("#usbMode").prop(chck)) {
-					KeepWebDsbl(true);
-				}
-			});
+			apiGetPage(api.pages.API_PAGE_GENERAL);//, () => {
+			//if (!$("#usbMode").prop(chck)) {
+			//	KeepWebDsbl(true);
+			//}
+			//});
 			break;
 		case api.pages.API_PAGE_MQTT.str:
 			apiGetPage(api.pages.API_PAGE_MQTT, () => {
@@ -564,7 +565,7 @@ function apiGetPage(page, doneCall, loader = true) {
 
 			$("form.saveParams").on("submit", function (e) {
 				e.preventDefault();
-				showWifiCreds();
+				//showWifiCreds();
 				if (this.id === "netCfg") {
 					var ethEnblSw = document.getElementById('ethEnbl').checked;
 					var wifiEnblSw = document.getElementById('wifiEnbl').checked;
@@ -578,9 +579,9 @@ function apiGetPage(page, doneCall, loader = true) {
 				}
 
 				const btn = $("form.saveParams button[type='submit']");
-				$(':disabled').each(function (e) {
+				/*$(':disabled').each(function (e) {
 					$(this).removeAttr('disabled');
-				});
+				});*/
 				spiner.appendTo(btn);
 				spiner2.appendTo(btn);
 				btn.prop("disabled", true);
@@ -644,8 +645,6 @@ function apiGetPage(page, doneCall, loader = true) {
 				for (const property in values) {
 					if (property === "timeZoneName") {
 						selectedTimeZone = values[property];
-						//console.log(selectedTimeZone);
-						//console.log("timeZoneName");
 						continue;
 					}
 					if (property === "hwBtnIs") {
@@ -653,7 +652,6 @@ function apiGetPage(page, doneCall, loader = true) {
 						continue;
 					}
 					if (property === "hwLedUsbIs") {
-						//hwBtnIs
 						if (values[property]) {
 							showDivById('ledsCard');
 							showDivById('modeLedBtn');
@@ -665,16 +663,6 @@ function apiGetPage(page, doneCall, loader = true) {
 							showDivById('ledsCard');
 							showDivById('pwrLedBtn');
 						}
-						//hwBtnIs
-						continue;
-					}
-					if (property === "hwUartSelIs") {
-						if (values[property]) {
-							showDivById('modeSelCard');
-							showDivById('curModeSelCard');
-						}
-
-						//hwBtnIs
 						continue;
 					}
 				}
@@ -682,6 +670,10 @@ function apiGetPage(page, doneCall, loader = true) {
 			}
 			updateLocalizedContent();
 
+			$('[title]').each(function () {
+				var title = $(this).attr('title');
+				setTitleAndActivateTooltip(this, title);
+			});
 
 			if (xhr.getResponseHeader("respTimeZones") !== null) {
 				const zones = JSON.parse(xhr.getResponseHeader("respTimeZones"));
@@ -923,9 +915,15 @@ function extractTime(dateStr) {
 
 	let pm = "AM";
 	if (localStorage.getItem('clock_format_12h') == 'true') {
+		if (hours >= 12) {
+			pm = "PM";
+		}
 		if (hours > 12) {
 			hours = hours - 12;
-			pm = "PM";
+		}
+		if (hours == 0) {
+			hours = 12;
+			pm = "AM";
 		}
 		return `${hours}:${minutes}:${seconds} ${pm}`;
 	}
@@ -956,6 +954,33 @@ function dataReplace(values, navOnly = false) {
 
 		showCardDrawIcon(property, values);
 		let $elements = $(baseSelector + property + "']");
+		if (property == "zbRole") {
+			if (values[property] == 1) {
+				document.querySelectorAll('.zfs_coordinator').forEach(card => card.classList.add('selected'));
+			} else if (values[property] == 2) {
+				document.querySelectorAll('.zfs_router').forEach(card => card.classList.add('selected'));
+			} else if (values[property] == 3) {
+				document.querySelectorAll('.zfs_thread').forEach(card => card.classList.add('selected'));
+			}
+		}
+		if (property == "ethIPv6") {
+			showDivById("ethIPv6");
+		}
+		if (property == "espUpdAvail" && values[property] == 1) {
+			toastConstructor("espUpdAvail");
+		}
+		if (property == "rcpUpdAvail" && values[property] == 1) {
+			toastConstructor("rcpUpdAvail");
+		}
+		if (property == "zbFwSaved" && values[property] == 1) {
+			$('td[data-r2v="zigbeeFwRev"]').addClass('fst-italic');
+		}
+		if (property == "boardArray") { // && values[property].startsWith("Multi")) {
+			modalConstructor("multiCfg", values[property]);
+		}
+		if (property == "no_eth" && values[property] == 1) {
+			$('#ethCfg').hide();
+		}
 		//console.log($elements);
 		$elements.map(function () {
 			const elemType = $(this).prop('nodeName').toLowerCase();
@@ -989,6 +1014,10 @@ function dataReplace(values, navOnly = false) {
 				case "deviceTemp":
 					updateProgressBar("prgTemp", valueToSet, 15, 85)
 					break;
+				case "1wTemp":
+					$("#1wBar").removeAttr('hidden');
+					updateProgressBar("prgTemp1w", valueToSet, 0, 100)
+					break;
 				case "wifiRssi":
 					updateProgressBar("prgRssi", valueToSet, -105, 0)
 					valueToSet = valueToSet + " " + "dBm";
@@ -1015,7 +1044,6 @@ function dataReplace(values, navOnly = false) {
 							break;
 					}
 					break;
-
 				case "operationalMode":
 					updateValues[property] = values[property];
 					switch (valueToSet) {
@@ -1024,6 +1052,22 @@ function dataReplace(values, navOnly = false) {
 							break;
 						case 1:
 							valueToSet = i18next.t('p.st.zbc.opu');
+							break;
+					}
+					break;
+				case "zbRole":
+					updateValues[property] = values[property];
+					switch (valueToSet) {
+						case 1:
+							valueToSet = i18next.t('p.st.zr.c');
+							break;
+						case 2:
+							valueToSet = i18next.t('p.st.zr.r');
+							break;
+						case 2:
+							valueToSet = i18next.t('p.st.zr.t');
+							break;
+						default:
 							break;
 					}
 					break;
@@ -1146,8 +1190,9 @@ function toastConstructor(params, text) {
 	switch (params) {
 		case "espUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.esp.upd.tt"));
-			$("#toastBody").text(text);
-			$('<button>', {
+			$("#toastBody").text(i18next.t("ts.esp.upd.msg"));
+			//$("#toastBody").text(text);
+			/*$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-danger",
 				text: i18next.t("c.drm"),
@@ -1155,14 +1200,45 @@ function toastConstructor(params, text) {
 					$('.toast').toast('hide');
 					localStorage.setItem('update_notify', 1);
 				}
-			}).appendTo("#toastButtons");
+			}).appendTo("#toastButtons");*/
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("c.now"),
+				text: i18next.t("c.more"),
 				click: function () {
 					$('.toast').toast('hide');
-					modalConstructor("flashESP");
+					modalConstructor("fetchGitReleases");
+				}
+			}).appendTo("#toastButtons");
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-outline-success",
+				text: i18next.t("c.ltr"),
+				click: function () {
+					$('.toast').toast('hide');
+
+				}
+			}).appendTo("#toastButtons");
+			break;
+		case "rcpUpdAvail":
+			$("#toastHeaderText").text(i18next.t("ts.zb.upd.tt"));
+			$("#toastBody").text(i18next.t("ts.zb.upd.msg"));
+			/*$('<button>', {
+				type: "button",
+				"class": "btn btn-outline-danger",
+				text: i18next.t("c.drm"),
+				click: function () {
+					$('.toast').toast('hide');
+					localStorage.setItem('update_notify_zb', 1);
+				}
+			}).appendTo("#toastButtons");*/
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-warning",
+				text: i18next.t("c.more"),
+				click: function () {
+					$('.toast').toast('hide');
+					modalConstructor("flashZB");
 				}
 			}).appendTo("#toastButtons");
 			$('<button>', {
@@ -1211,7 +1287,7 @@ function toastConstructor(params, text) {
 			break;
 		case "noZbFw":
 			$("#toastHeaderText").text(i18next.t("ts.zb.nzfa.tt"));
-			$("#toastBody").text(text); //		$("#toastBody").text(i18next.t("ts.zb.nzfa.msg"));
+			$("#toastBody").text(text);
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-primary",
@@ -1274,8 +1350,9 @@ function espFlashGitWait(params) {
 
 let retryCount = 0;
 const maxRetries = 30;
+var sourceEvents;
 
-function updateRootEvents(callback) {
+function connectEvents() {
 
 	if (window.location.pathname.startsWith('/login')) {
 		return;
@@ -1287,27 +1364,27 @@ function updateRootEvents(callback) {
 		return;
 	}
 
-	var source = new EventSource('/events', { withCredentials: false, timeout: 1000 });
+	sourceEvents = new EventSource('/events', { withCredentials: false, timeout: 200 });
 	console.log("Events try to open");
 
-	source.addEventListener('open', function (e) {
+	sourceEvents.addEventListener('open', function (e) {
 		console.log("Events Connected");
-		callback(true);
+		//callback(true);
 		retryCount = 0;
 	}, false);
 
-	source.addEventListener('error', function (e) {
+	sourceEvents.addEventListener('error', function (e) {
 		if (e.target.readyState != EventSource.OPEN) {
 			console.log("Events Err. Reconnecting...");
 			retryCount++;
 			setTimeout(function () {
-				source.close();
-				updateRootEvents(callback);
-			}, 1000);
+				sourceEvents.close();
+				connectEvents();//callback);
+			}, 100);
 		}
 	}, false);
 
-	source.addEventListener('root_update', function (e) {
+	sourceEvents.addEventListener('root_update', function (e) {
 		if (e.data != "finish") {
 			Object.assign(updateValues, JSON.parse(e.data));
 		} else {
@@ -1317,20 +1394,20 @@ function updateRootEvents(callback) {
 		}
 	});
 
-	source.addEventListener('ZB_FW_prgs', function (e) {
+	sourceEvents.addEventListener('zb.fp', function (e) {
 		//console.log(e.data);
 		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#zbFlshPrgs").css("width", e.data + '%');
 	}, false);
 
-	source.addEventListener('NV', function (e) {
+	sourceEvents.addEventListener('zb.nv', function (e) {
 		//console.log(e.data);
 		let currentContent = $("#console").val();
 		let newContent = currentContent + "\n" + e.data;
 		$("#console").val(newContent);
 	}, false);
 
-	source.addEventListener('ZB_FW_info', function (e) {
+	sourceEvents.addEventListener('zb.fi', function (e) {
 		let data = e.data.replaceAll("`", "<br>");
 		console.log(data);
 
@@ -1358,7 +1435,7 @@ function updateRootEvents(callback) {
 
 	}, false);
 
-	source.addEventListener('ZB_FW_file', function (e) {
+	sourceEvents.addEventListener('zb.ff', function (e) {
 		let fileName = fileFromUrl(e.data);
 		if (fileName) {
 			data = i18next.t('md.zg.fu.f', { file: fileName });
@@ -1370,14 +1447,14 @@ function updateRootEvents(callback) {
 			}
 			data = i18next.t('md.zg.fu.nv', { ver: ver });
 			setTimeout(function () {
-				espReboot();
+				//espReboot();
 				restartWait();
-			}, 2000);
+			}, 1250);
 		}
 		$("#zbFlshPgsTxt").html(data);
 	}, false);
 
-	source.addEventListener('ZB_FW_err', function (e) {
+	sourceEvents.addEventListener('zb.fe', function (e) {
 		const data = e.data.replaceAll("`", "<br>");
 		$(modalBtns).html("");
 		$("#zbFlshPgsTxt").html(data);
@@ -1387,7 +1464,7 @@ function updateRootEvents(callback) {
 	}, false);
 
 
-	source.addEventListener('ESP_FW_prgs', function (e) {
+	sourceEvents.addEventListener('esp.fp', function (e) {
 
 		$('#prg').css('width', e.data + '%');
 		$('#bar').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
@@ -1398,7 +1475,7 @@ function updateRootEvents(callback) {
 				$('#bar').html(i18next.t('md.esp.fu.ucr')).css("color", "green");
 
 				setTimeout(function () {
-					localStorage.setItem('update_notify', 0);
+					//localStorage.setItem('update_notify', 0);
 					restartWait();
 
 				}, 1000);
@@ -1426,48 +1503,77 @@ function modalAddSpiner() {
 	}).appendTo(modalBtns);
 }
 
+function reconnectEvents() {
+	if (sourceEvents) {
+		sourceEvents.close();
+		console.log('Connection closed by client, reconnecting...');
+		setTimeout(function () {
+			connectEvents();
+		}, 100);
+	} else {
+		console.log('NO connection, reconnecting...');
+		connectEvents();
+	}
+}
+
 function startZbFlash(link) {
-	$(modalBtns).html("");
-	$(modalBody).html("");
+	$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK, function (data) {
+		reconnectEvents();
 
-	$("<div>", {
-		text: i18next.t("md.esp.fu.wm"),
-		class: "my-1 text-sm-center text-danger"
-	}).appendTo(modalBody);
+		$(modalBtns).html("");
+		$(modalBody).html("");
 
-	let fileName = fileFromUrl(link);
-	$("<div>", {
-		text: fileName,
-		class: "my-1 text-sm-center"
-	}).appendTo(modalBody);
+		$("<div>", {
+			text: i18next.t("md.esp.fu.wm"),
+			class: "my-1 text-sm-center text-danger"
+		}).appendTo(modalBody);
 
-	modalAddCancel();
-	$('<button>', {
-		type: "button",
-		"class": "btn btn-warning",
-		text: i18next.t('c.sure'),
-		title: i18next.t("md.esp.fu.wm"),
-		click: function () {
+		let fileName = fileFromUrl(link);
+		$("<div>", {
+			text: fileName,
+			class: "my-1 text-sm-center"
+		}).appendTo(modalBody);
 
-			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ZB_FLASH + "&url=" + link);
-			$(modalBtns).html("");
-			modalAddSpiner();
-			$(modalBody).html("");
-			$("<div>", {
-				id: "zbFlshPgsTxt",
-				text: i18next.t("md.esp.fu.wdm"),
-				class: "mb-2 text-sm-center"
-			}).appendTo(modalBody);
-			$("<div>", {
-				"class": "progress",
-				append: $("<div>", {
-					"class": "progress-bar progress-bar-striped progress-bar-animated",
-					id: "zbFlshPrgs",
-					style: "width: 100%; background-color: var(--link-color);"
-				})
-			}).appendTo(modalBody);
-		}
-	}).appendTo(modalBtns);
+		modalAddCancel();
+		let flashButton = $('<button>', {
+			type: "button",
+			"class": "btn btn-warning",
+			text: i18next.t('c.sure'),
+			title: i18next.t("md.esp.fu.wm"),
+			disabled: true,
+			click: function () {
+				$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ZB_FLASH + "&url=" + link);
+				$(modalBtns).html("");
+				modalAddSpiner();
+				$(modalBody).html("");
+				$("<div>", {
+					id: "zbFlshPgsTxt",
+					text: i18next.t("md.esp.fu.wdm"),
+					class: "mb-2 text-sm-center"
+				}).appendTo(modalBody);
+				$("<div>", {
+					"class": "progress",
+					append: $("<div>", {
+						"class": "progress-bar progress-bar-striped progress-bar-animated",
+						id: "zbFlshPrgs",
+						style: "width: 100%; background-color: var(--link-color);"
+					})
+				}).appendTo(modalBody);
+			}
+		}).appendTo(modalBtns);
+
+		let checkSourceEventsInterval = setInterval(function () {
+			if (sourceEvents) {
+				flashButton.prop('disabled', false);
+			} else {
+				flashButton.prop('disabled', true);
+			}
+		}, 100);
+
+		$(modal).on('hidden.bs.modal', function () {
+			clearInterval(checkSourceEventsInterval);
+		});
+	});
 }
 
 function modalAddClose() {
@@ -1548,7 +1654,8 @@ function findAllVersionsSorted(data, chip) {
 							file: file,
 							ver: fileInfo.ver,
 							link: fileInfo.link,
-							notes: fileInfo.notes
+							notes: fileInfo.notes,
+							baud: fileInfo.baud
 						});
 					});
 				}
@@ -1584,36 +1691,52 @@ function createReleaseBlock(file, deviceType) {
 		deviceIcon = "🚀";
 	}
 
+	const uniqueId = 'release-' + Math.random().toString(36).substr(2, 9);
+
 	const releaseBlock = $("<div>", { "class": "release-block", "style": "margin-bottom: 20px;" });
 	const headerAndButtonContainer = $('<div>', { "class": "d-flex justify-content-between align-items-start" }).appendTo(releaseBlock);
 
 	const emojiBlock = $('<span>', { "text": deviceIcon }).css('margin-right', '5px').appendTo(headerAndButtonContainer);
-	const header = $("<h5>", { "class": "mb-0", "text": file.ver }).appendTo(headerAndButtonContainer);
+	const header = $("<h5>", { "id": uniqueId + '-header', "class": "mb-0", "text": file.ver, "style": "cursor: pointer;" }).appendTo(headerAndButtonContainer);
 
 	setTitleAndActivateTooltip(emojiBlock[0], deviceName);
-
-	let fileName = fileFromUrl(file.link);
+	setTitleAndActivateTooltip(header[0], i18next.t('md.zb.cte'));
 
 	const buttonContainer = $('<div>', { "class": "d-flex align-items-start" }).appendTo(headerAndButtonContainer);
 	const button = $('<a>', {
 		"class": buttonClass,
 		"click": function () {
-			startZbFlash(file.link);
+			startZbFlash(file.link + "?b=" + file.baud);
 			let tooltipInstance = bootstrap.Tooltip.getInstance(this);
 			if (tooltipInstance) {
 				tooltipInstance.hide();
 			}
 		},
 		"data-bs-toggle": "tooltip",
-		"title": fileName,
+		"title": file.link,
 		"text": i18next.t('c.inst'),
 		"role": "button"
 	}).css("white-space", "nowrap").appendTo(buttonContainer);
 
 	setTitleAndActivateTooltip(button[0], file.link);
 
-	$("<div>", { "class": "mt-2 release-description", "html": file.notes }).appendTo(releaseBlock);
-	$("<hr>").appendTo(releaseBlock);
+	let descriptionDiv;
+
+	if (file.notes.endsWith('.md')) {
+		$.get(file.notes, function (data) {
+			descriptionDiv = $("<div>", { "id": uniqueId + '-description', "class": "mt-2 release-description", "html": marked.parse(data), "style": "display: none;" }).appendTo(releaseBlock);
+			$("<hr>").appendTo(releaseBlock);
+		});
+	} else {
+		descriptionDiv = $("<div>", { "id": uniqueId + '-description', "class": "mt-2 release-description", "html": marked.parse(file.notes), "style": "display: none;" }).appendTo(releaseBlock);
+		$("<hr>").appendTo(releaseBlock);
+	}
+
+	$(document).on("click", `#${uniqueId}-header`, function () {
+		$(`#${uniqueId}-description`).toggle();
+	});
+
+
 	return releaseBlock;
 }
 
@@ -1630,8 +1753,51 @@ function modalConstructor(type, params) {
 
 	$(modalBtns).html("");
 	switch (type) {
+		case "multiCfg":
+			$(headerText).text(i18next.t('md.esp.mc.tt')).css("color", "yellow");
+			$(modalBody).html(i18next.t("md.esp.mc.mi"));
+			console.log(params)
+
+			const optionsArray = JSON.parse(params);
+
+			const selectElement = document.createElement('select');
+			selectElement.className = "form-select mt-2";
+
+			optionsArray.forEach(option => {
+				const optionElement = document.createElement('option');
+				optionElement.value = option;
+				optionElement.textContent = option;
+				selectElement.appendChild(optionElement);
+			});
+
+			$(modalBody).append(selectElement);
+
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-warning",
+				text: i18next.t('c.sure'),
+				click: function () {
+					$(modalBtns).html("");
+					modalAddSpiner();
+					$(modalBody).html("");
+					$("<div>", {
+						id: "bar",
+						text: i18next.t("md.esp.fu.wdm"),
+						class: "mb-2 text-sm-center"
+					}).appendTo(modalBody);
+					const selectedBoard = selectElement.value;
+					$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_BRD_NAME + "&board=" + selectedBoard, function () {
+						console.log("board: " + selectedBoard);
+						location.reload();
+					});
+				}
+			}).appendTo(modalBtns);
+
+			modalAddCancel();
+			break;
 		case "flashESP":
-			$(headerText).text(i18next.t('md.esp.fu.tt')).css("color", "red");;
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
+			$(headerText).text(i18next.t('md.esp.fu.tt')).css("color", "red");
 			let action = 0;
 			if (params instanceof FormData) {
 				console.log("FormData received:", params);
@@ -1912,7 +2078,7 @@ function modalConstructor(type, params) {
 												window.location = "http://" + data.ip + "/";
 											}
 										}).appendTo(modalBtns);
-									}, 5000);
+									}, 3000);
 								} else {
 									counter++;
 								}
@@ -1970,7 +2136,7 @@ function modalConstructor(type, params) {
 				}
 			});
 			break;
-		case "keepWeb":
+		/*case "keepWeb":
 			$(headerText).text(i18next.t('p.ge.kw'));
 			$(modalBody).text(i18next.t('md.kw.msg'));
 			$('<button>', {
@@ -1981,7 +2147,7 @@ function modalConstructor(type, params) {
 					closeModal();
 				}
 			}).appendTo(modalBtns);
-			break;
+			break;*/
 
 		default:
 			break;
@@ -2010,31 +2176,31 @@ function getWifiList() {
 							$("<td>" + elem.ssid + "</td>").appendTo($row);
 							let encryptType = "";
 							switch (elem.secure) {
-								case 2:
-									encryptType = "WPA"
-									break;
-
-								case 3:
-									encryptType = "WPA2"
-									break;
-
-								case 4:
-									encryptType = "WPA2"
-									break;
-
-								case 5:
-									encryptType = "WEP"
-									break;
-
-								case 7:
+								case 0:
 									encryptType = "OPEN"
 									break;
+								case 1:
+									encryptType = "WEP"
+									break;
+								case 2:
+									encryptType = "WPA PSK"
+									break;
+								case 3:
+									encryptType = "WPA2 PSK"
+									break;
+								case 4:
+									encryptType = "WPA WPA2 PSK"
+									break;
 
-								case 8:
-									encryptType = "AUTO"
+								case 6:
+									encryptType = "WPA3 PSK"
+									break;
+								case 7:
+									encryptType = "WPA2 WPA3 PSK"
 									break;
 
 								default:
+									encryptType = "?"
 									break;
 							}
 							$("<td>" + encryptType + "</td>").appendTo($row);
@@ -2095,9 +2261,9 @@ function setupSwipeHandler() {
 	}
 }
 
-function KeepWebDsbl(state) {
+/*function KeepWebDsbl(state) {
 	$("#keepWeb").prop(disbl, state);
-}
+}*/
 
 function EthEnbl(state) {
 	state = !state;
@@ -2125,6 +2291,8 @@ function WifiEnbl(state) {
 	var dhcpEnabled = $("#wifiDhcp").is(":checked");
 	$("#wifiSsid").prop(disbl, state);
 	$("#wifiPass").prop(disbl, state);
+	$("#wifiMode").prop(disbl, state);
+	$("#wifiPwr").prop(disbl, state);
 	if (dhcpEnabled) {
 		$("#wifiDhcp").prop(disbl, state);
 		$("#wifiIp").prop(disbl, true);
@@ -2193,12 +2361,13 @@ function HnInputDsbl(state) {
 function SeqInputDsbl(state) {
 	$("#webUser").prop(disbl, state);
 	$("#webPass").prop(disbl, state);
-	$('#div_show1').toggle(this.checked);
+	//$('#div_show1').toggle(this.checked);
 }
 
 function SeqInputDsblFw(state) {
 	$("#fwIp").prop(disbl, state);
-	$('#div_show2').toggle(this.checked);
+	$("#fwMask").prop(disbl, state);
+	//$('#div_show2').toggle(this.checked);
 }
 
 function readFile(event, file) {
@@ -2228,7 +2397,7 @@ function logRefresh(ms) {
 		});
 	}, ms);
 }
-
+/*
 async function fetchData(url, isJson = true) {
 	if (isJson) {
 		return await $.getJSON(url);
@@ -2274,7 +2443,8 @@ function compareDates(dateStr1, dateStr2) {
 		return 0; // даты равны
 	}
 }
-
+*/
+/*
 function checkLatestESPrelease() {
 
 
@@ -2317,6 +2487,7 @@ function checkLatestESPrelease() {
 	});
 
 }
+*/
 
 // CSS class name for dark theme
 const darkTheme = "dark-theme";
@@ -2423,6 +2594,7 @@ i18next
 	.use(i18nextHttpBackend)
 	.init({
 		lng: 'en',
+		fallbackLng: 'en',
 		backend: {
 			loadPath: '/lg/{{lng}}.json',
 		},
@@ -2465,7 +2637,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-	var t = await fetch("https://api.github.com/repos/xyzroe/xzg/releases");
+	var t = await fetch("https://api.github.com/repos/xyzroe/XZG/releases");
 	if (t.ok) return await t.json();
 	throw new Error("GitHub API request failed: " + t.statusText)
 }
@@ -2507,7 +2679,7 @@ function handleClicks() {
 
 	$(document).on('click', '#upd_esp_git', function () {
 		console.log("Update from Git started... Just be patient!");
-		localStorage.setItem("update_notify", 0);
+		//localStorage.setItem("update_notify", 0);
 		modalConstructor("flashESP");
 	});
 

@@ -1,0 +1,149 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link rel="icon" type="image/svg+xml" href="/logo.svg">
+    <title data-r2v="pageName"></title>
+    <script type="text/javascript" src="/js/i18next.min.js"></script>
+    <script type="text/javascript" src="/js/i18nextHttpBackend.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/masonry.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" src="/js/functions.js" defer="defer"></script>
+</head>
+
+<body>
+    <div id="xzgPreloader">
+        <div class="xzg-loader"></div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast fade toast_show hide" data-bs-autohide="false" role="alert">
+            <div class="toast-header"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    viewBox="0 0 16 16">
+                    <use xlink:href="icons.svg#info-square"></use>
+                </svg> <strong class="mr-auto" style="padding-left: 10px;" id="toastHeaderText">Tip</strong></div>
+            <div class="toast-body">
+                <div id="toastBody"></div>
+                <div class="mt-2 pt-2 border-top" id="toastButtons"><button type="button"
+                        class="btn btn-outline-primary" data-bs-dismiss="toast"
+                        onclick="localStorage.setItem('refresh_tip_got', 1)">Got it!</button></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="100"
+        aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">MT</h5><button type="button"
+                        class="btn-close visually-hidden modal-btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-footer" id="modalButtons"></div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar shadow sticky-top bg-top">
+        <div class="container">
+            <div class="d-flex align-items-center"><img src="logo.svg" width="32" height="32"
+                    class="d-inline-block align-text-middle" alt="XZG logo" id="logo"> <span
+                    class="fs-3 px-2 fw-bold d-none d-sm-inline">XZG</span></div>
+            <h2 data-r2v="pageName" id="pageName" class="position-absolute top-50 start-50 translate-middle"></h2>
+            <div class="icon-container d-flex align-items-center">
+                <div><button id="clock" class="btn btn-sm mx-3" data-r2v="clock" data-bs-toggle="tooltip"
+                        data-bs-html="true"></button></div><svg id="ethIcon" class="status_icon visually-hidden"
+                    viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-html="true">
+                    <use xlink:href="icons.svg#ethernet"></use>
+                </svg> <svg id="wifiIcon" class="status_icon visually-hidden" viewBox="0 0 16 16"
+                    data-bs-toggle="tooltip" data-bs-html="true">
+                    <use xlink:href="icons.svg#wifi"></use>
+                </svg> <svg id="vpnIcon" class="status_icon visually-hidden" viewBox="0 0 16 16"
+                    data-bs-toggle="tooltip" data-bs-html="true">
+                    <use xlink:href="icons.svg#vpn"></use>
+                </svg> <svg id="mqttIcon" class="status_icon visually-hidden" viewBox="0 0 16 16"
+                    data-bs-toggle="tooltip" data-bs-html="true">
+                    <use xlink:href="icons.svg#mqtt"></use>
+                </svg> <svg id="socketIcon" class="status_icon visually-hidden" viewBox="0 0 16 16"
+                    data-bs-toggle="tooltip" data-bs-html="true">
+                    <use xlink:href="icons.svg#activity"></use>
+                </svg>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div id="sidenav" class="col-auto nav-container px-0 col-md-3 col-xl-2 bg-dark-grey nav-shadow">
+                <div class="d-flex flex-column align-items-center align-items-sm-start text-white min-vh-100">
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item"><a href="/" class="nav-link align-middle" onclick=""><svg width="25"
+                                    height="25" fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#house"></use>
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.st"></span></a></li>
+                        <li class="nav-item"><a href="/general" class="nav-link align-middle"><svg width="25"
+                                    height="25" fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#hdd-stack" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.ge"></span></a></li>
+                        <li class="nav-item"><a href="/network" class="nav-link align-middle"><svg width="25"
+                                    height="25" fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#ethernet" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.ne"></span></a></li>
+                        <li class="nav-item"><a href="/zigbee" class="nav-link align-middle"><svg width="25" height="25"
+                                    fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#activity" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.zi"></span></a></li>
+                        <li class="nav-item"><a href="/mqtt" class="nav-link align-middle"><svg width="25" height="25"
+                                    fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#mqtt" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.mq"></span></a></li>
+                        <li class="nav-item"><a href="/vpn" class="nav-link align-middle"><svg width="25" height="25"
+                                    fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#vpn" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.vp"></span></a></li>
+                        <li class="nav-item"><a href="/security" class="nav-link align-middle"><svg width="25"
+                                    height="25" fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#lock" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.se"></span></a></li>
+                        <li class="nav-item"><a href="/tools" class="nav-link align-middle"><svg width="25" height="25"
+                                    fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#cpu" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.to"></span></a></li>
+                        <li class="nav-item"><a href="/about" class="nav-link align-middle"><svg width="25" height="25"
+                                    fill="currentColor" viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#info-square" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.ab"></span></a></li>
+                        <li class="nav-item logoutLink visually-hidden"><a href="/logout"
+                                class="nav-link align-middle"><svg width="25" height="25" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <use xlink:href="icons.svg#door-open" />
+                                </svg> <span class="ms-1 d-none d-sm-inline" data-i18n="l.lo"></span></a></li>
+                        <li class="nav-item class ui_set hstack">
+                            <div class="switch-container"><input type="checkbox" class="checkbox" id="toggleBtn"> <label
+                                    class="switch" for="toggleBtn"><svg class="bi bi-moon" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#moon" />
+                                    </svg> <svg class="bi bi-sun" viewBox="0 0 16 16">
+                                        <use xlink:href="icons.svg#sun" />
+                                    </svg>
+                                    <div class="ball"></div>
+                                </label></div>
+                            <div><select class="form-select rounded-pill lang_select" id="langSel"
+                                    aria-label="Language"></select></div>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+            </div>
+            <div class="col py-4">
+                <div id="pageContent" class="container"></div>
+                <h6 class="fixed-bottom" id="credits"><span data-i18n="c.proj"></span> <a href="https://xyzroe.cc/"
+                        target="_blank">xyzroe</a> © 2024</h6>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

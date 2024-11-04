@@ -11,8 +11,17 @@
 		],
 		"cSpell.useGitignore": false,
 		"files.associations": {
-			"*.tpp": "cpp"
+			"*.tpp": "cpp",
+			"typeinfo": "cpp",
+			"*.ipp": "cpp"
 		},
+		"i18n-ally.keysInUse": [
+			"p.lo.mlo",
+			"p.lo.mwc",
+			"p.lo.mnl",
+			"p.mq.disc.ph",
+			"p.mq.disc.n"
+		],
 	},
 	"extensions": {
 		"recommendations": [

@@ -1,0 +1,73 @@
+<div id="main">
+    <form class="saveParams" method="POST" action="saveParams">
+        <div class="col-12 cardPadding">
+            <div class="card">
+                <div class="card-header fw-bold" data-i18n="p.vp.wg.tt"></div>
+                <div class="card-body">
+                    <div class="mb-2 form-check form-switch"><input data-r2v="wgEnable" id="wgEnable"
+                            class="form-check-input" type="checkbox" role="switch" name="wgEnable"
+                            onclick="WgInputDsbl(!this.checked)"> <label class="form-check-label" for="wgEnable"
+                            data-i18n="c.enable"></label></div>
+                    <div class="mb-2"><label for="wgLocalIP" data-i18n="p.vp.wg.lip"></label> <input
+                            data-r2v="wgLocalIP" class="form-control" id="wgLocalIP" name="wgLocalIP"
+                            placeholder="X.X.X.X"></div>
+                    <div class="mb-2"><label for="wgLocalSubnet" data-i18n="p.vp.wg.lsn"></label> <input
+                            data-r2v="wgLocalSubnet" class="form-control" id="wgLocalSubnet" name="wgLocalSubnet"
+                            placeholder=""></div>
+                    <div class="mb-2"><label for="wgLocalPort" data-i18n="p.vp.wg.lp"></label> <input
+                            data-r2v="wgLocalPort" class="form-control" id="wgLocalPort" type="number"
+                            name="wgLocalPort" placeholder="12345" min="1" max="65535"></div>
+                    <div class="mb-2"><label for="wgLocalGateway" data-i18n="p.vp.wg.lgw"></label> <input
+                            data-r2v="wgLocalGateway" class="form-control" id="wgLocalGateway" name="wgLocalGateway"
+                            placeholder=""></div>
+                    <div class="mb-2"><label for="wgLocalPrivKey" data-i18n="p.vp.wg.lpk"></label> <input
+                            data-r2v="wgLocalPrivKey" class="form-control" id="wgLocalPrivKey" name="wgLocalPrivKey"
+                            minlength="5" maxlength="50" placeholder=""></div>
+                    <div class="mb-2"><label for="wgEndAddr" data-i18n="p.vp.wg.ea"></label> <input data-r2v="wgEndAddr"
+                            class="form-control" id="wgEndAddr" name="wgEndAddr" minlength="5" maxlength="50"
+                            placeholder="Domain name or IP address"></div>
+                    <div class="mb-2"><label for="wgEndPubKey" data-i18n="p.vp.wg.epk"></label> <input
+                            data-r2v="wgEndPubKey" class="form-control" id="wgEndPubKey" name="wgEndPubKey"
+                            minlength="5" maxlength="50" placeholder=""></div>
+                    <div class="mb-2"><label for="wgEndPort" data-i18n="p.vp.wg.ep"></label> <input data-r2v="wgEndPort"
+                            class="form-control" id="wgEndPort" type="number" name="wgEndPort" placeholder="12345"
+                            min="1" max="65535"></div>
+                    <div class="mb-2"><label for="wgAllowedIP" data-i18n="p.vp.wg.aip"></label> <input
+                            data-r2v="wgAllowedIP" class="form-control" id="wgAllowedIP" name="wgAllowedIP"
+                            placeholder=""></div>
+                    <div class="mb-2"><label for="wgAllowedMask" data-i18n="p.vp.wg.am"></label> <input
+                            data-r2v="wgAllowedMask" class="form-control" id="wgAllowedMask" name="wgAllowedMask"
+                            placeholder=""></div>
+                    <div class="mb-2 form-check form-switch"><input data-r2v="wgMakeDefault" id="wgMakeDefault"
+                            class="form-check-input" type="checkbox" role="switch" name="wgMakeDefault"> <label
+                            class="form-check-label" for="wgMakeDefault" data-i18n="p.vp.wg.md"></label></div>
+                    <div class="mb-2"><label for="wgPreSharedKey" data-i18n="p.vp.wg.psk"></label> <input
+                            data-r2v="wgPreSharedKey" class="form-control" id="wgPreSharedKey" name="wgPreSharedKey"
+                            maxlength="50" placeholder=""></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 cardPadding" hidden>
+            <div class="card">
+                <div class="card-header fw-bold" data-i18n="p.vp.hn.tt"></div>
+                <div class="card-body">
+                    <div class="mb-2 form-check form-switch"><input data-r2v="hnEnable" id="hnEnable"
+                            class="form-check-input" type="checkbox" role="switch" name="hnEnable"
+                            onclick="HnInputDsbl(!this.checked)"> <label class="form-check-label" for="hnEnable"
+                            data-i18n="c.enable"></label></div>
+                    <div class="mb-2"><label for="joinCode" data-i18n="p.vp.hn.jc"></label> <input data-r2v="hnJoinCode"
+                            class="form-control" id="hnJoinCode" name="hnJoinCode" minlength="5" maxlength="80"
+                            placeholder=""></div>
+                    <div class="mb-2"><label for="hostName" data-i18n="p.vp.hn.hn"></label> <input data-r2v="hnHostName"
+                            class="form-control" id="hnHostName" name="hnHostName" minlength="5" maxlength="30"
+                            placeholder="Domain name or IP address"></div>
+                    <div class="mb-2"><label for="dashUrl" data-i18n="p.vp.hn.du"></label> <input data-r2v="hnDashUrl"
+                            class="form-control" id="hnDashUrl" name="hnDashUrl" minlength="4" maxlength="60"
+                            placeholder=""></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 d-flex justify-content-center"><button type="submit" class="btn btn-outline-primary col-6"
+                name="save" data-i18n="c.save"></button></div>
+    </form>
+</div>

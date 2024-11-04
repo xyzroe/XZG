@@ -29,11 +29,11 @@ def extract_version_from_file(file_path):
 def after_build(source, target, env):
     time.sleep(2)
     shutil.copy(firmware_source, "bin/firmware.bin")
-    for f in glob("bin/XZG*.bin"):
+    for f in glob("bin/XZG_*.bin"):
         os.unlink(f)
 
     exit_code = call(
-        "python tools/build/merge_bin_esp.py --output_folder ./bin --output_name XZG.full.bin --bin_path bin/bootloader_dio_40m.bin bin/firmware.bin bin/partitions.bin --bin_address 0x1000 0x10000 0x8000",
+        "python tools/build/merge_bin_esp.py --output_folder ./bin --output_name XZG.full.bin --bin_path bin/bootloader_dio_40m.bin bin/partitions.bin bin/firmware.bin bin/XZG.fs.bin --bin_address 0x1000 0x8000 0x10000 0x290000",
         shell=True,
     )
 
@@ -49,14 +49,17 @@ def after_build(source, target, env):
     
     NEW_NAME_FULL = NEW_NAME_BASE + ".full.bin"
     NEW_NAME_OTA = NEW_NAME_BASE + ".ota.bin"
+    NEW_NAME_FS = NEW_NAME_BASE + ".fs.bin"
 
     shutil.move("bin/XZG.full.bin", NEW_NAME_FULL)
     shutil.move("bin/firmware.bin", NEW_NAME_OTA)
+    shutil.move("bin/XZG.fs.bin", NEW_NAME_FS)
 
     print("")
     print_colored("--------------------------------------", "yellow")
     print_colored("{} created !".format(str(NEW_NAME_FULL)), "blue")
     print_colored("{} created !".format(str(NEW_NAME_OTA)), "magenta")
+    print_colored("{} created !".format(str(NEW_NAME_FS)), "green")
     print_colored("--------------------------------------", "yellow")
     print_logo()
     print_colored("Build " + VERSION_NUMBER, "cyan")

@@ -1,13 +1,10 @@
-<script language='javascript'>checkLatestESPrelease();</script>
 <div id="main">
     <div class="row masonry" data-masonry="{&quot;percentPosition&quot;: true }">
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#activity"></use>
-                    </svg><span data-i18n="l.zi"></span>
-                </div>
+                    </svg><span data-i18n="l.zi"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -24,6 +21,10 @@
                                 <td data-r2v="connectedSocket"></td>
                             </tr>
                             <tr>
+                                <td data-i18n="p.st.c.r"></td>
+                                <td data-r2v="zbRole"></td>
+                            </tr>
+                            <tr>
                                 <td data-i18n="p.st.c.fv"></td>
                                 <td data-r2v="zigbeeFwRev"></td>
                             </tr>
@@ -37,12 +38,8 @@
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.zbc.zfs"></td>
-                                <td>
-                                    <span data-r2v="zigbeeFlSize"></span>
-                                    <span data-i18n="p.st.dic.kb"></span>
-                                </td>
+                                <td><span data-r2v="zigbeeFlSize"></span> <span data-i18n="p.st.dic.kb"></span></td>
                             </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -50,11 +47,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#hdd-stack"></use>
-                    </svg><span data-i18n="p.st.dic.tt"></span>
-                </div>
+                    </svg><span data-i18n="p.st.dic.tt"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -77,18 +72,14 @@
                                         <div id="prgTemp"
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
-                                        <div class="progress-text">
-                                            <span data-r2v="deviceTemp"></span> °C
-                                        </div>
+                                        <div class="progress-text"><span data-r2v="deviceTemp"></span> °C</div>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.ef"></td>
-                                <td><span data-r2v="espCores"></span> <span data-i18n="p.st.dic.cs"></span> @
-                                    <span data-r2v="espFreq"></span>
-                                    <span data-i18n="p.st.dic.mhz"></span>
-                                </td>
+                                <td><span data-r2v="espCores"></span> <span data-i18n="p.st.dic.cs"></span> @ <span
+                                        data-r2v="espFreq"></span> <span data-i18n="p.st.dic.mhz"></span></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.ehs"></td>
@@ -97,9 +88,8 @@
                                         <div id="prgHeap"
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
-                                        <div class="progress-text">
-                                            <span data-r2v="espHeapUsed"></span> / <span data-r2v="espHeapSize"></span>
-                                            <span data-i18n="p.st.dic.kb"></span>
+                                        <div class="progress-text"><span data-r2v="espHeapUsed"></span> / <span
+                                                data-r2v="espHeapSize"></span> <span data-i18n="p.st.dic.kb"></span>
                                         </div>
                                     </div>
                                 </td>
@@ -107,8 +97,7 @@
                             <tr>
                                 <td data-i18n="p.st.dic.efs"></td>
                                 <td><span data-r2v="espFlashSize"></span> <span data-i18n="p.st.dic.mb"></span>, <span
-                                        data-r2v="espFlashType"></span>
-                                </td>
+                                        data-r2v="espFlashType"></span></td>
                             </tr>
                             <tr>
                                 <td data-i18n="p.st.dic.ens"></td>
@@ -116,9 +105,8 @@
                                     <div class="progress progress-div">
                                         <div id="prgNvs" class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
-                                        <div class="progress-text">
-                                            <span data-r2v="espNvsUsed"></span> / <span data-r2v="espNvsSize"></span>
-                                            <span data-i18n="p.st.dic.ent"></span>
+                                        <div class="progress-text"><span data-r2v="espNvsUsed"></span> / <span
+                                                data-r2v="espNvsSize"></span> <span data-i18n="p.st.dic.ent"></span>
                                         </div>
                                     </div>
                                 </td>
@@ -129,10 +117,8 @@
                                     <div class="progress progress-div">
                                         <div id="prgFs" class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
-                                        <div class="progress-text">
-                                            <span data-r2v="espFsUsed"></span> / <span data-r2v="espFsSize"></span>
-                                            <span data-i18n="p.st.dic.kb"></span>
-                                        </div>
+                                        <div class="progress-text"><span data-r2v="espFsUsed"></span> / <span
+                                                data-r2v="espFsSize"></span> <span data-i18n="p.st.dic.kb"></span></div>
                                     </div>
                                 </td>
                             </tr>
@@ -144,6 +130,17 @@
                                 <td data-i18n="p.st.dic.lt"></td>
                                 <td data-r2v="localTime"></td>
                             </tr>
+                            <tr id="1wBar" hidden>
+                                <td data-i18n="p.st.dic.et1"></td>
+                                <td>
+                                    <div class="progress progress-div">
+                                        <div id="prgTemp1w"
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"></div>
+                                        <div class="progress-text"><span data-r2v="1wTemp"></span> °C</div>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -151,11 +148,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" id="ttEt" hidden>
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#ethernet"></use>
-                    </svg><span data-i18n="p.st.te"></span>
-                </div>
+                    </svg><span data-i18n="p.st.te"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -191,6 +186,10 @@
                                 <td data-i18n="c.mac"></td>
                                 <td data-r2v="ethMac"></td>
                             </tr>
+                            <tr id="ethIPv6" hidden>
+                                <td data-i18n="p.ne.ipv6"></td>
+                                <td data-r2v="ethIPv6"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -198,11 +197,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" id="ttWi" hidden>
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#wifi"></use>
-                    </svg><span data-i18n="p.st.tw"></span>
-                </div>
+                    </svg><span data-i18n="p.st.tw"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -241,9 +238,7 @@
                                         <div id="prgRssi"
                                             class="progress-bar progress-bar-striped progress-bar-animated"
                                             role="progressbar"></div>
-                                        <div class="progress-text">
-                                            <span data-r2v="wifiRssi"></span>
-                                        </div>
+                                        <div class="progress-text"><span data-r2v="wifiRssi"></span></div>
                                     </div>
                                 </td>
                             </tr>
@@ -251,6 +246,12 @@
                                 <td data-i18n="c.mac"></td>
                                 <td data-r2v="wifiMac"></td>
                             </tr>
+                            <!--
+                            <tr>
+                                <td data-i18n="p.ne.ipv6"></td>
+                                <td data-r2v="wifiIPv6"></td>
+                            </tr>
+                            -->
                         </tbody>
                     </table>
                 </div>
@@ -258,11 +259,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" id="ttMq" hidden>
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#mqtt"></use>
-                    </svg><span data-i18n="p.st.tm"></span>
-                </div>
+                    </svg><span data-i18n="p.st.tm"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -281,11 +280,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" id="ttWg" hidden>
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#vpn"></use>
-                    </svg><span data-i18n="p.st.wgc.tt"></span>
-                </div>
+                    </svg><span data-i18n="p.st.wgc.tt"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -316,11 +313,9 @@
         </div>
         <div class="col-sm-12 col-md-6 mb-4" id="ttHn" hidden>
             <div class="card">
-                <div class="card-header fw-bold">
-                    <svg viewBox="0 0 16 16" class="card_icon">
+                <div class="card-header fw-bold"><svg viewBox="0 0 16 16" class="card_icon">
                         <use xlink:href="icons.svg#vpn"></use>
-                    </svg><span data-i18n="p.st.tvh"></span>
-                </div>
+                    </svg><span data-i18n="p.st.tvh"></span></div>
                 <div class="card-body">
                     <table class="table">
                         <tbody>
@@ -332,10 +327,6 @@
                                 <td data-i18n="c.host"></td>
                                 <td data-r2v="hnHostName"></td>
                             </tr>
-                            <!-- <tr>
-                                <td data-i18n=""></td>
-                                <td data-r2v="hnDeviceAddr"></td>
-                            </tr> -->
                         </tbody>
                     </table>
                 </div>

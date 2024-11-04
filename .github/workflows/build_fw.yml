@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: "recursive"
+          fetch-depth: 0
 
       - name: Get Release tag
         id: get_tag
@@ -53,7 +54,7 @@ jobs:
           python-version: "3.9"
 
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio==6.1.11
+        run: pip install --upgrade platformio==6.1.15
 
       - name: Build PlatformIO Project
         run: pio run
@@ -97,6 +98,29 @@ jobs:
           EOF
           echo "Manifest file created."
 
+      - name: Get the latest commit SHA for the whole project
+        id: get_fw_commit_sha
+        run: echo "::set-output name=fw_commit_sha::$(git log -n 1 --pretty=format:%h)"
+  
+      - name: Get the latest commit SHA in src/websrc
+        id: get_fs_commit_sha
+        run: echo "::set-output name=fs_commit_sha::$(git log -n 1 --pretty=format:%h -- src/websrc)"
+  
+      - name: Create xzg.json for firmware update
+        run: |
+          cat << EOF > xzg.json
+          {
+            "name": "XZG Firmware",
+            "version": "${{ steps.get_tag.outputs.tag }}",
+            "fw_sha": "${{ steps.get_fw_commit_sha.outputs.fw_commit_sha }}",
+            "fs_sha": "${{ steps.get_fs_commit_sha.outputs.fs_commit_sha }}"
+          }
+          EOF
+          echo "xzg.json file created."
+    
+      - name: Display xzg.json
+        run: cat xzg.json
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -106,6 +130,7 @@ jobs:
           files: |
             bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin
             bin/XZG_${{ steps.get_tag.outputs.tag }}.full.bin
+            bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin
 
       - name: Checkout releases branch
         uses: actions/checkout@v3
@@ -120,14 +145,32 @@ jobs:
           cp manifest.json releases/${{ steps.get_tag.outputs.tag }}/
           echo "Files copied to releases directory."
 
+      - name: Prepare latest release directory
+        run: |
+          if [ -d releases/latest ]; then
+            rm -rf releases/latest
+          fi
+          mkdir -p releases/latest
+
+      - name: Copy file to latest release directory
+        run: |
+          cp xzg.json releases/latest/
+            # cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.ota.bin releases/latest/XZG.ota.bin
+            # cp ./bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin releases/latest/XZG.fs.bin
+          echo "File copied to latest release directory."
+          
       - name: Commit and push files to releases branch
         run: |
           cd releases
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Add firmware and manifest for version ${{ steps.get_tag.outputs.tag }}"
-          git push origin releases
+          if [[ -n $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "${{ steps.get_tag.outputs.tag }}"
+            git push origin releases
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Send Telegram Notification about release
         uses: appleboy/telegram-action@master
@@ -142,7 +185,7 @@ jobs:
 
       - name: Send Discord Notification about release
         run: |
+          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
           curl -H "Content-Type: application/json" \
-               -d "{\"content\": \"${{ env.commitMessage }}\n\nhttps://github.com/${{ github.repository }}/releases/tag/${{ env.tag }}\"}" \
-               ${{ secrets.DISCORD_WEBHOOK }}
-
+              -d "$json_payload" \
+              ${{ secrets.DISCORD_WEBHOOK }}

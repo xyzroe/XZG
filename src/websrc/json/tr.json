@@ -33,7 +33,8 @@
       "e": "Bitiş zamanı",
       "s": "Başlangıç ​​saati"
     },
-    "cerp": "Etkinliklerin yeniden bağlanması için maksimum yeniden deneme sayısına ulaşıldı. \nDevam etmek için sayfayı yenileyin."
+    "cerp": "Etkinliklerin yeniden bağlanması için maksimum yeniden deneme sayısına ulaşıldı. \nDevam etmek için sayfayı yenileyin.",
+    "more": "Daha fazla bilgi"
   },
   "md": {
     "esp": {
@@ -53,8 +54,7 @@
         "ucr": "Güncelleme tamamlandı! \nYeniden başlatılıyor!",
         "vgds": "GitHub'dan {{ver}} sürümü indiriliyor...",
         "wdm": "Cihaz için bekliyor...",
-        "wm": "TÜM soket bağlantılarını kesecek",
-        "bil": "En Son Sürümü Yükle"
+        "wm": "TÜM soket bağlantılarını kesecek"
       },
       "rst": {
         "msg": "Yeniden başlatmak için bekliyor. \nOtomatik olarak kapanacaktır.",
@@ -67,25 +67,24 @@
         "msg": "Ağa bağlanma işlemi sürüyor... Sonucu bekleyin.",
         "nip": "Yeni IP adresi: {{ip}} Yeni ayarların etkili olması için cihaz şimdi yeniden başlatılacak.",
         "tt": "Wi-Fi ağ bağlantısı"
+      },
+      "mc": {
+        "mi": "Tam olarak sizin yapılandırmanıza sahip birden fazla cihaz desteklenir. \nCihazınızı seçmeniz gerekiyor.",
+        "tt": "Cihazınızın modelini seçin"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Doğrulama tamamlandı!",
-        "vt": "doğrulama: %{{per}}"
-      },
-      "cfv": "Mevcut donanım yazılımı revizyonunuz: {{ver}}",
+      "fu": {},
       "dtc": "Koordinatör",
       "dtr": "Yönlendirici",
       "efr": "Ürün yazılımı bilgileri alınırken hata oluştu<br>Ağınızı kontrol edin!",
-      "lcf": "En son koordinatör yazılımı:",
-      "lrf": "En son yönlendirici ürün yazılımı:",
       "ncf": "Koordinatör yazılımı mevcut değil.",
       "nrf": "Yönlendirici ürün yazılımı mevcut değil.",
       "ot": "Zigbee OTA güncellemesi",
       "rfm": "Ürün yazılımı bilgileri alınıyor...",
       "dtt": "OpenThread",
-      "ntf": "Thread ürün yazılımı eksik."
+      "ntf": "Thread ürün yazılımı eksik.",
+      "cte": "Bilgileri genişletmek için tıklayın"
     },
     "kw": {
       "msg": "Bu fonksiyon iletişim kanallarından birini aktif bırakıp web arayüzüne erişmenizi sağlar. \nCihazın kendisi önceliğe göre uygun bir kanal seçecektir: WIFI, ETHERNET, WIFI AP"
@@ -158,6 +157,22 @@
           "net": "AĞ modu",
           "usb": "USB modu"
         }
+      },
+      "u": {
+        "ai": "Otomatik yükleme güncellemeleri (ESP32 ve Zigbee)",
+        "d": {
+          "ev": "Her gün",
+          "fr": "Cuma",
+          "mn": "Pazartesi",
+          "sa": "Cumartesi",
+          "su": "Pazar",
+          "th": "Perşembe",
+          "tt": "Haftanın günü",
+          "tu": "Salı",
+          "wd": "Çarşamba",
+          "du": "Devre dışı bırakmak"
+        },
+        "h": "Yeni ürün yazılımı kontrol zamanı"
       }
     },
     "lo": {
@@ -227,8 +242,11 @@
         "rssi": "RSSI",
         "sc": "Güvenlik",
         "ssid": "SSID",
-        "nnf": "WiFi ağları bulunamadı"
-      }
+        "nnf": "WiFi ağları bulunamadı",
+        "mode": "Mod",
+        "power": "Teksas Gücü"
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -248,7 +266,8 @@
         "ens": "NV depolama",
         "ent": "girdileri",
         "du": "Cihaz Çalışma Süresi",
-        "lt": "Yerel zaman"
+        "lt": "Yerel zaman",
+        "et1": "1W Sıcaklık"
       },
       "te": "ethernet",
       "tm": "MQTT",
@@ -265,7 +284,6 @@
         "mcl": "Müşteri"
       },
       "zbc": {
-        "tt": "Cihaz durumu",
         "op": "Operasyonel mod",
         "opn": "Zigbee Ağı",
         "opu": "Zigbee-USB",
@@ -278,14 +296,21 @@
       },
       "c": {
         "fv": "Firmware revizyonu",
-        "hv": "Donanım sürümü"
+        "hv": "Donanım sürümü",
+        "r": "Rol"
+      },
+      "zr": {
+        "c": "Koordinatör",
+        "r": "Yönlendirici",
+        "t": "Açık Sırt"
       }
     },
     "se": {
       "desc": "Güvenlik yapılandırması",
       "fw": {
         "desc": "Soket için IP beyaz listesi",
-        "ip": "İzin verilen IP"
+        "ip": "İzin verilen IP",
+        "mask": "İzin Verilen Maske"
       },
       "web": {
         "auth": "Web sunucusu kimlik doğrulamasını etkinleştir",
@@ -324,12 +349,9 @@
       "sc": "Sistem kontrolü",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Zigbee dosya güncellemesi",
       "zu": "Zigbee güncellemesi (geliştirilme aşamasında)",
       "saf": "Mevcut ürün yazılımlarını göster",
-      "clzv": "En yeni Zigbee yazılımlarını kontrol edin",
       "zgu": "Git CC2652 güncellemesi",
-      "sri": "Sürümü seçin",
       "eznr": "NVRAM'ı sil"
     },
     "vp": {
@@ -424,13 +446,17 @@
         "tt": "Yazılım Yazılımı beta geri bildirimi"
       },
       "upd": {
-        "msg": "GitHub'da yeni donanım yazılımı ({{ver}}) bulundu. \n{{count}} kez indirildi.",
+        "msg": "XZG ürün yazılımının daha yeni bir sürümü bulundu",
         "tt": "ESP32 güncellemesi mevcut 🚀"
       }
     },
     "zb": {
       "nzfa": {
         "tt": "Firmware bulunamadı"
+      },
+      "upd": {
+        "tt": "Yeni Zigbee ürün yazılımı bulundu 🌟",
+        "msg": "RCP modülü için daha yeni bir ürün yazılımı sürümü bulundu"
       }
     }
   }

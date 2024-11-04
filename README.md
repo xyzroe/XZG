@@ -1,8 +1,8 @@
 # XZG Firmware
 <div align="center"> 
-<a href="https://github.com/xyzroe/xzg/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
+<a href="https://github.com/xyzroe/XZG/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
 <a href="https://github.com/xyzroe/XZG/actions/workflows/build_fw.yml"><img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img></a>
-<a href="https://github.com/xyzroe/xzg/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/xzg/total.svg" alt="GitHub download"></img></a>
+<a href="https://github.com/xyzroe/XZG/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/XZG/total.svg" alt="GitHub download"></img></a>
 <a href="https://github.com/xyzroe/XZG/issues"><img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License"></img></a>
 </div>
@@ -17,22 +17,6 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍
 </div>
 <br><br> 
-<table width="40%" align="center">
-<tr align="center">
- <td colspan="3"><i>Previous versions:</i></td>
-</tr>
-  <tr align="center">
-    <td><a href="https://github.com/xyzroe/ZigStarGW-FW/releases/latest">ZigStarGW-FW</a></td>
-    <td><a href="https://github.com/mercenaruss/uzg-firmware/releases/latest">UZG-01</a></td>
-    <td><a href="https://github.com/smlight-dev/slzb-06-firmware/releases/">SLZB-06</a></td>
-  </tr>
-  <tr align="center">
-    <td><a href="https://github.com/xyzroe/ZigStarGW-FW/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/ZigStarGW-FW/total.svg" alt="ZigStarGW-FW's download"></a></td>
-    <td><a href="https://github.com/mercenaruss/uzg-firmware/releases/latest"><img src="https://img.shields.io/github/downloads/mercenaruss/uzg-firmware/total.svg" alt="UZG-01 Firmware's download"></a></td>
-    <td><a href="https://github.com/smlight-dev/slzb-06-firmware/releases/latest"><img src="https://img.shields.io/github/downloads/smlight-dev/slzb-06-firmware/total.svg" alt="SLZB-06 Firmware's download"></a></td>
-  </tr>
-</table>
-<br> 
 
 ## 🍓 Firmware features
 
@@ -52,8 +36,7 @@ Please follow the installation guide tailored to your hardware.
 
 ## 🛠️ Compiling from source
 
-### Local
-
+### VS Code
 - You need npm and Python installed
 - Install Visual Studio Code (VSC)  
 - Install PlatformIO extension to VSC  
@@ -61,6 +44,23 @@ Please follow the installation guide tailored to your hardware.
   `git clone --recurse-submodules https://github.com/xyzroe/XZG.git`
 - Open `XZG.code-workspace` in VSC
 - Press "PlatformIO: Build" and wait until XZG*.bin are generated  
+
+### Linux CLI
+- You need npm ad Python installed
+- Install PlatformIO Core (it's in many package managers)
+- Clone this repository  
+  `git clone --recurse-submodules https://github.com/xyzroe/XZG.git`
+- Use `pio run` to build default environment
+- Binaries output to .pio/build/name_of_env/
+- Use `pio run -t upload` to build and upload
+  firmware image
+- Use `-e` flag to select a specific build:
+  `pio run -e env_name -t upload`
+
+### Language Server Setup
+- LSP (e.g. clangd and Neovim) users need to run
+  `pio run -t compiledb` to
+  generate a "compile_commands.json"
 
 ### Github
  - Fork this repository;
@@ -93,11 +93,8 @@ Contributions are welcome! If you'd like to help improve the XZG Firmware, you c
 
 Thanks to all the developers and contributors who make this project possible, and special thanks to [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**.
 
-#### All projects contributors:
+#### All contributors:
 <a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
-<a href="https://github.com/xyzroe/ZigStarGW-FW/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/ZigStarGW-FW" /></a>
-<a href="https://github.com/mercenaruss/uzg-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=mercenaruss/uzg-firmware" /></a>
-<a href="https://github.com/smlight-dev/slzb-06-firmware/graphs/contributors"><img src="https://contrib.rocks/image?repo=smlight-dev/slzb-06-firmware" /></a>
 
 
 Special thanks to all third-party library authors. Their work has significantly contributed to this project:

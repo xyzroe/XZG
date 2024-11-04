@@ -33,7 +33,8 @@
       "e": "Fim do tempo",
       "s": "Hora de início"
     },
-    "cerp": "Máximo de tentativas de reconexão de eventos atingido. \nAtualize a página para continuar."
+    "cerp": "Máximo de tentativas de reconexão de eventos atingido. \nAtualize a página para continuar.",
+    "more": "Mais informações"
   },
   "md": {
     "esp": {
@@ -53,8 +54,7 @@
         "ucr": "Atualização completa! \nReiniciando!",
         "vgds": "Baixando a versão {{ver}} do GitHub...",
         "wdm": "Aguardando dispositivo...",
-        "wm": "Isso desconectará TODAS as conexões de soquete",
-        "bil": "Instalar mais recente"
+        "wm": "Isso desconectará TODAS as conexões de soquete"
       },
       "rst": {
         "msg": "Esperando a reinicialização. \nFechará automaticamente.",
@@ -67,25 +67,24 @@
         "msg": "Conectando-se à rede em andamento... Aguarde o resultado.",
         "nip": "O novo endereço IP é {{ip}} O dispositivo será reiniciado para que as novas configurações tenham efeito.",
         "tt": "Conexão de rede Wi-Fi"
+      },
+      "mc": {
+        "mi": "Mais de um dispositivo com exatamente a sua configuração é suportado. \nVocê precisa selecionar seu dispositivo.",
+        "tt": "Selecione o modelo do seu dispositivo"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Validação completa!",
-        "vt": "validar: {{por}}%"
-      },
-      "cfv": "Sua revisão de firmware atual: {{ver}}",
+      "fu": {},
       "dtc": "Coordenador",
       "dtr": "Roteador",
       "efr": "Erro ao buscar informações de firmware<br>Verifique sua rede!",
-      "lcf": "Firmware do coordenador mais recente:",
-      "lrf": "Firmware do roteador mais recente:",
       "ncf": "Nenhum firmware de coordenador disponível.",
       "nrf": "Nenhum firmware de roteador disponível.",
       "ot": "Atualização Zigbee OTA",
       "rfm": "Buscando informações de firmware...",
       "dtt": "OpenThread",
-      "ntf": "O firmware do Thread está faltando."
+      "ntf": "O firmware do Thread está faltando.",
+      "cte": "Clique para expandir as informações"
     },
     "kw": {
       "msg": "Esta função permite deixar um dos canais de comunicação ativo e ter acesso à interface web. \nO próprio dispositivo selecionará um canal disponível de acordo com a prioridade: WIFI, ETHERNET, WIFI AP"
@@ -158,6 +157,22 @@
           "net": "Modo de rede",
           "usb": "Modo USB"
         }
+      },
+      "u": {
+        "ai": "Atualizações de instalação automática (ESP32 e Zigbee)",
+        "d": {
+          "ev": "Diariamente",
+          "fr": "Sexta-feira",
+          "mn": "Segunda-feira",
+          "sa": "Sábado",
+          "su": "Domingo",
+          "th": "Quinta-feira",
+          "tt": "Dia da semana",
+          "tu": "Terça-feira",
+          "wd": "Quarta-feira",
+          "du": "Desativar"
+        },
+        "h": "Tempo de verificação do novo firmware"
       }
     },
     "lo": {
@@ -227,8 +242,11 @@
         "rssi": "RSSI",
         "sc": "Segurança",
         "ssid": "SSID",
-        "nnf": "Redes WiFi não encontradas"
-      }
+        "nnf": "Redes WiFi não encontradas",
+        "mode": "Modo",
+        "power": "Potência Tx"
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
@@ -248,7 +266,8 @@
         "ens": "Armazenamento NV",
         "ent": "entradas",
         "du": "Tempo de atividade do dispositivo",
-        "lt": "Horário local"
+        "lt": "Horário local",
+        "et1": "Temperatura 1W"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -265,7 +284,6 @@
         "mcl": "Cliente"
       },
       "zbc": {
-        "tt": "Status do dispositivo",
         "op": "Modo operacional",
         "opn": "Rede Zigbee",
         "opu": "Zigbee-USB",
@@ -278,14 +296,21 @@
       },
       "c": {
         "fv": "Revisão do firmware",
-        "hv": "Versão HW"
+        "hv": "Versão HW",
+        "r": "Papel"
+      },
+      "zr": {
+        "c": "Coordenador",
+        "r": "Roteador",
+        "t": "OpenTread"
       }
     },
     "se": {
       "desc": "Configuração de segurança",
       "fw": {
         "desc": "Lista de permissões de IP para soquete",
-        "ip": "IP permitido"
+        "ip": "IP permitido",
+        "mask": "Máscara permitida"
       },
       "web": {
         "auth": "Habilitar autenticação de servidor web",
@@ -324,12 +349,9 @@
       "sc": "Controle de sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Atualização de arquivo Zigbee",
       "zu": "Atualização Zigbee (em desenvolvimento)",
       "saf": "Mostrar firmwares disponíveis",
-      "clzv": "Verifique os firmwares Zigbee mais recentes",
       "zgu": "Atualização do Git CC2652",
-      "sri": "Selecione a versão",
       "eznr": "Apagar NVRAM"
     },
     "vp": {
@@ -424,13 +446,17 @@
         "tt": "Feedback beta do firmware"
       },
       "upd": {
-        "msg": "Novo firmware ({{ver}}) foi encontrado no GitHub. \nEle foi baixado {{count}} vezes.",
+        "msg": "Uma versão mais recente do firmware XZG foi encontrada",
         "tt": "Atualização ESP32 disponível 🚀"
       }
     },
     "zb": {
       "nzfa": {
         "tt": "Nenhum firmware encontrado"
+      },
+      "upd": {
+        "tt": "Novo firmware Zigbee encontrado 🌟",
+        "msg": "Uma versão mais recente do firmware para o módulo RCP foi encontrada"
       }
     }
   }
