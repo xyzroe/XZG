@@ -28,7 +28,7 @@
     "en": "Włączony",
     "err": "Błąd",
     "nc": "Brak połączenia",
-    "cl": "Zamknąć",
+    "cl": "Zamknij",
     "t": {
       "e": "Koniec czasu",
       "s": "Czas rozpoczęcia"
@@ -244,7 +244,7 @@
         "ssid": "SSID",
         "nnf": "Nie znaleziono sieci Wi-Fi",
         "mode": "Tryb",
-        "power": "Moc wysyłania"
+        "power": "Moc"
       },
       "ipv6": "IPv6"
     },
@@ -326,7 +326,7 @@
       "dc": "Konsola debugowania",
       "dt": "Narzędzia do debugowania",
       "efu": "Plik aktualizacji ESP32",
-      "egu": "Aktualizacja Git ESP32",
+      "egu": "ESP32",
       "esp": "ESP32",
       "fb": "Przeglądarka plików",
       "fm": "Tryb flash",
@@ -351,7 +351,7 @@
       "zb": "Zigbee",
       "zu": "Aktualizacja Zigbee (w przygotowaniu)",
       "saf": "Pokaż dostępne oprogramowanie sprzętowe",
-      "zgu": "Aktualizacja Gita CC2652",
+      "zgu": "Zigbee",
       "eznr": "Wymaż NVRAM"
     },
     "vp": {
@@ -390,11 +390,11 @@
         "ss": "Konfiguracja szeregowa",
         "tt": "Generator konfiguracji"
       },
-      "so": "Konfiguracja szeregowa",
-      "sp": "Port gniazda",
-      "ss": "Szybkość gniazda",
+      "so": "Ustawienia połączenia szeregowego",
+      "sp": "Port",
+      "ss": "Szybkość",
       "fws": {
-        "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci powoduje awarię sieci!",
+        "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci spowoduje awarię sieci!",
         "tt": "Rola"
       }
     },
