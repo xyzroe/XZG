@@ -11,15 +11,15 @@
     "erss": "Errore durante il salvataggio delle impostazioni. \nControlla la tua rete",
     "host": "Nome host",
     "init": "Inizializzato",
-    "inst": "Installare",
+    "inst": "Installa",
     "ltr": "Dopo",
     "mac": "Indirizzo MAC",
     "mode": "Modalità",
     "now": "Installa ora",
-    "pass": "Parola d'ordine",
+    "pass": "Password",
     "proj": "Creato con ❤️ da",
     "save": "Salva",
-    "sure": "Sono sicuro che",
+    "sure": "Sono sicuro",
     "user": "Nome utente",
     "ok": "OK",
     "connecting": "Connessione",
@@ -28,12 +28,13 @@
     "en": "Abilitato",
     "err": "Errore",
     "nc": "Nessuna connessione",
-    "cl": "Vicino",
+    "cl": "Chiudi",
     "t": {
       "e": "Tempo scaduto",
       "s": "Ora di inizio"
     },
-    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare."
+    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare.",
+    "more": "Maggiori informazioni"
   },
   "md": {
     "esp": {
@@ -53,8 +54,7 @@
         "ucr": "Aggiornamento completato! \nRiavvio!",
         "vgds": "Download della versione {{ver}} da GitHub in corso...",
         "wdm": "In attesa del dispositivo...",
-        "wm": "Disconnetterà TUTTE le connessioni socket",
-        "bil": "Installa l'ultima versione"
+        "wm": "Disconnetterà TUTTE le connessioni socket"
       },
       "rst": {
         "msg": "In attesa di riavvio. \nSi chiuderà automaticamente.",
@@ -67,25 +67,24 @@
         "msg": "Connessione alla rete in corso... Attendi il risultato.",
         "nip": "Il nuovo indirizzo IP è {{ip}} Il dispositivo verrà ora riavviato affinché le nuove impostazioni abbiano effetto.",
         "tt": "Connessione di rete Wi-Fi"
+      },
+      "mc": {
+        "mi": "È supportato più di un dispositivo con esattamente la tua configurazione. \nDevi selezionare il tuo dispositivo.",
+        "tt": "Seleziona il modello del tuo dispositivo"
       }
     },
     "zb": {
-      "fu": {
-        "vc": "Convalida completa!",
-        "vt": "convalida: {{per}} %"
-      },
-      "cfv": "La tua attuale revisione del firmware: {{ver}}",
+      "fu": {},
       "dtc": "Coordinatore",
       "dtr": "Router",
       "efr": "Errore durante il recupero delle informazioni sul firmware<br>Controlla la tua rete!",
-      "lcf": "Ultimo firmware del coordinatore:",
-      "lrf": "Firmware più recente del router:",
       "ncf": "Nessun firmware del coordinatore disponibile.",
       "nrf": "Nessun firmware del router disponibile.",
       "ot": "Aggiornamento Zigbee OTA",
       "rfm": "Recupero informazioni firmware...",
       "dtt": "OpenThread",
-      "ntf": "Manca il firmware del thread."
+      "ntf": "Manca il firmware del thread.",
+      "cte": "Fare clic per espandere le informazioni"
     },
     "kw": {
       "msg": "Questa funzione permette di lasciare attivo uno dei canali di comunicazione e di avere accesso all'interfaccia web. \nIl dispositivo stesso selezionerà un canale disponibile in base alla priorità: WIFI, ETHERNET, WIFI AP"
@@ -111,14 +110,14 @@
     }
   },
   "l": {
-    "ab": "Di",
+    "ab": "Info",
     "ge": "Generale",
     "lo": "Disconnettersi",
     "mq": "MQTT",
     "ne": "Rete",
     "se": "Sicurezza",
     "st": "Stato",
-    "to": "Utensili",
+    "to": "Strumenti",
     "vp": "VPN",
     "zi": "Zigbee"
   },
@@ -158,15 +157,31 @@
           "net": "Modalità di rete",
           "usb": "Modalità USB"
         }
+      },
+      "u": {
+        "ai": "Aggiornamenti con installazione automatica (ESP32 e Zigbee)",
+        "d": {
+          "ev": "Ogni giorno",
+          "fr": "Venerdì",
+          "mn": "Lunedi",
+          "sa": "Sabato",
+          "su": "Domenica",
+          "th": "Giovedì",
+          "tt": "Giorno della settimana",
+          "tu": "Martedì",
+          "wd": "Mercoledì",
+          "du": "Disabilita"
+        },
+        "h": "Orario di verifica del nuovo firmware"
       }
     },
     "lo": {
-      "btn": "Canta",
+      "btn": "Registrazione",
       "lbl": "Per favore accedi",
       "pt": "Accedi - XZG",
       "mlo": "Disconnessione riuscita",
       "mnl": "È necessario effettuare l'accesso",
-      "mwc": "Credenziali sbagliate"
+      "mwc": "Credenziali errate"
     },
     "mq": {
       "broker": {
@@ -227,28 +242,32 @@
         "rssi": "RSSI",
         "sc": "Sicurezza",
         "ssid": "SSID",
-        "nnf": "Reti WiFi non trovate"
-      }
+        "nnf": "Reti WiFi non trovate",
+        "mode": "Modalità",
+        "power": "Potenza Tx"
+      },
+      "ipv6": "IPv6"
     },
     "st": {
       "dic": {
-        "cs": "nuclei",
-        "dm": "Modello del dispositivo",
+        "cs": "Cores",
+        "dm": "Modello dispositivo",
         "ef": "Processore",
         "efs": "Memoria",
-        "ehs": "Mucchio",
+        "ehs": "Memoria utilizzata",
         "et": "Temperatura",
-        "kb": "KiB",
+        "kb": "kB",
         "mb": "MB",
         "mhz": "MHz",
         "tt": "Informazioni sul dispositivo",
         "efte": "esterno",
         "efti": "interno",
-        "efss": "Sistema di file",
-        "ens": "Stoccaggio NV",
+        "efss": "File di Sistema",
+        "ens": "Memoria Flash",
         "ent": "inserimenti",
         "du": "Tempo di attività del dispositivo",
-        "lt": "Ora locale"
+        "lt": "Ora locale",
+        "et1": "Temperatura 1W"
       },
       "te": "Ethernet",
       "tm": "MQTT",
@@ -265,27 +284,33 @@
         "mcl": "Cliente"
       },
       "zbc": {
-        "tt": "Stato del dispositivo",
         "op": "Modalità operativa",
         "opn": "Rete Zigbee",
         "opu": "Zigbee-USB",
-        "scc": "Client socket connesso",
+        "scc": "Client connessi",
         "sccn": "Nessuna connessione",
         "su": "tempo di connessione",
-        "sccy": "Sì, {{count}} clienti",
-        "zfs": "Dimensione del flash",
+        "sccy": "{{count}} client",
+        "zfs": "Dimensione della flash",
         "zie": "IEEE"
       },
       "c": {
-        "fv": "Revisione firmware",
-        "hv": "Versione hardware"
+        "fv": "Versione firmware",
+        "hv": "Versione hardware",
+        "r": "Ruolo"
+      },
+      "zr": {
+        "c": "Coordinatore",
+        "r": "Router",
+        "t": "OpenTread"
       }
     },
     "se": {
       "desc": "Configurazione sicurezza",
       "fw": {
         "desc": "Whitelist IP per socket",
-        "ip": "IP consentito"
+        "ip": "IP consentito",
+        "mask": "Maschera consentita"
       },
       "web": {
         "auth": "Abilita l'autenticazione del server web",
@@ -317,19 +342,16 @@
       "ms": "Selezione modalità",
       "ntw": "Rete",
       "pwr": "Energia",
-      "rd": "Dati grezzi",
+      "rd": "Dati",
       "rr": "Riconnessione del router",
-      "rst": "Ricomincia",
+      "rst": "Riavvia",
       "s": "Misurare",
       "sc": "Controllo del sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zfu": "Aggiornamento del file Zigbee",
       "zu": "Aggiornamento Zigbee (in fase di sviluppo)",
       "saf": "Mostra i firmware disponibili",
-      "clzv": "Controlla gli ultimi firmware Zigbee",
       "zgu": "Aggiornamento Git CC2652",
-      "sri": "Seleziona la versione",
       "eznr": "Cancella NVRAM"
     },
     "vp": {
@@ -424,13 +446,17 @@
         "tt": "Feedback sulla beta del firmware"
       },
       "upd": {
-        "msg": "Il nuovo firmware ({{ver}}) è stato trovato su GitHub. \nÈ stato scaricato {{count}} volte.",
+        "msg": "È stata trovata una versione più recente del firmware XZG",
         "tt": "Aggiornamento ESP32 disponibile 🚀"
       }
     },
     "zb": {
       "nzfa": {
         "tt": "Nessun firmware trovato"
+      },
+      "upd": {
+        "tt": "Trovato nuovo firmware Zigbee 🌟",
+        "msg": "È stata trovata una versione più recente del firmware per il modulo RCP"
       }
     }
   }
