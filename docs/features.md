@@ -50,7 +50,6 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | [ZigStar LAN](https://zig-star.com/projects/zigbee-gw-lan/) | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | [LilyZig](https://zig-star.com/projects/zigstar-lilyzig/) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
 | [Olizig](https://zig-star.com/projects/zigstar-olizig/) | :x: | :x: | :white_check_mark: | :white_check_mark: |
-| Olizig | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | China-GW | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | TubesZB-eth | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | TubesZB-eth_usb | :x: | :x: | :white_check_mark: | :white_check_mark: |
