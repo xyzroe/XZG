@@ -45,11 +45,11 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | Device Name                                                 |       Button       |     ESP32 LEDs     | Remote Network / USB mode selection |      Ethernet      |
 | :---------------------------------------------------------- | :----------------: | :----------------: | :---------------------------------: | :----------------: |
 | SLS-classic | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| <a href="https://uzg.zig-star.com" target="_blank">UZG-01</a> | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| UZG-01 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | SLZB-06 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| <a href="https://zig-star.com/projects/zigbee-gw-lan/" target="_blank">ZigStar LAN</a> | :x: | :x: | :white_check_mark: | :white_check_mark: |
-| <a href="https://zig-star.com/projects/zigstar-lilyzig/" target="_blank">LilyZig</a> | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
-| <a href="https://zig-star.com/projects/zigstar-olizig/" target="_blank">Olizig</a> | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| ZigStar LAN | :x: | :x: | :white_check_mark: | :white_check_mark: |
+| LilyZig | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
+| Olizig | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | China-GW | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | TubesZB-eth | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | TubesZB-eth_usb | :x: | :x: | :white_check_mark: | :white_check_mark: |
