@@ -1338,7 +1338,7 @@ function espFlashGitWait(params) {
 			$('#bar').html(i18next.t('md.esp.fu.vgds', { ver: version }));
 		}
 		else {
-			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL, function (data) { });
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_ESP_UPD_URL + "&type=ota", function (data) { });
 			$('#bar').html(i18next.t('md.esp.fu.lgds'));
 		}
 		console.log("[git_flash] start");
@@ -1796,7 +1796,7 @@ function modalConstructor(type, params) {
 			modalAddCancel();
 			break;
 		case "flashESP":
-			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
+			//$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
 			$(headerText).text(i18next.t('md.esp.fu.tt')).css("color", "red");
 			let action = 0;
 			if (params instanceof FormData) {
@@ -1958,21 +1958,24 @@ function modalConstructor(type, params) {
 				}).appendTo(headerAndButtonContainer);
 
 				if (release.assets.length > 0) {
-					const downloadLink = release.assets[1].browser_download_url;
-					$('<a>', {
-						"class": "btn btn-outline-warning",
-						click: function () {
-							var params = {};
-							params['link'] = downloadLink;
-							params['ver'] = release.tag_name;
-							modalConstructor("flashESP", params);
-						},
-						"data-bs-toggle": "tooltip",
-						"title": i18next.t('c.inst') + " " + release.tag_name,
-						"text": i18next.t('c.inst'),
-						"role": "button"
-					}).css("white-space", "nowrap")
-						.appendTo(buttonContainer);
+					const otaAsset = release.assets.find(asset => asset.browser_download_url.endsWith('.ota.bin'));
+					if (otaAsset) {
+						const downloadLink = otaAsset.browser_download_url;
+						$('<a>', {
+							"class": "btn btn-outline-warning",
+							click: function () {
+								var params = {};
+								params['link'] = downloadLink;
+								params['ver'] = release.tag_name;
+								modalConstructor("flashESP", params);
+							},
+							"data-bs-toggle": "tooltip",
+							"title": i18next.t('c.inst') + " " + release.tag_name,
+							"text": i18next.t('c.inst'),
+							"role": "button"
+						}).css("white-space", "nowrap")
+							.appendTo(buttonContainer);
+					}
 				}
 				const releaseDescriptionHtml = marked.parse(release.body);
 				$("<div>", {

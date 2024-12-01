@@ -849,7 +849,7 @@ void setup()
       }
     }*/
     zbFwCheck();
-    LOGI("[RCP] FW: %s", String(CCTool.chip.fwRev).c_str());
+    //LOGI("[RCP] FW: %s", String(CCTool.chip.fwRev).c_str());
   }
   else
   {

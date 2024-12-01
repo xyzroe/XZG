@@ -647,7 +647,6 @@ static void apiCmdZbCheckFirmware(String &result)
 {
     if (zbFwCheck())
     {
-        printLogMsg("[RCP] " + CCTool.chip.fwRev);
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
     else
