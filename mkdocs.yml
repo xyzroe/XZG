@@ -147,8 +147,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/xyzroe
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/A5ge3cYRKW
     - icon: fontawesome/solid/paper-plane
-      link: https://t.me/xyzroe
+      link: https://t.me/xzg_fw
   analytics:
     provider: google
     property: G-VWB99VELNE
