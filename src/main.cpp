@@ -604,12 +604,13 @@ void networkStart()
     tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
   }
   WiFi.onEvent(NetworkEvent);
-  if (networkCfg.ethEnable)
+  if (networkCfg.ethEnable){
     initLan();
+  }
   if (networkCfg.wifiEnable)
     connectWifi();
-  //}
 
+  //}
   // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
   //   updWeb = true; // handle web server
   if (!systemCfg.disableWeb)
@@ -709,8 +710,6 @@ void setup()
 
   initNVS();
 
-  getDeviceID(vars.deviceId); // need for mqtt, vpn, mdns, wifi ap and so on
-
   loadSystemConfig(systemCfg);
   loadNetworkConfig(networkCfg);
   loadVpnConfig(vpnCfg);
@@ -783,6 +782,10 @@ void setup()
   vars.apStarted = false;
 
   networkStart();
+
+  writeDefaultDeviceId(vars.deviceId, networkCfg.ethEnable); // need for mqtt, vpn, mdns, wifi ap and so on
+  writeDeviceId(systemCfg, vpnCfg, mqttCfg);
+
 
   /*while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
   {
