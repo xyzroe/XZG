@@ -606,16 +606,10 @@ void networkStart()
   WiFi.onEvent(NetworkEvent);
   if (networkCfg.ethEnable){
     initLan();
-    writeDefaultDeviceId (vars.deviceId, true); // need for mqtt, vpn, mdns, wifi ap and so on
   }
-  else {
-    writeDefaultDeviceId (vars.deviceId, false); // need for mqtt, vpn, mdns, wifi ap and so on
-  }
-
   if (networkCfg.wifiEnable)
     connectWifi();
- 
-  writeDeviceId        (systemCfg, vpnCfg, mqttCfg);
+
   //}
   // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
   //   updWeb = true; // handle web server
@@ -788,6 +782,9 @@ void setup()
   vars.apStarted = false;
 
   networkStart();
+
+  writeDefaultDeviceId(vars.deviceId, networkCfg.ethEnable); // need for mqtt, vpn, mdns, wifi ap and so on
+  writeDeviceId(systemCfg, vpnCfg, mqttCfg);
 
 
   /*while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
