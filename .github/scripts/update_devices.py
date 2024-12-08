@@ -8,18 +8,23 @@ def parse_brd_configs(hw_content):
     pattern = re.compile(r'BrdConfigStruct brdConfigs\[\] = \{(.*?)\};', re.DOTALL)
     match = pattern.search(hw_content)
     if match:
-        print("Found brdConfigs")
+        print("Found brdConfigs:")
+        print (match.group(1))
         return match.group(1)
     print("brdConfigs not found")
     return ""
 
 def extract_devices(brd_configs, mist_configs):
     devices = []
-    device_pattern = re.compile(r'\{\s*"([^"]+)",\s*\.ethConfigIndex = (-?\d+),\s*\.zbConfigIndex = -?\d+,\s*\.mistConfigIndex = (-?\d+)\s*\}', re.DOTALL)
+    # device_pattern = re.compile(r'\{\s*"([^"]+)",\s*\.ethConfigIndex = (-?\d+),\s*\.zbConfigIndex = -?\d+,\s*\.mistConfigIndex = (-?\d+)\s*\}', re.DOTALL)
+    # new style  {"SLS-classic", -1, 7, 3},     // 0
+    device_pattern = re.compile(r'\{\s*"([^"]+)",\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)\s*\}', re.DOTALL)
     for device_match in device_pattern.finditer(brd_configs):
+        print(f"Found device: {device_match.group(1)}, ethConfigIndex: {device_match.group(2)}, zbConfigIndex: {device_match.group(3)}, mistConfigIndex: {device_match.group(4)}")
+        
         device_name = device_match.group(1)
         eth_config_index = int(device_match.group(2))
-        mist_config_index = int(device_match.group(3))
+        mist_config_index = int(device_match.group(4))
         
         eth_is = eth_config_index > -1
         btn_is = mist_configs[mist_config_index]['btnPin'] > -1
@@ -105,7 +110,7 @@ def write_features_file(features_file_path, updated_content):
     print(f"Updated features file: {features_file_path}")
 
 def main():
-    hw_file_path = 'main_branch/src//const/hw.cpp'
+    hw_file_path = 'main_branch/src/const/hw.cpp'
     features_file_path = 'mkdocs_branch/docs/features.md'
 
     hw_content = read_hw_file(hw_file_path)
