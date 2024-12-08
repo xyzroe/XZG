@@ -58,6 +58,7 @@ By focusing the community's efforts on enhancing one product, XZG aims to stream
 | TubesZB-poe-2023 | :x: | :x: | :white_check_mark: | :white_check_mark: |
 | CZC-1.0 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | HG POE Plus | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| WGNETZG | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 * Some devices do not support all features
 
