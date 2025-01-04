@@ -294,6 +294,7 @@ advanced:
 			result = `# ${i18next.t('p.zi.cfg.ss')}
 serial:
 # ${i18next.t('p.zi.cfg.lxzg')}
+  adapter: zstack
   port: tcp://${ip}:${port}
   ${mist_cfg_txt}`;
 			break;
