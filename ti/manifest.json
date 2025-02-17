@@ -260,21 +260,24 @@
             "CC1352P2_CC2652P_launchpad_ot_rcp_2025_2_1_20250203.bin": {
                 "ver": "20250203",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_launchpad_ot_rcp_2025_2_1_20250203.bin",
-                "notes": ""
+                "notes": "https://raw.githubusercontent.com/Koenkk/OpenThread-TexasInstruments-firmware/refs/heads/main/README.md",
+                "baud": "460800"
             }
         },
         "CC2652P2_other": {
             "CC1352P2_CC2652P_other_ot_rcp_2025_2_1_20250203.bin": {
                 "ver": "20250203",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_other_ot_rcp_2025_2_1_20250203.bin",
-                "notes": ""
+                "notes": "https://raw.githubusercontent.com/Koenkk/OpenThread-TexasInstruments-firmware/refs/heads/main/README.md",
+                "baud": "460800"
             }
         },
         "CC2652P7": {
             "CC1352P7_ot_rcp_2025_2_1_20250203.bin": {
                 "ver": "20250203",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P7_ot_rcp_2025_2_1_20250203.bin",
-                "notes": ""
+                "notes": "https://raw.githubusercontent.com/Koenkk/OpenThread-TexasInstruments-firmware/refs/heads/main/README.md",
+                "baud": "460800"
             }
         }
     }
