@@ -256,6 +256,25 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/rcp_LP_CC2652PSIP_tirtos_ticlang_20220728.bin",
                 "notes": "[OpenThread build from Tube, old](https://github.com/tube0013/tube_gateways/tree/main/openthread_boarder_router_fw/old)",
                 "baud": "115200"
+            },
+            "CC1352P2_CC2652P_launchpad_ot_rcp_2025_2_1_20250203.bin": {
+                "ver": "20250203",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_launchpad_ot_rcp_2025_2_1_20250203.bin",
+                "notes": ""
+            }
+        },
+        "CC2652P2_other": {
+            "CC1352P2_CC2652P_other_ot_rcp_2025_2_1_20250203.bin": {
+                "ver": "20250203",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_other_ot_rcp_2025_2_1_20250203.bin",
+                "notes": ""
+            }
+        },
+        "CC2652P7": {
+            "CC1352P7_ot_rcp_2025_2_1_20250203.bin": {
+                "ver": "20250203",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P7_ot_rcp_2025_2_1_20250203.bin",
+                "notes": ""
             }
         }
     }
