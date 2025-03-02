@@ -61,6 +61,7 @@
 #include "webh/json/it.json.gz.h"
 #include "webh/json/pl.json.gz.h"
 #include "webh/json/cz.json.gz.h"
+#include "webh/json/hu.json.gz.h"
 */
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
@@ -271,6 +272,9 @@ void initWebServer()
                  { sendGzipFromFS("/json/pl.json.gz", contTypeJson); });
     serverWeb.on("/lg/cz.json", []()
                  { sendGzipFromFS("/json/cz.json.gz", contTypeJson); });
+    serverWeb.on("/lg/hu.json", []()
+                 { sendGzipFromFS("/json/hu.json.gz", contTypeJson); });
+                              
 
     /* ----- LANG FILES | END -----*/
     /* ----- JS and CSS FILES | START -----*/
