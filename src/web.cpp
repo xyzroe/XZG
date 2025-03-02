@@ -61,7 +61,6 @@
 #include "webh/json/it.json.gz.h"
 #include "webh/json/pl.json.gz.h"
 #include "webh/json/cz.json.gz.h"
-#include "webh/json/hu.json.gz.h"
 */
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
