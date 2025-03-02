@@ -2536,7 +2536,7 @@ let languages = [
 	{ value: "it", text: "🇮🇹 Italiano" },
 	{ value: "pl", text: "🇵🇱 Polski" },
 	{ value: "cz", text: "🇨🇿 Čeština" },
-	{ value: "hu", text: "🇭🇺 Magyar"}
+	{ value: "hu", text: "🇭🇺 Magyar" }
 ];
 
 $(document).ready(() => {
