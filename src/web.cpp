@@ -271,6 +271,9 @@ void initWebServer()
                  { sendGzipFromFS("/json/pl.json.gz", contTypeJson); });
     serverWeb.on("/lg/cz.json", []()
                  { sendGzipFromFS("/json/cz.json.gz", contTypeJson); });
+    serverWeb.on("/lg/hu.json", []()
+                 { sendGzipFromFS("/json/hu.json.gz", contTypeJson); });
+                              
 
     /* ----- LANG FILES | END -----*/
     /* ----- JS and CSS FILES | START -----*/

@@ -1,0 +1,460 @@
+{
+  "l": {
+    "st": "Állapot",
+    "ge": "Általános",
+    "ne": "Hálózat",
+    "zi": "Zigbee",
+    "mq": "MQTT",
+    "vp": "VPN",
+    "se": "Biztonság",
+    "to": "Eszközök",
+    "ab": "Névjegy",
+    "lo": "Kijelentkezés"
+  },
+  "p": {
+    "st": {
+      "dic": {
+        "tt": "Eszköz",
+        "dm": "Modell",
+        "et": "Hőmérséklet",
+        "ef": "Processzor",
+        "cs": "mag",
+        "mhz": "MHz",
+        "efs": "Memória",
+        "mb": "Mb",
+        "ehs": "Heap",
+        "kb": "KiB",
+        "efti": "belső",
+        "efte": "külső",
+        "ens": "Tartós tárhely",
+        "ent": "bejegyzés",
+        "efss": "Fájlrendszer",
+        "du": "Működési idő",
+        "lt": "Helyi idő",
+        "et1": "1W Hőmérséklet"
+      },
+      "te": "Ethernet",
+      "tw": "WiFi",
+      "tm": "MQTT",
+      "wgc": {
+        "tt": "WireGuard",
+        "lip": "Helyi IP cím",
+        "ed": "Végpont cím",
+        "pip": "Peer IP cím"
+      },
+      "tvh": "Husarnet",
+      "wc": {
+        "mcl": "Kliens",
+        "map": "AP"
+      },
+      "zbc": {
+        "op": "Mód",
+        "opn": "Zigbee-Hálózat",
+        "opu": "Zigbee-USB",
+        "scc": "Socket",
+        "sccn": "Nincs kapcsolat",
+        "sccy": "{{count}} kliens",
+        "su": "Kapcsolat időtartama",
+        "zfs": "Flash mérete",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Firmware",
+        "hv": "Hardware",
+        "r": "Szerep"
+      },
+      "zr": {
+        "c": "Koordinátor",
+        "r": "Router",
+        "t": "OpenThread"
+      }
+    },
+    "ge": {
+      "desc": "Beállítások",
+      "host": {
+        "n": "Hostnév",
+        "ph": "Az eszköz elérése a name.local néven",
+        "tt": "Latin betűk és számok, szóköz nélkül"
+      },
+      "refresh": {
+        "n": "Web frissítési időköz",
+        "ph": "másodpercekben",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Eszköz működésmódja",
+          "net": "HÁLÓZATI mód",
+          "usb": "USB mód"
+        }
+      },
+      "kw": "Hálózat és webszerver megtartása",
+      "led": {
+        "desc": "LED beállítások",
+        "dis": "Teljesen ki",
+        "pwr": "Tápfeszültség LED",
+        "mode": "Működésmód LED",
+        "night": "Éjszakai mód"
+      },
+      "ntp": {
+        "desc": "NTP",
+        "zone": "Időzóna",
+        "server": {
+          "n": "NTP szerver",
+          "ph": "pool.ntp.org",
+          "tt": "Adjon érvényes domain nevet"
+        }
+      },
+      "u": {
+        "h": "Új firmware ellenőrzés ideje",
+        "d": {
+          "tt": "A hét napján",
+          "ev": "Mindennap",
+          "mn": "Hétfő",
+          "tu": "Kedd",
+          "wd": "Szerda",
+          "th": "Csütörtök",
+          "fr": "Péntek",
+          "sa": "Szombat",
+          "su": "Vasárnap",
+          "du": "Kikapcsolva"
+        },
+        "ai": "Automatikus frissítések (ESP32 and Zigbee) telepítése"
+      }
+    },
+    "ne": {
+      "descEth": "Ethernet",
+      "dhcp": "DHCP",
+      "ip": "IPv4",
+      "mask": "Alhálózat",
+      "gw": "Átjáró",
+      "dns": "DNS",
+      "descWifi": "Wi-Fi",
+      "wifi": {
+        "btn": {
+          "scan": "Wi-Fi hálózatok keresése",
+          "man": "Beállítás kézzel"
+        },
+        "rssi": "RSSI",
+        "ssid": "SSID",
+        "sc": "Biztonság",
+        "ch": "Csatorna",
+        "nnf": "WiFi hálózat nem található",
+        "mode": "Mód",
+        "power": "Adóteljesítmény"
+      },
+      "ipv6": "IPv6"
+    },
+    "zi": {
+      "so": "Soros beállítások",
+      "ss": "Sebesség",
+      "sp": "Port",
+      "cfg": {
+        "tt": "Konfiguráció generáló",
+        "sel": "Generálás ehhez:",
+        "alarm": "XZG AP módban működik (IP: 192.168.1.1). Az IP cím meg fog változni Ethernet vagy Wi-Fi hálózathoz csatlakozáskor, ezután újra szükséges generálni a konfigurációt.",
+        "ss": "Soros beállítások",
+        "lxzg": "Az XZG helyzete",
+        "dzl": "Zigbee LED kikapcsolása?",
+        "sopm": "Adóteljesítmény max 20-ra",
+        "ha": "Home Assistant-hoz: Menj a \"Beállítások\"→\"Rendszer\"→\"Hardver\"→Válaszd a három pontos menüt a sarokban→\"Összes hardver\"→Görgess ttyUSB-hoz és keresd meg az adaptert→Másold ki az eszközelérési utat mint \"/dev/ttyUSB0\"",
+        "lin": "USB eszközök listázása Linux alatt: ls  /dev/ttyUSB*",
+        "dp": "IDE_JON_AZ_ESZKOZ_ELERESI_UTJA"
+      },
+      "fws": {
+        "tt": "Eszköz szerepköre",
+        "alarm": "A firmware cseréje másik szerepkörre váltáshoz aktívan futó hálózatnál annak megsemmisüléséhez vezet!"
+      }
+    },
+    "mq": {
+      "enb": "Ezt be kell kapcsolni az MQTT beállítások aktiválásához",
+      "desc": "Beállítások",
+      "broker": {
+        "n": "Szerver",
+        "ph": "Hostnév vagy IP cím",
+        "tt": "Érvényes hostnév vagy IP cím megadása szükséges"
+      },
+      "port": {
+        "n": "Port",
+        "ph": "MQTT port szám",
+        "tt": "MQTT port megadása szükséges (általában 1883)"
+      },
+      "topic": {
+        "n": "Topic",
+        "ph": "MQTT topic",
+        "tt": "Az MQTT topic megadása szükséges X/Y/Z vagy X/Y vagy X formátumban. Szóköz nem támogatott."
+      },
+      "interval": {
+        "n": "Időköz",
+        "ph": "Frissítési időköz másodpercben",
+        "tt": "Az MQTT frissítési intervallum (másodpercben)"
+      },
+      "disc": {
+        "n": "Home Assistant (MQTT Discovery)",
+        "ph": "Kikapcsolás vagy bekapcsolás",
+        "tt": "💡 Bekapcsolása szükséges a Home Assistant MQTT autodiscoveryhez"
+      },
+      "user": {
+        "ph": "Felhasználónév",
+        "tt": "Az MQTT szerver felhasználónév megadása szükséges"
+      },
+      "pass": {
+        "ph": "Jelszó",
+        "tt": "Az MQTT szerver jelszó megadása szükséges"
+      },
+      "reconnect": {
+        "n": "Újracsatlakozás",
+        "ph": "Újracsatlakozási időköz másodpercben",
+        "tt": "Az MQTT újracsatlakozási időköz megadása szükséges (másodpercben)"
+      }
+    },
+    "vp": {
+      "wg": {
+        "tt": "WireGuard Interface Beállítások",
+        "lip": "Helyi interfész IP címe",
+        "lpk": "Helyi interfész privát kulcsa",
+        "ea": "Kapcsolódó végpont IP címe",
+        "epk": "Kapcsolódó végpont publikus kulcsa",
+        "ep": "Kapcsolódó végpont port",
+        "lsn": "Helyi alhálózat",
+        "lgw": "Helyi átjáró",
+        "aip": "Engedélyezett IP címek",
+        "am": "Engedélyezett alhálózat",
+        "md": "Tegye alapértelmezetté",
+        "psk": "Előre megosztott kulcs",
+        "lp": "Helyi port"
+      },
+      "hn": {
+        "tt": "Husarnet beállítások (fejlesztés alatt)",
+        "jc": "Hálózati csatlakozási kód",
+        "hn": "Eszköz Hostneve",
+        "du": "Irányítópult URL (maradjon 'default')"
+      }
+    },
+    "se": {
+      "desc": "Beállítások",
+      "web": {
+        "dis": "Webszerver letiltása ha a Zigbee sockethez csatlakoztak",
+        "auth": "Webszerver hitelesítés bekapcsolása"
+      },
+      "fw": {
+        "desc": "IP kivétellista a Zigbee socket kapcsolathoz",
+        "ip": "Engedélyezett IP",
+        "mask": "Engedélyezett alhálózati maszk"
+      }
+    },
+    "to": {
+      "sc": "Rendszer",
+      "fu": "Firmware",
+      "dt": "Hibakeresés",
+      "mc": "Modulok kezelése",
+      "zb": "Zigbee",
+      "rst": "Újraindítás",
+      "fm": "Flash Mód",
+      "rr": "Router újracsatlakozás",
+      "esp": "ESP32",
+      "fr": "Gyári beállítások",
+      "csc": "Periféria kezelés",
+      "ms": "Módválasztás",
+      "ntw": "Hálózat",
+      "usb": "USB",
+      "lt": "LED állapot váltás",
+      "ls": "indítás...",
+      "lb": "villogtatás...",
+      "pwr": "Teljesítmény",
+      "mode": "Mód",
+      "dc": "Konzol",
+      "rd": "Nyers adat ",
+      "cc": "Törlés",
+      "czc": "Zigbee csatlakozás ellenőrzése",
+      "czv": "Zigbee verzió ellenőrzése",
+      "fb": "Fájlböngésző",
+      "fn": "Fájlnév",
+      "s": "Méret",
+      "egu": "ESP32",
+      "efu": "ESP32 kézi flashelése",
+      "cf": "Válassz firmware fájlt...",
+      "ilfg": "Legfrissebb telepítése",
+      "zu": "Zigbee frissítés (fejlesztés alatt)",
+      "saf": "Elérhető mutatása...",
+      "zgu": "Zigbee",
+      "eznr": "NVRAM törlése"
+    },
+    "lo": {
+      "pt": "XZG - Belépés",
+      "lbl": "Bejelentkezés szükséges",
+      "btn": "Bejelentkezés",
+      "mnl": "Belépés szükséges",
+      "mwc": "Hibás belépési adatok",
+      "mlo": "Sikeres kilépés"
+    },
+    "ab": {
+      "l1": "Az XZG Firmware egyesíti a legjobb újításokat számos",
+      "l2": "előző Zigbee gateway projektből egyetlen teljes körű megoldásba.",
+      "l3": "A közösség erőfeszítéseinek egyetlen termékre összpontosításával az XZG célja a fejlesztési folyamat egyszerűsítése, ezáltal javítva Zigbee átjáróid képességeit és hatékonyságát. 🌍",
+      "w": {
+        "t": "Wiki",
+        "m": "Hogy többet megtudj az XZG projektről, látogassa meg: 📘",
+        "l": "a hivatalos Wiki-t"
+      },
+      "f": {
+        "t": "Visszajelzés",
+        "m": "Amennyiben ötleted, javaslatod van, vagy bármi egyéb módon segítenél, ne habozz hogy 📬",
+        "l": "Felkeresd a készítőt"
+      },
+      "s": {
+        "m": "Támogasd ezt a projektet az egyik következő módon: 💖",
+        "t": "Támogatás"
+      },
+      "c": {
+        "t": "Közreműködés",
+        "m": "Csatlakozz hozzánk fordításban, dokumentáció javításában, vagy új funkciók fejlesztésében. 💻",
+        "l": "Projekt forrástár"
+      },
+      "r": {
+        "t": "Bejelentés",
+        "m": "Hibabejelentéshez vagy új funkció kéréséhez: 🐞",
+        "l": "Hibajegy nyitása"
+      },
+      "cm": {
+        "m": "A felismeréseid, visszajelzésed, és együttműködésed felbecsülhetetlen számunkra 🤝",
+        "t": "Közösség",
+        "l": "Telegram csoport",
+        "d": "Discord közösséghez csatlakozás"
+      }
+    }
+  },
+  "c": {
+    "user": "Felhasználónév",
+    "pass": "Jelszó",
+    "save": "Mentés",
+    "enable": "Bekapcsolás",
+    "en": "Bekapcsolva",
+    "dis": "Kikapcsolva",
+    "cancel": "Mégsem",
+    "sure": "Biztos vagyok benne",
+    "ltr": "Később",
+    "drm": "Ne emlékeztessen",
+    "err": "Hiba",
+    "ok": "OK",
+    "now": "Telepítés most",
+    "mode": "Mód",
+    "cst": "Állapot",
+    "csp": "Sebesség",
+    "mac": "MAC",
+    "conn": "Csatlakozva",
+    "connecting": "Csatlakozás",
+    "disconn": "Lecsatlakozva",
+    "init": "Inicializálva",
+    "host": "Hostnév",
+    "inst": "Telepítés",
+    "cc": "Vágólapra másolás",
+    "erss": "Hiba a mentés során. Ellenőrizd a hálózatot",
+    "ercn": "Hiba. Ellenőrizd a hálózatot",
+    "proj": "❤️el készítette",
+    "nc": "Nincs kapcsolat",
+    "cl": "Bezár",
+    "t": {
+      "e": "Befejezés időpontja",
+      "s": "Kezdés időpontja"
+    },
+    "cerp": "Esemény-újrakapcsolódás maximum újrapróbálkozás elérve. Frissítsd az oldalt a folytatáshoz.",
+    "more": "További infó"
+  },
+  "md": {
+    "esp": {
+      "rst": {
+        "tt": "ESZKÖZ ÚJRAINDÍTÁSA",
+        "msg": "Az eszköz épp újraindul. Ez az ablak magától bezáródik.",
+        "nrps": "Nincs válasz, ellenőrizd, hogy az IP cím vagy az USB mód megváltozott-e."
+      },
+      "fr": {
+        "tt": "FIGYELMEZTETÉS GYÁRI BEÁLLÍTÁSOK VISSZAÁLLÍTÁSA",
+        "msg": "Ez MINDEN beállítást törölni fog."
+      },
+      "fu": {
+        "tt": "XZG FIRMWARE FRISSÍTÉS",
+        "lfm": "Frissítés helyi fájlból.",
+        "gvm": "Frissítés GitHub-ról {{ver}} kiadásra.",
+        "glm": "Frissítés a legfrissebb GitHub kiadásra.",
+        "wm": "MINDEN socket kapcsolat meg fog szakadni",
+        "wdm": "Várakozás az eszközre...",
+        "fri": "Firmware információk letöltése...",
+        "lgds": "Legfrissebb GitHub kiadás letöltése...",
+        "vgds": "{{ver}} kiadás letöltése GitHub-ról...",
+        "ucr": "Frissítés kész! Újraindítás!",
+        "prgs": "Frissítés: {{per}}%",
+        "gvt": "GitHub kiadások"
+      },
+      "ws": {
+        "tt": "Wi-Fi hálózati kapcsolat",
+        "msg": "Csatlakozás a hálózathoz folyamatban... Várj az eredményre.",
+        "nip": "Az eszköz új IP címe {{ip}} Az eszköz most újraindul az új beállítások alkalmazásához.",
+        "btn": "Ugrás",
+        "err": "Csatlakozási hiba, ellenőrizd az SSID-t és a jelszót, és próbáld újra"
+      },
+      "mc": {
+        "tt": "Válaszd ki az eszköz típusát",
+        "mi": "Több mint egy eszköz támogatott pontosan a te hardvereddel. Ki kell választanod az eszközödet."
+      }
+    },
+    "zb": {
+      "fu": {},
+      "dtc": "Koordinátor",
+      "dtr": "Router",
+      "efr": "Hiba történt a firmware információ letöltésekor<br>Ellenőrizd a hálózatot!",
+      "ncf": "A koordinátor firmware hiányzik.",
+      "nrf": "A router firmware hiányzik.",
+      "ot": "Zigbee OTA frissítés",
+      "rfm": "Firmware-információk letöltése...",
+      "ntf": "A Thread firmware hiányzik.",
+      "dtt": "OpenThread",
+      "cte": "Kattints a további infóért"
+    },
+    "ss": {
+      "tt": "BEÁLLíTÁSOK ELMENTVE",
+      "rr": "Néhány beállításhoz újraindítás szükséges.",
+      "msg": "Új paraméterek elmentve.",
+      "rn": "Újraindítás most",
+      "rl": "Újraindítás később"
+    },
+    "kw": {
+      "msg": "Ez a funkció hozzáférést biztosít a webes felülethez és nyitva hagyja az egyik kommunikációs csatornát. Az eszköz ki fogja választani az elérhető csatornát prioritás lista alapján: WIFI, ETHERNET, WIFI AP"
+    },
+    "zg": {
+      "fu": {
+        "f": "{{file}} flash-be írása",
+        "fn": "Az új verzió sikeresen telepítve!",
+        "nv": "Új verzió: {{ver}}",
+        "st": "CC2652 flash indítása...",
+        "er": "Törlés befejeződött"
+      }
+    }
+  },
+  "ts": {
+    "esp": {
+      "upd": {
+        "tt": "ESP32 frissítés elérhető 🚀",
+        "msg": "Újabb verziójú XZG firmware elérhető"
+      },
+      "beta": {
+        "tt": "Béta FW visszajelzés",
+        "msg": "Köszönjük, hogy kipróbáltad az új verziót! 🎢\nNe feledj visszajelzést adni 💌",
+        "cnt": "Kapcsolat 🧧"
+      },
+      "ane": {
+        "tt": "Hálózati konfigurációs hiba",
+        "msg": "Nincs engedélyezett hálózati interfész. Kérlek aktiválj legalább egyet a folytatáshoz."
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Nem található firmware"
+      },
+      "upd": {
+        "tt": "Zigbee firmware frissítés elérhető 🌟",
+        "msg": "Újabb verziójú firmware elérhető az RCP modulhoz"
+      }
+    }
+  }
+}
