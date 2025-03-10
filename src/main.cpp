@@ -663,6 +663,13 @@ void timerCallback(TimerHandle_t xTimer)
   xTaskCreate(getEspUpdateTask, "getEspUpdateTask", 8192, params, 1, NULL);
 }
 
+// Define this in the build system to
+// disable file system auto update
+#ifdef DISABLE_FS_AUTO_UPDATE
+void checkFileSys()
+{
+}
+#else
 void checkFileSys()
 {
   FirmwareInfo fwInfo = fetchLatestEspFw("fs");
@@ -701,6 +708,7 @@ void checkFileSys()
     }
   }
 }
+#endif
 
 void setup()
 {
