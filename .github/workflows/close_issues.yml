@@ -1,0 +1,62 @@
+name: Close Inactive Unlabeled Issues
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Process Inactive Issues
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get all open issues without labels
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'none',
+              per_page: 100
+            });
+
+            // Calculate cutoff date (3 weeks ago)
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 21);
+
+            for (const issue of issues) {
+              const lastUpdated = new Date(issue.updated_at);
+              
+              if (!issue.labels.length && lastUpdated <= cutoffDate) {
+                // Format date for comment
+                const formattedDate = lastUpdated.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                });
+
+                // Add closure comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🚦 **Automatic Closure**\n\n` +
+                        `This issue is being closed because:\n` +
+                        `• No labels were assigned\n` +
+                        `• No activity for more than 3 weeks (last updated: ${formattedDate})\n\n` +
+                        `_If this is still relevant, please comment to reopen._`
+                });
+
+                // Close the issue
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+
+                console.log(`Closed issue #${issue.number} with comment`);
+              }
+            }
