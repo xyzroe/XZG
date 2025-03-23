@@ -102,7 +102,8 @@
             "CC1352P2_CC2652P_launchpad_coordinator_20250321.bin": {
                 "ver": "20250321",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20250321.bin",
-                "notes": ""
+                "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
+                "notes": "115200"
             }
         },
         "CC2652P2_other": {
@@ -163,7 +164,8 @@
             "CC1352P2_CC2652P_other_coordinator_20250321.bin": {
                 "ver": "20250321",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20250321.bin",
-                "notes": ""
+                "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
+                "notes": "115200"
             }
         },
         "CC2652P7": {
@@ -206,7 +208,8 @@
             "CC1352P7_coordinator_20250321.bin": {
                 "ver": "20250321",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20250321.bin",
-                "notes": ""
+                "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
+                "notes": "115200"
             }
         },
         "CC2652RB": {
@@ -219,7 +222,7 @@
             "CC2652RB_coordinator_20240315.bin": {
                 "ver": "20240315",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652RB_coordinator_20240315.bin",
-                "notes": "",
+                "notes": "[Koenkk/Z-Stack-firmware/discussions/496](https://github.com/Koenkk/Z-Stack-firmware/discussions/496)",
                 "baud": "115200"
             }
         },
