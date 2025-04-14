@@ -278,6 +278,8 @@ bool loadFileConfigHW();
 void saveHwConfig(const ThisConfigStruct &config);
 void loadHwConfig(ThisConfigStruct &config);
 
+void writeDeviceId(SystemConfigStruct &sysConfig, VpnConfigStruct &vpnConfig, MqttConfigStruct &mqttConfig);
+
 /* Previous firmware read config support. start */
 /*
 bool loadFileSystemVar();

@@ -220,7 +220,6 @@ void loadVpnConfig(VpnConfigStruct &config)
 
     config.hnEnable = preferences.getBool(hnEnableKey, false);
     strlcpy(config.hnJoinCode, preferences.getString(hnJoinCodeKey).c_str(), sizeof(config.hnJoinCode));
-    strlcpy(config.hnHostName, preferences.getString(hnHostNameKey, String(vars.deviceId)).c_str(), sizeof(config.hnHostName));
     strlcpy(config.hnDashUrl, preferences.getString(hnDashUrlKey, "default").c_str(), sizeof(config.hnDashUrl));
 
     preferences.end();
@@ -330,7 +329,6 @@ void loadMqttConfig(MqttConfigStruct &config)
     config.port = preferences.getInt(portKey, 1883);
     strlcpy(config.user, preferences.getString(userKey, "").c_str(), sizeof(config.user));
     strlcpy(config.pass, preferences.getString(passKey, "").c_str(), sizeof(config.pass));
-    strlcpy(config.topic, preferences.getString(topicKey, String(vars.deviceId)).c_str(), sizeof(config.topic));
     // config.retain = preferences.getBool(retain, false); // If needed
     config.updateInt = preferences.getInt(updateIntKey, 60);
     config.discovery = preferences.getBool(discoveryKey, true);
@@ -378,6 +376,7 @@ void saveSystemConfig(const SystemConfigStruct &config)
     preferences.end();
 }
 
+
 void loadSystemConfig(SystemConfigStruct &config)
 {
     preferences.begin(systemConfigKey, true);
@@ -396,7 +395,6 @@ void loadSystemConfig(SystemConfigStruct &config)
     config.disableLedUSB = preferences.getBool(disableLedUSBKey, false);
     config.disableLedPwr = preferences.getBool(disableLedPwrKey, false);
     config.refreshLogs = preferences.getInt(refreshLogsKey, 2);
-    strlcpy(config.hostname, preferences.getString(hostnameKey, "XZG").c_str(), sizeof(config.hostname)); /// to do add def host name!!
     strlcpy(config.timeZone, preferences.getString(timeZoneKey, NTP_TIME_ZONE).c_str(), sizeof(config.timeZone));
     strlcpy(config.ntpServ1, preferences.getString(ntpServ1Key, NTP_SERV_1).c_str(), sizeof(config.ntpServ1));
     strlcpy(config.ntpServ2, preferences.getString(ntpServ2Key, NTP_SERV_2).c_str(), sizeof(config.ntpServ2));
@@ -416,6 +414,20 @@ void loadSystemConfig(SystemConfigStruct &config)
     config.updAutoInst = preferences.getBool(updAutoInstKey, false);
 
     preferences.end();
+}
+
+void writeDeviceId(SystemConfigStruct &sysConfig, VpnConfigStruct &vpnConfig, MqttConfigStruct &mqttConfig)
+{
+    preferences.begin(systemConfigKey, true);
+    strlcpy(sysConfig.hostname, preferences.getString(hostnameKey, String(vars.deviceId)).c_str(), sizeof(sysConfig.hostname));
+    preferences.end();
+    preferences.begin(vpnConfigKey, true);
+    strlcpy(vpnConfig.hnHostName, preferences.getString(hnHostNameKey, String(vars.deviceId)).c_str(), sizeof(vpnConfig.hnHostName));
+    preferences.end();
+    preferences.begin(mqttConfigKey, true);
+    strlcpy(mqttConfig.topic, preferences.getString(topicKey, String(vars.deviceId)).c_str(), sizeof(mqttConfig.topic));
+    preferences.end();
+    LOGD("Sysconfig hostname: %s", sysConfig.hostname);
 }
 
 /*

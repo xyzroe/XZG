@@ -320,37 +320,26 @@ void usbModeSet(usbMode mode)
   //}
 }
 
-void getDeviceID(char *arr)
+void writeDefaultDeviceId(char *arr, bool ethernet)
 {
-  uint64_t mac = ESP.getEfuseMac(); // Retrieve the MAC address
-  uint8_t a = 0;                    // Initialize variables to store the results
-  uint8_t b = 0;
+    char id_str[MAX_DEV_ID_LONG] = "XZG-";
+    const size_t id_str_len = strlen(id_str);
+    union MacAddress {
+        uint8_t bytes[8];
+        uint64_t value;
+    } mac = {};
 
-  // Apply XOR operation to each byte of the MAC address to obtain unique values for a and b
-  a ^= (mac >> (8 * 0)) & 0xFF;
-  a ^= (mac >> (8 * 1)) & 0xFF;
-  a ^= (mac >> (8 * 2)) & 0xFF;
-  a ^= (mac >> (8 * 3)) & 0xFF;
-  b ^= (mac >> (8 * 4)) & 0xFF;
-  b ^= (mac >> (8 * 5)) & 0xFF;
-
-  char buf[MAX_DEV_ID_LONG];
-
-  // Format a and b into buf as hexadecimal values, ensuring two-digit representation for each
-  sprintf(buf, "%02x%02x", a, b);
-
-  // Convert each character in buf to upper case
-  for (uint8_t cnt = 0; buf[cnt] != '\0'; cnt++)
-  {
-    buf[cnt] = toupper(buf[cnt]);
-  }
-
-  // Form the final string including the board name and the processed MAC address
-
-  // sprintf(arr, "%s-%s", hwConfig.board, buf);
-
-  String devicePref = "XZG"; // hwConfig.board
-  snprintf(arr, MAX_DEV_ID_LONG + 1, "%s-%s", devicePref.c_str(), buf);
+    if (ethernet) {
+        ETH.macAddress(mac.bytes);
+    }
+    else {
+        mac.value = ESP.getEfuseMac();
+    }
+    snprintf(&id_str[id_str_len],
+             MAX_DEV_ID_LONG - id_str_len,
+             "%02X%02X",
+             mac.bytes[4], mac.bytes[5]);
+    memcpy(arr, id_str, MAX_DEV_ID_LONG);
 }
 
 /*void writeDefaultConfig(const char *path, DynamicJsonDocument &doc)

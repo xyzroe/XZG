@@ -294,6 +294,7 @@ advanced:
 			result = `# ${i18next.t('p.zi.cfg.ss')}
 serial:
 # ${i18next.t('p.zi.cfg.lxzg')}
+  adapter: zstack
   port: tcp://${ip}:${port}
   ${mist_cfg_txt}`;
 			break;
@@ -2537,7 +2538,8 @@ let languages = [
 	{ value: "tr", text: "🇹🇷 Türkçe" },
 	{ value: "it", text: "🇮🇹 Italiano" },
 	{ value: "pl", text: "🇵🇱 Polski" },
-	{ value: "cz", text: "🇨🇿 Čeština" }
+	{ value: "cz", text: "🇨🇿 Čeština" },
+	{ value: "hu", text: "🇭🇺 Magyar" }
 ];
 
 $(document).ready(() => {

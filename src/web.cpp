@@ -19,6 +19,22 @@
 #include "zb.h"
 #include "const/zones.h"
 #include "const/keys.h"
+
+// These are all of the URLs used
+// by the backend.
+// Redefine these here, or in build system if necessary.
+#ifndef BACKEND_CUSTOM_URLS
+#define FW_UPDATE_URL_BASE "https://github.com/xyzroe/XZG/releases/download/"
+#define FW_UPDATE_URL_RELEASE_NAME "XZG_"
+#define FW_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/xzg.json"
+#define ZB_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json"
+#endif
+
+static const char *fw_update_url_base = FW_UPDATE_URL_BASE;
+static const char *fw_update_url_release_name = FW_UPDATE_URL_RELEASE_NAME;
+static const char *fw_update_release_manifest_url = FW_UPDATE_RELEASE_MANIFEST_URL;
+static const char *zb_update_release_manifest_url = ZB_UPDATE_RELEASE_MANIFEST_URL;
+
 // #include "const/hw.h"
 
 /*
@@ -271,6 +287,9 @@ void initWebServer()
                  { sendGzipFromFS("/json/pl.json.gz", contTypeJson); });
     serverWeb.on("/lg/cz.json", []()
                  { sendGzipFromFS("/json/cz.json.gz", contTypeJson); });
+    serverWeb.on("/lg/hu.json", []()
+                 { sendGzipFromFS("/json/hu.json.gz", contTypeJson); });
+                              
 
     /* ----- LANG FILES | END -----*/
     /* ----- JS and CSS FILES | START -----*/
@@ -2215,7 +2234,7 @@ FirmwareInfo fetchLatestEspFw(String type)
     {
         HTTPClient http;
         http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-        http.begin("https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/xzg.json");
+        http.begin(fw_update_release_manifest_url);
         int httpCode = http.GET();
 
         if (httpCode > 0)
@@ -2235,7 +2254,11 @@ FirmwareInfo fetchLatestEspFw(String type)
                 if (release.containsKey("version"))
                 {
                     info.version = release["version"].as<String>();
-                    info.url = "https://github.com/xyzroe/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
+                    info.url = fw_update_url_base
+                               + info.version
+                               + "/"
+                               + fw_update_url_release_name
+                               + info.version + "." + type + ".bin";
                     //info.url = "https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
                     LOGD("Latest version: %s | url %s", info.version.c_str(), info.url.c_str());
                 }
@@ -2284,7 +2307,7 @@ String fetchLatestZbFw()
 {
     // checkDNS();
     HTTPClient http;
-    http.begin("https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json");
+    http.begin(zb_update_release_manifest_url);
     int httpCode = http.GET();
 
     String browser_download_url = "";

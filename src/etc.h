@@ -26,7 +26,7 @@ void zigbeeRestart();
 
 void usbModeSet(usbMode mode);
 
-void getDeviceID(char *arr);
+void writeDefaultDeviceId(char *arr, bool ethernet);
 //void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
 
 #define TIMEOUT_FACTORY_RESET 3

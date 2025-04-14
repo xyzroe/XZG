@@ -604,12 +604,13 @@ void networkStart()
     tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
   }
   WiFi.onEvent(NetworkEvent);
-  if (networkCfg.ethEnable)
+  if (networkCfg.ethEnable){
     initLan();
+  }
   if (networkCfg.wifiEnable)
     connectWifi();
-  //}
 
+  //}
   // if (!systemCfg.disableWeb && ((systemCfg.workMode != WORK_MODE_USB) || systemCfg.keepWeb))
   //   updWeb = true; // handle web server
   if (!systemCfg.disableWeb)
@@ -662,6 +663,13 @@ void timerCallback(TimerHandle_t xTimer)
   xTaskCreate(getEspUpdateTask, "getEspUpdateTask", 8192, params, 1, NULL);
 }
 
+// Define this in the build system to
+// disable file system auto update
+#ifdef DISABLE_FS_AUTO_UPDATE
+void checkFileSys()
+{
+}
+#else
 void checkFileSys()
 {
   FirmwareInfo fwInfo = fetchLatestEspFw("fs");
@@ -700,6 +708,7 @@ void checkFileSys()
     }
   }
 }
+#endif
 
 void setup()
 {
@@ -708,8 +717,6 @@ void setup()
   // String tag = "SETUP";
 
   initNVS();
-
-  getDeviceID(vars.deviceId); // need for mqtt, vpn, mdns, wifi ap and so on
 
   loadSystemConfig(systemCfg);
   loadNetworkConfig(networkCfg);
@@ -783,6 +790,10 @@ void setup()
   vars.apStarted = false;
 
   networkStart();
+
+  writeDefaultDeviceId(vars.deviceId, networkCfg.ethEnable); // need for mqtt, vpn, mdns, wifi ap and so on
+  writeDeviceId(systemCfg, vpnCfg, mqttCfg);
+
 
   /*while (WiFi.status() != WL_CONNECTED && !vars.connectedEther)
   {

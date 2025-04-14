@@ -5,7 +5,7 @@
 EthConfig ethConfigs[] = {
     {.addr = 0, .pwrPin = 12, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT}, // .pwrAltPin = -1},  // 0 Olimex-ESP32-POE
     {.addr = 1, .pwrPin = 16, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO0_IN},   // .pwrAltPin = -1},  // 1 WT32-ETH01 / SLZB-06
-    {.addr = 0, .pwrPin = 5, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT},  // .pwrAltPin = -1},  // 2 T-Internet-POE / UZG-01 / HamGeek POE Plus
+    {.addr = 0, .pwrPin = 5, .mdcPin = 23, .mdiPin = 18, .phyType = ETH_PHY_LAN8720, .clkMode = ETH_CLOCK_GPIO17_OUT},  // .pwrAltPin = -1},  // 2 T-Internet-POE / UZG-01 / HamGeek POE Plus / WGNETZG
 };
 
 // ZigBee configurations
@@ -48,4 +48,5 @@ BrdConfigStruct brdConfigs[] = {
     {"TubesZB-poe-2023", 0, 6, 0}, // 11
     {"CZC-1.0", 2, 0, 1},          // 12
     {"HG POE Plus", 2, 0, 1},      // 13
+    {"WGNETZG", 2, 0, 1},          // 14
 };
