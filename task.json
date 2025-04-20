@@ -34,5 +34,7 @@
     {"type": "thread", "link":  "https://github.com/Koenkk/OpenThread-TexasInstruments-firmware/releases/download/2025.2.1/CC1352P7_ot_rcp_2025_2_1.zip"},
     {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403801/CC1352P2_CC2652P_launchpad_coordinator_20250321.hex.zip"},
     {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403802/CC1352P2_CC2652P_other_coordinator_20250321.hex.zip"},
-    {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403803/CC1352P7_coordinator_20250321.hex.zip"}
+    {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403803/CC1352P7_coordinator_20250321.hex.zip"},
+    {"type": "coordinator", "link": "https://github.com/arendst/Tasmota/raw/refs/heads/development/tools/fw_SonoffZigbeeBridgePro_cc2652/SonoffZBPro_coord_20240710.hex"},
+    {"type": "router", "link": "https://github.com/arendst/Tasmota/raw/refs/heads/development/tools/fw_SonoffZigbeeBridgePro_router_only_cc2652/SonoffZBPro_router_20220125.hex"}
 ]
