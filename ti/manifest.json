@@ -41,6 +41,13 @@
                 "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/XZG_20240909/router/README.md",
                 "baud": "115200"
             }
+        },
+        "SonoffZBPro_router": {
+            "SonoffZBPro_router_20220125.bin": {
+                "ver": "20220125",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
+                "notes": ""
+            }
         }
     },
     "coordinator": {
@@ -252,6 +259,13 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240315.bin",
                 "notes": "[Koenkk/Z-Stack-firmware/discussions/496](https://github.com/Koenkk/Z-Stack-firmware/discussions/496)",
                 "baud": "115200"
+            }
+        },
+        "SonoffZBPro_coord": {
+            "SonoffZBPro_coord_20240710.bin": {
+                "ver": "20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/SonoffZBPro_coord_20240710.bin",
+                "notes": ""
             }
         }
     },
