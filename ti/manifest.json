@@ -12,6 +12,12 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_RFS_sdk_5_10_00_48_20210812.bin",
                 "notes": "https://raw.githubusercontent.com/egony/cc2652p_cc1352p_RF-STAR/main/firmware/router/README.md",
                 "baud": "115200"
+            },
+            "SonoffZBPro_router_20220125.bin": {
+                "ver": "ZBPro_20220125",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
+                "notes": "Only for SonoffZBPro",
+                "baud": "115200"
             }
         },
         "CC2652P2_other": {
@@ -40,13 +46,6 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20221102_20dbm_20240909.bin",
                 "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/XZG_20240909/router/README.md",
                 "baud": "115200"
-            }
-        },
-        "SonoffZBPro_router": {
-            "SonoffZBPro_router_20220125.bin": {
-                "ver": "20220125",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
-                "notes": ""
             }
         }
     },
@@ -111,6 +110,12 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_patched_460800_20221226.bin",
                 "notes": "https://raw.githubusercontent.com/Andrik45719/Z-Stack-firmware/main/README.md",
                 "baud": "460800"
+            },
+            "SonoffZBPro_coord_20240710.bin": {
+                "ver": "ZBPro_20240710",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/SonoffZBPro_coord_20240710.bin",
+                "notes": "Only for SonoffZBPro",
+                "baud": "115200"
             }
         },
         "CC2652P2_other": {
@@ -259,13 +264,6 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240315.bin",
                 "notes": "[Koenkk/Z-Stack-firmware/discussions/496](https://github.com/Koenkk/Z-Stack-firmware/discussions/496)",
                 "baud": "115200"
-            }
-        },
-        "SonoffZBPro_coord": {
-            "SonoffZBPro_coord_20240710.bin": {
-                "ver": "20240710",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/SonoffZBPro_coord_20240710.bin",
-                "notes": ""
             }
         }
     },
