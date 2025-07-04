@@ -52,7 +52,8 @@
             "SonoffZBPro_router_20220125.bin": {
                 "ver": "20220125",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         }
     },
@@ -277,7 +278,8 @@
             "SonoffZBPro_coord_20240710.bin": {
                 "ver": "20240710",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/SonoffZBPro_coord_20240710.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         }
     },
@@ -304,7 +306,8 @@
             "CC1352P2_CC2652P_launchpad_ot_rcp_2025_3_1_20250313.bin": {
                 "ver": "20250313",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_launchpad_ot_rcp_2025_3_1_20250313.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_launchpad_ot_rcp_2025_2_1_20250203.bin": {
                 "ver": "20250203",
@@ -316,7 +319,8 @@
             "CC1352P2_CC2652P_other_ot_rcp_2025_3_1_20250313.bin": {
                 "ver": "20250313",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P2_CC2652P_other_ot_rcp_2025_3_1_20250313.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             },
             "CC1352P2_CC2652P_other_ot_rcp_2025_2_1_20250203.bin": {
                 "ver": "20250203",
@@ -333,7 +337,8 @@
             "CC1352P7_ot_rcp_2025_3_1_20250313.bin": {
                 "ver": "20250313",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P7_ot_rcp_2025_3_1_20250313.bin",
-                "notes": ""
+                "notes": "",
+                "baud": "115200"
             }
         }
     }
