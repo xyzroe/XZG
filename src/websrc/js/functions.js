@@ -278,11 +278,11 @@ function copyCode() {
 function generateConfig(params) {
 	let result;
 	const mist_cfg_txt = `baudrate: ${$("#baud").val()}
-# ${i18next.t('p.zi.cfg.dzl')}
-	disable_led: false
-# ${i18next.t('p.zi.cfg.sopm')}
+  # ${i18next.t('p.zi.cfg.dzl')}
+  disable_led: false
 advanced:
-	transmit_power: 20`;
+  # ${i18next.t('p.zi.cfg.sopm')}
+  transmit_power: 20`;
 	const ip = window.location.host;
 	const port = $("#port").val();
 	if (ip == "192.168.1.1") $("#apAlert").removeClass(classHide);
@@ -293,7 +293,7 @@ advanced:
 		case "z2m":
 			result = `# ${i18next.t('p.zi.cfg.ss')}
 serial:
-# ${i18next.t('p.zi.cfg.lxzg')}
+  # ${i18next.t('p.zi.cfg.lxzg')}
   adapter: zstack
   port: tcp://${ip}:${port}
   ${mist_cfg_txt}`;
@@ -303,7 +303,7 @@ serial:
 # ${i18next.t('p.zi.cfg.lin')}
 # ${i18next.t('p.zi.cfg.ss')}
 serial:
-# ${i18next.t('p.zi.cfg.lxzg')}
+  # ${i18next.t('p.zi.cfg.lxzg')}
   port: ${i18next.t('p.zi.cfg.dp')}
   ${mist_cfg_txt}`;
 			break;
