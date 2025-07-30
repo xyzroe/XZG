@@ -22,7 +22,8 @@
             "CC1352P2_CC2652P_launchpad_router_20250403.bin": {
                 "ver": "20250403",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_launchpad_router_20250403.bin",
-                "notes": ""
+                "notes": "Updated SimpleLink SDK to 8.30.01.01",
+                "baud": "115200"
             }
         },
         "CC2652P2_other": {
@@ -41,7 +42,8 @@
             "CC1352P2_CC2652P_other_router_20250403.bin": {
                 "ver": "20250403",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_other_router_20250403.bin",
-                "notes": ""
+                "notes": "Updated SimpleLink SDK to 8.30.01.01",
+                "baud": "115200"
             }
         },
         "CC2652P7": {
@@ -60,14 +62,7 @@
             "CC1352P7_router_20250403.bin": {
                 "ver": "20250403",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20250403.bin",
-                "notes": ""
-            }
-        },
-        "SonoffZBPro_router": {
-            "SonoffZBPro_router_20220125.bin": {
-                "ver": "20220125",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
-                "notes": "",
+                "notes": "Updated SimpleLink SDK to 8.30.01.01",
                 "baud": "115200"
             }
         },
@@ -75,7 +70,8 @@
             "CC2652RB_router_20250403.bin": {
                 "ver": "20250403",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC2652RB_router_20250403.bin",
-                "notes": ""
+                "notes": "Updated SimpleLink SDK to 8.30.01.01",
+                "baud": "115200"
             }
         }
     },
@@ -268,7 +264,7 @@
                 "baud": "115200"
             }
         },
-        "CC2652R7_coordinator": {
+        "CC2652R7": {
             "CC2652R7_coordinator_20240710.bin": {
                 "ver": "20240710",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R7_coordinator_20240710.bin",
@@ -282,7 +278,7 @@
                 "baud": "115200"
             }
         },
-        "CC2652R_coordinator": {
+        "CC2652R": {
             "CC2652R_coordinator_20240710.bin": {
                 "ver": "20240710",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC2652R_coordinator_20240710.bin",
@@ -296,14 +292,6 @@
                 "baud": "115200"
             }
         },
-        "SonoffZBPro_coord": {
-            "SonoffZBPro_coord_20240710.bin": {
-                "ver": "20240710",
-                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/SonoffZBPro_coord_20240710.bin",
-                "notes": "",
-                "baud": "115200"
-            }
-        }
     },
     "thread": {
         "CC2652P2_launchpad": {
