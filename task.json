@@ -36,5 +36,9 @@
     {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403802/CC1352P2_CC2652P_other_coordinator_20250321.hex.zip"},
     {"type": "coordinator", "link": "https://github.com/user-attachments/files/19403803/CC1352P7_coordinator_20250321.hex.zip"},
     {"type": "coordinator", "link": "https://github.com/arendst/Tasmota/raw/refs/heads/development/tools/fw_SonoffZigbeeBridgePro_cc2652/SonoffZBPro_coord_20240710.hex"},
-    {"type": "router", "link": "https://github.com/arendst/Tasmota/raw/refs/heads/development/tools/fw_SonoffZigbeeBridgePro_router_only_cc2652/SonoffZBPro_router_20220125.hex"}
+    {"type": "router", "link": "https://github.com/arendst/Tasmota/raw/refs/heads/development/tools/fw_SonoffZigbeeBridgePro_router_only_cc2652/SonoffZBPro_router_20220125.hex"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/releases/download/Z-Stack_3.x.0_router_20250403/CC1352P2_CC2652P_launchpad_router_20250403.zip"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/releases/download/Z-Stack_3.x.0_router_20250403/CC1352P2_CC2652P_other_router_20250403.zip"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/releases/download/Z-Stack_3.x.0_router_20250403/CC1352P7_router_20250403.zip"},
+    {"type": "router", "link": "https://github.com/Koenkk/Z-Stack-firmware/releases/download/Z-Stack_3.x.0_router_20250403/CC2652RB_router_20250403.zip"}
 ]
