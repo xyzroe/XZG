@@ -18,6 +18,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
                 "notes": "Only for SonoffZBPro",
                 "baud": "115200"
+            },
+            "CC1352P2_CC2652P_launchpad_router_20250403.bin": {
+                "ver": "20250403",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_launchpad_router_20250403.bin",
+                "notes": ""
             }
         },
         "CC2652P2_other": {
@@ -32,6 +37,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/router_CC2652P_E72_sdk_5_10_00_48_20210812.bin",
                 "notes": "https://raw.githubusercontent.com/egony/cc2652p_E72-2G4M20S1E/master/firmware/router/README.md",
                 "baud": "115200"
+            },
+            "CC1352P2_CC2652P_other_router_20250403.bin": {
+                "ver": "20250403",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P2_CC2652P_other_router_20250403.bin",
+                "notes": ""
             }
         },
         "CC2652P7": {
@@ -46,6 +56,11 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20221102_20dbm_20240909.bin",
                 "notes": "https://raw.githubusercontent.com/agriadsi/MOD-Z-Stack-Firmware/XZG_20240909/router/README.md",
                 "baud": "115200"
+            },
+            "CC1352P7_router_20250403.bin": {
+                "ver": "20250403",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC1352P7_router_20250403.bin",
+                "notes": ""
             }
         },
         "SonoffZBPro_router": {
@@ -54,6 +69,13 @@
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/SonoffZBPro_router_20220125.bin",
                 "notes": "",
                 "baud": "115200"
+            }
+        },
+        "CC2652RB": {
+            "CC2652RB_router_20250403.bin": {
+                "ver": "20250403",
+                "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/router/CC2652RB_router_20250403.bin",
+                "notes": ""
             }
         }
     },
@@ -319,7 +341,6 @@
             }
         },
         "CC2652P7": {
-            
             "CC1352P7_ot_rcp_2025_3_1_20250313.bin": {
                 "ver": "20250313",
                 "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/thread/CC1352P7_ot_rcp_2025_3_1_20250313.bin",
