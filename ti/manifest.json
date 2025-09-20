@@ -84,7 +84,7 @@
             "baud": "115200"
          },
          "CC1352P2_CC2652P_launchpad_coordinator_20250321.bin": {
-            "ver": "Beta_20250321",
+            "ver": "20250321",
             "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_launchpad_coordinator_20250321.bin",
             "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
             "baud": "115200"
@@ -152,7 +152,7 @@
             "baud": "115200"
          },
          "CC1352P2_CC2652P_other_coordinator_20250321.bin": {
-            "ver": "Beta_20250321",
+            "ver": "20250321",
             "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P2_CC2652P_other_coordinator_20250321.bin",
             "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
             "baud": "115200"
@@ -214,7 +214,7 @@
             "baud": "115200"
          },
          "CC1352P7_coordinator_20250321.bin": {
-            "ver": "Beta_20250321",
+            "ver": "20250321",
             "link": "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20250321.bin",
             "notes": "[Koenkk/Z-Stack-firmware/discussions/545](https://github.com/Koenkk/Z-Stack-firmware/discussions/545)",
             "baud": "115200"
