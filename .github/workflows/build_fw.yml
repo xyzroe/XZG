@@ -59,13 +59,19 @@ jobs:
       - name: Build PlatformIO Project
         run: pio run
 
-      - name: Get last commit message
+      # Release notes: message of an annotated tag, otherwise body of the tagged commit
+      - name: Get release notes
         id: get_commit_message
         run: |
           currentTag=${{ steps.get_tag.outputs.tag }}
           badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)"
           printf -v badgeTextWithNewlines "%s\n\n" "$badgeText" 
-          commitMessage=$(git log -1 --pretty=%B | tail -n +2)
+          git fetch --force origin "refs/tags/${currentTag}:refs/tags/${currentTag}"
+          if [ "$(git cat-file -t "refs/tags/${currentTag}")" = "tag" ]; then
+            commitMessage=$(git tag -l --format='%(contents)' "${currentTag}")
+          else
+            commitMessage=$(git log -1 --pretty=%B | tail -n +2)
+          fi
           fullCommitMessage="${badgeTextWithNewlines}${commitMessage}"
           echo "releaseMessage<<EOF" >> $GITHUB_ENV
           printf "%s\n" "$fullCommitMessage" >> $GITHUB_ENV 
@@ -172,21 +178,3 @@ jobs:
           else
             echo "No changes to commit"
           fi
-
-      - name: Send Telegram Notification about release
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ${{ env.commitMessage }}
-
-            [${{ steps.get_tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }})
-
-      - name: Send Discord Notification about release
-        run: |
-          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
-          curl -H "Content-Type: application/json" \
-              -d "$json_payload" \
-              ${{ secrets.DISCORD_WEBHOOK }}

@@ -1,0 +1,66 @@
+name: Notify about release
+
+# Manual run: sends Telegram and Discord notifications in parallel.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (empty = latest release, including pre-releases)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  release_info:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.info.outputs.tag }}
+      notes: ${{ steps.info.outputs.notes }}
+    steps:
+      - name: Get release tag and notes
+        id: info
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -z "$TAG" ]; then
+            TAG=$(gh release list -R "${{ github.repository }}" -L 1 --json tagName -q '.[0].tagName')
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # release body without the downloads badge line
+          notes=$(gh release view "$TAG" -R "${{ github.repository }}" --json body -q .body | grep -v 'img.shields.io')
+          {
+            echo "notes<<EOF_NOTES"
+            printf "%s\n" "$notes"
+            echo "EOF_NOTES"
+          } >> "$GITHUB_OUTPUT"
+          echo "Tag: $TAG"
+
+  telegram:
+    needs: release_info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ${{ needs.release_info.outputs.notes }}
+
+            [${{ needs.release_info.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ needs.release_info.outputs.tag }})
+
+  discord:
+    needs: release_info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          URL: https://github.com/${{ github.repository }}/releases/tag/${{ needs.release_info.outputs.tag }}
+        run: |
+          json_payload=$(jq -n --arg content "$URL" '{content: $content}')
+          curl --fail-with-body -H "Content-Type: application/json" -d "$json_payload" "$WEBHOOK"
