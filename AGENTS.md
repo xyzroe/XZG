@@ -7,9 +7,6 @@ XZG — Zigbee/serial gateway firmware for ESP32 boards with a TI CC26xx/CC2652 
 Olimex, …). Arduino framework, PlatformIO. Upstream: `git@github.com:xyzroe/XZG.git` (branch `main`).
 Sibling repo `../XZG_esp-idf` is a local-only plain ESP-IDF rewrite (see its `AGENTS.md`, `docs/PORT_SCOPE.md`).
 
-**Test hardware** (devices, IPs, serial ports, flash + health check, serial/HTTP helper scripts) is shared:
-**[../XZG_esp-idf/docs/TESTBENCH.md](../XZG_esp-idf/docs/TESTBENCH.md)**. Helper scripts live in `../XZG_esp-idf/tools/test/`.
-
 ## Environment (macOS, Apple Silicon)
 - Everything must run **native arm64**. `/usr/local/bin` is Intel Homebrew (x86_64); avoid tools from there for new installs.
 - PlatformIO: use `~/.platformio/penv/bin/pio` (arm64). `/usr/local/bin/pio` is broken (points to python2.7).
