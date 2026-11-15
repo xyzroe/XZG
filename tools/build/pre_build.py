@@ -48,3 +48,11 @@ else:
 
 
 create_header_file(KEYS_CPP, KEYS_H)
+
+
+platform = env.PioPlatform()
+env.Append(
+    CPPDEFINES=[
+        ("PLATFORM_NAME", env.StringifyMacro(f"{platform.name}@{platform.version}"))
+    ]
+)

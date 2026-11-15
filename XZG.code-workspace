@@ -1,4 +1,5 @@
 {
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"folders": [
 		{
 			"path": "."

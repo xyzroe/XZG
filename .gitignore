@@ -16,3 +16,7 @@ managed_components
 old?
 data/*
 /tools/webfilesbuilder/.npm_install_marker*
+# Tasmota/pioarduino hybrid compile artifacts
+.dummy/
+/build/
+sdkconfig.*

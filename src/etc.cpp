@@ -186,6 +186,7 @@ float get1wire()
     LOGW("1w not connected");
   }
 
+
   return vars.temp1w;
 }
 
@@ -454,6 +455,7 @@ void setClock(void *pvParameters)
     }
 
     setupCron();
+
   }
   else
   {
@@ -757,6 +759,11 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
       bestConfig.eth = ethConfigs[ethIdx];
       LOGD("Ethernet config OK: %d", ethIdx);
     }
+    else
+    {
+      ethOk = false;
+      LOGD("Ethernet config ERROR: %d", ethIdx);
+    }
 
     if (mistConfigs[mistIdx].btnPin > 0)
     {
@@ -788,7 +795,7 @@ ThisConfigStruct *findBrdConfig(int searchId = 0)
       btnOk = true;
     }
 
-    if (btnOk)
+    if (btnOk && ethOk)
     {
       LOGD("Trying Zigbee: %d", zbIdx);
       esp_task_wdt_reset();

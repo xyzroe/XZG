@@ -32,10 +32,13 @@ def after_build(source, target, env):
     for f in glob("bin/XZG_*.bin"):
         os.unlink(f)
 
-    exit_code = call(
-        "python tools/build/merge_bin_esp.py --output_folder ./bin --output_name XZG.full.bin --bin_path bin/bootloader_dio_40m.bin bin/partitions.bin bin/firmware.bin bin/XZG.fs.bin --bin_address 0x1000 0x8000 0x10000 0x290000",
-        shell=True,
-    )
+    # Short build (tools/.no_web_update) produces no FS image, so only OTA bin is created
+    has_fs = os.path.exists("bin/XZG.fs.bin")
+    if has_fs:
+        exit_code = call(
+            "python tools/build/merge_bin_esp.py --output_folder ./bin --output_name XZG.full.bin --bin_path bin/bootloader_dio_40m.bin bin/partitions.bin bin/firmware.bin bin/XZG.fs.bin --bin_address 0x1000 0x8000 0x10000 0x290000",
+            shell=True,
+        )
 
     VERSION_FILE = "src/" + VERSION_HEADER
     
@@ -51,15 +54,20 @@ def after_build(source, target, env):
     NEW_NAME_OTA = NEW_NAME_BASE + ".ota.bin"
     NEW_NAME_FS = NEW_NAME_BASE + ".fs.bin"
 
-    shutil.move("bin/XZG.full.bin", NEW_NAME_FULL)
     shutil.move("bin/firmware.bin", NEW_NAME_OTA)
-    shutil.move("bin/XZG.fs.bin", NEW_NAME_FS)
+    if has_fs:
+        shutil.move("bin/XZG.full.bin", NEW_NAME_FULL)
+        shutil.move("bin/XZG.fs.bin", NEW_NAME_FS)
 
     print("")
     print_colored("--------------------------------------", "yellow")
-    print_colored("{} created !".format(str(NEW_NAME_FULL)), "blue")
+    if has_fs:
+        print_colored("{} created !".format(str(NEW_NAME_FULL)), "blue")
     print_colored("{} created !".format(str(NEW_NAME_OTA)), "magenta")
-    print_colored("{} created !".format(str(NEW_NAME_FS)), "green")
+    if has_fs:
+        print_colored("{} created !".format(str(NEW_NAME_FS)), "green")
+    else:
+        print_colored("No FS image (web build skipped), full/fs bins not created", "yellow")
     print_colored("--------------------------------------", "yellow")
     print_logo()
     print_colored("Build " + VERSION_NUMBER, "cyan")
