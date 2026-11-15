@@ -17,7 +17,7 @@ Sibling repo `../XZG_esp-idf` is a local-only plain ESP-IDF rewrite (see its `AG
 ## Build
 CI (`.github/workflows/build_fw.yml` on tag, `test_build_fw.yml` on PR) = Python 3.12, Node 18,
 `pip install platformio==6.2.0 && pio run` (default env `prod-dual`). Releases: push a tag `YYYYMMDD`; the workflow
-builds, publishes a **pre-release** (notes = message of an annotated tag `git tag -a YYYYMMDD -F notes.md`, else body of
+builds, publishes a **pre-release** (notes = message of an annotated tag `git tag -a --cleanup=verbatim YYYYMMDD -F notes.md` — verbatim keeps markdown `#` headers, else body of
 the tagged commit), copies full.bin to the `releases` branch and updates `releases/latest/xzg.json` (devices' update check).
 Notifications are separate: run `Notify about release` (`notify_release.yml`, manual, Telegram + Discord in parallel).
 Releases must be built by Actions only. Local equivalent of the build:
