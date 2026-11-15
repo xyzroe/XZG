@@ -632,39 +632,44 @@ void mqttPublishUpdate(const String &chip, bool instState)
 
 void mqttPublishState()
 {
-    if (!vars.zbFlashing)
+    if (mqttClient.connected())
     {
-        static DynamicJsonDocument buffJson(512);
-        static String mqttBuffer;
-
-        buffJson.clear();
-        for (const auto &item : mqttTopicsConfigs)
+        if (!vars.zbFlashing)
         {
-            if (item.sensorId != "temperature1w" || vars.oneWireIs)
+            static DynamicJsonDocument buffJson(512);
+            static String mqttBuffer;
+
+            buffJson.clear();
+            for (const auto &item : mqttTopicsConfigs)
             {
-                if (item.getSensorValue != nullptr)
+                if (item.sensorId != "temperature1w" || vars.oneWireIs)
                 {
-                    String sensorValue = item.getSensorValue();
-                    if (sensorValue.length() > 0)
+                    if (item.getSensorValue != nullptr)
                     {
-                        buffJson[item.sensorId] = sensorValue;
+                        String sensorValue = item.getSensorValue();
+                        if (sensorValue.length() > 0)
+                        {
+                            buffJson[item.sensorId] = sensorValue;
+                        }
                     }
                 }
             }
+            String topic = mqttCfg.topic + String(stateTopic);
+            serializeJson(buffJson, mqttBuffer);
+
+            buffJson.clear();
+
+            LOGD("%s", mqttBuffer.c_str());
+
+            mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
+
+            topic.clear();
+            mqttBuffer.clear();
         }
-        String topic = mqttCfg.topic + String(stateTopic);
-        serializeJson(buffJson, mqttBuffer);
-
-        LOGD("%s", mqttBuffer.c_str());
-
-        mqttClient.publish(topic.c_str(), 0, true, mqttBuffer.c_str());
-
-        topic.clear();
-        mqttBuffer.clear();
-    }
-    else
-    {
-        LOGD("only after ZB flash");
+        else
+        {
+            LOGD("only after ZB flash");
+        }
     }
     xTimerStart(mqttPubStateTimer, 0);
 }

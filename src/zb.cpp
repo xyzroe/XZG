@@ -5,7 +5,6 @@
 #include <LittleFS.h>
 #include <ETH.h>
 #include <HTTPClient.h>
-
 // #include <WiFiClientSecure.h>
 #include <esp_task_wdt.h>
 #include <CCTools.h>
@@ -316,6 +315,8 @@ void flashZbUrl(String url)
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
 {
     HTTPClient http;
+    //WiFiClientSecure client;
+   
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
 
     int loadedSize = 0;
@@ -341,6 +342,7 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
             printLogMsg("Erase completed!");
         }
 
+        //http.begin(client, url);
         http.begin(url);
         http.addHeader("Content-Type", "application/octet-stream");
 

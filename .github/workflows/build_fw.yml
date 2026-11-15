@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "recursive"
           fetch-depth: 0
@@ -37,11 +37,11 @@ jobs:
         run: cat src/version.h
 
       - name: Install Node JS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
@@ -49,12 +49,12 @@ jobs:
           key: ${{ runner.os }}-pio
 
       - name: Install Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio==6.1.15
+        run: pip install --upgrade platformio==6.2.0
 
       - name: Build PlatformIO Project
         run: pio run
@@ -100,11 +100,11 @@ jobs:
 
       - name: Get the latest commit SHA for the whole project
         id: get_fw_commit_sha
-        run: echo "::set-output name=fw_commit_sha::$(git log -n 1 --pretty=format:%h)"
+        run: echo "fw_commit_sha=$(git log -n 1 --pretty=format:%h)" >> $GITHUB_OUTPUT
   
       - name: Get the latest commit SHA in src/websrc
         id: get_fs_commit_sha
-        run: echo "::set-output name=fs_commit_sha::$(git log -n 1 --pretty=format:%h -- src/websrc)"
+        run: echo "fs_commit_sha=$(git log -n 1 --pretty=format:%h -- src/websrc)" >> $GITHUB_OUTPUT
   
       - name: Create xzg.json for firmware update
         run: |
@@ -122,9 +122,10 @@ jobs:
         run: cat xzg.json
         
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: false
+          prerelease: true
           name: "${{ steps.get_tag.outputs.tag }}"
           body: ${{ env.releaseMessage }}
           files: |
@@ -133,7 +134,7 @@ jobs:
             bin/XZG_${{ steps.get_tag.outputs.tag }}.fs.bin
 
       - name: Checkout releases branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: releases
           path: releases
