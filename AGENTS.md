@@ -15,8 +15,11 @@ Sibling repo `../XZG_esp-idf` is a local-only plain ESP-IDF rewrite (see its `AG
 - Submodule `lib/WireGuard` is required: `git submodule update --init --recursive`.
 
 ## Build
-CI (`.github/workflows/build_fw.yml` on tag, `test_build_fw.yml` on PR) = `pip install platformio==6.1.15 && pio run`
-(default env `prod-dual`). Local equivalent:
+CI (`.github/workflows/build_fw.yml` on tag, `test_build_fw.yml` on PR) = Python 3.12, Node 18,
+`pip install platformio==6.2.0 && pio run` (default env `prod-dual`). Releases: push a tag `YYYYMMDD`; the workflow
+builds, publishes a **pre-release** (notes = body of the last commit message), copies full.bin to the `releases`
+branch and updates `releases/latest/xzg.json` (devices' update check), then notifies Telegram/Discord.
+Releases must be built by Actions only. Local equivalent of the build:
 ```bash
 export PATH=$HOME/.nvm/versions/node/v18.17.0/bin:$PATH
 ~/.platformio/penv/bin/pio run -e prod-dual
